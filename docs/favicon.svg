@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="AI for Research">
+  <style>
+    .tile { fill: #F3EFE3; }
+    .bar  { fill: #1F4E9B; }
+    .bar-accent { fill: #E0A526; }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: #14161C; }
+      .bar  { fill: #3D6FCB; }
+      .bar-accent { fill: #E8B23E; }
+    }
+  </style>
+  <rect class="tile" width="32" height="32" rx="7"/>
+  <rect class="bar"        x="4"  y="19" width="4" height="8"  rx="1.5"/>
+  <rect class="bar"        x="11" y="15" width="4" height="12" rx="1.5"/>
+  <rect class="bar"        x="18" y="11" width="4" height="16" rx="1.5"/>
+  <rect class="bar-accent" x="25" y="7"  width="4" height="20" rx="1.5"/>
+</svg>

@@ -31,7 +31,7 @@
   .brand{display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit; white-space:nowrap}
   .brand .mark{font-size:15px; letter-spacing:.26em; color:var(--cobalt)} .brand .mark b{color:var(--gold); font-weight:inherit}
   .brand .name{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:21px; letter-spacing:.01em}
-  .menu{display:flex; align-items:center; gap:26px; font-size:17px; flex-wrap:wrap; justify-content:flex-end}
+  .menu{display:flex; align-items:center; gap:26px; font-size:19px; flex-wrap:wrap; justify-content:flex-end}
   .menu a{color:var(--grey); text-decoration:none; padding:4px 0}
   .menu a:hover{color:var(--cobalt)}
   .menu a.ext::after{content:" ↗"; font-size:.85em; opacity:.7}
@@ -82,24 +82,23 @@
 </div></nav>
 
 <header class="hero"><div class="wrap">
-  <p class="kicker">Steven Denney</p>
   <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
   <h1>AI for Research</h1>
-  <p class="lede">Demos, lecture slides, and how-to guides for working with AI agents and skills, not chatbots, in empirical social science.</p>
+  <p class="lede">Demos, lecture slides, and how-to guides for working with AI agents and skills.</p>
   <p class="sub">For students and colleagues who want to use this material in their own teaching · companion to the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> toolkit · maintained by <a href="https://scdenney.net">Steven Denney</a></p>
 </div></header>
 
 <main class="wrap">
   <section id="getting-started">
     <h2>Getting started <span class="tag">start here</span></h2>
-    <p>Set up Claude Code, the command-line AI tool that runs the skills, then add the Open Science Skills. Two installs and you are ready.</p>
-    <pre><code># 1. Install Claude Code (the agentic CLI). Docs: code.claude.com/docs
-npm install -g @anthropic-ai/claude-code
-
-# 2. Add the Open Science Skills
-claude plugin marketplace add scdenney/open-science-skills
-claude plugin install oss@open-science-skills</code></pre>
-    <p>Open Claude Code inside a project folder and the skills are ready to call. Then work through the demo below.</p>
+    <p>New to this? Setup is a one-time thing. Install Claude Code, add the Open Science Skills, and point it at a project. The walkthrough takes it step by step, with nothing assumed.</p>
+    <div class="cards">
+      <a class="card" href="getting-started/">
+        <h3>Set up Claude Code and the skills <span class="go">→</span></h3>
+        <p>Install the command-line AI tool that runs the skills, sign in, add the Open Science Skills, and confirm they loaded. About five minutes, no prior setup assumed.</p>
+        <div class="meta">step-by-step</div>
+      </a>
+    </div>
   </section>
 
   <section id="demos">

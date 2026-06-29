@@ -50,6 +50,9 @@
   .step .body{flex:1; min-width:0}
   .step h2{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:25px; margin:.1em 0 .3em}
   .step h2 .opt{font:600 12px/1 -apple-system,sans-serif; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); margin-left:.5em; vertical-align:middle}
+  .lead{padding:18px 0 24px; border-bottom:1px solid var(--line)}
+  .lead h2{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:25px; margin:.1em 0 .35em}
+  .lead p{margin:.7em 0}
   pre{background:var(--paper-2); border:1px solid var(--line); border-radius:10px; padding:14px 16px; overflow:auto; margin:.9em 0}
   pre code{background:none; padding:0; font-size:13.5px; line-height:1.7}
   code{font:14px/1.5 Menlo,"SF Mono",ui-monospace,monospace; background:var(--paper-2); padding:.12em .4em; border-radius:4px}
@@ -93,12 +96,10 @@
 
 <main class="wrap">
 
-  <div class="step">
-    <div class="n">·</div>
-    <div class="body">
-      <h2>Overview</h2>
-      <p>You need a terminal and a Claude account. Everything below runs in the terminal and takes about five minutes. You install Claude Code, add the Open Science Skills, then run the checks on your own files.</p>
-    </div>
+  <div class="lead">
+    <h2>Overview</h2>
+    <p>The aim is a setup where an AI agent reads the files in a folder and runs reusable checks over them, instead of a chat window you paste into. You install Claude Code, add the Open Science Skills, and point it at a project. After that, checking a reference list, or testing whether a source supports a claim, is a single command.</p>
+    <p>These instructions use the terminal, which is the simplest way in. You can also run Claude Code in an <a href="https://code.claude.com/docs">editor like VS Code or JetBrains</a>, or through the <a href="https://claude.ai/code">web and desktop apps</a>. The steps below assume the terminal.</p>
   </div>
 
   <div class="step">
@@ -162,7 +163,7 @@ claude</code></pre>
 
   <a class="next" href="../reference-check/">
     <h3>Next: the reference-check demo →</h3>
-    <p>Run both checks end to end on a tiny project seeded with planted errors, and see what each one catches.</p>
+    <p>Run both checks end to end on a small sample project seeded with planted errors, and see what each one catches.</p>
   </a>
 
 </main>

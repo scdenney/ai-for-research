@@ -104,8 +104,7 @@
   <section id="motivation">
     <h2>Motivation</h2>
     <p>Two things go wrong with citations. A citation can point to a source that does not exist. Or it can point to a real source that does not say what you claim.</p>
-    <p>This demo catches both, on a tiny manuscript with planted errors. The two checks need different things. The <strong>reference check</strong> works against your reference list alone. The <strong>source-claim check</strong> also needs the sources themselves, kept as a small local knowledge base.</p>
-    <div class="rule"><b>One rule.</b> Every flag is something to go check yourself, not a verdict to publish.</div>
+    <p>This demo catches both, on a short sample article with planted errors. The two checks need different things. The <strong>reference check</strong> works against your reference list alone. The <strong>source-claim check</strong> also needs the sources themselves, kept as a small local knowledge base.</p>
   </section>
 
   <section id="setup">
@@ -142,12 +141,13 @@ cd ai-for-research/demos/reference-check</code></pre>
       <tr><td>"a modest, short-lived rise in youth turnout"</td><td><span class="verdict v-ok">Supported</span></td></tr>
     </table>
     <p>A citation can be real, well-formed, and resolve cleanly, and still be attached to a claim its source never makes. Only reading the source catches that.</p>
+    <p>Building this knowledge base is worth the effort, and the <a href="https://github.com/scdenney/open-science-skills/tree/main/plugin/skills/research-repo"><code>research-repo</code></a> skill sets up the folder structure for you. When a source will not convert cleanly from PDF to Markdown, such as a book or another hard-to-get work, write a short Markdown file that summarizes it faithfully. The checker reads that just as well.</p>
   </section>
 
   <section id="by-hand">
     <h2>Check by hand</h2>
-    <p>The reports are where to start looking, not the last word. Open the source a report quotes and read it. A "likely fabricated" label can be a real paper the tool could not reach. A "causes" that should read "is associated with" is a one-word fix only you can make.</p>
-    <p>Every planted error is listed in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/reference-check/sample-project/ANSWER-KEY.md">ANSWER-KEY.md</a>. Then try breaking it: add a real reference and watch it verify, fix a claim and watch <span class="verdict v-bad" style="font-size:10px;padding:.2em .4em">Contradicted</span> turn to <span class="verdict v-ok" style="font-size:10px;padding:.2em .4em">Supported</span>, or delete a source file and watch the source-claim check refuse to run.</p>
+    <p>Start with the reports, but check their findings yourself. Open and read each source a report quotes. A "likely fabricated" label can be a real paper the tool could not reach. And whether a "causes" should become "is associated with" is a judgment only you can make.</p>
+    <p>Every planted error is listed in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/reference-check/sample-project/ANSWER-KEY.md">ANSWER-KEY.md</a>. Then test the tool. Add a real reference and check that it verifies. Fix a claim and check that <span class="verdict v-bad" style="font-size:10px;padding:.2em .4em">Contradicted</span> turns to <span class="verdict v-ok" style="font-size:10px;padding:.2em .4em">Supported</span>. Delete a source file and check that the source-claim check refuses to run.</p>
   </section>
 </main>
 

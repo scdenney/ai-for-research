@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI for Research — demos, slides, and guides</title>
-<meta name="description" content="Demos, lecture slides, and how-to guides for working with AI agents and skills in empirical social science. For students and faculty.">
+<meta name="description" content="Demos, lecture slides, and a setup walkthrough for working with AI agents and skills in empirical social science.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -27,11 +27,11 @@
 
   /* top menu bar */
   .nav{position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:saturate(160%) blur(10px); border-bottom:1px solid var(--line)}
-  .nav .row{max-width:var(--maxw); margin:0 auto; padding:11px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px}
+  .nav .row{max-width:var(--maxw); margin:0 auto; padding:13px 24px; display:flex; align-items:center; justify-content:space-between; gap:18px}
   .brand{display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit; white-space:nowrap}
-  .brand .mark{font-size:14px; letter-spacing:.26em; color:var(--cobalt)} .brand .mark b{color:var(--gold); font-weight:inherit}
-  .brand .name{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:19px; letter-spacing:.01em}
-  .menu{display:flex; align-items:center; gap:22px; font-size:15px; flex-wrap:wrap; justify-content:flex-end}
+  .brand .mark{font-size:15px; letter-spacing:.26em; color:var(--cobalt)} .brand .mark b{color:var(--gold); font-weight:inherit}
+  .brand .name{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:21px; letter-spacing:.01em}
+  .menu{display:flex; align-items:center; gap:26px; font-size:17px; flex-wrap:wrap; justify-content:flex-end}
   .menu a{color:var(--grey); text-decoration:none; padding:4px 0}
   .menu a:hover{color:var(--cobalt)}
   .menu a.ext::after{content:" ↗"; font-size:.85em; opacity:.7}
@@ -45,20 +45,23 @@
   .sub a{color:var(--cobalt); text-decoration:none}
 
   main{padding:6px 0 50px}
-  section{padding:34px 0 10px; border-top:1px solid var(--line)}
+  section{padding:34px 0 12px; border-top:1px solid var(--line)}
   section:first-of-type{border-top:0}
-  h2{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:31px; margin:.1em 0 .15em; scroll-margin-top:64px}
-  h2 .tag{font:600 12px/1 -apple-system,sans-serif; letter-spacing:.08em; text-transform:uppercase; color:var(--grey); vertical-align:middle; margin-left:.6em}
+  h2{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:32px; margin:.1em 0 .15em; scroll-margin-top:70px}
+  h2 .tag{font:600 13.5px/1 -apple-system,sans-serif; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); vertical-align:middle; margin-left:.7em}
   p{margin:.7em 0}
-  .cards{display:grid; gap:14px; margin:16px 0}
-  @media (min-width:640px){ .cards.two{grid-template-columns:1fr 1fr} }
-  .card{display:flex; flex-direction:column; border:1px solid var(--line); border-radius:13px; padding:18px 20px; text-decoration:none; color:inherit; background:var(--paper-2); transition:border-color .15s, transform .15s}
-  .card:hover{border-color:var(--cobalt); transform:translateY(-1px)}
-  .card h3{margin:0 0 5px; font-size:19px; color:var(--cobalt)}
-  .card p{margin:.15em 0 0; font-size:15.5px; color:var(--ink); opacity:.9}
-  .card .meta{font:600 12px/1 -apple-system,sans-serif; letter-spacing:.05em; text-transform:uppercase; color:var(--grey); margin-top:12px}
-  .soon{color:var(--grey); font-style:italic; font-size:15.5px}
+  pre{background:var(--paper-2); border:1px solid var(--line); border-radius:10px; padding:15px 18px; overflow:auto; margin:1em 0}
+  pre code{background:none; padding:0; font:13.5px/1.75 Menlo,"SF Mono",ui-monospace,monospace}
   code{font:14px/1.5 Menlo,"SF Mono",ui-monospace,monospace; background:var(--paper-2); padding:.12em .4em; border-radius:4px}
+  .cards{display:grid; gap:14px; margin:16px 0}
+  .card{display:flex; flex-direction:column; border:1px solid var(--line); border-radius:13px; padding:18px 22px; text-decoration:none; color:inherit; background:var(--paper-2); transition:border-color .15s, transform .15s}
+  .card:hover{border-color:var(--cobalt); transform:translateY(-1px)}
+  .card:hover .go{transform:translateX(3px)}
+  .card h3{margin:0 0 5px; font-size:20px; color:var(--cobalt); display:flex; align-items:center; gap:.5em}
+  .go{font-size:1.5em; line-height:1; font-weight:700; transition:transform .15s; display:inline-block}
+  .card p{margin:.15em 0 0; font-size:15.5px; color:var(--ink); opacity:.9}
+  .card .meta{font:600 12.5px/1 Menlo,"SF Mono",ui-monospace,monospace; letter-spacing:.02em; color:var(--grey); margin-top:12px}
+  .soon{color:var(--grey); font-style:italic; font-size:15.5px}
   footer{color:var(--grey); font-size:14px; padding:30px 0 64px; text-align:center; border-top:1px solid var(--line)}
   footer a{color:var(--cobalt)}
 </style>
@@ -71,9 +74,9 @@
     <span class="name">AI for Research</span>
   </a>
   <div class="menu">
+    <a href="#getting-started">Getting started</a>
     <a href="#demos">Demos</a>
     <a href="#lectures">Lectures</a>
-    <a href="#guides">Guides</a>
     <a class="ext" href="https://github.com/scdenney/ai-for-research">GitHub</a>
   </div>
 </div></nav>
@@ -83,60 +86,50 @@
   <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
   <h1>AI for Research</h1>
   <p class="lede">Demos, lecture slides, and how-to guides for working with AI agents and skills, not chatbots, in empirical social science.</p>
-  <p class="sub">For students and for faculty colleagues who want to use this material in their own teaching · companion to the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> toolkit · maintained by <a href="https://scdenney.net">Steven Denney</a></p>
+  <p class="sub">For students and colleagues who want to use this material in their own teaching · companion to the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> toolkit · maintained by <a href="https://scdenney.net">Steven Denney</a></p>
 </div></header>
 
 <main class="wrap">
-  <section id="about">
-    <p>Most people meet AI through a chat box, paste in a question, and take what comes back. For research that is the failure mode, not the method. The materials here teach the alternative: structured, inspectable workflows that fetch real sources, check their own output, and report what they could not verify. Everything is meant to be run, copied, adapted for a class, and broken.</p>
+  <section id="getting-started">
+    <h2>Getting started <span class="tag">start here</span></h2>
+    <p>Set up Claude Code, the command-line AI tool that runs the skills, then add the Open Science Skills. Two installs and you are ready.</p>
+    <pre><code># 1. Install Claude Code (the agentic CLI). Docs: code.claude.com/docs
+npm install -g @anthropic-ai/claude-code
+
+# 2. Add the Open Science Skills
+claude plugin marketplace add scdenney/open-science-skills
+claude plugin install oss@open-science-skills</code></pre>
+    <p>Open Claude Code inside a project folder and the skills are ready to call. Then work through the demo below.</p>
   </section>
 
   <section id="demos">
     <h2>Demos <span class="tag">run them yourself</span></h2>
-    <p>Small, self-contained projects you can clone and run end to end. Each ships sample files, the exact prompts, expected output, and a warning about where the human still has to look.</p>
+    <p>Small projects you clone and run end to end, each with sample files, the exact prompts, and expected output.</p>
     <div class="cards">
       <a class="card" href="reference-check/">
-        <h3>Reference &amp; source-claim checking →</h3>
-        <p>Catch fabricated, malformed, and inconsistent citations, then check whether each cited source actually supports the claim attached to it. Runs offline on a tiny manuscript seeded with planted errors.</p>
-        <div class="meta">Skills: citation-check · fact-check · research-repo</div>
+        <h3>Reference &amp; source-claim checking <span class="go">→</span></h3>
+        <p>Catch fabricated or malformed citations against your reference list alone. Then, with a small set of your sources on hand, check whether each one actually supports the claim it backs. Runs offline on a tiny manuscript with planted errors.</p>
+        <div class="meta">citation-check · fact-check · research-repo</div>
       </a>
     </div>
-    <p class="soon">More demos to come (conjoint cleaning, text classification, OCR evaluation). Suggestions welcome via an issue on the repo.</p>
+    <p class="soon">More demos to come. Suggestions welcome via an issue on the repo.</p>
   </section>
 
   <section id="lectures">
     <h2>Lectures &amp; slides <span class="tag">teaching</span></h2>
-    <p>Slide decks and notes from talks and faculty workshops on using computational and agentic methods in research.</p>
+    <p>Slide decks and notes from talks and workshops. New decks are added to the lectures folder as they are given.</p>
     <div class="cards">
       <a class="card" href="https://scdenney.github.io/assets/slides/from-pixels-to-patterns/#1">
-        <h3>From Pixels to Patterns →</h3>
-        <p>A talk on the methods behind the <em>Pixels and Patterns</em> project: computer vision and language models applied to empirical social science and the digital humanities.</p>
-        <div class="meta">Slides</div>
+        <h3>From Pixels to Patterns <span class="go">→</span></h3>
+        <p>A talk on the methods behind the <em>Pixels and Patterns</em> project: computer vision and language models in empirical social science and the digital humanities.</p>
+        <div class="meta">slides</div>
       </a>
     </div>
-    <p class="soon">More decks are added here as talks are given.</p>
-  </section>
-
-  <section id="guides">
-    <h2>Guides <span class="tag">how-to</span></h2>
-    <p>Short, practical write-ups that the demos and lectures point back to.</p>
-    <div class="cards">
-      <a class="card" href="https://github.com/scdenney/ai-for-research/blob/main/guides/getting-started.md">
-        <h3>Getting started: an agentic environment and the skills →</h3>
-        <p>Set up an agent that can read a folder of files, install the Open Science Skills, and organize your sources into a local knowledge base the tools can read.</p>
-        <div class="meta">Setup</div>
-      </a>
-    </div>
-  </section>
-
-  <section id="use">
-    <h2>Using this in your own teaching</h2>
-    <p>These materials are released under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>. Clone the repo, adapt a demo for your seminar, lift the slides, or point students straight here. If you build something on top of it, an issue or pull request is welcome.</p>
   </section>
 </main>
 
 <footer class="wrap">
-  <p>AI for Research · CC BY-NC 4.0 · <a href="https://github.com/scdenney/ai-for-research">github.com/scdenney/ai-for-research</a></p>
+  <p>AI for Research · maintained by Steven Denney · released under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a> · <a href="https://github.com/scdenney/ai-for-research">github.com/scdenney/ai-for-research</a></p>
 </footer>
 </body>
 </html>

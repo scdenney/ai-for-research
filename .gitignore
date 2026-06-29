@@ -1,0 +1,10 @@
+# Original source PDFs are kept locally, not tracked (size + copyright).
+demos/reference-check/sample-project/sources/og/*
+!demos/reference-check/sample-project/sources/og/.gitkeep
+!demos/reference-check/sample-project/sources/og/README.md
+
+# OS / editor cruft
+.DS_Store
+*~
+.venv/
+__pycache__/

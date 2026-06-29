@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference-Check Demo — checking references and claims with agentic AI</title>
+<meta name="description" content="A hands-on, self-contained walkthrough of checking references and source-claims with agentic AI skills. Companion to the Pixels and Patterns post.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cobalt:#1F4E9B; --gold:#E0A526; --ochre:#9A6B14; --ink:#17171A;
+    --grey:#6E6E73; --paper:#F3EFE3; --paper-2:#ECE6D6; --line:#d9d2bf;
+    --maxw:760px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --cobalt:#3D6FCB; --gold:#E8B23E; --ochre:#E8B23E; --ink:#EFE8D7;
+      --grey:#9b9ba3; --paper:#14161C; --paper-2:#1b1e26; --line:#2c3038;
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font:18px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px}
+  header.hero{padding:64px 0 28px; border-bottom:1px solid var(--line)}
+  .kicker{font:600 13px/1 -apple-system,sans-serif; letter-spacing:.14em; text-transform:uppercase; color:var(--grey); margin:0 0 18px}
+  .wave{color:var(--cobalt)} .wave b{color:var(--gold); font-weight:inherit}
+  h1{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:44px; line-height:1.08; margin:.1em 0 .35em; letter-spacing:-.01em}
+  .lede{font-family:"EB Garamond",Georgia,serif; font-size:22px; line-height:1.45; color:var(--ink); opacity:.92; margin:0 0 8px}
+  .byline{color:var(--grey); font-size:15px; margin-top:18px}
+  .byline a{color:var(--cobalt); text-decoration:none}
+  nav.toc{position:sticky; top:45px; z-index:10; background:color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); margin-top:26px}
+  nav.toc ol{list-style:none; display:flex; flex-wrap:wrap; gap:6px 18px; margin:0; padding:12px 22px; max-width:var(--maxw); margin-inline:auto; font-size:14px}
+  nav.toc a{color:var(--grey); text-decoration:none; white-space:nowrap}
+  nav.toc a:hover{color:var(--cobalt)}
+  main{padding:14px 0 80px}
+  section{padding:34px 0 6px; border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:0}
+  h2{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:29px; line-height:1.15; margin:.2em 0 .5em}
+  h2 .num{color:var(--gold); font-size:.7em; vertical-align:.12em; margin-right:.45em}
+  h3{font-size:17px; letter-spacing:.01em; margin:1.6em 0 .3em}
+  p{margin:.7em 0}
+  a{color:var(--cobalt)}
+  code{font:14px/1.5 Menlo,"SF Mono",ui-monospace,monospace; background:var(--paper-2); padding:.12em .4em; border-radius:4px}
+  pre{background:var(--paper-2); border:1px solid var(--line); border-radius:10px; padding:16px 18px; overflow:auto; margin:1.1em 0}
+  pre code{background:none; padding:0; font-size:13.5px; line-height:1.7}
+  .rule{border-left:3px solid var(--gold); background:var(--paper-2); border-radius:0 10px 10px 0; padding:14px 18px; margin:1.3em 0; font-size:16.5px}
+  .rule strong{color:var(--ochre)}
+  .step{display:flex; gap:14px; align-items:baseline; margin:1.1em 0}
+  .step .dot{flex:0 0 auto; width:30px; height:30px; border-radius:50%; background:var(--cobalt); color:#fff; font:600 15px/30px -apple-system,sans-serif; text-align:center}
+  @media (prefers-color-scheme: dark){ .step .dot{color:#0b0d12} }
+  .step .body{flex:1}
+  .verdict{font:600 12px/1 -apple-system,sans-serif; letter-spacing:.06em; text-transform:uppercase; padding:.32em .55em; border-radius:5px; display:inline-block}
+  .v-bad{background:#b22; color:#fff} .v-warn{background:var(--gold); color:#3a2a06} .v-ok{background:#2c7a4b; color:#fff}
+  table{border-collapse:collapse; width:100%; font-size:15px; margin:1.1em 0}
+  th,td{border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top}
+  th{background:var(--paper-2); font-size:13px; letter-spacing:.03em; text-transform:uppercase; color:var(--grey)}
+  footer{color:var(--grey); font-size:14px; padding:34px 0 60px; text-align:center}
+  footer a{color:var(--cobalt)}
+  .pill{display:inline-block; font:600 12px/1 -apple-system,sans-serif; letter-spacing:.05em; text-transform:uppercase; color:var(--grey); border:1px solid var(--line); border-radius:999px; padding:.42em .7em; margin:2px 4px 2px 0}
+  .nav{position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:saturate(160%) blur(10px); border-bottom:1px solid var(--line)}
+  .nav .row{max-width:var(--maxw); margin:0 auto; padding:11px 22px; display:flex; align-items:center; justify-content:space-between; gap:16px}
+  .brand{display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit; white-space:nowrap}
+  .brand .mark{font-size:14px; letter-spacing:.26em; color:var(--cobalt)} .brand .mark b{color:var(--gold); font-weight:inherit}
+  .brand .name{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:19px; letter-spacing:.01em}
+  .topmenu{display:flex; align-items:center; gap:22px; font-size:15px; flex-wrap:wrap; justify-content:flex-end}
+  .topmenu a{color:var(--grey); text-decoration:none; padding:4px 0}
+  .topmenu a:hover{color:var(--cobalt)}
+  .topmenu a.ext::after{content:" ↗"; font-size:.85em; opacity:.7}
+</style>
+</head>
+<body>
+
+<nav class="nav"><div class="row">
+  <a class="brand" href="../">
+    <span class="mark">▁▂▃<b>▅</b><b>▂</b>▁</span>
+    <span class="name">AI for Research</span>
+  </a>
+  <div class="topmenu">
+    <a href="../#demos">Demos</a>
+    <a href="../#lectures">Lectures</a>
+    <a href="../#guides">Guides</a>
+    <a class="ext" href="https://github.com/scdenney/ai-for-research">GitHub</a>
+  </div>
+</div></nav>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker">Demo</p>
+    <p class="wave" style="font-size:26px;letter-spacing:.3em;margin:0 0 6px">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
+    <h1>Reference-Check Demo</h1>
+    <p class="lede">A hands-on, self-contained walkthrough of checking references and source-claims with agentic AI. You run two skills on a tiny project with deliberately planted errors, and practice the part no skill can do for you: deciding what to do about each flag.</p>
+    <p class="byline">Companion to the <em>Pixels and Patterns</em> post <em>"The reference that wasn't there"</em> · skills at <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> · source at <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/reference-check">github.com/scdenney/ai-for-research</a></p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <ol>
+    <li><a href="#why">Why</a></li>
+    <li><a href="#setup">1 · Set up</a></li>
+    <li><a href="#install">2 · Install</a></li>
+    <li><a href="#organize">3 · Organize sources</a></li>
+    <li><a href="#refcheck">4 · Reference check</a></li>
+    <li><a href="#claimcheck">5 · Claim check</a></li>
+    <li><a href="#verify">6 · Verify by hand</a></li>
+  </ol>
+</nav>
+
+<main class="wrap">
+  <section id="why">
+    <h2>Why this exists</h2>
+    <p>A reference list is a promise: <em>I read these, and they say what I claim they say.</em> Two failures break that promise. The first is a citation to a source that does not exist. The second, quieter and far more common, is a citation to a real source that does not actually support the sentence it is attached to.</p>
+    <p>Large language models, used carelessly, manufacture the first kind at scale. Used carefully, the same technology is unusually good at catching both. This demo shows the careful version: not a chatbot you paste a question into, but structured <strong>skills</strong> that constrain what the model does, which tools it uses, and how it reports what it found.</p>
+    <div class="rule"><strong>The one rule.</strong> These tools are aids to judgment, not substitutes for it. Every flag is a prompt to go read the source yourself. Nothing here should be repeated in public, least of all the word <em>fabricated</em>, until a human has confirmed it.</div>
+  </section>
+
+  <section id="setup">
+    <h2><span class="num">1</span>Set up an agentic environment</h2>
+    <p>You need an AI tool that can read files in a folder and run reusable skills, not just a chat window. The reference setup is <a href="https://www.claude.com/product/claude-code">Claude Code</a>, a command-line agent that works inside a project directory. Cursor, or any agent that supports the same skills format, works too.</p>
+    <p>Clone this demo so you have something concrete to run against:</p>
+    <pre><code>git clone https://github.com/scdenney/ai-for-research.git
+cd ai-for-research/demos/reference-check</code></pre>
+  </section>
+
+  <section id="install">
+    <h2><span class="num">2</span>Install the skills</h2>
+    <p>The checks live in the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> plugin. Install it once, user-wide:</p>
+    <pre><code>claude plugin marketplace add scdenney/open-science-skills
+claude plugin install oss@open-science-skills</code></pre>
+    <p>Restart the tool. Three skills carry this workflow:</p>
+    <p>
+      <span class="pill">research-repo · builds the knowledge base</span>
+      <span class="pill">citation-check · audits the references</span>
+      <span class="pill">fact-check · audits the claims</span>
+    </p>
+  </section>
+
+  <section id="organize">
+    <h2><span class="num">3</span>Organize sources into a knowledge base</h2>
+    <p>The claim check can only compare your sentences against sources it can read. That means the sources have to live on disk as machine-readable text, not as a pile of PDFs. The convention, scaffolded by <code>research-repo</code>, is one folder for the originals and one for the conversions:</p>
+    <pre><code>sources/
+├── og/   PDFs you keep locally (gitignored)
+└── md/   one Markdown file per source — the knowledge base</code></pre>
+    <p>In real work you drop a PDF in <code>og/</code> and the intake step (<code>process-source</code>) converts it to <code>md/&lt;author&gt;-&lt;year&gt;-&lt;slug&gt;.md</code>. This demo ships the <code>md/</code> files already written, so it runs offline. The rule that matters: <strong>the checker reads <code>sources/md/</code>, never the PDF.</strong></p>
+  </section>
+
+  <section id="refcheck">
+    <h2><span class="num">4</span>Run the reference check</h2>
+    <p>Does each cited work exist, resolve, and parse? Does every in-text citation have a matching entry, and vice versa?</p>
+    <pre><code>/oss:citation-check sample-project/manuscript.md sample-project/references.bib</code></pre>
+    <p>On this project it should surface, among others:</p>
+    <table>
+      <tr><th>What</th><th>Verdict</th></tr>
+      <tr><td><code>othen2022</code> — "Digital Civics and the Participation Gap"</td><td><span class="verdict v-bad">Likely fabricated</span></td></tr>
+      <tr><td><code>vance2018</code> — cited in text, no entry in the bibliography</td><td><span class="verdict v-warn">Parity</span></td></tr>
+      <tr><td><code>kowalski2017</code> — in the bibliography, never cited</td><td><span class="verdict v-warn">Parity</span></td></tr>
+      <tr><td><code>hainmueller2014</code> — a real methods paper</td><td><span class="verdict v-ok">Verified</span></td></tr>
+    </table>
+    <p>That last row is the control. A checker that flags everything is as useless as one that flags nothing, so the demo keeps one real, correct reference to prove the difference. Full illustrative output: <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/reference-check/expected-output/citation-audit-report.md"><code>expected-output/citation-audit-report.md</code></a>.</p>
+  </section>
+
+  <section id="claimcheck">
+    <h2><span class="num">5</span>Run the source-claim check</h2>
+    <p>This is the deeper one. A reference can be real, well-formed, and resolve cleanly, and still be cited for something it never says. <code>fact-check</code> reads the source file behind each citation and asks whether it supports the specific claim.</p>
+    <pre><code>/oss:fact-check sample-project/manuscript.md</code></pre>
+    <p>It first runs a <strong>pre-flight gate</strong>: if the knowledge base is missing or does not cover the cited works, it refuses to run rather than reassure you falsely. Then, on this project:</p>
+    <table>
+      <tr><th>Claim</th><th>Source</th><th>Verdict</th></tr>
+      <tr><td>"compulsory voting also raises citizens' political knowledge"</td><td><code>ferreira-nair2021</code></td><td><span class="verdict v-bad">Contradicted</span></td></tr>
+      <tr><td>"higher social trust <em>causes</em> higher turnout"</td><td><code>osei2020</code></td><td><span class="verdict v-warn">Overclaim</span></td></tr>
+      <tr><td>"modest, short-lived increase ... fades within two cycles"</td><td><code>lindqvist2019</code></td><td><span class="verdict v-ok">Supported</span></td></tr>
+    </table>
+    <p>The reference check passes <code>ferreira-nair2021</code> and <code>osei2020</code> without complaint. Only reading the source catches that one claim is backwards and another quietly upgrades a correlation into a cause. Formatting-clean is not the same as true. Full output: <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/reference-check/expected-output/fact-check-report.md"><code>expected-output/fact-check-report.md</code></a>.</p>
+  </section>
+
+  <section id="verify">
+    <h2><span class="num">6</span>Interpret, then verify by hand</h2>
+    <p>The report is a worklist, not a verdict. Do the human step on every flag:</p>
+    <div class="step"><div class="dot">1</div><div class="body"><strong>Re-derive the evidence.</strong> Open the source file the report quotes. Read the passage. Does it say what the report says it says?</div></div>
+    <div class="step"><div class="dot">2</div><div class="body"><strong>Confirm before you escalate.</strong> A "likely fabricated" flag can be a real paper the tool could not reach: paywalled, mis-keyed, grey literature. Fail to find it yourself before the word leaves your notes.</div></div>
+    <div class="step"><div class="dot">3</div><div class="body"><strong>Decide the fix.</strong> "Causes" becomes "is associated with." That edit is yours to make, and yours to own.</div></div>
+    <p>The full accounting of every planted problem is in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/reference-check/sample-project/ANSWER-KEY.md"><code>sample-project/ANSWER-KEY.md</code></a>. Then try breaking the demo: add a real reference and watch it verify; fix a claim and watch <span class="verdict v-bad" style="font-size:10px;padding:.25em .4em">Contradicted</span> turn to <span class="verdict v-ok" style="font-size:10px;padding:.25em .4em">Supported</span>; delete a source file and watch the gate refuse to run.</p>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p><a href="../">AI for Research</a> · content CC BY-NC 4.0 · <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/reference-check">repository</a> · <a href="https://github.com/scdenney/open-science-skills">the skills</a></p>
+</footer>
+</body>
+</html>

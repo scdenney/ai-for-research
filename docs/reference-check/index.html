@@ -63,6 +63,11 @@
   th{background:var(--paper-2); font-size:12.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--grey)}
   footer{color:var(--grey); font-size:14px; padding:30px 0 60px; text-align:center; border-top:1px solid var(--line); margin-top:24px}
   footer a{color:var(--cobalt)}
+  pre{position:relative}
+  .copy{position:absolute; top:8px; right:8px; display:inline-flex; align-items:center; border:1px solid var(--line); background:var(--paper); color:var(--grey); border-radius:6px; padding:5px 6px; cursor:pointer; opacity:.75; transition:opacity .12s, color .12s, border-color .12s}
+  .copy:hover{opacity:1; color:var(--cobalt); border-color:var(--cobalt)}
+  .copy.done{color:#2c7a4b; border-color:#2c7a4b; opacity:1}
+  .copy svg{display:block}
 </style>
 </head>
 <body>
@@ -149,5 +154,25 @@ cd ai-for-research/demos/reference-check</code></pre>
 <footer class="wrap">
   <p><a href="../">AI for Research</a> · CC BY-NC 4.0 · <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/reference-check">repository</a></p>
 </footer>
+
+<script>
+(function(){
+  var COPY='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  var CHECK='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  document.querySelectorAll('pre').forEach(function(pre){
+    var b=document.createElement('button');
+    b.type='button'; b.className='copy'; b.title='Copy'; b.setAttribute('aria-label','Copy'); b.innerHTML=COPY;
+    b.addEventListener('click',function(){
+      var code=pre.querySelector('code');
+      var text=(code?code.innerText:pre.innerText);
+      navigator.clipboard.writeText(text).then(function(){
+        b.innerHTML=CHECK; b.classList.add('done'); b.title='Copied';
+        setTimeout(function(){b.innerHTML=COPY; b.classList.remove('done'); b.title='Copy';},1400);
+      });
+    });
+    pre.appendChild(b);
+  });
+})();
+</script>
 </body>
 </html>

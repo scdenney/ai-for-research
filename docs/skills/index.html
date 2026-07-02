@@ -58,25 +58,32 @@
   .count{font:600 12.5px/1 Menlo,"SF Mono",ui-monospace,monospace; color:var(--grey); letter-spacing:.02em}
 
   main{padding:10px 0 40px}
-  .chapter{display:flex; align-items:baseline; gap:14px; margin:38px 0 6px; scroll-margin-top:150px}
+  .chapter{display:flex; align-items:baseline; gap:14px; margin:38px 0 6px; padding:4px 0; scroll-margin-top:150px; cursor:pointer; border-radius:6px}
   .chapter:first-of-type{margin-top:26px}
+  .chapter:hover .rule{border-bottom-color:var(--cobalt)}
+  .chapter:hover h2{color:var(--cobalt)}
+  .chapter:focus-visible{outline:2px solid var(--cobalt); outline-offset:4px}
   .chapter .num{font:600 15px/1 -apple-system,sans-serif; color:var(--gold); letter-spacing:.04em}
-  .chapter h2{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:22px; margin:0; white-space:nowrap}
-  .chapter .rule{flex:1; border-bottom:1px solid var(--line)}
+  .chapter h2{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:22px; margin:0; white-space:nowrap; transition:color .12s}
+  .chapter .rule{flex:1; border-bottom:1px solid var(--line); transition:border-color .12s}
   .chapter .n{font:600 12.5px/1 Menlo,"SF Mono",ui-monospace,monospace; color:var(--grey); white-space:nowrap}
-  .chapter.hidden, .entry[hidden]{display:none}
+  .chapter .chev{flex:0 0 auto; font-size:13px; color:var(--grey); display:inline-block; transition:transform .15s}
+  .chapter[aria-expanded="true"] .chev{transform:rotate(90deg)}
 
   .entries{list-style:none; margin:0; padding:0}
   .entry{border-top:1px solid var(--line); padding:13px 0}
   .entry:first-of-type{border-top:0}
-  a.row{display:flex; align-items:baseline; gap:10px; text-decoration:none; color:inherit}
-  a.row:hover .name{color:var(--cobalt)}
-  a.row:hover .leader{border-bottom-color:var(--cobalt)}
+  .row{display:flex; align-items:baseline; gap:6px}
+  .row-toggle{appearance:none; background:none; border:0; margin:0; padding:0; font:inherit; color:inherit; cursor:pointer; display:flex; align-items:baseline; gap:10px; flex:1; min-width:0; text-align:left}
+  .row-toggle:focus-visible{outline:2px solid var(--cobalt); outline-offset:3px; border-radius:4px}
+  .row-toggle:hover .name{color:var(--cobalt)}
+  .row-toggle:hover .leader{border-bottom-color:var(--cobalt)}
   .tag-cat{flex:0 0 auto; font:700 11px/1 Menlo,"SF Mono",ui-monospace,monospace; color:var(--grey); border:1px solid var(--line); border-radius:4px; padding:3px 5px; letter-spacing:.02em}
   .name{flex:0 0 auto; font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:19px; transition:color .12s}
   .leader{flex:1; align-self:center; border-bottom:1px dotted var(--line); margin:0 2px; min-width:16px; transition:border-color .12s}
   .cmd{flex:0 0 auto; font:12.5px/1 Menlo,"SF Mono",ui-monospace,monospace; color:var(--grey)}
-  a.row.ext::after{content:" ↗"; font-size:.8em; color:var(--grey); opacity:.75}
+  .ext-link{flex:0 0 auto; text-decoration:none; color:var(--grey); opacity:.75; font-size:.85em; padding:4px 6px; margin:-4px -6px -4px 0; border-radius:4px; transition:color .12s,opacity .12s}
+  .ext-link:hover{color:var(--cobalt); opacity:1}
   .desc{margin:7px 0 0; padding-left:44px; font-size:15.5px; color:var(--ink); opacity:.88; max-width:60ch}
 
   #empty{display:none; padding:40px 0; text-align:center; color:var(--grey); font-size:16px}
@@ -94,7 +101,7 @@
   @media (max-width:560px){
     .desc{padding-left:0}
     .leader{display:none}
-    a.row{flex-wrap:wrap}
+    .row-toggle{flex-wrap:wrap}
     .cmd{margin-left:44px}
     .chapter h2{font-size:19px}
   }
@@ -119,7 +126,7 @@
   <p class="kicker">Toolkit</p>
   <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
   <h1>Skills</h1>
-  <p class="lede">Every skill in the Open Science Skills toolkit, in one place — what it does, what it's called, and where to read the source.</p>
+  <p class="lede">Every skill in the Open Science Skills toolkit.</p>
 </div></header>
 
 <nav class="filter-bar"><div class="filter-inner">
@@ -145,276 +152,432 @@
 
 <main class="wrap">
 
-  <div class="chapter" data-cat="ps"><span class="num">I</span><h2>Project Setup</h2><span class="rule"></span><span class="n">1 skill</span></div>
-  <ul class="entries">
+  <div class="chapter" data-cat="ps" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-ps"><span class="num">I</span><h2>Project Setup</h2><span class="rule"></span><span class="n">1 skill</span><span class="chev" aria-hidden="true">›</span></div>
+  <ul class="entries" id="entries-ps" hidden>
     <li class="entry" id="research-repo" data-cat="ps" data-search="research-repo project setup scaffold audit research project repo folders claude.md /oss:research-repo">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/research-repo/SKILL.md">
-        <span class="tag-cat">PS</span><span class="name">research-repo</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:research-repo</span>
-      </a>
-      <p class="desc">Set up a research project's folders the same way every time — sources, drafts, and a <code>CLAUDE.md</code> file the AI reads first — or check that an existing project already follows that layout.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-research-repo">
+          <span class="tag-cat">PS</span><span class="name">research-repo</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:research-repo</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/research-repo/SKILL.md" aria-label="Open research-repo on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-research-repo" hidden>Set up a research project's folders the same way every time — sources, drafts, and a <code>CLAUDE.md</code> file the AI reads first — or check that an existing project already follows that layout.</p>
     </li>
   </ul>
 
-  <div class="chapter" data-cat="wo"><span class="num">II</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">1 skill</span></div>
-  <ul class="entries">
+  <div class="chapter" data-cat="wo" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-wo"><span class="num">II</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">1 skill</span><span class="chev" aria-hidden="true">›</span></div>
+  <ul class="entries" id="entries-wo" hidden>
     <li class="entry" id="fable-orchestrate" data-cat="wo" data-search="fable-orchestrate workflow orchestration multi-model opus sonnet codex /oss:fable-orchestrate">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fable-orchestrate/SKILL.md">
-        <span class="tag-cat">WO</span><span class="name">fable-orchestrate</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:fable-orchestrate</span>
-      </a>
-      <p class="desc">Run a hard task past three AI models at once — one for deep reasoning, one for fast execution, one as an outside check — instead of trusting a single model's answer.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-fable-orchestrate">
+          <span class="tag-cat">WO</span><span class="name">fable-orchestrate</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:fable-orchestrate</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fable-orchestrate/SKILL.md" aria-label="Open fable-orchestrate on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-fable-orchestrate" hidden>Run a hard task past three AI models at once — one for deep reasoning, one for fast execution, one as an outside check — instead of trusting a single model's answer.</p>
     </li>
   </ul>
 
-  <div class="chapter" data-cat="id"><span class="num">III</span><h2>Ideation</h2><span class="rule"></span><span class="n">2 skills</span></div>
-  <ul class="entries">
+  <div class="chapter" data-cat="id" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-id"><span class="num">III</span><h2>Ideation</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <ul class="entries" id="entries-id" hidden>
     <li class="entry" id="diverge" data-cat="id" data-search="diverge ideation brainstorm distinct approaches before implementing /oss:diverge">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge/SKILL.md">
-        <span class="tag-cat">ID</span><span class="name">diverge</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:diverge</span>
-      </a>
-      <p class="desc">Before committing to one approach, generate three to five genuinely different ones — safe, bold, unconventional — so you're choosing between real options instead of the first idea.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-diverge">
+          <span class="tag-cat">ID</span><span class="name">diverge</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:diverge</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge/SKILL.md" aria-label="Open diverge on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-diverge" hidden>Before committing to one approach, generate three to five genuinely different ones — safe, bold, unconventional — so you're choosing between real options instead of the first idea.</p>
     </li>
     <li class="entry" id="diverge-codex" data-cat="id" data-search="diverge-codex ideation brainstorm cross-model codex gpt /oss:diverge-codex">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge-codex/SKILL.md">
-        <span class="tag-cat">ID</span><span class="name">diverge-codex</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:diverge-codex</span>
-      </a>
-      <p class="desc">The same brainstorming step as <code>diverge</code>, but handed to a second AI model (Codex) so the ideas don't all come from the same source.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-diverge-codex">
+          <span class="tag-cat">ID</span><span class="name">diverge-codex</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:diverge-codex</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge-codex/SKILL.md" aria-label="Open diverge-codex on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-diverge-codex" hidden>The same brainstorming step as <code>diverge</code>, but handed to a second AI model (Codex) so the ideas don't all come from the same source.</p>
     </li>
   </ul>
 
-  <div class="chapter" data-cat="rd"><span class="num">IV</span><h2>Research Design</h2><span class="rule"></span><span class="n">6 skills</span></div>
-  <ul class="entries">
+  <div class="chapter" data-cat="rd" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-rd"><span class="num">IV</span><h2>Research Design</h2><span class="rule"></span><span class="n">6 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <ul class="entries" id="entries-rd" hidden>
     <li class="entry" id="conjoint-design" data-cat="rd" data-search="conjoint-design research design attributes amce amie power analysis /oss:conjoint-design">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-design/SKILL.md">
-        <span class="tag-cat">RD</span><span class="name">conjoint-design</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:conjoint-design</span>
-      </a>
-      <p class="desc">Design a conjoint experiment — which attributes to test, how many respondents you need, and how you'll estimate each attribute's effect (AMCE/AMIE) — before you run it.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-conjoint-design">
+          <span class="tag-cat">RD</span><span class="name">conjoint-design</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:conjoint-design</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-design/SKILL.md" aria-label="Open conjoint-design on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-conjoint-design" hidden>Design a conjoint experiment — which attributes to test, how many respondents you need, and how you'll estimate each attribute's effect (AMCE/AMIE) — before you run it.</p>
     </li>
     <li class="entry" id="conjoint-diagnostics" data-cat="rd" data-search="conjoint-diagnostics research design checklist validity /oss:conjoint-diagnostics">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-diagnostics/SKILL.md">
-        <span class="tag-cat">RD</span><span class="name">conjoint-diagnostics</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:conjoint-diagnostics</span>
-      </a>
-      <p class="desc">Run through a checklist of what typically goes wrong in a conjoint experiment's design, execution, or analysis, and catch it before submission.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-conjoint-diagnostics">
+          <span class="tag-cat">RD</span><span class="name">conjoint-diagnostics</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:conjoint-diagnostics</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-diagnostics/SKILL.md" aria-label="Open conjoint-diagnostics on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-conjoint-diagnostics" hidden>Run through a checklist of what typically goes wrong in a conjoint experiment's design, execution, or analysis, and catch it before submission.</p>
     </li>
     <li class="entry" id="conjoint-cleaning" data-cat="rd" data-search="conjoint-cleaning research design qualtrics export cleanup /oss:conjoint-cleaning">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-cleaning/SKILL.md">
-        <span class="tag-cat">RD</span><span class="name">conjoint-cleaning</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:conjoint-cleaning</span>
-      </a>
-      <p class="desc">Turn a raw conjoint survey export from Qualtrics into a clean, analysis-ready dataset.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-conjoint-cleaning">
+          <span class="tag-cat">RD</span><span class="name">conjoint-cleaning</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:conjoint-cleaning</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-cleaning/SKILL.md" aria-label="Open conjoint-cleaning on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-conjoint-cleaning" hidden>Turn a raw conjoint survey export from Qualtrics into a clean, analysis-ready dataset.</p>
     </li>
     <li class="entry" id="survey-design" data-cat="rd" data-search="survey-design research design questions scales social desirability /oss:survey-design">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/survey-design/SKILL.md">
-        <span class="tag-cat">RD</span><span class="name">survey-design</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:survey-design</span>
-      </a>
-      <p class="desc">Write survey questions and response scales that measure what you intend, flow logically, and don't quietly bias respondents toward a socially acceptable answer.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-survey-design">
+          <span class="tag-cat">RD</span><span class="name">survey-design</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:survey-design</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/survey-design/SKILL.md" aria-label="Open survey-design on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-survey-design" hidden>Write survey questions and response scales that measure what you intend, flow logically, and don't quietly bias respondents toward a socially acceptable answer.</p>
     </li>
     <li class="entry" id="cross-national-design" data-cat="rd" data-search="cross-national-design research design multi-country power localization bias /oss:cross-national-design">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/cross-national-design/SKILL.md">
-        <span class="tag-cat">RD</span><span class="name">cross-national-design</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:cross-national-design</span>
-      </a>
-      <p class="desc">Adapt a survey experiment to run fairly across multiple countries — enough statistical power in each, localized wording, and a check for hidden bias between countries.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-cross-national-design">
+          <span class="tag-cat">RD</span><span class="name">cross-national-design</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:cross-national-design</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/cross-national-design/SKILL.md" aria-label="Open cross-national-design on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-cross-national-design" hidden>Adapt a survey experiment to run fairly across multiple countries — enough statistical power in each, localized wording, and a check for hidden bias between countries.</p>
     </li>
     <li class="entry" id="list-experiment" data-cat="rd" data-search="list-experiment research design item count technique sensitive topics /oss:list-experiment">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/list-experiment/SKILL.md">
-        <span class="tag-cat">RD</span><span class="name">list-experiment</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:list-experiment</span>
-      </a>
-      <p class="desc">Design and check a list experiment (the item-count technique) — a way of asking about sensitive topics without anyone naming their own answer directly.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-list-experiment">
+          <span class="tag-cat">RD</span><span class="name">list-experiment</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:list-experiment</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/list-experiment/SKILL.md" aria-label="Open list-experiment on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-list-experiment" hidden>Design and check a list experiment (the item-count technique) — a way of asking about sensitive topics without anyone naming their own answer directly.</p>
     </li>
   </ul>
 
-  <div class="chapter" data-cat="an"><span class="num">V</span><h2>Analysis</h2><span class="rule"></span><span class="n">5 skills</span></div>
-  <ul class="entries">
+  <div class="chapter" data-cat="an" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-an"><span class="num">V</span><h2>Analysis</h2><span class="rule"></span><span class="n">5 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <ul class="entries" id="entries-an" hidden>
     <li class="entry" id="topic-modeling" data-cat="an" data-search="topic-modeling analysis structural topic model stm covariates coherence /oss:topic-modeling">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/topic-modeling/SKILL.md">
-        <span class="tag-cat">AN</span><span class="name">topic-modeling</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:topic-modeling</span>
-      </a>
-      <p class="desc">Set up a structural topic model — group documents into themes and see how those themes relate to variables you care about — with the diagnostics to know if it worked.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-topic-modeling">
+          <span class="tag-cat">AN</span><span class="name">topic-modeling</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:topic-modeling</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/topic-modeling/SKILL.md" aria-label="Open topic-modeling on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-topic-modeling" hidden>Set up a structural topic model — group documents into themes and see how those themes relate to variables you care about — with the diagnostics to know if it worked.</p>
     </li>
     <li class="entry" id="text-classification" data-cat="an" data-search="text-classification analysis llm codebook validation coding /oss:text-classification">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/text-classification/SKILL.md">
-        <span class="tag-cat">AN</span><span class="name">text-classification</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:text-classification</span>
-      </a>
-      <p class="desc">Have an AI model sort text into categories you define, following a written codebook, and check its accuracy the way you'd check a human coder's.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-text-classification">
+          <span class="tag-cat">AN</span><span class="name">text-classification</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:text-classification</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/text-classification/SKILL.md" aria-label="Open text-classification on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-text-classification" hidden>Have an AI model sort text into categories you define, following a written codebook, and check its accuracy the way you'd check a human coder's.</p>
     </li>
     <li class="entry" id="model-council-voting" data-cat="an" data-search="model-council-voting analysis panel llm coders agreement kappa /oss:model-council-voting">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-council-voting/SKILL.md">
-        <span class="tag-cat">AN</span><span class="name">model-council-voting</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:model-council-voting</span>
-      </a>
-      <p class="desc">Have several AI models independently label the same data, then combine their votes and measure how much they agreed — inter-rater reliability, but with models instead of people.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-model-council-voting">
+          <span class="tag-cat">AN</span><span class="name">model-council-voting</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:model-council-voting</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-council-voting/SKILL.md" aria-label="Open model-council-voting on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-model-council-voting" hidden>Have several AI models independently label the same data, then combine their votes and measure how much they agreed — inter-rater reliability, but with models instead of people.</p>
     </li>
     <li class="entry" id="model-committee" data-cat="an" data-search="model-committee analysis gpt opus deliberative judgment /oss:model-committee">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-committee/SKILL.md">
-        <span class="tag-cat">AN</span><span class="name">model-committee</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:model-committee</span>
-      </a>
-      <p class="desc">Have two AI models (GPT-5.5 and Claude Opus) discuss a judgment call with each other before settling on an answer, instead of asking just one.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-model-committee">
+          <span class="tag-cat">AN</span><span class="name">model-committee</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:model-committee</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-committee/SKILL.md" aria-label="Open model-committee on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-model-committee" hidden>Have two AI models (GPT-5.5 and Claude Opus) discuss a judgment call with each other before settling on an answer, instead of asking just one.</p>
     </li>
     <li class="entry" id="llm-calibration-logprobs" data-cat="an" data-search="llm-calibration-logprobs analysis confidence token probabilities calibration ece brier /oss:llm-calibration-logprobs">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/llm-calibration-logprobs/SKILL.md">
-        <span class="tag-cat">AN</span><span class="name">llm-calibration-logprobs</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:llm-calibration-logprobs</span>
-      </a>
-      <p class="desc">Check how confident an AI model actually is in each answer, using the model's own token probabilities rather than just asking it to rate its confidence.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-llm-calibration-logprobs">
+          <span class="tag-cat">AN</span><span class="name">llm-calibration-logprobs</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:llm-calibration-logprobs</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/llm-calibration-logprobs/SKILL.md" aria-label="Open llm-calibration-logprobs on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-llm-calibration-logprobs" hidden>Check how confident an AI model actually is in each answer, using the model's own token probabilities rather than just asking it to rate its confidence.</p>
     </li>
   </ul>
 
-  <div class="chapter" data-cat="cp"><span class="num">VI</span><h2>Corpus Processing</h2><span class="rule"></span><span class="n">3 skills</span></div>
-  <ul class="entries">
+  <div class="chapter" data-cat="cp" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-cp"><span class="num">VI</span><h2>Corpus Processing</h2><span class="rule"></span><span class="n">3 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <ul class="entries" id="entries-cp" hidden>
     <li class="entry" id="vlm-ocr-pipeline" data-cat="cp" data-search="vlm-ocr-pipeline corpus processing vision language model ocr scanned documents /oss:vlm-ocr-pipeline">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-pipeline/SKILL.md">
-        <span class="tag-cat">CP</span><span class="name">vlm-ocr-pipeline</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:vlm-ocr-pipeline</span>
-      </a>
-      <p class="desc">Design a pipeline that uses a vision-language model to read text out of scanned documents or images, instead of a traditional OCR engine.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-vlm-ocr-pipeline">
+          <span class="tag-cat">CP</span><span class="name">vlm-ocr-pipeline</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:vlm-ocr-pipeline</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-pipeline/SKILL.md" aria-label="Open vlm-ocr-pipeline on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-vlm-ocr-pipeline" hidden>Design a pipeline that uses a vision-language model to read text out of scanned documents or images, instead of a traditional OCR engine.</p>
     </li>
     <li class="entry" id="post-ocr-cleanup" data-cat="cp" data-search="post-ocr-cleanup corpus processing correction qa multilingual /oss:post-ocr-cleanup">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/post-ocr-cleanup/SKILL.md">
-        <span class="tag-cat">CP</span><span class="name">post-ocr-cleanup</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:post-ocr-cleanup</span>
-      </a>
-      <p class="desc">Clean up and quality-check text after it's been pulled out by OCR, catching the kinds of errors OCR typically introduces.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-post-ocr-cleanup">
+          <span class="tag-cat">CP</span><span class="name">post-ocr-cleanup</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:post-ocr-cleanup</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/post-ocr-cleanup/SKILL.md" aria-label="Open post-ocr-cleanup on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-post-ocr-cleanup" hidden>Clean up and quality-check text after it's been pulled out by OCR, catching the kinds of errors OCR typically introduces.</p>
     </li>
     <li class="entry" id="vlm-ocr-evaluation" data-cat="cp" data-search="vlm-ocr-evaluation corpus processing compare candidate systems ground truth cer wer /oss:vlm-ocr-evaluation">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-evaluation/SKILL.md">
-        <span class="tag-cat">CP</span><span class="name">vlm-ocr-evaluation</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:vlm-ocr-evaluation</span>
-      </a>
-      <p class="desc">Before running OCR on a large batch of documents, compare a few candidate OCR systems on a small test set to see which is actually most accurate for your material.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-vlm-ocr-evaluation">
+          <span class="tag-cat">CP</span><span class="name">vlm-ocr-evaluation</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:vlm-ocr-evaluation</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-evaluation/SKILL.md" aria-label="Open vlm-ocr-evaluation on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-vlm-ocr-evaluation" hidden>Before running OCR on a large batch of documents, compare a few candidate OCR systems on a small test set to see which is actually most accurate for your material.</p>
     </li>
   </ul>
 
-  <div class="chapter" data-cat="wr"><span class="num">VII</span><h2>Writing &amp; Reporting</h2><span class="rule"></span><span class="n">6 skills</span></div>
-  <ul class="entries">
+  <div class="chapter" data-cat="wr" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-wr"><span class="num">VII</span><h2>Writing &amp; Reporting</h2><span class="rule"></span><span class="n">6 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <ul class="entries" id="entries-wr" hidden>
     <li class="entry" id="hypothesis-building" data-cat="wr" data-search="hypothesis-building writing reporting falsifiable dag equivalence testing /oss:hypothesis-building">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/hypothesis-building/SKILL.md">
-        <span class="tag-cat">WR</span><span class="name">hypothesis-building</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:hypothesis-building</span>
-      </a>
-      <p class="desc">Turn a research idea into a hypothesis that could actually be proven wrong — with a causal diagram and a plan for testing it, including the possibility of no effect.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-hypothesis-building">
+          <span class="tag-cat">WR</span><span class="name">hypothesis-building</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:hypothesis-building</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/hypothesis-building/SKILL.md" aria-label="Open hypothesis-building on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-hypothesis-building" hidden>Turn a research idea into a hypothesis that could actually be proven wrong — with a causal diagram and a plan for testing it, including the possibility of no effect.</p>
     </li>
     <li class="entry" id="literature-review" data-cat="wr" data-search="literature-review writing reporting evidence map gaps synthesis /oss:literature-review">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/literature-review/SKILL.md">
-        <span class="tag-cat">WR</span><span class="name">literature-review</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:literature-review</span>
-      </a>
-      <p class="desc">Map out what's already been studied on a topic, spot the real gaps, and plan how to synthesize the literature you've found.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-literature-review">
+          <span class="tag-cat">WR</span><span class="name">literature-review</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:literature-review</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/literature-review/SKILL.md" aria-label="Open literature-review on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-literature-review" hidden>Map out what's already been studied on a topic, spot the real gaps, and plan how to synthesize the literature you've found.</p>
     </li>
     <li class="entry" id="narrative-building" data-cat="wr" data-search="narrative-building writing reporting introduction argument logic funnel /oss:narrative-building">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/narrative-building/SKILL.md">
-        <span class="tag-cat">WR</span><span class="name">narrative-building</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:narrative-building</span>
-      </a>
-      <p class="desc">Draft or tighten a paper's introduction so the argument actually builds — why the question matters, and what follows if the answer goes one way or the other.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-narrative-building">
+          <span class="tag-cat">WR</span><span class="name">narrative-building</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:narrative-building</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/narrative-building/SKILL.md" aria-label="Open narrative-building on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-narrative-building" hidden>Draft or tighten a paper's introduction so the argument actually builds — why the question matters, and what follows if the answer goes one way or the other.</p>
     </li>
     <li class="entry" id="pre-registration-writing" data-cat="wr" data-search="pre-registration-writing writing reporting pap analysis plan registry /oss:pre-registration-writing">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/pre-registration-writing/SKILL.md">
-        <span class="tag-cat">WR</span><span class="name">pre-registration-writing</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:pre-registration-writing</span>
-      </a>
-      <p class="desc">Write a pre-analysis plan: what you'll measure and how you'll analyze it, registered before you see the results.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-pre-registration-writing">
+          <span class="tag-cat">WR</span><span class="name">pre-registration-writing</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:pre-registration-writing</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/pre-registration-writing/SKILL.md" aria-label="Open pre-registration-writing on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-pre-registration-writing" hidden>Write a pre-analysis plan: what you'll measure and how you'll analyze it, registered before you see the results.</p>
     </li>
     <li class="entry" id="methods-reporting" data-cat="wr" data-search="methods-reporting writing reporting consort jars da-rt checklist /oss:methods-reporting">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/methods-reporting/SKILL.md">
-        <span class="tag-cat">WR</span><span class="name">methods-reporting</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:methods-reporting</span>
-      </a>
-      <p class="desc">Check that your methods section reports everything expected by standard research-reporting checklists (CONSORT, JARS, DA-RT).</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-methods-reporting">
+          <span class="tag-cat">WR</span><span class="name">methods-reporting</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:methods-reporting</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/methods-reporting/SKILL.md" aria-label="Open methods-reporting on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-methods-reporting" hidden>Check that your methods section reports everything expected by standard research-reporting checklists (CONSORT, JARS, DA-RT).</p>
     </li>
     <li class="entry" id="paper-tex" data-cat="wr" data-search="paper-tex writing reporting latex typeset journal formatting /oss:paper-tex">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-tex/SKILL.md">
-        <span class="tag-cat">WR</span><span class="name">paper-tex</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:paper-tex</span>
-      </a>
-      <p class="desc">Take a draft in any format — Word, Markdown, plain text — and typeset it into a properly formatted LaTeX paper, ready for a specific journal's requirements.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-paper-tex">
+          <span class="tag-cat">WR</span><span class="name">paper-tex</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:paper-tex</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-tex/SKILL.md" aria-label="Open paper-tex on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-paper-tex" hidden>Take a draft in any format — Word, Markdown, plain text — and typeset it into a properly formatted LaTeX paper, ready for a specific journal's requirements.</p>
     </li>
   </ul>
 
-  <div class="chapter" data-cat="ft"><span class="num">VIII</span><h2>Figures &amp; Tables</h2><span class="rule"></span><span class="n">2 skills</span></div>
-  <ul class="entries">
+  <div class="chapter" data-cat="ft" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-ft"><span class="num">VIII</span><h2>Figures &amp; Tables</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <ul class="entries" id="entries-ft" hidden>
     <li class="entry" id="figures" data-cat="ft" data-search="figures figures tables chart design color legends captions /oss:figures">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/figures/SKILL.md">
-        <span class="tag-cat">FT</span><span class="name">figures</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:figures</span>
-      </a>
-      <p class="desc">Design a publication-quality figure — chart type, color, scales, and captions chosen to make the data as easy to read as possible.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-figures">
+          <span class="tag-cat">FT</span><span class="name">figures</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:figures</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/figures/SKILL.md" aria-label="Open figures on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-figures" hidden>Design a publication-quality figure — chart type, color, scales, and captions chosen to make the data as easy to read as possible.</p>
     </li>
     <li class="entry" id="tables" data-cat="ft" data-search="tables figures tables columns rows precision notes /oss:tables">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/tables/SKILL.md">
-        <span class="tag-cat">FT</span><span class="name">tables</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:tables</span>
-      </a>
-      <p class="desc">Design a publication-quality table — column order, row grouping, number formatting, and what the notes underneath should say.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-tables">
+          <span class="tag-cat">FT</span><span class="name">tables</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:tables</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/tables/SKILL.md" aria-label="Open tables on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-tables" hidden>Design a publication-quality table — column order, row grouping, number formatting, and what the notes underneath should say.</p>
     </li>
   </ul>
 
-  <div class="chapter" data-cat="mq"><span class="num">IX</span><h2>Manuscript QA</h2><span class="rule"></span><span class="n">5 skills</span></div>
-  <ul class="entries">
+  <div class="chapter" data-cat="mq" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-mq"><span class="num">IX</span><h2>Manuscript QA</h2><span class="rule"></span><span class="n">5 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <ul class="entries" id="entries-mq" hidden>
     <li class="entry" id="fair-check" data-cat="mq" data-search="fair-check manuscript qa fair data code materials availability audit /oss:fair-check">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fair-check/SKILL.md">
-        <span class="tag-cat">MQ</span><span class="name">fair-check</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:fair-check</span>
-      </a>
-      <p class="desc">Check whether a manuscript's data, code, and materials are actually available and usable by someone else — not just claimed to be.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-fair-check">
+          <span class="tag-cat">MQ</span><span class="name">fair-check</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:fair-check</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fair-check/SKILL.md" aria-label="Open fair-check on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-fair-check" hidden>Check whether a manuscript's data, code, and materials are actually available and usable by someone else — not just claimed to be.</p>
     </li>
     <li class="entry" id="citation-check" data-cat="mq" data-search="citation-check manuscript qa references fabrication parity doi /oss:citation-check">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/citation-check/SKILL.md">
-        <span class="tag-cat">MQ</span><span class="name">citation-check</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:citation-check</span>
-      </a>
-      <p class="desc">Check every citation in a manuscript against its reference list, catching ones that don't exist, don't match, or are formatted wrong.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-citation-check">
+          <span class="tag-cat">MQ</span><span class="name">citation-check</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:citation-check</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/citation-check/SKILL.md" aria-label="Open citation-check on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-citation-check" hidden>Check every citation in a manuscript against its reference list, catching ones that don't exist, don't match, or are formatted wrong.</p>
     </li>
     <li class="entry" id="fact-check" data-cat="mq" data-search="fact-check manuscript qa sources claims support verify /oss:fact-check">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fact-check/SKILL.md">
-        <span class="tag-cat">MQ</span><span class="name">fact-check</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:fact-check</span>
-      </a>
-      <p class="desc">Check whether the sources a manuscript cites actually say what the manuscript claims they say.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-fact-check">
+          <span class="tag-cat">MQ</span><span class="name">fact-check</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:fact-check</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fact-check/SKILL.md" aria-label="Open fact-check on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-fact-check" hidden>Check whether the sources a manuscript cites actually say what the manuscript claims they say.</p>
     </li>
     <li class="entry" id="figure-table-audit" data-cat="mq" data-search="figure-table-audit manuscript qa captions cross-references statistical notes /oss:figure-table-audit">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/figure-table-audit/SKILL.md">
-        <span class="tag-cat">MQ</span><span class="name">figure-table-audit</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:figure-table-audit</span>
-      </a>
-      <p class="desc">A final pass over a manuscript's figures and tables — captions, cross-references, and statistical notes — before submission.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-figure-table-audit">
+          <span class="tag-cat">MQ</span><span class="name">figure-table-audit</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:figure-table-audit</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/figure-table-audit/SKILL.md" aria-label="Open figure-table-audit on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-figure-table-audit" hidden>A final pass over a manuscript's figures and tables — captions, cross-references, and statistical notes — before submission.</p>
     </li>
     <li class="entry" id="replication-package" data-cat="mq" data-search="replication-package manuscript qa reproduce data code documentation /oss:replication-package">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/replication-package/SKILL.md">
-        <span class="tag-cat">MQ</span><span class="name">replication-package</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:replication-package</span>
-      </a>
-      <p class="desc">Build or check a replication package — the folder of data, code, and documentation someone else would need to reproduce your results.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-replication-package">
+          <span class="tag-cat">MQ</span><span class="name">replication-package</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:replication-package</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/replication-package/SKILL.md" aria-label="Open replication-package on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-replication-package" hidden>Build or check a replication package — the folder of data, code, and documentation someone else would need to reproduce your results.</p>
     </li>
   </ul>
 
-  <div class="chapter" data-cat="rs"><span class="num">X</span><h2>Review &amp; Submission</h2><span class="rule"></span><span class="n">4 skills</span></div>
-  <ul class="entries">
+  <div class="chapter" data-cat="rs" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-rs"><span class="num">X</span><h2>Review &amp; Submission</h2><span class="rule"></span><span class="n">4 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <ul class="entries" id="entries-rs" hidden>
     <li class="entry" id="paper-review-lite" data-cat="rs" data-search="paper-review-lite review submission pre-submission audit quote-grounded /oss:paper-review-lite">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-review-lite/SKILL.md">
-        <span class="tag-cat">RS</span><span class="name">paper-review-lite</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:paper-review-lite</span>
-      </a>
-      <p class="desc">Run a manuscript through a pre-submission review that checks its claims against actual quotes from the text, catching overclaiming before a real reviewer does.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-paper-review-lite">
+          <span class="tag-cat">RS</span><span class="name">paper-review-lite</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:paper-review-lite</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-review-lite/SKILL.md" aria-label="Open paper-review-lite on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-paper-review-lite" hidden>Run a manuscript through a pre-submission review that checks its claims against actual quotes from the text, catching overclaiming before a real reviewer does.</p>
     </li>
     <li class="entry" id="paper-review-lite-codex" data-cat="rs" data-search="paper-review-lite-codex review submission cross-model adversarial /oss:paper-review-lite-codex">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-review-lite-codex/SKILL.md">
-        <span class="tag-cat">RS</span><span class="name">paper-review-lite-codex</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:paper-review-lite-codex</span>
-      </a>
-      <p class="desc">The same pre-submission review as <code>paper-review-lite</code>, but run by two AI models independently, then cross-checked against each other.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-paper-review-lite-codex">
+          <span class="tag-cat">RS</span><span class="name">paper-review-lite-codex</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:paper-review-lite-codex</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-review-lite-codex/SKILL.md" aria-label="Open paper-review-lite-codex on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-paper-review-lite-codex" hidden>The same pre-submission review as <code>paper-review-lite</code>, but run by two AI models independently, then cross-checked against each other.</p>
     </li>
     <li class="entry" id="presubmit" data-cat="rs" data-search="presubmit review submission wizard cli 30 stage pipeline /oss:presubmit">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/presubmit/SKILL.md">
-        <span class="tag-cat">RS</span><span class="name">presubmit</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:presubmit</span>
-      </a>
-      <p class="desc">A guided walkthrough of a much larger, 30-plus-stage automated pre-submission review tool.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-presubmit">
+          <span class="tag-cat">RS</span><span class="name">presubmit</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:presubmit</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/presubmit/SKILL.md" aria-label="Open presubmit on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-presubmit" hidden>A guided walkthrough of a much larger, 30-plus-stage automated pre-submission review tool.</p>
     </li>
     <li class="entry" id="journal-review" data-cat="rs" data-search="journal-review review submission referee report third party /oss:journal-review">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/journal-review/SKILL.md">
-        <span class="tag-cat">RS</span><span class="name">journal-review</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:journal-review</span>
-      </a>
-      <p class="desc">Draft a referee report on someone else's manuscript, as if you were reviewing it for a journal.</p>
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-journal-review">
+          <span class="tag-cat">RS</span><span class="name">journal-review</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:journal-review</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/journal-review/SKILL.md" aria-label="Open journal-review on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-journal-review" hidden>Draft a referee report on someone else's manuscript, as if you were reviewing it for a journal.</p>
     </li>
   </ul>
 
   <p id="empty">No skills match your search. Try a different word, or clear the category filter.</p>
 
-  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 2 July 2026 (v2.12.0). Descriptions are paraphrased for a first-time reader — see each skill's own <code>SKILL.md</code> for the exact spec. Maintained by hand; when skills are added, renamed, or changed upstream, update this file directly.</p>
+  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 2 July 2026 (v2.12.0).</p>
 
 </main>
 
 <footer class="wrap">
-  <p><a href="../">AI for Research</a> · CC BY-NC 4.0 · <a href="https://github.com/scdenney/ai-for-research">github.com/scdenney/ai-for-research</a></p>
+  <p class="foot-links"><a href="https://github.com/scdenney/ai-for-research">GitHub</a> · <a href="https://scdenney.net">Steven Denney</a> · <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a></p>
 </footer>
 
 <script>
 (function(){
   var search = document.getElementById('skill-search');
   var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
-  var entries = Array.prototype.slice.call(document.querySelectorAll('.entry'));
   var chapters = Array.prototype.slice.call(document.querySelectorAll('.chapter'));
+  var entries = Array.prototype.slice.call(document.querySelectorAll('.entry'));
   var countEl = document.getElementById('skill-count');
   var emptyEl = document.getElementById('empty');
   var total = entries.length;
   var activeCats = new Set(['all']);
+
+  function entriesListFor(chapter){
+    return document.getElementById(chapter.getAttribute('aria-controls'));
+  }
+
+  function setSkillOpen(li, open){
+    var btn = li.querySelector('.row-toggle');
+    var desc = li.querySelector('.desc');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    desc.hidden = !open;
+  }
+
+  function setChapterOpen(chapter, open, opts){
+    opts = opts || {};
+    var list = entriesListFor(chapter);
+    chapter.setAttribute('aria-expanded', open ? 'true' : 'false');
+    list.hidden = !open;
+    if (opts.preserveSkills) return;
+    var lis = Array.prototype.slice.call(list.querySelectorAll('.entry'));
+    if (open){
+      var openedFirst = false;
+      lis.forEach(function(li){
+        var shouldOpen = !li.hidden && !openedFirst;
+        setSkillOpen(li, shouldOpen);
+        if (shouldOpen) openedFirst = true;
+      });
+    } else {
+      lis.forEach(function(li){ setSkillOpen(li, false); });
+    }
+  }
+
+  chapters.forEach(function(chapter){
+    chapter.addEventListener('click', function(){
+      var isOpen = chapter.getAttribute('aria-expanded') === 'true';
+      setChapterOpen(chapter, !isOpen);
+    });
+    chapter.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){
+        e.preventDefault();
+        chapter.click();
+      }
+    });
+  });
+
+  entries.forEach(function(li){
+    var btn = li.querySelector('.row-toggle');
+    btn.addEventListener('click', function(){
+      var isOpen = btn.getAttribute('aria-expanded') === 'true';
+      setSkillOpen(li, !isOpen);
+    });
+  });
 
   function toggleCat(cat){
     if (cat === 'all'){
@@ -438,6 +601,7 @@
 
   function apply(){
     var q = search.value.trim().toLowerCase();
+    var filtering = !!q || !activeCats.has('all');
     var visible = 0;
     entries.forEach(function(li){
       var catOk = activeCats.has('all') || activeCats.has(li.dataset.cat);
@@ -446,13 +610,35 @@
       li.hidden = !show;
       if (show) visible++;
     });
-    chapters.forEach(function(ch){
-      var cat = ch.dataset.cat;
+    chapters.forEach(function(chapter){
+      var cat = chapter.dataset.cat;
       var anyVisible = entries.some(function(li){ return li.dataset.cat === cat && !li.hidden; });
-      ch.hidden = !anyVisible;
+      chapter.hidden = !anyVisible;
+      if (!anyVisible) return;
+      if (filtering){
+        setChapterOpen(chapter, true, {preserveSkills:true});
+        Array.prototype.slice.call(entriesListFor(chapter).querySelectorAll('.entry')).forEach(function(li){
+          if (!li.hidden) setSkillOpen(li, true);
+        });
+      } else {
+        setChapterOpen(chapter, false);
+      }
     });
     countEl.textContent = visible === total ? ('Showing all ' + total + ' skills') : ('Showing ' + visible + ' of ' + total + ' skills');
     emptyEl.classList.toggle('show', visible === 0);
+  }
+
+  if (location.hash.length > 1){
+    var target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (target && target.classList.contains('entry')){
+      var list = target.closest('.entries');
+      var chapter = chapters.filter(function(ch){ return entriesListFor(ch) === list; })[0];
+      if (chapter){
+        setChapterOpen(chapter, true, {preserveSkills:true});
+        setSkillOpen(target, true);
+        requestAnimationFrame(function(){ target.scrollIntoView({block:'start'}); });
+      }
+    }
   }
 })();
 </script>

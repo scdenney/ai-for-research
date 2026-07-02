@@ -11,7 +11,9 @@ A teaching hub maintained by [Steven Denney](https://scdenney.net). It is where 
 ```
 ai-for-research/
 ├── docs/                       # the GitHub Pages site
-│   ├── index.html              #   landing page (getting started · demos · lectures)
+│   ├── index.html              #   landing page (getting started · demos · lectures · skills)
+│   ├── getting-started/        #   setup walkthrough (Claude Code and Codex, via terminal)
+│   ├── skills/                 #   index of every Open Science Skills skill
 │   └── reference-check/        #   walkthrough for the reference-check demo
 ├── demos/                      # self-contained projects you can clone and run
 │   └── reference-check/        #   reference + source-claim checking
@@ -30,7 +32,13 @@ claude plugin install oss@open-science-skills
 ```
 
 Open Claude Code in a project folder and the skills are ready to call. The full
-version of this is the first section of the [site](https://scdenney.github.io/ai-for-research).
+version of this is the first section of the [site](https://scdenney.github.io/ai-for-research),
+which also covers setting up [Codex](https://developers.openai.com/codex/skills) as an alternative.
+
+## Skills
+
+Every skill in the toolkit, indexed with a plain-language explanation of what it does:
+[**scdenney.github.io/ai-for-research/skills**](https://scdenney.github.io/ai-for-research/skills/).
 
 ## Demos
 

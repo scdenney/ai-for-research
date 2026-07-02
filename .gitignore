@@ -8,3 +8,6 @@ demos/reference-check/sample-project/sources/og/*
 *~
 .venv/
 __pycache__/
+
+# Claude Code local session state
+.claude/

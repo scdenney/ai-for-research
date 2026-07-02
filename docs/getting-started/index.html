@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Getting started — AI for Research</title>
-<meta name="description" content="Step by step: install Claude Code, sign in, add the Open Science Skills, and point it at a project. No prior command-line experience assumed.">
+<meta name="description" content="Step by step: install Claude Code or Codex in the terminal, sign in, add the Open Science Skills, and point it at a project. No prior command-line experience assumed.">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -84,6 +84,7 @@
     <a href="../#getting-started">Getting started</a>
     <a href="../#demos">Demos</a>
     <a href="../#lectures">Lectures</a>
+    <a href="../#skills">Skills</a>
     <a class="ext" href="https://github.com/scdenney/ai-for-research">GitHub</a>
   </div>
 </div></nav>
@@ -92,15 +93,16 @@
   <p class="kicker">Start here</p>
   <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
   <h1>Getting started</h1>
-  <p class="lede">Install Claude Code, sign in, add the Open Science Skills, and point it at a project. A one-time setup, with no prior command-line experience assumed.</p>
+  <p class="lede">Install an AI agent — Claude Code or Codex — in the terminal, add the Open Science Skills, and point it at a project. A one-time setup, with no prior command-line experience assumed.</p>
 </div></header>
 
 <main class="wrap">
 
   <div class="lead">
     <h2>Overview</h2>
-    <p>The aim is a setup where an AI agent reads the files in a folder and runs reusable checks over them, instead of a chat window you paste into. You install Claude Code, add the Open Science Skills, and point it at a project. After that, checking a reference list, or testing whether a source supports a claim, is a single command.</p>
-    <p>These instructions use the terminal, which is the simplest way in. You can also run Claude Code in an <a href="https://code.claude.com/docs">editor like VS Code or JetBrains</a>, or through the <a href="https://claude.ai/code">web and desktop apps</a>. The steps below assume the terminal.</p>
+    <p>The aim is a setup where an AI agent reads the files in a folder and runs reusable checks over them, instead of a chat window you paste into. You install an agent, add the Open Science Skills, and point it at a project. After that, checking a reference list, or testing whether a source supports a claim, is a single command.</p>
+    <p>These instructions use the terminal on purpose, not just because it's the simplest way in. A terminal agent is scriptable — a skill is just a command, so you can chain them, automate them, or run them unattended. It works the same way over SSH on a remote server or an HPC cluster as it does on your laptop. And it isn't locked to one vendor's app: every demo on this site assumes the terminal, and the steps below work whether the agent running it is Claude Code or Codex.</p>
+    <p>You can also run Claude Code in an <a href="https://code.claude.com/docs">editor like VS Code or JetBrains</a>, or through the <a href="https://claude.ai/code">web and desktop apps</a>, if you'd rather not use the terminal at all. The steps below cover Claude Code first, since it's what the rest of this site uses, then Codex as an alternative.</p>
   </div>
 
   <div class="step">
@@ -153,6 +155,24 @@ claude</code></pre>
 
   <div class="step">
     <div class="n">5</div>
+    <div class="body">
+      <h2>Using Codex instead <span class="opt">alternative</span></h2>
+      <p>The Open Science Skills ship a parallel, Codex-native copy of the same 34 workflows. Codex isn't a drop-in replacement for Claude Code — there's no plugin marketplace, and invocation looks different — but the skills themselves cover the same ground.</p>
+      <p>Install the Codex CLI itself first; that step isn't part of this toolkit, so follow OpenAI's own instructions at <a href="https://developers.openai.com/codex/skills">developers.openai.com/codex/skills</a>. Once Codex is installed and signed in, clone the Open Science Skills repo and symlink its skills into Codex's user-wide skills folder:</p>
+      <pre><code>git clone https://github.com/scdenney/open-science-skills
+cd open-science-skills
+mkdir -p "$HOME/.agents/skills"
+for skill in "$PWD"/codex/*/; do
+  ln -sfn "${skill%/}" "$HOME/.agents/skills/$(basename "$skill")"
+done</code></pre>
+      <p>Where Claude Code uses a slash command like <code>/oss:citation-check</code>, Codex invokes the same skill with a <code>$</code> prefix:</p>
+      <pre><code>$citation-check manuscript.md references.bib</code></pre>
+      <p class="note">Codex can also pick up a skill implicitly from how you describe the task, without typing the <code>$</code> form. The two libraries track each other closely but aren't identical — <code>presubmit</code> has no Codex equivalent, and <code>fable-orchestrate</code> is named <code>46-orchestrate</code> on the Codex side. See <a href="https://github.com/scdenney/open-science-skills/blob/main/codex/README.md">codex/README.md</a> for the full catalog, including repo-scoped and single-skill installs.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">6</div>
     <div class="body">
       <h2>Build a knowledge base <span class="opt">optional</span></h2>
       <p>This step is only for the <strong>source-claim check</strong>, which reads your sources to see whether they support a claim. The <strong>reference check</strong> does not need it.</p>

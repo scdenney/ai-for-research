@@ -86,6 +86,11 @@
   footer{color:var(--grey); font-size:14px; padding:28px 0 60px; text-align:center; border-top:1px solid var(--line); margin-top:20px}
   footer a{color:var(--cobalt)}
 
+  @media (max-width:700px){
+    .nav .row{flex-wrap:wrap; row-gap:8px}
+    .topmenu{width:100%; justify-content:flex-start; font-size:15px; gap:16px}
+    nav.filter-bar{top:105px}
+  }
   @media (max-width:560px){
     .desc{padding-left:0}
     .leader{display:none}

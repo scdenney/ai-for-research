@@ -710,7 +710,9 @@
 
   function apply(){
     var q = search.value.trim().toLowerCase();
-    var filtering = !!q || !activeCats.has('all') || activePlat !== 'all';
+    // Auto-expand chapters only when searching or a specific category is chosen.
+    // A platform selection alone filters the counts but leaves chapters collapsed.
+    var filtering = !!q || !activeCats.has('all');
     var visible = 0;
     entries.forEach(function(li){
       var catOk = activeCats.has('all') || activeCats.has(li.dataset.cat);
@@ -722,9 +724,11 @@
     });
     chapters.forEach(function(chapter){
       var cat = chapter.dataset.cat;
-      var anyVisible = entries.some(function(li){ return li.dataset.cat === cat && !li.hidden; });
-      chapter.hidden = !anyVisible;
-      if (!anyVisible) return;
+      var matchCount = entries.filter(function(li){ return li.dataset.cat === cat && !li.hidden; }).length;
+      chapter.hidden = matchCount === 0;
+      var nEl = chapter.querySelector('.n');
+      if (nEl) nEl.textContent = matchCount === 1 ? '1 skill' : (matchCount + ' skills');
+      if (matchCount === 0) return;
       if (filtering){
         setChapterOpen(chapter, true, {preserveSkills:true});
         Array.prototype.slice.call(entriesListFor(chapter).querySelectorAll('.entry')).forEach(function(li){

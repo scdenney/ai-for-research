@@ -70,13 +70,26 @@ function parsePageEntries(pageHtml) {
   return entries;
 }
 
-function buildEntryHtml(slug, code, description) {
-  const search = `${slug} needs review ${description}`.toLowerCase().replace(/[`"]/g, "");
-  return `    <li class="entry" id="${slug}" data-cat="${code}" data-search="${search}">
-      <a class="row ext" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/${slug}/SKILL.md">
-        <span class="tag-cat">${code.toUpperCase()}</span><span class="name">${slug}</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:${slug}</span>
-      </a>
-      <p class="desc"><em>[needs review — paraphrase in plain language, source repo says:]</em> ${description}</p>
+function buildEntryHtml(slug, code, description, codexSlugs) {
+  const both = codexSlugs.has(slug); // a plugin skill also present in the codex catalog
+  const plat = both ? "both" : "claude";
+  const badge = both
+    ? '<span class="tag-plat plat-both">both</span>'
+    : '<span class="tag-plat plat-claude">Claude&nbsp;only</span>';
+  const cmds = both
+    ? `<code class="cmd">/oss:${slug}</code> <span class="cmd-sep">·</span> <code class="cmd">$${slug}</code>`
+    : `<code class="cmd">/oss:${slug}</code>`;
+  const searchExtra = both ? `$${slug} codex claude both` : "claude only";
+  const search = `${slug} needs review ${description} /oss:${slug} ${searchExtra}`.toLowerCase().replace(/[`"]/g, "");
+  return `    <li class="entry" id="${slug}" data-cat="${code}" data-plat="${plat}" data-search="${search}">
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-${slug}">
+          <span class="tag-cat">${code.toUpperCase()}</span><span class="name">${slug}</span><span class="leader" aria-hidden="true"></span>${badge}
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/${slug}/SKILL.md" aria-label="Open ${slug} on GitHub">↗</a>
+      </div>
+      <div class="cmds">${cmds}</div>
+      <p class="desc" id="desc-${slug}" hidden><em>[needs review — paraphrase in plain language, source repo says:]</em> ${description}</p>
     </li>`;
 }
 
@@ -84,6 +97,26 @@ const readme = readFileSync(join(ossPath, "README.md"), "utf8");
 const catalog = parseReadmeCatalog(readme);
 let page = readFileSync(PAGE_PATH, "utf8");
 const pageEntries = parsePageEntries(page);
+
+// Authoritative "does this skill still exist": a skill lives if it is a plugin
+// skill (Claude Code) OR a codex-catalog skill (e.g. the Codex-only
+// 46-orchestrate). Union so codex-only entries are not flagged as removed.
+const pluginSlugs = new Set(
+  readdirSync(join(ossPath, "plugin", "skills"), { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
+);
+let codexSlugs = new Set();
+try {
+  codexSlugs = new Set(
+    readdirSync(join(ossPath, "codex"), { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name)
+  );
+} catch {
+  // no codex catalog present
+}
+const currentSlugs = new Set([...pluginSlugs, ...codexSlugs]);
 
 const summary = { newSkills: [], removedSkills: [], newCategories: [] };
 
@@ -96,10 +129,10 @@ for (const cat of catalog) {
   for (const skill of cat.skills) {
     if (!pageEntries.has(skill.slug)) {
       summary.newSkills.push({ ...skill, category: cat.name, code: known.code });
-      const entryHtml = buildEntryHtml(skill.slug, known.code, skill.description);
+      const entryHtml = buildEntryHtml(skill.slug, known.code, skill.description, codexSlugs);
       // Append to the end of that category's <ul class="entries"> block.
       const chapterRe = new RegExp(
-        `(<div class="chapter" data-cat="${known.code}">[\\s\\S]*?<\\/div>\\s*<ul class="entries">)([\\s\\S]*?)(<\\/ul>)`
+        `(<div class="chapter" data-cat="${known.code}"[^>]*>[\\s\\S]*?<\\/div>\\s*<ul class="entries"[^>]*>)([\\s\\S]*?)(<\\/ul>)`
       );
       const chapMatch = page.match(chapterRe);
       if (chapMatch) {
@@ -109,14 +142,6 @@ for (const cat of catalog) {
   }
 }
 
-// The README table is the source for category + description, but the
-// plugin/skills/ directory listing is the authoritative answer to "does
-// this skill still exist" — a removal might lag behind a README edit.
-const currentSlugs = new Set(
-  readdirSync(join(ossPath, "plugin", "skills"), { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .map((d) => d.name)
-);
 for (const [slug, { cat }] of pageEntries) {
   if (!currentSlugs.has(slug) && !slug.startsWith("removed-")) {
     summary.removedSkills.push(slug);

@@ -42,10 +42,6 @@
   h1{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:44px; line-height:1.08; margin:.08em 0 .3em; letter-spacing:-.01em}
   .lede{font-family:"EB Garamond",Georgia,serif; font-size:22px; line-height:1.42; opacity:.92; margin:0}
 
-  nav.toc{position:sticky; top:66px; z-index:10; background:color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); margin-top:22px}
-  nav.toc ol{list-style:none; display:flex; flex-wrap:wrap; gap:6px 20px; margin:0 auto; padding:12px 24px; max-width:var(--maxw); font-size:15px}
-  nav.toc a{color:var(--grey); text-decoration:none; white-space:nowrap}
-  nav.toc a:hover{color:var(--cobalt)}
 
   main{padding:8px 0 40px}
   main p{margin:1em 0}
@@ -72,7 +68,6 @@
   @media (max-width:700px){
     .nav .row{flex-wrap:wrap; row-gap:8px}
     .topmenu{width:100%; justify-content:flex-start; font-size:15px; gap:16px}
-    nav.toc{top:105px}
   }
 </style>
 </head>
@@ -85,7 +80,7 @@
   </a>
   <div class="topmenu">
     <a href="../getting-started/">Getting started</a>
-    <a href="../reference-check/">Demos</a>
+    <a href="../demos/">Demos</a>
     <a href="../lectures/">Lectures</a>
     <a href="../skills/">Skills</a>
   </div>
@@ -97,14 +92,6 @@
   <h1>Reference-Check Demo</h1>
   <p class="lede">Check your citations against your reference list, then check whether each source actually supports the claim it backs.</p>
 </div></header>
-
-<nav class="toc" aria-label="Sections"><ol>
-  <li><a href="#motivation">Motivation</a></li>
-  <li><a href="#setup">Set up</a></li>
-  <li><a href="#reference-check">Reference check</a></li>
-  <li><a href="#claim-check">Source-claim check</a></li>
-  <li><a href="#by-hand">Check by hand</a></li>
-</ol></nav>
 
 <main class="wrap">
   <section id="motivation">

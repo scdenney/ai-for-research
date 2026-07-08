@@ -39,6 +39,7 @@
   @media (max-width:700px){
     .nav .row{flex-wrap:wrap; row-gap:8px}
     .menu{width:100%; justify-content:flex-start; font-size:15px; gap:16px}
+    .cards{grid-template-columns:1fr}
   }
 
   header.hero{padding:60px 0 34px; border-bottom:1px solid var(--line)}
@@ -58,7 +59,7 @@
   pre{background:var(--paper-2); border:1px solid var(--line); border-radius:10px; padding:15px 18px; overflow:auto; margin:1em 0}
   pre code{background:none; padding:0; font:13.5px/1.75 Menlo,"SF Mono",ui-monospace,monospace}
   code{font:14px/1.5 Menlo,"SF Mono",ui-monospace,monospace; background:var(--paper-2); padding:.12em .4em; border-radius:4px}
-  .cards{display:grid; gap:14px; margin:16px 0}
+  .cards{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:22px 0}
   .card{display:flex; flex-direction:column; border:1px solid var(--line); border-radius:13px; padding:18px 22px; text-decoration:none; color:inherit; background:var(--paper-2); transition:border-color .15s, transform .15s}
   .card:hover{border-color:var(--cobalt); transform:translateY(-1px)}
   .card:hover .go{transform:translateX(3px)}
@@ -81,10 +82,10 @@
     <span class="name">AI for Research</span>
   </a>
   <div class="menu">
-    <a href="#getting-started">Getting started</a>
-    <a href="#demos">Demos</a>
-    <a href="#lectures">Lectures</a>
-    <a href="#skills">Skills</a>
+    <a href="getting-started/">Getting started</a>
+    <a href="reference-check/">Demos</a>
+    <a class="ext" href="https://scdenney.github.io/assets/slides/from-pixels-to-patterns/#1" target="_blank" rel="noopener">Lectures</a>
+    <a href="skills/">Skills</a>
   </div>
 </div></nav>
 
@@ -96,52 +97,27 @@
 </div></header>
 
 <main class="wrap">
-  <section id="getting-started">
-    <h2>Getting started <span class="tag">start here</span></h2>
-    <p>New to this? Setup is a one-time thing. Install an AI agent — Claude Code or Codex — in the terminal, add the Open Science Skills, and point it at a project. The walkthrough takes it step by step, with nothing assumed.</p>
+  <section aria-label="Explore">
     <div class="cards">
       <a class="card" href="getting-started/">
-        <h3>Set up Claude Code (or Codex) and the skills <span class="go">→</span></h3>
-        <p>Install the command-line AI tool that runs the skills, sign in, add the Open Science Skills, and confirm they loaded. About five minutes, no prior setup assumed. Codex covered as an alternative.</p>
+        <h3>Getting started <span class="go">→</span></h3>
+        <p>Install Claude Code or Codex, add the Open Science Skills, and point it at a project. About five minutes, nothing assumed.</p>
         <div class="meta">Claude Code · Codex · step-by-step</div>
       </a>
-    </div>
-  </section>
-
-  <section id="demos">
-    <h2>Demos <span class="tag">run them yourself</span></h2>
-    <p>Small projects you clone and run end to end, each with sample files, the exact prompts, and expected output.</p>
-    <div class="cards">
       <a class="card" href="reference-check/">
-        <h3>Reference &amp; source-claim checking <span class="go">→</span></h3>
-        <p>Catch fabricated or malformed citations against your reference list alone. Then, with a small set of your sources on hand, check whether each one actually supports the claim it backs. Runs offline on a short sample article with planted errors.</p>
-        <div class="meta">citation-check · fact-check · research-repo</div>
+        <h3>Demos <span class="go">→</span></h3>
+        <p>Clone-and-run projects with sample files, the exact prompts, and expected output. Start with reference and source-claim checking.</p>
+        <div class="meta">reference-check · runs offline</div>
       </a>
-    </div>
-    <p class="soon">More demos to come.</p>
-  </section>
-
-  <section id="lectures">
-    <h2>Lectures &amp; slides <span class="tag">teaching</span></h2>
-    <p>Slide decks and notes from talks and workshops. New decks are added to the lectures folder as they are given.</p>
-    <div class="cards">
-      <a class="card" href="https://scdenney.github.io/assets/slides/from-pixels-to-patterns/#1">
-        <h3>From Pixels to Patterns <span class="go">→</span></h3>
-        <p>A talk on the methods behind the <em>Pixels and Patterns</em> project: computer vision and language models in empirical social science and the digital humanities.</p>
-        <div class="meta">slides</div>
+      <a class="card" href="https://scdenney.github.io/assets/slides/from-pixels-to-patterns/#1" target="_blank" rel="noopener">
+        <h3>Lectures &amp; slides <span class="go">↗</span></h3>
+        <p>Slide decks and notes from talks and workshops. Opens the current deck in a new tab.</p>
+        <div class="meta">slides · external</div>
       </a>
-    </div>
-    <p class="soon">More lectures &amp; slides to come.</p>
-  </section>
-
-  <section id="skills">
-    <h2>Skills <span class="tag">the toolkit</span></h2>
-    <p>Every skill in the Open Science Skills toolkit, indexed in one place — what each one does, what it's called, and where to read the source.</p>
-    <div class="cards">
       <a class="card" href="skills/">
-        <h3>Browse the skill index <span class="go">→</span></h3>
-        <p>Searchable and filterable by category, from research design through manuscript QA, with plain-language explanations of what each skill actually checks or builds.</p>
-        <div class="meta">35 skills · 10 categories</div>
+        <h3>Skills <span class="go">→</span></h3>
+        <p>The full toolkit, indexed in one place — searchable and filterable by category, with plain-language explanations.</p>
+        <div class="meta">38 skills · 10 categories</div>
       </a>
     </div>
   </section>

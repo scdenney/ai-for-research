@@ -147,7 +147,7 @@
     <button type="button" class="chip" data-cat="mq" aria-pressed="false">Manuscript QA</button>
     <button type="button" class="chip" data-cat="rs" aria-pressed="false">Review &amp; Submission</button>
   </div>
-  <p class="count" id="skill-count" aria-live="polite">Showing all 35 skills</p>
+  <p class="count" id="skill-count" aria-live="polite">Showing all 38 skills</p>
 </div></nav>
 
 <main class="wrap">
@@ -165,7 +165,7 @@
     </li>
   </ul>
 
-  <div class="chapter" data-cat="wo" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-wo"><span class="num">II</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">1 skill</span><span class="chev" aria-hidden="true">›</span></div>
+  <div class="chapter" data-cat="wo" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-wo"><span class="num">II</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></div>
   <ul class="entries" id="entries-wo" hidden>
     <li class="entry" id="fable-orchestrate" data-cat="wo" data-search="fable-orchestrate workflow orchestration multi-model opus sonnet codex /oss:fable-orchestrate">
       <div class="row">
@@ -175,6 +175,15 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fable-orchestrate/SKILL.md" aria-label="Open fable-orchestrate on GitHub">↗</a>
       </div>
       <p class="desc" id="desc-fable-orchestrate" hidden>Run a hard task past three AI models at once — one for deep reasoning, one for fast execution, one as an outside check — instead of trusting a single model's answer.</p>
+    </li>
+    <li class="entry" id="opus-orchestrate" data-cat="wo" data-search="opus-orchestrate workflow orchestration multi-model opus lead ultracode sonnet codex /oss:opus-orchestrate">
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-opus-orchestrate">
+          <span class="tag-cat">WO</span><span class="name">opus-orchestrate</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:opus-orchestrate</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/opus-orchestrate/SKILL.md" aria-label="Open opus-orchestrate on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-opus-orchestrate" hidden>The same three-model teamwork as <code>fable-orchestrate</code>, but led by the strongest model (Claude Opus) running flat out — it does the hard thinking itself and hands off only the parts worth running in parallel, the mechanical work, or an outside check.</p>
     </li>
   </ul>
 
@@ -258,7 +267,7 @@
     </li>
   </ul>
 
-  <div class="chapter" data-cat="an" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-an"><span class="num">V</span><h2>Analysis</h2><span class="rule"></span><span class="n">5 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <div class="chapter" data-cat="an" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-an"><span class="num">V</span><h2>Analysis</h2><span class="rule"></span><span class="n">7 skills</span><span class="chev" aria-hidden="true">›</span></div>
   <ul class="entries" id="entries-an" hidden>
     <li class="entry" id="topic-modeling" data-cat="an" data-search="topic-modeling analysis structural topic model stm covariates coherence /oss:topic-modeling">
       <div class="row">
@@ -294,7 +303,25 @@
         </button>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-committee/SKILL.md" aria-label="Open model-committee on GitHub">↗</a>
       </div>
-      <p class="desc" id="desc-model-committee" hidden>Have two AI models (GPT-5.5 and Claude Opus) discuss a judgment call with each other before settling on an answer, instead of asking just one.</p>
+      <p class="desc" id="desc-model-committee" hidden>Have two AI models (GPT-5.5 and Claude Opus) discuss a judgment call with each other before settling on an answer, instead of asking just one. This is the version where Claude Opus runs the meeting.</p>
+    </li>
+    <li class="entry" id="model-committee-sol" data-cat="an" data-search="model-committee-sol analysis gpt opus sol chair deliberative judgment committee /oss:model-committee-sol">
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-model-committee-sol">
+          <span class="tag-cat">AN</span><span class="name">model-committee-sol</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:model-committee-sol</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-committee-sol/SKILL.md" aria-label="Open model-committee-sol on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-model-committee-sol" hidden>The same two-model committee as <code>model-committee</code>, but a third model — GPT-5.6 "Sol" — runs the meeting and makes the final call, so the tie-breaker isn't one of the two debaters.</p>
+    </li>
+    <li class="entry" id="model-committee-fable" data-cat="an" data-search="model-committee-fable analysis gpt opus fable chair deliberative judgment committee lightweight /oss:model-committee-fable">
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-model-committee-fable">
+          <span class="tag-cat">AN</span><span class="name">model-committee-fable</span><span class="leader" aria-hidden="true"></span><span class="cmd">/oss:model-committee-fable</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-committee-fable/SKILL.md" aria-label="Open model-committee-fable on GitHub">↗</a>
+      </div>
+      <p class="desc" id="desc-model-committee-fable" hidden>The same two-model committee as <code>model-committee</code>, but a fast, lightweight model (Fable 5) chairs — it tallies the debate and settles ties without adding an agenda of its own.</p>
     </li>
     <li class="entry" id="llm-calibration-logprobs" data-cat="an" data-search="llm-calibration-logprobs analysis confidence token probabilities calibration ece brier /oss:llm-calibration-logprobs">
       <div class="row">

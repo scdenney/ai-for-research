@@ -221,6 +221,16 @@
       <div class="cmds"><code class="cmd">$46-orchestrate</code></div>
       <p class="desc" id="desc-46-orchestrate" hidden>Codex's own orchestrator — the “Sol” lead plans, hands bounded research, implementation, and checks to helper agents, and keeps the final sign-off. The Codex counterpart to <code>fable-orchestrate</code> (there is no <code>opus-orchestrate</code> on the Codex side).</p>
     </li>
+      <li class="entry" id="advisor" data-cat="wo" data-plat="both" data-search="advisor needs review single-turn independent second-reviewer consult with fable 5, matched to the calling session's current reasoning effort via the live $claude_effort environment variable. fallback for when the native advisor() tool reports itself unavailable; unlike that tool, it has no automatic transcript access, so the caller composes a self-contained briefing before consulting. read-only advisory — never edits files. ships a fable-advisor.sh driver. /oss:advisor $advisor codex claude both">
+      <div class="row">
+        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-advisor">
+          <span class="tag-cat">WO</span><span class="name">advisor</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+        </button>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/advisor/SKILL.md" aria-label="Open advisor on GitHub">↗</a>
+      </div>
+      <div class="cmds"><code class="cmd">/oss:advisor</code> <span class="cmd-sep">·</span> <code class="cmd">$advisor</code></div>
+      <p class="desc" id="desc-advisor" hidden><em>[needs review — paraphrase in plain language, source repo says:]</em> Single-turn independent second-reviewer consult with Fable 5, matched to the calling session's current reasoning effort via the live `$CLAUDE_EFFORT` environment variable. Fallback for when the native `advisor()` tool reports itself unavailable; unlike that tool, it has no automatic transcript access, so the caller composes a self-contained briefing before consulting. Read-only advisory — never edits files. Ships a `fable-advisor.sh` driver.</p>
+    </li>
   </ul>
 
   <div class="chapter" data-cat="id" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-id"><span class="num">III</span><h2>Ideation</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></div>
@@ -607,7 +617,7 @@
 
   <p id="empty">No skills match your search. Try a different word, or clear the category filter.</p>
 
-  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 8 July 2026 (v2.14.0). 38 skills on Claude Code (<code>/oss:name</code>) and 36 on Codex (<code>$name</code>); most run on both, a few are platform-specific.</p>
+  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 10 July 2026 (v2.15.1). 39 skills on Claude Code (<code>/oss:name</code>) and 37 on Codex (<code>$name</code>); most run on both, a few are platform-specific.</p>
 
 </main>
 

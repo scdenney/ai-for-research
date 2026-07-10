@@ -50,7 +50,12 @@ function parseReadmeCatalog(readme) {
   for (const block of catBlocks) {
     const name = block.split("\n")[0].trim();
     const skills = [];
-    const rowRe = /<tr>\s*<td><a href="plugin\/skills\/([a-z0-9-]+)\/SKILL\.md"><strong>[^<]+<\/strong><\/a><\/td>\s*<td>.*?<\/td>\s*<td>(.*?)<\/td>\s*<\/tr>/gis;
+    // The first cell is `.*?` rather than an immediate `<\/td>` because the
+    // Workflow & Orchestration section (fable-orchestrate, opus-orchestrate,
+    // advisor, ...) appends a `<br><sub>platform</sub>` tag inside that same
+    // cell to mark Claude Code vs. Codex; a strict immediate-close regex
+    // silently skipped that whole section.
+    const rowRe = /<tr>\s*<td><a href="plugin\/skills\/([a-z0-9-]+)\/SKILL\.md"><strong>[^<]+<\/strong><\/a>.*?<\/td>\s*<td>.*?<\/td>\s*<td>(.*?)<\/td>\s*<\/tr>/gis;
     let m;
     while ((m = rowRe.exec(block))) {
       skills.push({ slug: m[1], description: stripHtml(m[2]) });

@@ -22,4 +22,4 @@
 
 ## Artifacts
 
-See `SHA256SUMS`. Deliverables produced by the run itself, unedited. Full session transcript retained locally (session `0c8d774f-5556-4084-b1d8-1f4ca13d17fc`); the committed record is this log + `claude-envelope.json` (cost/usage) + `transcript-excerpt.md`.
+See `SHA256SUMS`. Deliverables produced by the run itself, unedited. Full session transcript retained locally (session `0c8d774f-5556-4084-b1d8-1f4ca13d17fc`); the committed record is this log + `claude-envelope.json` (cost/usage).

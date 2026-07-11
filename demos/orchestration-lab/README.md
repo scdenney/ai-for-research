@@ -1,6 +1,6 @@
 # Orchestration Lab
 
-**One real conjoint analysis, run four ways.** The same three analysis briefs — easy, standard, and hard — run under four multi-model orchestration modes, with the captured runs committed: transcripts, token counts, routing traces, and the figures each mode actually produced.
+**One real conjoint analysis, run four ways.** The same three analysis briefs (easy, standard, and hard) run under four multi-model orchestration modes. Every run is committed, with transcripts, token counts, routing traces, and the figures each mode produced.
 
 The modes:
 
@@ -11,7 +11,7 @@ The modes:
 | `46-orchestrate` | GPT-5.6 Terra (medium effort) | researcher / implementer / verifier spawns (same model) | Codex |
 | `advisor` | plain session + one second-opinion consult | Fable 5 or GPT-5.6 as the reviewer | either |
 
-> **The one rule.** A captured run is one draw from a non-deterministic process, not a benchmark. These are specimens: read the routing traces and the artifacts, re-run the briefs yourself, and expect your numbers to differ.
+> **The one rule.** A captured run is one draw from a non-deterministic process, not a benchmark. These are specimens. Read the routing traces and the artifacts, re-run the briefs yourself, and expect your numbers to differ.
 
 ## What's in here
 
@@ -33,11 +33,11 @@ cd ai-for-research/demos/orchestration-lab
 Rscript -e 'install.packages("projoint")'   # the only dependency beyond R + ggplot2
 ```
 
-Then read `prompts/run.md` and re-run any cell of the matrix. This demo calls hosted models: it is not offline, and the larger tiers cost real money (the committed run logs record what each cost us).
+Then read `prompts/run.md` and re-run any cell of the matrix. This demo calls hosted models. It is not offline, and the larger tiers cost real money (the committed run logs record what each cost us).
 
 ## Why real data
 
-The runs analyze `exampleData1` from the projoint R package — a real community-choice conjoint (400 respondents, 8 tasks, 7 attributes) that ships with the package, so there is nothing to download and no license question. See `data/README.md`.
+The runs analyze `exampleData1` from the projoint R package, a real community-choice conjoint (400 respondents, 8 tasks, 7 attributes) that ships with the package, so there is nothing to download and no license question. See `data/README.md`.
 
 ## The skills this demonstrates
 

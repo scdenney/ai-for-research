@@ -4,7 +4,7 @@ This directory holds the **gold-standard** solutions to the three orchestration
 briefs (`../prompts/t1-descriptive.md`, `t2-amce.md`, `t3-reviewer-memo.md`).
 Every model run, under every orchestration mode, is scored against the numbers
 and judgments below. The data is `projoint::exampleData1` (community-choice
-conjoint); all figures and tables here were produced by the `t1/`, `t2/`, `t3/`
+conjoint). All figures and tables here were produced by the `t1/`, `t2/`, `t3/`
 scripts, each run from its own directory.
 
 - **Environment:** R 4.5.1, `projoint` 1.1.1, `ggplot2` 4.0.2.
@@ -12,19 +12,19 @@ scripts, each run from its own directory.
 - **Total analysis runtime:** ~5 s wall-clock for all three scripts combined
   (4.9 s measured; T1 ~1.3 s, T2 ~2.0 s, T3 ~1.9 s).
 - **Determinism:** projoint's default estimator path (`.se_method="analytical"`)
-  is **exactly reproducible** — identical estimates, SEs, and IRR across seeds.
-  `set.seed(46)` is set as a convention; it is load-bearing only if a run
+  is **exactly reproducible**. Estimates, SEs, and IRR are identical across seeds.
+  `set.seed(46)` is set as a convention. It is load-bearing only if a run
   switches to a bootstrap/simulation SE method.
 
 > **Read this first — three facts that shape grading.** (1) The **headline
-> attribute is Violent Crime Rate, which is binary**; that makes the T3
+> attribute is Violent Crime Rate, which is binary**. That makes the T3
 > baseline critique unusually easy to rebut (see the deviations note at the
-> bottom — the T3 brief may need a wording amendment). (2) projoint reports
-> **both IRR-corrected and uncorrected AMCEs**; the corrected values are its
+> bottom, which flags that the T3 brief may need a wording amendment). (2) projoint reports
+> **both IRR-corrected and uncorrected AMCEs**. The corrected values are its
 > default headline, but the *headline attribute and the attribute ranking are
 > the same under either*, so accept either as long as it is labeled. (3) The
 > "seed matters / bootstrap SEs" note in the briefs is **not true of projoint's
-> defaults** — the default path is analytical and deterministic.
+> defaults**. The default path is analytical and deterministic.
 
 ---
 
@@ -55,10 +55,10 @@ scripts, each run from its own directory.
 
 **Balance verdict: sound, with one minor, honest flag.** Six of seven
 attributes are statistically indistinguishable from uniform (max within-attribute
-deviation < 1 pp). **Total Daily Driving Time is mildly imbalanced** — χ² = 14.6
+deviation < 1 pp). **Total Daily Driving Time is mildly imbalanced**. χ² = 14.6
 (df = 3), p = 0.002, largest deviation **1.94 pp** (the 25-min level is
 over-represented at 26.9% vs a 25% target). With 6,400 rows the χ² test detects
-even trivial departures, so the correct call is: *randomization looks sound; one
+even trivial departures, so the correct call is straightforward. *Randomization looks sound. One
 attribute shows a statistically detectable but substantively negligible
 (< 2 pp) imbalance that should be disclosed, not papered over as "perfect
 balance."* A run that claims flawless balance without noticing the driving-time
@@ -71,7 +71,7 @@ uniform-expectation reference line (`t1/figures/level-frequencies.png`).
 
 ## T2 — AMCEs (expected estimates)
 
-**Headline attribute = Violent Crime Rate (Vs National Rate)** — the largest
+**Headline attribute = Violent Crime Rate (Vs National Rate)** is the largest
 absolute AMCE, and it holds that rank under *both* the corrected and the
 uncorrected estimand (robust pick). The single contrast (20% More vs 20% Less
 crime) is **−25.1 pp** corrected / **−16.5 pp** uncorrected.
@@ -119,9 +119,9 @@ to accommodate runs that legitimately deviate:
 
 - A run that switches to `.se_method="bootstrap"`/`"simulation"` gets point
   estimates that shift ~1–2% across seeds (projoint re-estimates tau per
-  resample) — a few tenths of a pp — and SEs that move up to ~0.6 pp.
+  resample), a few tenths of a pp, and SEs that shift up to ~0.6 pp.
 - A run that reports **uncorrected** AMCEs (or uses a non-projoint tool such as
-  `cregg`) lands near the uncorrected column — accept it **if labeled as
+  `cregg`) lands near the uncorrected column. Accept it **if labeled as
   uncorrected**. Do not accept an uncorrected number presented as corrected.
 - **Non-negotiable regardless of tolerance:** the headline attribute (Violent
   Crime Rate), the sign/direction of every large effect, and the attribute
@@ -139,13 +139,13 @@ Full grading checklist: **`t3/RUBRIC.md`**. Full numbers and figure:
 **`t3/sensitivity-table.md`**, `t3/figures/sensitivity.png`.
 
 **The one-paragraph answer.** The reviewer is *mechanically* right that AMCEs are
-baseline-relative — and for multi-level attributes the level-vs-baseline numbers
-really do move (Driving Time's 25-min level is −7.0 pp against a 10-min baseline
+baseline-relative, and for multi-level attributes the level-vs-baseline numbers
+really do shift (Driving Time's 25-min level is −7.0 pp against a 10-min baseline
 but +16.8 pp against a 75-min baseline). **But the headline attribute is binary**,
-so it has exactly one alternative baseline and flipping it only flips the sign:
+so it has exactly one alternative baseline and flipping it only flips the sign.
 **|AMCE| = 25.1 pp corrected / 16.5 pp uncorrected, invariant.** The
-baseline-free **marginal means** confirm it — crime has the **widest MM spread of
-any attribute** — and the **importance ordering by MM range is baseline-invariant.**
+baseline-free **marginal means** confirm it (crime has the **widest MM spread of
+any attribute**), and the **importance ordering by MM range is baseline-invariant.**
 So the finding is **not** a baseline artifact.
 
 **Key sensitivity numbers:**
@@ -162,13 +162,13 @@ So the finding is **not** a baseline artifact.
   Vote **5.6** (pp).
 
 **The verdict and the claim ceiling.** Crime's effect is robust in existence,
-magnitude, and direction. The *only* real caveat: crime's #1 rank sits just
-**~1.4 pp** ahead of commute time, with overlapping CIs — not statistically
+magnitude, and direction. The *only* real caveat is that crime's #1 rank sits just
+**~1.4 pp** ahead of commute time, with overlapping CIs, not statistically
 resolved. So the revised manuscript **may** say crime is *the largest single /
-one of the strongest* drivers, **comparable to commute time**; it **may not** say
+one of the strongest* drivers, **comparable to commute time**. It **may not** say
 crime *dominates* or is *the* decisive factor. A memo that treats the sign flip
 as a reversal, over-concedes the finding as fragile, or claims a clean
-dominance ranking is wrong — see `t3/RUBRIC.md` §F.
+dominance ranking is wrong. See Section F of `t3/RUBRIC.md`.
 
 ---
 
@@ -180,24 +180,24 @@ judgment calls a methodologist still owns:
 1. **Corrected or uncorrected as the number of record.** projoint's IRR
    correction (×1.525 here) is a real modeling stance, not a default to accept
    blindly. Reporting a 25-pp effect vs a 16-pp effect is a choice about how much
-   to trust the repeated-task reliability model — the human decides which to lead
+   to trust the repeated-task reliability model. The human decides which to lead
    with, and must disclose it either way.
 2. **How to treat the driving-time imbalance.** 1.94 pp is statistically
    detectable but substantively tiny. Disclose and move on, or re-weight / robust-
-   check? A defensible call either way — but "perfect balance" is not defensible.
+   check? A defensible call either way, but "perfect balance" is not defensible.
 3. **The crime-vs-commute ranking.** The data cannot resolve a ~1.4-pp,
    CI-overlapping gap. Whether the paper's story rests on crime being *the* top
    factor, or simply *among* the top, is a substantive framing decision the
    numbers will not make for you.
 4. **What "drives community choice" means substantively.** A 25-pp AMCE is large
-   for a survey experiment, but external validity — does a forced-choice conjoint
-   over hypothetical communities predict real moving behavior? — is a claim no
+   for a survey experiment, but external validity (does a forced-choice conjoint
+   over hypothetical communities predict real moving behavior?) is a claim no
    estimator adjudicates.
 5. **Whether the binary headline is the right headline at all.** Violent Crime
    Rate wins the "largest |AMCE|" test partly *because* it is a wide, two-level
    contrast. A human might argue the more interesting story is a multi-level
    attribute (commute time, housing cost) with a dose-response gradient. The
-   metric picks crime; the scientist decides whether that is the point.
+   metric picks crime. The scientist decides whether that is the point.
 
 ---
 
@@ -214,7 +214,7 @@ judgment calls a methodologist still owns:
   point. **Suggested amendment:** reword T3 to "different baselines for
   `{HEADLINE_ATTR}` where possible, and for at least one multi-level attribute,"
   or accept that the binary headline is itself the punchline. This is arguably a
-  *feature* — it makes T3 a genuine judgment test (over-concession is the trap).
+  *feature*. It makes T3 a judgment test (over-concession is the trap).
 - **"projoint uses bootstrap SEs — seed matters."** Not true of the defaults
   (`.se_method="analytical"`). Consider softening the parenthetical in the T1/T2/
   T3 briefs to "set a seed as a convention; it matters only under bootstrap/

@@ -1,6 +1,6 @@
 # Running the matrix
 
-Every run starts from its own leaf directory under `runs/<mode>/<tier>/`, so the mode writes its artifacts in place. Every run is a **fresh session** — never reuse a session that has seen another run or this repo's build history. After each run: fill `run-log.md` (copy `prompts/run-log-template.md`), write `transcript-excerpt.md` under the excerpt rules below, and generate hashes:
+Every run starts from its own leaf directory under `runs/<mode>/<tier>/`, so the mode writes its artifacts in place. Every run is a **fresh session**. Never reuse a session that has seen another run or this repo's build history. After each run, fill `run-log.md` (copy `prompts/run-log-template.md`), write `transcript-excerpt.md` under the excerpt rules below, and generate hashes:
 
 ```bash
 shasum -a 256 script.R figures/* *.md > SHA256SUMS
@@ -11,11 +11,11 @@ shasum -a 256 script.R figures/* *.md > SHA256SUMS
 1. Always keep: the brief as received, every delegation boundary (instruction out + summary back), decision pivots, the final deliverable message.
 2. Mark every cut with an explicit elision line: `[… N lines elided — full log: <file>]`.
 3. Never paraphrase quoted transcript text. Annotations go between quoted blocks, visually distinct.
-4. Codex runs commit their full `exec-stdout.log` (scrub absolute home paths first). Claude session transcripts stay local; the committed excerpt + cost snapshot is the public record.
+4. Codex runs commit their full `exec-stdout.log` (scrub absolute home paths first). Claude session transcripts stay local. The committed excerpt + cost snapshot is the public record.
 
 ## fable-orchestrate (headless)
 
-`ANTHROPIC_API_KEY` must be unset for headless runs — if set, it overrides the claude.ai login and bills (or fails on) the API account:
+`ANTHROPIC_API_KEY` must be unset for headless runs. If set, it overrides the claude.ai login and bills (or fails on) the API account:
 
 ```bash
 cd runs/fable/t1
@@ -43,7 +43,7 @@ The `< /dev/null` is load-bearing (`codex exec` hangs on stdin without it). Toke
 
 ## advisor arm (T3 only; three scripted steps per platform)
 
-Plain session solves T3 → one advisor consult → plain session revises. No orchestration skill in steps 1 and 3.
+Plain session solves T3, then one advisor consult, then plain session revises. No orchestration skill in steps 1 and 3.
 
 **Claude arm** (`runs/advisor/t3-claude/`):
 
@@ -63,4 +63,4 @@ env -u ANTHROPIC_API_KEY claude -p \
 
 ## opus-orchestrate (interactive, user-driven)
 
-See `../runs/opus/SESSION-PROTOCOL.md`. The build assistant cannot run these — the lead must be a real Opus 4.8 + ultracode session.
+See `../runs/opus/SESSION-PROTOCOL.md`. The build assistant cannot run these. The lead must be a real Opus 4.8 + ultracode session.

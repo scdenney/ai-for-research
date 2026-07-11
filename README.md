@@ -44,7 +44,8 @@ Every skill in the toolkit, indexed with a plain-language explanation of what it
 
 | Demo | What it teaches |
 |------|-----------------|
-| [**reference-check**](demos/reference-check/) | Catch fabricated or malformed citations against your **reference list** (no knowledge base needed), then check whether each cited source actually supports the claim, against a small **knowledge base** of your sources. Runs offline on a synthetic manuscript with planted errors. |
+| [**reference-check**](demos/reference-check/) | Catch fabricated or malformed citations against your **reference list** (no knowledge base needed), then check whether each cited source actually supports the claim, against a small **knowledge base** of your sources. Runs on local files (no web sources needed) on a synthetic manuscript with planted errors. |
+| [**orchestration-lab**](demos/orchestration-lab/) | Compare four multi-model orchestration modes — Fable-led, Opus-led, Codex-led, and a single advisor consult — on one real conjoint analysis at three difficulty tiers. Ships the captured runs (run logs, token counts, routing traces, figures) plus re-run instructions. Calls hosted models, not offline. |
 
 More to come. Each demo ships sample files, the exact prompts, expected output, and a note on where the human still has to verify.
 

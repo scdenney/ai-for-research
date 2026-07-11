@@ -1,0 +1,25 @@
+"attribute","level","estimate","conf.low","conf.high","is_reference"
+"Housing Cost","15% of pre-tax income",0,0,0,TRUE
+"Housing Cost","30% of pre-tax income",-0.137056408790519,-0.207879087608788,-0.0662337299722508,FALSE
+"Housing Cost","40% of pre-tax income",-0.198071963913904,-0.274038350077992,-0.122105577749816,FALSE
+"Presidential Vote (2020)","30% Democrat, 70% Republican",0,0,0,TRUE
+"Presidential Vote (2020)","50% Democrat, 50% Republican",0.0530466094618764,-0.0201855692330244,0.126278788156777,FALSE
+"Presidential Vote (2020)","70% Democrat, 30% Republican",-0.00269883523313386,-0.0817065934524302,0.0763089229861625,FALSE
+"Racial Composition","50% White, 50% Nonwhite",0,0,0,TRUE
+"Racial Composition","75% White, 25% Nonwhite",0.0366205829272121,-0.0335838625067291,0.106825028361153,FALSE
+"Racial Composition","90% White, 10% Nonwhite",-0.0226604301297443,-0.0936253725009282,0.0483045122414396,FALSE
+"Racial Composition","96% White, 4% Nonwhite",-0.0120426967428077,-0.0870745455265333,0.0629891520409179,FALSE
+"School Quality","5 out of 10",0,0,0,TRUE
+"School Quality","9 out of 10",0.115675274588577,0.032998438884425,0.198352110292728,FALSE
+"Total Daily Driving Time for Commuting and Errands","10 min",0,0,0,TRUE
+"Total Daily Driving Time for Commuting and Errands","25 min",-0.0695768944403873,-0.138977548024689,-0.000176240856085835,FALSE
+"Total Daily Driving Time for Commuting and Errands","45 min",-0.140634277467128,-0.212466262229054,-0.0688022927052023,FALSE
+"Total Daily Driving Time for Commuting and Errands","75 min",-0.237267445631884,-0.309627517082122,-0.164907374181647,FALSE
+"Type of Place","City – downtown, with a mix of offices, apartments, and shops",0,0,0,TRUE
+"Type of Place","City, more residential area",0.114965243760096,0.034993750670914,0.194936736849279,FALSE
+"Type of Place","Rural area",0.134638727572867,0.05019856232687,0.219078892818864,FALSE
+"Type of Place","Small town",0.15780971961902,0.0756929170461058,0.239926522191934,FALSE
+"Type of Place","Suburban neighborhood with houses only",0.0786472493613043,-0.00385143461222089,0.161145933334829,FALSE
+"Type of Place","Suburban neighborhood with mix of shops, houses, businesses",0.146285353333867,0.0681333047249857,0.224437401942748,FALSE
+"Violent Crime Rate (Vs National Rate)","20% Less Crime Than National Average",0,0,0,TRUE
+"Violent Crime Rate (Vs National Rate)","20% More Crime Than National Average",-0.251162965432813,-0.334248209397671,-0.168077721467955,FALSE

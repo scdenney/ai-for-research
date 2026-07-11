@@ -84,10 +84,7 @@
   .entry{border-top:1px solid var(--line); padding:13px 0}
   .entry:first-of-type{border-top:0}
   .row{display:flex; align-items:baseline; gap:6px}
-  .row-toggle{appearance:none; background:none; border:0; margin:0; padding:0; font:inherit; color:inherit; cursor:pointer; display:flex; align-items:baseline; gap:10px; flex:1; min-width:0; text-align:left}
-  .row-toggle:focus-visible{outline:2px solid var(--cobalt); outline-offset:3px; border-radius:4px}
-  .row-toggle:hover .name{color:var(--cobalt)}
-  .row-toggle:hover .leader{border-bottom-color:var(--cobalt)}
+  .row-head{display:flex; align-items:baseline; gap:10px; flex:1; min-width:0}
   .tag-cat{flex:0 0 auto; font:700 11px/1 Menlo,"SF Mono",ui-monospace,monospace; color:var(--grey); border:1px solid var(--line); border-radius:4px; padding:3px 5px; letter-spacing:.02em}
   .name{flex:0 0 auto; font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:19px; transition:color .12s}
   .leader{flex:1; align-self:center; border-bottom:1px dotted var(--line); margin:0 2px; min-width:16px; transition:border-color .12s}
@@ -119,7 +116,7 @@
   @media (max-width:560px){
     .desc{padding-left:0}
     .leader{display:none}
-    .row-toggle{flex-wrap:wrap}
+    .row-head{flex-wrap:wrap}
     .cmds{padding-left:0}
     .chapter h2{font-size:19px}
   }
@@ -182,13 +179,13 @@
   <ul class="entries" id="entries-ps" hidden>
         <li class="entry" id="research-repo" data-cat="ps" data-plat="both" data-search="research-repo project setup scaffold audit research project repo folders claude.md /oss:research-repo $research-repo codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-research-repo">
+        <div class="row-head">
           <span class="tag-cat">PS</span><span class="name">research-repo</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/research-repo/SKILL.md" aria-label="Open research-repo on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:research-repo</code> <span class="cmd-sep">·</span> <code class="cmd">$research-repo</code></div>
-      <p class="desc" id="desc-research-repo" hidden>Set up a research project's folders the same way every time — sources, drafts, and a <code>CLAUDE.md</code> file the AI reads first — or check that an existing project already follows that layout.</p>
+      <p class="desc" id="desc-research-repo">Set up a research project's folders the same way every time — sources, drafts, and a <code>CLAUDE.md</code> file the AI reads first — or check that an existing project already follows that layout.</p>
     </li>
   </ul>
 
@@ -196,33 +193,33 @@
   <ul class="entries" id="entries-wo" hidden>
         <li class="entry" id="fable-orchestrate" data-cat="wo" data-plat="claude" data-search="fable-orchestrate workflow orchestration multi-model opus sonnet codex /oss:fable-orchestrate claude only">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-fable-orchestrate">
+        <div class="row-head">
           <span class="tag-cat">WO</span><span class="name">fable-orchestrate</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fable-orchestrate/SKILL.md" aria-label="Open fable-orchestrate on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:fable-orchestrate</code></div>
-      <p class="desc" id="desc-fable-orchestrate" hidden>Run a hard task past three AI models at once — one for deep reasoning, one for fast execution, one as an outside check — instead of trusting a single model's answer.</p>
+      <p class="desc" id="desc-fable-orchestrate">Run a hard task past three AI models at once — one for deep reasoning, one for fast execution, one as an outside check — instead of trusting a single model's answer.</p>
     </li>
         <li class="entry" id="opus-orchestrate" data-cat="wo" data-plat="claude" data-search="opus-orchestrate workflow orchestration multi-model opus lead ultracode sonnet codex /oss:opus-orchestrate claude only">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-opus-orchestrate">
+        <div class="row-head">
           <span class="tag-cat">WO</span><span class="name">opus-orchestrate</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/opus-orchestrate/SKILL.md" aria-label="Open opus-orchestrate on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:opus-orchestrate</code></div>
-      <p class="desc" id="desc-opus-orchestrate" hidden>The same three-model teamwork as <code>fable-orchestrate</code>, but led by the strongest model (Claude Opus) running flat out — it does the hard thinking itself and hands off only the parts worth running in parallel, the mechanical work, or an outside check.</p>
+      <p class="desc" id="desc-opus-orchestrate">The same three-model teamwork as <code>fable-orchestrate</code>, but led by the strongest model (Claude Opus) running flat out — it does the hard thinking itself and hands off only the parts worth running in parallel, the mechanical work, or an outside check.</p>
     </li>
     <li class="entry" id="46-orchestrate" data-cat="wo" data-plat="codex" data-search="46-orchestrate workflow orchestration codex sol lead delegate $46-orchestrate codex only">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-46-orchestrate">
+        <div class="row-head">
           <span class="tag-cat">WO</span><span class="name">46-orchestrate</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-codex">Codex&nbsp;only</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/codex/46-orchestrate/SKILL.md" aria-label="Open 46-orchestrate on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">$46-orchestrate</code></div>
-      <p class="desc" id="desc-46-orchestrate" hidden>Codex's own orchestrator — the “Sol” lead plans, hands bounded research, implementation, and checks to helper agents, and keeps the final sign-off. The Codex counterpart to <code>fable-orchestrate</code> (there is no <code>opus-orchestrate</code> on the Codex side).</p>
+      <p class="desc" id="desc-46-orchestrate">Codex's own orchestrator — the “Sol” lead plans, hands bounded research, implementation, and checks to helper agents, and keeps the final sign-off. The Codex counterpart to <code>fable-orchestrate</code> (there is no <code>opus-orchestrate</code> on the Codex side).</p>
     </li>
   </ul>
 
@@ -230,23 +227,23 @@
   <ul class="entries" id="entries-id" hidden>
         <li class="entry" id="diverge" data-cat="id" data-plat="both" data-search="diverge ideation brainstorm distinct approaches before implementing /oss:diverge $diverge codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-diverge">
+        <div class="row-head">
           <span class="tag-cat">ID</span><span class="name">diverge</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge/SKILL.md" aria-label="Open diverge on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:diverge</code> <span class="cmd-sep">·</span> <code class="cmd">$diverge</code></div>
-      <p class="desc" id="desc-diverge" hidden>Before committing to one approach, generate three to five genuinely different ones — safe, bold, unconventional — so you're choosing between real options instead of the first idea.</p>
+      <p class="desc" id="desc-diverge">Before committing to one approach, generate three to five genuinely different ones — safe, bold, unconventional — so you're choosing between real options instead of the first idea.</p>
     </li>
         <li class="entry" id="diverge-codex" data-cat="id" data-plat="both" data-search="diverge-codex ideation brainstorm cross-model codex gpt /oss:diverge-codex $diverge-codex codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-diverge-codex">
+        <div class="row-head">
           <span class="tag-cat">ID</span><span class="name">diverge-codex</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge-codex/SKILL.md" aria-label="Open diverge-codex on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:diverge-codex</code> <span class="cmd-sep">·</span> <code class="cmd">$diverge-codex</code></div>
-      <p class="desc" id="desc-diverge-codex" hidden>The same brainstorming step as <code>diverge</code>, but handed to a second AI model (Codex) so the ideas don't all come from the same source.</p>
+      <p class="desc" id="desc-diverge-codex">The same brainstorming step as <code>diverge</code>, but handed to a second AI model (Codex) so the ideas don't all come from the same source.</p>
     </li>
   </ul>
 
@@ -254,63 +251,63 @@
   <ul class="entries" id="entries-rd" hidden>
         <li class="entry" id="conjoint-design" data-cat="rd" data-plat="both" data-search="conjoint-design research design attributes amce amie power analysis /oss:conjoint-design $conjoint-design codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-conjoint-design">
+        <div class="row-head">
           <span class="tag-cat">RD</span><span class="name">conjoint-design</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-design/SKILL.md" aria-label="Open conjoint-design on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:conjoint-design</code> <span class="cmd-sep">·</span> <code class="cmd">$conjoint-design</code></div>
-      <p class="desc" id="desc-conjoint-design" hidden>Design a conjoint experiment — which attributes to test, how many respondents you need, and how you'll estimate each attribute's effect (AMCE/AMIE) — before you run it.</p>
+      <p class="desc" id="desc-conjoint-design">Design a conjoint experiment — which attributes to test, how many respondents you need, and how you'll estimate each attribute's effect (AMCE/AMIE) — before you run it.</p>
     </li>
         <li class="entry" id="conjoint-diagnostics" data-cat="rd" data-plat="both" data-search="conjoint-diagnostics research design checklist validity /oss:conjoint-diagnostics $conjoint-diagnostics codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-conjoint-diagnostics">
+        <div class="row-head">
           <span class="tag-cat">RD</span><span class="name">conjoint-diagnostics</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-diagnostics/SKILL.md" aria-label="Open conjoint-diagnostics on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:conjoint-diagnostics</code> <span class="cmd-sep">·</span> <code class="cmd">$conjoint-diagnostics</code></div>
-      <p class="desc" id="desc-conjoint-diagnostics" hidden>Run through a checklist of what typically goes wrong in a conjoint experiment's design, execution, or analysis, and catch it before submission.</p>
+      <p class="desc" id="desc-conjoint-diagnostics">Run through a checklist of what typically goes wrong in a conjoint experiment's design, execution, or analysis, and catch it before submission.</p>
     </li>
         <li class="entry" id="conjoint-cleaning" data-cat="rd" data-plat="both" data-search="conjoint-cleaning research design qualtrics export cleanup /oss:conjoint-cleaning $conjoint-cleaning codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-conjoint-cleaning">
+        <div class="row-head">
           <span class="tag-cat">RD</span><span class="name">conjoint-cleaning</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-cleaning/SKILL.md" aria-label="Open conjoint-cleaning on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:conjoint-cleaning</code> <span class="cmd-sep">·</span> <code class="cmd">$conjoint-cleaning</code></div>
-      <p class="desc" id="desc-conjoint-cleaning" hidden>Turn a raw conjoint survey export from Qualtrics into a clean, analysis-ready dataset.</p>
+      <p class="desc" id="desc-conjoint-cleaning">Turn a raw conjoint survey export from Qualtrics into a clean, analysis-ready dataset.</p>
     </li>
         <li class="entry" id="survey-design" data-cat="rd" data-plat="both" data-search="survey-design research design questions scales social desirability /oss:survey-design $survey-design codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-survey-design">
+        <div class="row-head">
           <span class="tag-cat">RD</span><span class="name">survey-design</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/survey-design/SKILL.md" aria-label="Open survey-design on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:survey-design</code> <span class="cmd-sep">·</span> <code class="cmd">$survey-design</code></div>
-      <p class="desc" id="desc-survey-design" hidden>Write survey questions and response scales that measure what you intend, flow logically, and don't quietly bias respondents toward a socially acceptable answer.</p>
+      <p class="desc" id="desc-survey-design">Write survey questions and response scales that measure what you intend, flow logically, and don't quietly bias respondents toward a socially acceptable answer.</p>
     </li>
         <li class="entry" id="cross-national-design" data-cat="rd" data-plat="both" data-search="cross-national-design research design multi-country power localization bias /oss:cross-national-design $cross-national-design codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-cross-national-design">
+        <div class="row-head">
           <span class="tag-cat">RD</span><span class="name">cross-national-design</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/cross-national-design/SKILL.md" aria-label="Open cross-national-design on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:cross-national-design</code> <span class="cmd-sep">·</span> <code class="cmd">$cross-national-design</code></div>
-      <p class="desc" id="desc-cross-national-design" hidden>Adapt a survey experiment to run fairly across multiple countries — enough statistical power in each, localized wording, and a check for hidden bias between countries.</p>
+      <p class="desc" id="desc-cross-national-design">Adapt a survey experiment to run fairly across multiple countries — enough statistical power in each, localized wording, and a check for hidden bias between countries.</p>
     </li>
         <li class="entry" id="list-experiment" data-cat="rd" data-plat="both" data-search="list-experiment research design item count technique sensitive topics /oss:list-experiment $list-experiment codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-list-experiment">
+        <div class="row-head">
           <span class="tag-cat">RD</span><span class="name">list-experiment</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/list-experiment/SKILL.md" aria-label="Open list-experiment on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:list-experiment</code> <span class="cmd-sep">·</span> <code class="cmd">$list-experiment</code></div>
-      <p class="desc" id="desc-list-experiment" hidden>Design and check a list experiment (the item-count technique) — a way of asking about sensitive topics without anyone naming their own answer directly.</p>
+      <p class="desc" id="desc-list-experiment">Design and check a list experiment (the item-count technique) — a way of asking about sensitive topics without anyone naming their own answer directly.</p>
     </li>
   </ul>
 
@@ -318,73 +315,73 @@
   <ul class="entries" id="entries-an" hidden>
         <li class="entry" id="topic-modeling" data-cat="an" data-plat="both" data-search="topic-modeling analysis structural topic model stm covariates coherence /oss:topic-modeling $topic-modeling codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-topic-modeling">
+        <div class="row-head">
           <span class="tag-cat">AN</span><span class="name">topic-modeling</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/topic-modeling/SKILL.md" aria-label="Open topic-modeling on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:topic-modeling</code> <span class="cmd-sep">·</span> <code class="cmd">$topic-modeling</code></div>
-      <p class="desc" id="desc-topic-modeling" hidden>Set up a structural topic model — group documents into themes and see how those themes relate to variables you care about — with the diagnostics to know if it worked.</p>
+      <p class="desc" id="desc-topic-modeling">Set up a structural topic model — group documents into themes and see how those themes relate to variables you care about — with the diagnostics to know if it worked.</p>
     </li>
         <li class="entry" id="text-classification" data-cat="an" data-plat="both" data-search="text-classification analysis llm codebook validation coding /oss:text-classification $text-classification codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-text-classification">
+        <div class="row-head">
           <span class="tag-cat">AN</span><span class="name">text-classification</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/text-classification/SKILL.md" aria-label="Open text-classification on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:text-classification</code> <span class="cmd-sep">·</span> <code class="cmd">$text-classification</code></div>
-      <p class="desc" id="desc-text-classification" hidden>Have an AI model sort text into categories you define, following a written codebook, and check its accuracy the way you'd check a human coder's.</p>
+      <p class="desc" id="desc-text-classification">Have an AI model sort text into categories you define, following a written codebook, and check its accuracy the way you'd check a human coder's.</p>
     </li>
         <li class="entry" id="model-council-voting" data-cat="an" data-plat="both" data-search="model-council-voting analysis panel llm coders agreement kappa /oss:model-council-voting $model-council-voting codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-model-council-voting">
+        <div class="row-head">
           <span class="tag-cat">AN</span><span class="name">model-council-voting</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-council-voting/SKILL.md" aria-label="Open model-council-voting on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:model-council-voting</code> <span class="cmd-sep">·</span> <code class="cmd">$model-council-voting</code></div>
-      <p class="desc" id="desc-model-council-voting" hidden>Have several AI models independently label the same data, then combine their votes and measure how much they agreed — inter-rater reliability, but with models instead of people.</p>
+      <p class="desc" id="desc-model-council-voting">Have several AI models independently label the same data, then combine their votes and measure how much they agreed — inter-rater reliability, but with models instead of people.</p>
     </li>
         <li class="entry" id="model-committee" data-cat="an" data-plat="both" data-search="model-committee analysis gpt opus deliberative judgment /oss:model-committee $model-committee codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-model-committee">
+        <div class="row-head">
           <span class="tag-cat">AN</span><span class="name">model-committee</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-committee/SKILL.md" aria-label="Open model-committee on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:model-committee</code> <span class="cmd-sep">·</span> <code class="cmd">$model-committee</code></div>
-      <p class="desc" id="desc-model-committee" hidden>Have two AI models (GPT-5.5 and Claude Opus) discuss a judgment call with each other before settling on an answer, instead of asking just one. This is the version where Claude Opus runs the meeting.</p>
+      <p class="desc" id="desc-model-committee">Have two AI models (GPT-5.5 and Claude Opus) discuss a judgment call with each other before settling on an answer, instead of asking just one. This is the version where Claude Opus runs the meeting.</p>
     </li>
         <li class="entry" id="model-committee-sol" data-cat="an" data-plat="both" data-search="model-committee-sol analysis gpt opus sol chair deliberative judgment committee /oss:model-committee-sol $model-committee-sol codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-model-committee-sol">
+        <div class="row-head">
           <span class="tag-cat">AN</span><span class="name">model-committee-sol</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-committee-sol/SKILL.md" aria-label="Open model-committee-sol on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:model-committee-sol</code> <span class="cmd-sep">·</span> <code class="cmd">$model-committee-sol</code></div>
-      <p class="desc" id="desc-model-committee-sol" hidden>The same two-model committee as <code>model-committee</code>, but a third model — GPT-5.6 "Sol" — runs the meeting and makes the final call, so the tie-breaker isn't one of the two debaters.</p>
+      <p class="desc" id="desc-model-committee-sol">The same two-model committee as <code>model-committee</code>, but a third model — GPT-5.6 "Sol" — runs the meeting and makes the final call, so the tie-breaker isn't one of the two debaters.</p>
     </li>
         <li class="entry" id="model-committee-fable" data-cat="an" data-plat="both" data-search="model-committee-fable analysis gpt opus fable chair deliberative judgment committee lightweight /oss:model-committee-fable $model-committee-fable codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-model-committee-fable">
+        <div class="row-head">
           <span class="tag-cat">AN</span><span class="name">model-committee-fable</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-committee-fable/SKILL.md" aria-label="Open model-committee-fable on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:model-committee-fable</code> <span class="cmd-sep">·</span> <code class="cmd">$model-committee-fable</code></div>
-      <p class="desc" id="desc-model-committee-fable" hidden>The same two-model committee as <code>model-committee</code>, but a fast, lightweight model (Fable 5) chairs — it tallies the debate and settles ties without adding an agenda of its own.</p>
+      <p class="desc" id="desc-model-committee-fable">The same two-model committee as <code>model-committee</code>, but a fast, lightweight model (Fable 5) chairs — it tallies the debate and settles ties without adding an agenda of its own.</p>
     </li>
         <li class="entry" id="llm-calibration-logprobs" data-cat="an" data-plat="both" data-search="llm-calibration-logprobs analysis confidence token probabilities calibration ece brier /oss:llm-calibration-logprobs $llm-calibration-logprobs codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-llm-calibration-logprobs">
+        <div class="row-head">
           <span class="tag-cat">AN</span><span class="name">llm-calibration-logprobs</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/llm-calibration-logprobs/SKILL.md" aria-label="Open llm-calibration-logprobs on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:llm-calibration-logprobs</code> <span class="cmd-sep">·</span> <code class="cmd">$llm-calibration-logprobs</code></div>
-      <p class="desc" id="desc-llm-calibration-logprobs" hidden>Check how confident an AI model actually is in each answer, using the model's own token probabilities rather than just asking it to rate its confidence.</p>
+      <p class="desc" id="desc-llm-calibration-logprobs">Check how confident an AI model actually is in each answer, using the model's own token probabilities rather than just asking it to rate its confidence.</p>
     </li>
   </ul>
 
@@ -392,33 +389,33 @@
   <ul class="entries" id="entries-cp" hidden>
         <li class="entry" id="vlm-ocr-pipeline" data-cat="cp" data-plat="both" data-search="vlm-ocr-pipeline corpus processing vision language model ocr scanned documents /oss:vlm-ocr-pipeline $vlm-ocr-pipeline codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-vlm-ocr-pipeline">
+        <div class="row-head">
           <span class="tag-cat">CP</span><span class="name">vlm-ocr-pipeline</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-pipeline/SKILL.md" aria-label="Open vlm-ocr-pipeline on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:vlm-ocr-pipeline</code> <span class="cmd-sep">·</span> <code class="cmd">$vlm-ocr-pipeline</code></div>
-      <p class="desc" id="desc-vlm-ocr-pipeline" hidden>Design a pipeline that uses a vision-language model to read text out of scanned documents or images, instead of a traditional OCR engine.</p>
+      <p class="desc" id="desc-vlm-ocr-pipeline">Design a pipeline that uses a vision-language model to read text out of scanned documents or images, instead of a traditional OCR engine.</p>
     </li>
         <li class="entry" id="post-ocr-cleanup" data-cat="cp" data-plat="both" data-search="post-ocr-cleanup corpus processing correction qa multilingual /oss:post-ocr-cleanup $post-ocr-cleanup codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-post-ocr-cleanup">
+        <div class="row-head">
           <span class="tag-cat">CP</span><span class="name">post-ocr-cleanup</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/post-ocr-cleanup/SKILL.md" aria-label="Open post-ocr-cleanup on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:post-ocr-cleanup</code> <span class="cmd-sep">·</span> <code class="cmd">$post-ocr-cleanup</code></div>
-      <p class="desc" id="desc-post-ocr-cleanup" hidden>Clean up and quality-check text after it's been pulled out by OCR, catching the kinds of errors OCR typically introduces.</p>
+      <p class="desc" id="desc-post-ocr-cleanup">Clean up and quality-check text after it's been pulled out by OCR, catching the kinds of errors OCR typically introduces.</p>
     </li>
         <li class="entry" id="vlm-ocr-evaluation" data-cat="cp" data-plat="both" data-search="vlm-ocr-evaluation corpus processing compare candidate systems ground truth cer wer /oss:vlm-ocr-evaluation $vlm-ocr-evaluation codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-vlm-ocr-evaluation">
+        <div class="row-head">
           <span class="tag-cat">CP</span><span class="name">vlm-ocr-evaluation</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-evaluation/SKILL.md" aria-label="Open vlm-ocr-evaluation on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:vlm-ocr-evaluation</code> <span class="cmd-sep">·</span> <code class="cmd">$vlm-ocr-evaluation</code></div>
-      <p class="desc" id="desc-vlm-ocr-evaluation" hidden>Before running OCR on a large batch of documents, compare a few candidate OCR systems on a small test set to see which is actually most accurate for your material.</p>
+      <p class="desc" id="desc-vlm-ocr-evaluation">Before running OCR on a large batch of documents, compare a few candidate OCR systems on a small test set to see which is actually most accurate for your material.</p>
     </li>
   </ul>
 
@@ -426,63 +423,63 @@
   <ul class="entries" id="entries-wr" hidden>
         <li class="entry" id="hypothesis-building" data-cat="wr" data-plat="both" data-search="hypothesis-building writing reporting falsifiable dag equivalence testing /oss:hypothesis-building $hypothesis-building codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-hypothesis-building">
+        <div class="row-head">
           <span class="tag-cat">WR</span><span class="name">hypothesis-building</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/hypothesis-building/SKILL.md" aria-label="Open hypothesis-building on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:hypothesis-building</code> <span class="cmd-sep">·</span> <code class="cmd">$hypothesis-building</code></div>
-      <p class="desc" id="desc-hypothesis-building" hidden>Turn a research idea into a hypothesis that could actually be proven wrong — with a causal diagram and a plan for testing it, including the possibility of no effect.</p>
+      <p class="desc" id="desc-hypothesis-building">Turn a research idea into a hypothesis that could actually be proven wrong — with a causal diagram and a plan for testing it, including the possibility of no effect.</p>
     </li>
         <li class="entry" id="literature-review" data-cat="wr" data-plat="both" data-search="literature-review writing reporting evidence map gaps synthesis /oss:literature-review $literature-review codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-literature-review">
+        <div class="row-head">
           <span class="tag-cat">WR</span><span class="name">literature-review</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/literature-review/SKILL.md" aria-label="Open literature-review on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:literature-review</code> <span class="cmd-sep">·</span> <code class="cmd">$literature-review</code></div>
-      <p class="desc" id="desc-literature-review" hidden>Map out what's already been studied on a topic, spot the real gaps, and plan how to synthesize the literature you've found.</p>
+      <p class="desc" id="desc-literature-review">Map out what's already been studied on a topic, spot the real gaps, and plan how to synthesize the literature you've found.</p>
     </li>
         <li class="entry" id="narrative-building" data-cat="wr" data-plat="both" data-search="narrative-building writing reporting introduction argument logic funnel /oss:narrative-building $narrative-building codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-narrative-building">
+        <div class="row-head">
           <span class="tag-cat">WR</span><span class="name">narrative-building</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/narrative-building/SKILL.md" aria-label="Open narrative-building on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:narrative-building</code> <span class="cmd-sep">·</span> <code class="cmd">$narrative-building</code></div>
-      <p class="desc" id="desc-narrative-building" hidden>Draft or tighten a paper's introduction so the argument actually builds — why the question matters, and what follows if the answer goes one way or the other.</p>
+      <p class="desc" id="desc-narrative-building">Draft or tighten a paper's introduction so the argument actually builds — why the question matters, and what follows if the answer goes one way or the other.</p>
     </li>
         <li class="entry" id="pre-registration-writing" data-cat="wr" data-plat="both" data-search="pre-registration-writing writing reporting pap analysis plan registry /oss:pre-registration-writing $pre-registration-writing codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-pre-registration-writing">
+        <div class="row-head">
           <span class="tag-cat">WR</span><span class="name">pre-registration-writing</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/pre-registration-writing/SKILL.md" aria-label="Open pre-registration-writing on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:pre-registration-writing</code> <span class="cmd-sep">·</span> <code class="cmd">$pre-registration-writing</code></div>
-      <p class="desc" id="desc-pre-registration-writing" hidden>Write a pre-analysis plan: what you'll measure and how you'll analyze it, registered before you see the results.</p>
+      <p class="desc" id="desc-pre-registration-writing">Write a pre-analysis plan: what you'll measure and how you'll analyze it, registered before you see the results.</p>
     </li>
         <li class="entry" id="methods-reporting" data-cat="wr" data-plat="both" data-search="methods-reporting writing reporting consort jars da-rt checklist /oss:methods-reporting $methods-reporting codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-methods-reporting">
+        <div class="row-head">
           <span class="tag-cat">WR</span><span class="name">methods-reporting</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/methods-reporting/SKILL.md" aria-label="Open methods-reporting on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:methods-reporting</code> <span class="cmd-sep">·</span> <code class="cmd">$methods-reporting</code></div>
-      <p class="desc" id="desc-methods-reporting" hidden>Check that your methods section reports everything expected by standard research-reporting checklists (CONSORT, JARS, DA-RT).</p>
+      <p class="desc" id="desc-methods-reporting">Check that your methods section reports everything expected by standard research-reporting checklists (CONSORT, JARS, DA-RT).</p>
     </li>
         <li class="entry" id="paper-tex" data-cat="wr" data-plat="both" data-search="paper-tex writing reporting latex typeset journal formatting /oss:paper-tex $paper-tex codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-paper-tex">
+        <div class="row-head">
           <span class="tag-cat">WR</span><span class="name">paper-tex</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-tex/SKILL.md" aria-label="Open paper-tex on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:paper-tex</code> <span class="cmd-sep">·</span> <code class="cmd">$paper-tex</code></div>
-      <p class="desc" id="desc-paper-tex" hidden>Take a draft in any format — Word, Markdown, plain text — and typeset it into a properly formatted LaTeX paper, ready for a specific journal's requirements.</p>
+      <p class="desc" id="desc-paper-tex">Take a draft in any format — Word, Markdown, plain text — and typeset it into a properly formatted LaTeX paper, ready for a specific journal's requirements.</p>
     </li>
   </ul>
 
@@ -490,23 +487,23 @@
   <ul class="entries" id="entries-ft" hidden>
         <li class="entry" id="figures" data-cat="ft" data-plat="both" data-search="figures figures tables chart design color legends captions /oss:figures $figures codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-figures">
+        <div class="row-head">
           <span class="tag-cat">FT</span><span class="name">figures</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/figures/SKILL.md" aria-label="Open figures on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:figures</code> <span class="cmd-sep">·</span> <code class="cmd">$figures</code></div>
-      <p class="desc" id="desc-figures" hidden>Design a publication-quality figure — chart type, color, scales, and captions chosen to make the data as easy to read as possible.</p>
+      <p class="desc" id="desc-figures">Design a publication-quality figure — chart type, color, scales, and captions chosen to make the data as easy to read as possible.</p>
     </li>
         <li class="entry" id="tables" data-cat="ft" data-plat="both" data-search="tables figures tables columns rows precision notes /oss:tables $tables codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-tables">
+        <div class="row-head">
           <span class="tag-cat">FT</span><span class="name">tables</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/tables/SKILL.md" aria-label="Open tables on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:tables</code> <span class="cmd-sep">·</span> <code class="cmd">$tables</code></div>
-      <p class="desc" id="desc-tables" hidden>Design a publication-quality table — column order, row grouping, number formatting, and what the notes underneath should say.</p>
+      <p class="desc" id="desc-tables">Design a publication-quality table — column order, row grouping, number formatting, and what the notes underneath should say.</p>
     </li>
   </ul>
 
@@ -514,53 +511,53 @@
   <ul class="entries" id="entries-mq" hidden>
         <li class="entry" id="fair-check" data-cat="mq" data-plat="both" data-search="fair-check manuscript qa fair data code materials availability audit /oss:fair-check $fair-check codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-fair-check">
+        <div class="row-head">
           <span class="tag-cat">MQ</span><span class="name">fair-check</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fair-check/SKILL.md" aria-label="Open fair-check on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:fair-check</code> <span class="cmd-sep">·</span> <code class="cmd">$fair-check</code></div>
-      <p class="desc" id="desc-fair-check" hidden>Check whether a manuscript's data, code, and materials are actually available and usable by someone else — not just claimed to be.</p>
+      <p class="desc" id="desc-fair-check">Check whether a manuscript's data, code, and materials are actually available and usable by someone else — not just claimed to be.</p>
     </li>
         <li class="entry" id="citation-check" data-cat="mq" data-plat="both" data-search="citation-check manuscript qa references fabrication parity doi /oss:citation-check $citation-check codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-citation-check">
+        <div class="row-head">
           <span class="tag-cat">MQ</span><span class="name">citation-check</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/citation-check/SKILL.md" aria-label="Open citation-check on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:citation-check</code> <span class="cmd-sep">·</span> <code class="cmd">$citation-check</code></div>
-      <p class="desc" id="desc-citation-check" hidden>Check every citation in a manuscript against its reference list, catching ones that don't exist, don't match, or are formatted wrong.</p>
+      <p class="desc" id="desc-citation-check">Check every citation in a manuscript against its reference list, catching ones that don't exist, don't match, or are formatted wrong.</p>
     </li>
         <li class="entry" id="fact-check" data-cat="mq" data-plat="both" data-search="fact-check manuscript qa sources claims support verify /oss:fact-check $fact-check codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-fact-check">
+        <div class="row-head">
           <span class="tag-cat">MQ</span><span class="name">fact-check</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fact-check/SKILL.md" aria-label="Open fact-check on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:fact-check</code> <span class="cmd-sep">·</span> <code class="cmd">$fact-check</code></div>
-      <p class="desc" id="desc-fact-check" hidden>Check whether the sources a manuscript cites actually say what the manuscript claims they say.</p>
+      <p class="desc" id="desc-fact-check">Check whether the sources a manuscript cites actually say what the manuscript claims they say.</p>
     </li>
         <li class="entry" id="figure-table-audit" data-cat="mq" data-plat="both" data-search="figure-table-audit manuscript qa captions cross-references statistical notes /oss:figure-table-audit $figure-table-audit codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-figure-table-audit">
+        <div class="row-head">
           <span class="tag-cat">MQ</span><span class="name">figure-table-audit</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/figure-table-audit/SKILL.md" aria-label="Open figure-table-audit on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:figure-table-audit</code> <span class="cmd-sep">·</span> <code class="cmd">$figure-table-audit</code></div>
-      <p class="desc" id="desc-figure-table-audit" hidden>A final pass over a manuscript's figures and tables — captions, cross-references, and statistical notes — before submission.</p>
+      <p class="desc" id="desc-figure-table-audit">A final pass over a manuscript's figures and tables — captions, cross-references, and statistical notes — before submission.</p>
     </li>
         <li class="entry" id="replication-package" data-cat="mq" data-plat="both" data-search="replication-package manuscript qa reproduce data code documentation /oss:replication-package $replication-package codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-replication-package">
+        <div class="row-head">
           <span class="tag-cat">MQ</span><span class="name">replication-package</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/replication-package/SKILL.md" aria-label="Open replication-package on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:replication-package</code> <span class="cmd-sep">·</span> <code class="cmd">$replication-package</code></div>
-      <p class="desc" id="desc-replication-package" hidden>Build or check a replication package — the folder of data, code, and documentation someone else would need to reproduce your results.</p>
+      <p class="desc" id="desc-replication-package">Build or check a replication package — the folder of data, code, and documentation someone else would need to reproduce your results.</p>
     </li>
   </ul>
 
@@ -568,49 +565,49 @@
   <ul class="entries" id="entries-rs" hidden>
         <li class="entry" id="paper-review-lite" data-cat="rs" data-plat="both" data-search="paper-review-lite review submission pre-submission audit quote-grounded /oss:paper-review-lite $paper-review-lite codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-paper-review-lite">
+        <div class="row-head">
           <span class="tag-cat">RS</span><span class="name">paper-review-lite</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-review-lite/SKILL.md" aria-label="Open paper-review-lite on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:paper-review-lite</code> <span class="cmd-sep">·</span> <code class="cmd">$paper-review-lite</code></div>
-      <p class="desc" id="desc-paper-review-lite" hidden>Run a manuscript through a pre-submission review that checks its claims against actual quotes from the text, catching overclaiming before a real reviewer does.</p>
+      <p class="desc" id="desc-paper-review-lite">Run a manuscript through a pre-submission review that checks its claims against actual quotes from the text, catching overclaiming before a real reviewer does.</p>
     </li>
         <li class="entry" id="paper-review-lite-codex" data-cat="rs" data-plat="both" data-search="paper-review-lite-codex review submission cross-model adversarial /oss:paper-review-lite-codex $paper-review-lite-codex codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-paper-review-lite-codex">
+        <div class="row-head">
           <span class="tag-cat">RS</span><span class="name">paper-review-lite-codex</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-review-lite-codex/SKILL.md" aria-label="Open paper-review-lite-codex on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:paper-review-lite-codex</code> <span class="cmd-sep">·</span> <code class="cmd">$paper-review-lite-codex</code></div>
-      <p class="desc" id="desc-paper-review-lite-codex" hidden>The same pre-submission review as <code>paper-review-lite</code>, but run by two AI models independently, then cross-checked against each other.</p>
+      <p class="desc" id="desc-paper-review-lite-codex">The same pre-submission review as <code>paper-review-lite</code>, but run by two AI models independently, then cross-checked against each other.</p>
     </li>
         <li class="entry" id="presubmit" data-cat="rs" data-plat="claude" data-search="presubmit review submission wizard cli 30 stage pipeline /oss:presubmit claude only">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-presubmit">
+        <div class="row-head">
           <span class="tag-cat">RS</span><span class="name">presubmit</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/presubmit/SKILL.md" aria-label="Open presubmit on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:presubmit</code></div>
-      <p class="desc" id="desc-presubmit" hidden>A guided walkthrough of a much larger, 30-plus-stage automated pre-submission review tool.</p>
+      <p class="desc" id="desc-presubmit">A guided walkthrough of a much larger, 30-plus-stage automated pre-submission review tool.</p>
     </li>
         <li class="entry" id="journal-review" data-cat="rs" data-plat="both" data-search="journal-review review submission referee report third party /oss:journal-review $journal-review codex claude both">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-journal-review">
+        <div class="row-head">
           <span class="tag-cat">RS</span><span class="name">journal-review</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/journal-review/SKILL.md" aria-label="Open journal-review on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:journal-review</code> <span class="cmd-sep">·</span> <code class="cmd">$journal-review</code></div>
-      <p class="desc" id="desc-journal-review" hidden>Draft a referee report on someone else's manuscript, as if you were reviewing it for a journal.</p>
+      <p class="desc" id="desc-journal-review">Draft a referee report on someone else's manuscript, as if you were reviewing it for a journal.</p>
     </li>
   </ul>
 
   <p id="empty">No skills match your search. Try a different word, or clear the category filter.</p>
 
-  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 8 July 2026 (v2.14.0). 38 skills on Claude Code (<code>/oss:name</code>) and 36 on Codex (<code>$name</code>); most run on both, a few are platform-specific.</p>
+  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 11 July 2026 (v2.15.1). 38 skills on Claude Code (<code>/oss:name</code>) and 36 on Codex (<code>$name</code>); most run on both, a few are platform-specific.</p>
 
 </main>
 
@@ -635,30 +632,10 @@
     return document.getElementById(chapter.getAttribute('aria-controls'));
   }
 
-  function setSkillOpen(li, open){
-    var btn = li.querySelector('.row-toggle');
-    var desc = li.querySelector('.desc');
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    desc.hidden = !open;
-  }
-
-  function setChapterOpen(chapter, open, opts){
-    opts = opts || {};
+  function setChapterOpen(chapter, open){
     var list = entriesListFor(chapter);
     chapter.setAttribute('aria-expanded', open ? 'true' : 'false');
     list.hidden = !open;
-    if (opts.preserveSkills) return;
-    var lis = Array.prototype.slice.call(list.querySelectorAll('.entry'));
-    if (open){
-      var openedFirst = false;
-      lis.forEach(function(li){
-        var shouldOpen = !li.hidden && !openedFirst;
-        setSkillOpen(li, shouldOpen);
-        if (shouldOpen) openedFirst = true;
-      });
-    } else {
-      lis.forEach(function(li){ setSkillOpen(li, false); });
-    }
   }
 
   chapters.forEach(function(chapter){
@@ -671,14 +648,6 @@
         e.preventDefault();
         chapter.click();
       }
-    });
-  });
-
-  entries.forEach(function(li){
-    var btn = li.querySelector('.row-toggle');
-    btn.addEventListener('click', function(){
-      var isOpen = btn.getAttribute('aria-expanded') === 'true';
-      setSkillOpen(li, !isOpen);
     });
   });
 
@@ -732,14 +701,7 @@
       var nEl = chapter.querySelector('.n');
       if (nEl) nEl.textContent = matchCount === 1 ? '1 skill' : (matchCount + ' skills');
       if (matchCount === 0) return;
-      if (filtering){
-        setChapterOpen(chapter, true, {preserveSkills:true});
-        Array.prototype.slice.call(entriesListFor(chapter).querySelectorAll('.entry')).forEach(function(li){
-          if (!li.hidden) setSkillOpen(li, true);
-        });
-      } else {
-        setChapterOpen(chapter, false);
-      }
+      setChapterOpen(chapter, filtering);
     });
     countEl.textContent = visible === total ? ('Showing all ' + total + ' skills') : ('Showing ' + visible + ' of ' + total + ' skills');
     emptyEl.classList.toggle('show', visible === 0);
@@ -751,8 +713,7 @@
       var list = target.closest('.entries');
       var chapter = chapters.filter(function(ch){ return entriesListFor(ch) === list; })[0];
       if (chapter){
-        setChapterOpen(chapter, true, {preserveSkills:true});
-        setSkillOpen(target, true);
+        setChapterOpen(chapter, true);
         requestAnimationFrame(function(){ target.scrollIntoView({block:'start'}); });
       }
     }

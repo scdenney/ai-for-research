@@ -170,7 +170,7 @@
       <button type="button" class="seg-btn" data-plat="codex" aria-pressed="false">Codex</button>
     </div>
   </div>
-  <p class="count" id="skill-count" aria-live="polite">Showing all 39 skills</p>
+  <p class="count" id="skill-count" aria-live="polite">Showing all 40 skills</p>
 </div></nav>
 
 <main class="wrap">
@@ -189,9 +189,9 @@
     </li>
   </ul>
 
-  <div class="chapter" data-cat="wo" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-wo"><span class="num">II</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">3 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <div class="chapter" data-cat="wo" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-wo"><span class="num">II</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">4 skills</span><span class="chev" aria-hidden="true">›</span></div>
   <ul class="entries" id="entries-wo" hidden>
-        <li class="entry" id="fable-orchestrate" data-cat="wo" data-plat="claude" data-search="fable-orchestrate workflow orchestration multi-model opus sonnet codex /oss:fable-orchestrate claude only">
+        <li class="entry" id="fable-orchestrate" data-cat="wo" data-plat="claude" data-search="fable-orchestrate workflow orchestration multi-model fable 5 opus sonnet codex gpt-5.6 /oss:fable-orchestrate claude only">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">WO</span><span class="name">fable-orchestrate</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
@@ -199,9 +199,9 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fable-orchestrate/SKILL.md" aria-label="Open fable-orchestrate on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:fable-orchestrate</code></div>
-      <p class="desc" id="desc-fable-orchestrate">Run a hard task past three AI models at once — one for deep reasoning, one for fast execution, one as an outside check — instead of trusting a single model's answer.</p>
+      <p class="desc" id="desc-fable-orchestrate">Run a hard task past three AI models at once, with Fable 5 — the top model — as lead: Opus takes the deep reasoning, Sonnet the fast mechanical work, and Codex (GPT-5.6) the outside check, instead of trusting a single model's answer.</p>
     </li>
-        <li class="entry" id="opus-orchestrate" data-cat="wo" data-plat="claude" data-search="opus-orchestrate workflow orchestration multi-model opus lead ultracode sonnet codex /oss:opus-orchestrate claude only">
+        <li class="entry" id="opus-orchestrate" data-cat="wo" data-plat="claude" data-search="opus-orchestrate workflow orchestration multi-model opus 4.8 lead ultracode sonnet codex gpt-5.6 /oss:opus-orchestrate claude only">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">WO</span><span class="name">opus-orchestrate</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
@@ -209,9 +209,9 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/opus-orchestrate/SKILL.md" aria-label="Open opus-orchestrate on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:opus-orchestrate</code></div>
-      <p class="desc" id="desc-opus-orchestrate">The same three-model teamwork as <code>fable-orchestrate</code>, but led by the strongest model (Claude Opus) running flat out — it does the hard thinking itself and hands off only the parts worth running in parallel, the mechanical work, or an outside check.</p>
+      <p class="desc" id="desc-opus-orchestrate">The same three-model teamwork as <code>fable-orchestrate</code>, but led by Claude Opus 4.8 running flat out — the lead does the hard thinking itself and hands off only parallel reasoning (Opus subagents), mechanical work (Sonnet), and the outside check (Codex, GPT-5.6).</p>
     </li>
-    <li class="entry" id="46-orchestrate" data-cat="wo" data-plat="codex" data-search="46-orchestrate workflow orchestration codex sol lead delegate $46-orchestrate codex only">
+    <li class="entry" id="46-orchestrate" data-cat="wo" data-plat="codex" data-search="46-orchestrate workflow orchestration codex orchestrator gpt-5.6 sol lead delegate $46-orchestrate codex only">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">WO</span><span class="name">46-orchestrate</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-codex">Codex&nbsp;only</span>
@@ -219,7 +219,17 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/codex/46-orchestrate/SKILL.md" aria-label="Open 46-orchestrate on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">$46-orchestrate</code></div>
-      <p class="desc" id="desc-46-orchestrate">Codex's own orchestrator — the “Sol” lead plans, hands bounded research, implementation, and checks to helper agents, and keeps the final sign-off. The Codex counterpart to <code>fable-orchestrate</code> (there is no <code>opus-orchestrate</code> on the Codex side).</p>
+      <p class="desc" id="desc-46-orchestrate">A Codex orchestrator — a GPT-5.6 lead plans, hands bounded research, implementation, and checks to helper agents running on the same model, and keeps the final sign-off. The Codex counterpart to <code>fable-orchestrate</code> (there is no <code>opus-orchestrate</code> on the Codex side).</p>
+    </li>
+    <li class="entry" id="advisor" data-cat="wo" data-plat="both" data-search="advisor second opinion independent reviewer consult fable 5 gpt-5.6 effort-matched read-only /oss:advisor $advisor codex claude both">
+      <div class="row">
+        <div class="row-head">
+          <span class="tag-cat">WO</span><span class="name">advisor</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+        </div>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/advisor/SKILL.md" aria-label="Open advisor on GitHub">↗</a>
+      </div>
+      <div class="cmds"><code class="cmd">/oss:advisor</code> <span class="cmd-sep">·</span> <code class="cmd">$advisor</code></div>
+      <p class="desc" id="desc-advisor">Ask a stronger model for a second opinion before you commit to a decision or call work done — Fable 5 when run from Claude Code, GPT-5.6 when run from Codex. Advice only; it never edits your files.</p>
     </li>
   </ul>
 
@@ -607,7 +617,7 @@
 
   <p id="empty">No skills match your search. Try a different word, or clear the category filter.</p>
 
-  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 11 July 2026 (v2.15.1). 38 skills on Claude Code (<code>/oss:name</code>) and 36 on Codex (<code>$name</code>); most run on both, a few are platform-specific.</p>
+  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 11 July 2026 (v2.16.0). 39 skills on Claude Code (<code>/oss:name</code>) and 37 on Codex (<code>$name</code>); most run on both, a few are platform-specific.</p>
 
 </main>
 

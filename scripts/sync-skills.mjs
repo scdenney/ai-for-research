@@ -33,6 +33,7 @@ const CATEGORY_MAP = {
 function stripHtml(html) {
   return html
     .replace(/<a\b[^>]*>(.*?)<\/a>/gis, "$1")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1") // markdown links -> text
     .replace(/<\/?strong>/gi, "")
     .replace(/<code>/gi, "`")
     .replace(/<\/code>/gi, "`")
@@ -42,7 +43,7 @@ function stripHtml(html) {
 }
 
 function parseReadmeCatalog(readme) {
-  const skillsSection = readme.split(/\n## Skills\n/)[1]?.split(/\n## Contributing/)[0];
+  const skillsSection = readme.split(/\n## Skills\n/)[1]?.split(/\n## /)[0];
   if (!skillsSection) throw new Error("Could not find '## Skills' section in README.md");
 
   const categories = [];
@@ -50,7 +51,13 @@ function parseReadmeCatalog(readme) {
   for (const block of catBlocks) {
     const name = block.split("\n")[0].trim();
     const skills = [];
-    const rowRe = /<tr>\s*<td><a href="plugin\/skills\/([a-z0-9-]+)\/SKILL\.md"><strong>[^<]+<\/strong><\/a><\/td>\s*<td>.*?<\/td>\s*<td>(.*?)<\/td>\s*<\/tr>/gis;
+    // The README catalog switched from HTML tables to Markdown tables on
+    // 2026-07-11: one row per skill, shaped
+    //   | [slug](plugin/skills/slug/SKILL.md) | Platform | `command` | Description |
+    // Only plugin/skills rows are parsed; Codex-only rows (which link into
+    // codex/) are curated on the page by hand, and the removal check below
+    // already unions the codex/ directory so they are never flagged.
+    const rowRe = /^\|\s*\[([a-z0-9-]+)\]\(plugin\/skills\/[a-z0-9-]+\/SKILL\.md\)\s*\|[^|]*\|[^|]*\|\s*(.+?)\s*\|\s*$/gm;
     let m;
     while ((m = rowRe.exec(block))) {
       skills.push({ slug: m[1], description: stripHtml(m[2]) });
@@ -81,15 +88,17 @@ function buildEntryHtml(slug, code, description, codexSlugs) {
     : `<code class="cmd">/oss:${slug}</code>`;
   const searchExtra = both ? `$${slug} codex claude both` : "claude only";
   const search = `${slug} needs review ${description} /oss:${slug} ${searchExtra}`.toLowerCase().replace(/[`"]/g, "");
+  // Markup matches the 2026-07-11 page design: descriptions are always
+  // visible (no hidden attribute, no row-toggle button, no aria wiring).
   return `    <li class="entry" id="${slug}" data-cat="${code}" data-plat="${plat}" data-search="${search}">
       <div class="row">
-        <button type="button" class="row-toggle" aria-expanded="false" aria-controls="desc-${slug}">
+        <div class="row-head">
           <span class="tag-cat">${code.toUpperCase()}</span><span class="name">${slug}</span><span class="leader" aria-hidden="true"></span>${badge}
-        </button>
+        </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/${slug}/SKILL.md" aria-label="Open ${slug} on GitHub">↗</a>
       </div>
       <div class="cmds">${cmds}</div>
-      <p class="desc" id="desc-${slug}" hidden><em>[needs review — paraphrase in plain language, source repo says:]</em> ${description}</p>
+      <p class="desc" id="desc-${slug}"><em>[needs review — paraphrase in plain language, source repo says:]</em> ${description}</p>
     </li>`;
 }
 

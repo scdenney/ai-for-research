@@ -97,16 +97,35 @@ save_png <- function(plot, filename, width_in = 8, height_in = 4.5, dpi = 300) {
   }
 }
 
-# ---- Chart 1: cost by brief, grouped bars (Claude arms only: Codex has no USD) ----
+# ---- Chart 1: spend by brief, all four arms ----
+# The Claude CLI prices its runs in USD; the Codex CLI reports a token count
+# and no dollars, and cross-vendor token counts are not comparable. So one
+# figure, two panels, each in its own honest unit.
 df_usd <- df[!is.na(df$cost_usd), ]
-p_cost <- ggplot(df_usd, aes(x = brief, y = cost_usd, fill = mode)) +
+df_usd$metric <- "Claude arms: API-equivalent cost (USD)"
+df_usd$value <- df_usd$cost_usd
+df_tok <- df[df$mode == "Codex lead (46)", ]
+df_tok$metric <- "Codex arm: tokens (thousands)"
+df_tok$value <- df_tok$out_tokens / 1000
+df_cost <- rbind(df_usd, df_tok)
+df_cost$metric <- factor(df_cost$metric, levels = c(
+  "Claude arms: API-equivalent cost (USD)",
+  "Codex arm: tokens (thousands)"
+))
+
+p_cost <- ggplot(df_cost, aes(x = brief, y = value, fill = mode)) +
   geom_col(position = position_dodge2(width = 0.8, preserve = "single"), width = 0.7) +
+  facet_wrap(~metric, scales = "free_y") +
   scale_fill_manual(values = pal, breaks = mode_levels) +
   scale_x_discrete(labels = brief_labels, drop = FALSE) +
-  labs(x = NULL, y = "API-equivalent cost (USD)") +
-  theme_demo
+  labs(x = NULL, y = NULL) +
+  theme_demo +
+  theme(
+    axis.text.x = element_text(size = 8.5),
+    strip.text = element_text(size = 11.5, face = "bold")
+  )
 
-save_png(p_cost, "eff-cost.png")
+save_png(p_cost, "eff-cost.png", width_in = 9.5, height_in = 4.5)
 
 # ---- Chart 2: wall-clock minutes by brief, grouped bars ----
 p_time <- ggplot(df, aes(x = brief, y = minutes, fill = mode)) +
@@ -118,45 +137,49 @@ p_time <- ggplot(df, aes(x = brief, y = minutes, fill = mode)) +
 
 save_png(p_time, "eff-time.png")
 
-# ---- Chart 3: rubric score against the band thresholds ----
+# ---- Chart 3: rubric score against the band thresholds, one panel per arm ----
 # Dotted lines mark the three bands (SCORING.md): every brief is graded on
 # six binary items (4 core, 1 judgment, 1 completeness), so 4/6 = Pass,
-# 5/6 = Pass+, 6/6 = Distinction, one shared axis for all briefs.
+# 5/6 = Pass+, 6/6 = Distinction, one shared axis for all briefs. Four arms on
+# one axis overlap badly, so each arm gets its own panel; the dotted lines are
+# repeated in every panel so a reader can place any point without cross-panel
+# comparison.
 thresholds <- data.frame(
   score = c(4 / 6, 5 / 6, 1),
   band = c("Pass", "Pass+", "Distinction")
 )
 
-dodge <- position_dodge(width = 0.5)
+df$mode <- factor(df$mode, levels = mode_levels)
 
 p_quality <- ggplot(df, aes(x = brief, y = score, color = mode, group = mode)) +
   geom_hline(
     data = thresholds, aes(yintercept = score),
-    linetype = "dotted", color = "grey45", linewidth = 0.55
+    linetype = "dotted", color = "grey55", linewidth = 0.5
   ) +
-  geom_line(position = dodge, linewidth = 0.55, alpha = 0.45) +
-  geom_point(data = df[df$band_matches, ], position = dodge, size = 3.4) +
+  geom_line(linewidth = 0.7) +
+  geom_point(data = df[df$band_matches, ], size = 3.6) +
   geom_point(
-    data = df[!df$band_matches, ], position = dodge,
-    size = 3.4, shape = 21, fill = "white", stroke = 1.1
+    data = df[!df$band_matches, ],
+    size = 3.6, shape = 21, fill = "white", stroke = 1.3
   ) +
-  scale_color_manual(values = pal, breaks = mode_levels) +
+  facet_wrap(~mode, nrow = 2) +
+  scale_color_manual(values = pal, breaks = mode_levels, guide = "none") +
   scale_x_discrete(labels = brief_labels, drop = FALSE) +
   scale_y_continuous(
-    limits = c(0.58, 1.04),
+    limits = c(0.60, 1.02),
     breaks = thresholds$score,
-    labels = c("4 of 6", "5 of 6", "6 of 6"),
-    sec.axis = dup_axis(
-      breaks = thresholds$score,
-      labels = thresholds$band,
-      name = NULL
-    )
+    labels = c("Pass\n(4 of 6)", "Pass+\n(5 of 6)", "Distinction\n(6 of 6)")
   ) +
-  guides(color = guide_legend(override.aes = list(shape = 16, fill = NA, linetype = 0))) +
-  labs(x = NULL, y = "Rubric items met") +
+  labs(x = NULL, y = NULL) +
   theme_demo +
-  theme(axis.ticks.y.right = element_blank())
+  theme(
+    strip.text = element_text(size = 12, face = "bold"),
+    axis.text.x = element_text(size = 8),
+    axis.text.y = element_text(size = 9.5),
+    panel.spacing.x = unit(1.1, "lines"),
+    panel.spacing.y = unit(0.9, "lines")
+  )
 
-save_png(p_quality, "eff-quality.png")
+save_png(p_quality, "eff-quality.png", width_in = 9, height_in = 6)
 
 cat("Done.\n")

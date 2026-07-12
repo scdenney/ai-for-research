@@ -7,7 +7,7 @@
 | Models | solve + revise: session default (Fable 5 · max); consult: Fable 5 · max (CLAUDE_EFFORT=max) |
 | Brief | `prompts/high-ajr.md` @ commit `0ae449d` |
 | Capture method | headless, three scripted steps (solve → one consult → revise) |
-| Wall-clock | step 1: 1.5 min, 14 turns; step 3: 1.8 min, 21 turns (envelopes) |
+| Wall-clock | step 1: 1.5 min, 14 turns; step 3: 1.8 min, 21 turns (envelopes); ~8.4 min total including the consult |
 | Tokens / cost | step 1: $0.488; step 3: $0.605 API-equivalent (envelopes). Consult unmetered (advisor script returns text only) |
 
 ## Routing trace

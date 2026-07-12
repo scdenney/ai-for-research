@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Orchestration Lab — AI for Research</title>
-<meta name="description" content="One real conjoint analysis, run three ways with Claude models (a light lead, a heavy lead, and a single advisor consult), across three difficulty tiers, with every run captured and costed.">
+<meta name="description" content="Five real social-science analyses at three rungs of difficulty, each run three ways with Claude models (a light lead, a heavy lead, and a single advisor consult), with every run captured, scored against a pre-built answer key, and priced.">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,6 +54,8 @@
   table{border-collapse:collapse; width:100%; font-size:15px; margin:1em 0}
   th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:middle}
   th{background:var(--paper-2); font-size:12.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--grey)}
+  .tablewrap{overflow-x:auto; margin:1em 0} .tablewrap table{margin:0; min-width:620px}
+  .cellcost{display:block; color:var(--grey); font-size:12.5px; margin-top:3px}
   figure.fig{margin:1.4em 0}
   figure.fig img{display:block; max-width:min(100%,640px); margin-left:auto; margin-right:auto; border:1px solid var(--line); border-radius:10px; background:var(--paper-2)}
   figure.fig figcaption{font-size:13.5px; color:var(--grey); margin-top:6px}
@@ -92,7 +94,7 @@
   <p class="kicker">Demo</p>
   <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
   <h1>Orchestration Lab</h1>
-  <p class="lede">One real analysis, three ways of using Claude models, with every run captured and priced.</p>
+  <p class="lede">Five real analyses, three ways of using Claude models, with every run captured, scored, and priced.</p>
 </div></header>
 
 <main class="wrap">
@@ -109,40 +111,62 @@
     <h3>One consult <code>advisor</code></h3>
     <figure class="fig"><img src="../assets/orchestration-lab/advisor-architecture.svg" alt="One-consult architecture: a plain working session solves the task, then sends the finished work to a stronger reviewer model for a single read-only review."></figure>
     <p>Sometimes the right move is not to orchestrate. You solve the problem in a plain session, then send the finished work to a stronger model for one review where a second opinion changes the decision. The reviewer reads and comments only and never edits your files.</p>
-    <p>Which pattern you reach for depends on the work. For easy, computable tasks the three converge on the same answer, so you choose on cost and speed. For hard judgment calls the structures pull apart in what they cost and what they catch, and the run below is one worked example of that split.</p>
+    <p>Which pattern you reach for depends on the work. For easy, computable tasks the three converge on the same answer, so you choose on cost and speed. For hard judgment calls the structures pull apart in what they cost and what they catch, and the runs below are worked examples of that split.</p>
   </section>
   <section id="demo">
-    <h2>The example</h2>
-    <p>The case is a real community-choice conjoint, <code>exampleData1</code> from the <a href="https://cran.r-project.org/package=projoint">projoint</a> R package. The exercise as a whole is moderately complex, code plus analysis on a clean dataset. It is the first rung of a planned complexity ladder that runs from moderate to high to very high. Within this run, three <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/prompts">briefs</a> rise in difficulty. Describe (easy) documents the design and checks randomization balance. Estimate (standard) fits the AMCEs and plots them. Reviewer reply (hard) answers a referee who calls the headline crime finding an artifact of the AMCE baseline. Every mode receives the identical brief, and <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">every run is committed</a> with its logs and figures, then scored against a gold-standard key in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
+    <h2>The examples</h2>
+    <p>Five <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/prompts">briefs</a> climb a ladder of difficulty, all on real, public, package-shipped data, so anyone can re-run them with zero downloads.</p>
+    <p>The <strong>moderate rung</strong> is a community-choice conjoint, <code>exampleData1</code> from the <a href="https://cran.r-project.org/package=projoint">projoint</a> R package, worked through three briefs. Describe (easy) documents the design and checks randomization balance. Estimate (standard) fits the AMCEs and plots them. Reviewer reply (hard) answers a referee who calls the headline crime finding an artifact of the AMCE baseline.</p>
+    <p>The <strong>high rung</strong> replicates and stress-tests a famous instrumental-variables result, Acemoglu, Johnson, and Robinson's colonial-origins finding (the 64-country sample ships with the <a href="https://cran.r-project.org/package=ivdoctr">ivdoctr</a> package): reproduce the headline, add controls, restrict the sample, and flag where the instrument fails. The <strong>very high rung</strong> adjudicates a genuine methods dispute, Dehejia-Wahba versus Smith-Todd on whether propensity-score matching recovers the LaLonde experimental benchmark (data via <a href="https://cran.r-project.org/package=causaldata">causaldata</a>): compute the benchmark, run the specification curve, and decide which claim the evidence supports.</p>
+    <p>The three arms are used identically on every brief. The orchestrators receive the brief verbatim in a fresh session; the advisor arm always runs the same three scripted steps, a plain solve, one consult, and a plain revise. Before any model ran, each brief got an executed reference solution and a written rubric, so grading never depends on what the runs happened to produce. <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">Every run is committed</a> with its logs and figures, and the findings live in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
   </section>
   <section id="results">
+    <h2>How the runs are scored</h2>
+    <p>Every brief is graded on six binary items, read off its pre-built rubric. Four are <strong>core</strong> items, the facts a competent run must get right, like reproducing the reference estimates or flagging a collapsed instrument. One is a <strong>judgment</strong> item, the discretionary call the answer key hands to the analyst, like noticing that two leading effects are a statistical tie. One is a <strong>completeness</strong> item, thoroughness past a correct answer, like reporting both the corrected and uncorrected magnitudes.</p>
+    <p>The bands follow from the items. <strong>Pass</strong> means every core item is met. <strong>Pass+</strong> means core plus the judgment item. <strong>Distinction</strong> means all six. A run that misses any core item fails outright, whatever else it does well, because correctness cannot be traded for polish. Since every brief carries the same four-one-one composition, the three bands sit at the same heights on one shared axis, four, five, and six items of six, and the dotted lines in the chart below mark them. Definitions and every run's item-by-item score are in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/SCORING.md">SCORING.md</a>.</p>
+    <figure class="fig"><img src="../assets/orchestration-lab/eff-quality.png" alt="Chart of rubric items met by each arm on each of the five briefs, with dotted horizontal threshold lines labeled Pass, Pass plus, and Distinction."><figcaption>Rubric items met per brief, against the three band thresholds. Every arm dips only at the reviewer reply, and all three converge at Distinction on the two hardest rungs.</figcaption></figure>
     <h2>What the runs cost and how they scored</h2>
-    <p>Every number here comes from the committed run logs, scored against the answer key.</p>
-    <figure class="fig"><img src="../assets/orchestration-lab/eff-cost.png" alt="Bar chart of API-equivalent cost per tier for the light lead, heavy lead, and consult."><figcaption>API-equivalent cost by tier.</figcaption></figure>
-    <figure class="fig"><img src="../assets/orchestration-lab/eff-time.png" alt="Bar chart of wall-clock minutes per tier for each mode."><figcaption>Wall-clock by tier.</figcaption></figure>
-    <figure class="fig"><img src="../assets/orchestration-lab/eff-quality.png" alt="Horizontal bar chart of API-equivalent cost on the hard brief for the three modes, with each mode's verdict labeled at the end of its cost bar."><figcaption>What more money bought on the hard brief. Verdicts sit at the end of each cost bar.</figcaption></figure>
-    <table>
-      <tr><th>Mode</th><th>Describe (easy)</th><th>Estimate (standard)</th><th>Reviewer reply (hard)</th><th>Cost (hard)</th></tr>
-      <tr><td>Light lead <code>fable</code></td><td><span class="verdict v-ok">Pass</span></td><td><span class="verdict v-ok">Pass</span></td><td><span class="verdict v-ok">Pass</span></td><td>$4.13</td></tr>
-      <tr><td>Heavy lead <code>opus</code></td><td><span class="verdict v-ok">Pass</span></td><td><span class="verdict v-ok">Pass</span></td><td><span class="verdict v-ok">Pass+</span></td><td>$6.73</td></tr>
-      <tr><td>One consult <code>advisor</code></td><td>—</td><td>—</td><td><span class="verdict v-ok">Distinction</span></td><td>$7.08</td></tr>
-    </table>
-    <p>On the computable tiers the modes converge. Given the same computable brief, the light lead and the heavy lead reach the same numbers and the same verdict, so the choice between them is about cost and time. The light lead finishes the easy brief in 3.4 minutes against the heavy lead's 9.9, close to three times faster.</p>
-    <p>At the judgment tier the structure matters. The light lead split the work, sending the estimation to Opus and a blind copy of the numbers to a peer model that reached the same verdict without seeing the reasoning. The heavy lead kept the reasoning in one place and wrote the strongest single memo. The one consult arm did best of all, solving the problem alone and then buying one review that caught what the solo pass had missed.</p>
-    <p>Cost tracks difficulty. The light lead spans $1.88 to $4.13 across the three tiers. The heavy lead spans $2.14 to $6.73. The single consult costs $7.08 for the one tier where it runs. On the computable tiers any mode reaches the same answer, so spend the least. Buy structure only where the work is hard. That is the whole game.</p>
-    <p>The AMCE figures each mode produced at the standard tier are in the run directories.</p>
+    <p>Every number here comes from the committed run logs, scored against the answer keys.</p>
+    <figure class="fig"><img src="../assets/orchestration-lab/eff-cost.png" alt="Bar chart of API-equivalent cost per brief for the light lead, heavy lead, and consult."><figcaption>API-equivalent cost by brief. Advisor bars are the metered solve and revise steps; the consult itself returns text without a cost envelope.</figcaption></figure>
+    <figure class="fig"><img src="../assets/orchestration-lab/eff-time.png" alt="Bar chart of wall-clock minutes per brief for each mode."><figcaption>Wall-clock by brief. Advisor times include the consult.</figcaption></figure>
+    <div class="tablewrap"><table>
+      <tr><th>Mode</th><th>Describe (easy)</th><th>Estimate (standard)</th><th>Reviewer reply (hard)</th><th>IV replication (high)</th><th>Methods dispute (very high)</th></tr>
+      <tr><td>Light lead <code>fable</code></td>
+        <td><span class="verdict v-ok">Pass+</span><span class="cellcost">$1.88</span></td>
+        <td><span class="verdict v-ok">Pass+</span><span class="cellcost">$2.27</span></td>
+        <td><span class="verdict v-ok">Pass</span><span class="cellcost">$4.13</span></td>
+        <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$1.00</span></td>
+        <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$1.83</span></td></tr>
+      <tr><td>Heavy lead <code>opus</code></td>
+        <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$2.26</span></td>
+        <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$2.14</span></td>
+        <td><span class="verdict v-ok">Pass+</span><span class="cellcost">$6.73</span></td>
+        <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$1.60</span></td>
+        <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$5.01</span></td></tr>
+      <tr><td>One consult <code>advisor</code></td>
+        <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$4.99</span></td>
+        <td><span class="verdict v-ok">Pass+</span><span class="cellcost">$1.65</span></td>
+        <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$7.08</span></td>
+        <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$1.09</span></td>
+        <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$3.36</span></td></tr>
+    </table></div>
+    <p>Three patterns carry the comparison. First, on the easy and standard briefs the arms converge on the same numbers, and the differences are completeness details, like whether a report names the exact estimand behind its correction. You are choosing on cost and speed there. The light lead finishes the easy brief in 3.4 minutes against the heavy lead's 9.9.</p>
+    <p>Second, the reviewer reply is the only brief that separates the arms on quality, and it stayed the only one even after two harder rungs joined the ladder. Every arm hit Distinction on the IV replication and the methods dispute, and every one did it for less money than its own reviewer-reply run. Those tasks involve harder statistics, but they are canonical problems with literature-settled verdicts a pipeline can walk to. The reviewer reply demands an original judgment call, a statistical tie in these specific data that no publication settles for you. What separates pipelines is not how advanced the methods are but where the un-delegatable judgment sits, and spend tracks that ambiguity too. Every arm's most expensive run was the brief whose answer was least settled.</p>
+    <p>Third, converging on the same band is not converging on the same assurance. On the methods dispute all three arms reached the same verdict with different standard-error credibility underneath. The heavy lead reached the defensible inference machinery unaided. The advisor arm's first pass fell into two subtle variance traps its consult then caught and fixed. The light lead shipped defensible but second-best choices that nothing challenged, because its outside check never landed (below). A rubric on deliverables does not price that difference; reading the run logs does.</p>
+    <p>The practical rule stays simple. On computable work, spend the least; the cheapest arm reaches the same answer. Buy structure, a heavy lead or a consult, where the judgment is original to your data. And know that the advisor consult is the one pattern that repeatedly turned a good draft into the top band, because a reviewer that re-computes everything catches what a solo pass leaves implicit.</p>
     <h3>Why the light lead trailed on the hard brief</h3>
-    <p>Here the two orchestration arms differ by exactly one rubric item. The heavy lead's memo flags that crime's razor-thin lead over commute time is a statistical tie, since their confidence intervals overlap. The light lead's memo calls crime the strongest predictor and never notes that the ~1.4pp gap is within the noise. That gap is a seam in the pipeline, not a deficit in the model. The light lead sent the sensitivity computation to an Opus deep-reasoner and had the Fable lead write the memo from the returned table, so the statistical-tie judgment fell between the delegate that produced the numbers and the lead that wrote the prose. The heavy lead held the computation and the memo in one context, so it caught the tie and carried the nuance through.</p>
-    <p>This is a single draw at a tier where one sentence separates the bands. The single best memo in the whole comparison, the only Distinction, came from the advisor arm, where Fable solved and a Fable consult reviewed. What trailed here was the delegate-and-synthesize topology on one draw, not the Fable model.</p>
+    <p>On the reviewer reply the two orchestration arms differ by exactly one rubric item. The heavy lead's memo flags that crime's razor-thin lead over commute time is a statistical tie, since their confidence intervals overlap. The light lead's memo calls crime the strongest predictor and never notes that the ~1.4pp gap is within the noise. That gap is a seam in the pipeline, not a deficit in the model. The light lead sent the sensitivity computation to an Opus deep-reasoner and had the Fable lead write the memo from the returned table, so the statistical-tie judgment fell between the delegate that produced the numbers and the lead that wrote the prose. The heavy lead held the computation and the memo in one context, so it caught the tie and carried the nuance through.</p>
+    <p>This is a single draw at a tier where one sentence separates the bands, and the ladder is the counterweight: the same light lead swept all six rubric items on both harder rungs, at $1.00 and $1.83, the cheapest runs in their columns. The single best memo on the reviewer brief, the only Distinction there, came from the advisor arm, where Fable solved and a Fable consult reviewed. What trailed was the delegate-and-synthesize topology on one draw, not the Fable model.</p>
+    <p>One process finding from the very-high rung deserves its own sentence. The light lead fired its cross-vendor peer review as a background task, and the headless session ended before the verdict returned, so the check was lost. The deliverables were already final, and they were right. But a run that had needed the peer's catch would have shipped without it, which is an argument for interactive sessions, or for protocols that wait, when the outside check is the point.</p>
   </section>
   <section id="run-it">
     <h2>Run it yourself</h2>
-    <p>First install Claude Code and the Open Science Skills plugin. You also need R with the <code>projoint</code> package.</p>
+    <p>First install Claude Code and the Open Science Skills plugin. You also need R with the packages the briefs use.</p>
     <pre><code>npm install -g @anthropic-ai/claude-code
 claude plugin marketplace add scdenney/open-science-skills
 claude plugin install oss@open-science-skills
-Rscript -e 'install.packages("projoint")'</code></pre>
-    <p>For the headless Claude runs, keep <code>ANTHROPIC_API_KEY</code> unset, or the API account is billed instead of your claude.ai login. One representative command per arm.</p>
+Rscript -e 'install.packages(c("projoint","ivdoctr","AER","car","causaldata","MatchIt"))'</code></pre>
+    <p>For the headless Claude runs, keep <code>ANTHROPIC_API_KEY</code> unset, or the API account is billed instead of your claude.ai login. One representative command per arm; any brief slots in the same way.</p>
     <pre><code># light lead (fable), headless
 cd runs/fable/t1
 env -u ANTHROPIC_API_KEY claude -p \

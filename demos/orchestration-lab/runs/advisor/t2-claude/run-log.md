@@ -7,7 +7,7 @@
 | Models | solve + revise: session default (Fable 5 · max); consult: Fable 5 · max (CLAUDE_EFFORT=max) |
 | Brief | `prompts/t2-amce.md` @ commit `7d681d8` |
 | Capture method | headless, three scripted steps (solve → one consult → revise) |
-| Wall-clock | step 1: 2.3 min, 13 turns; step 3: 1.0 min, 14 turns (envelopes) |
+| Wall-clock | step 1: 2.3 min, 13 turns; step 3: 1.0 min, 14 turns (envelopes); ~13.4 min total including the consult |
 | Tokens / cost | step 1: $1.257; step 3: $0.391 API-equivalent (envelopes). Consult unmetered (advisor script returns text only) |
 
 ## Routing trace

@@ -1,6 +1,6 @@
 # Orchestration Lab
 
-**One real conjoint analysis, run three ways with Claude models.** The same three briefs (easy, standard, hard) run under a light lead, a heavy lead, and a single advisor consult. Every run is committed with its transcript, token counts, and figures.
+**Five real analyses, run three ways with Claude models.** Five briefs across three rungs of difficulty — a conjoint description, estimation, and reviewer reply (moderate), an IV replication-and-stress exercise (high), and a genuine methods-dispute adjudication (very high) — each run under a light lead, a heavy lead, and a single advisor consult. The three arms are used identically on every brief. Every run is committed with its transcript record, token counts, and figures.
 
 The modes:
 
@@ -18,11 +18,13 @@ The modes:
 
 ```
 orchestration-lab/
-├── prompts/            # the three briefs (identical across modes) + run instructions
-├── data/README.md      # provenance: projoint exampleData1 (no data committed)
-├── reference/          # the answer key: reference solutions, written and run first
-├── runs/               # the captured runs, one leaf per mode × tier
+├── prompts/            # the five briefs (identical across modes) + run instructions
+├── data/README.md      # provenance: projoint, ivdoctr, causaldata (no data committed)
+├── reference/          # the answer keys: reference solutions + rubrics, written and run first
+├── runs/               # the captured runs, one leaf per mode × brief
 │   └── opus/SESSION-PROTOCOL.md   # the user-driven Opus capture protocol
+├── SCORING.md          # how Pass / Pass+ / Distinction are defined and assigned
+├── EXTENSIONS.md       # the complexity ladder: what was planned, what ran, backups
 └── RESULTS.md          # the findings matrix the walkthrough page reads from
 ```
 
@@ -31,14 +33,14 @@ orchestration-lab/
 ```bash
 git clone https://github.com/scdenney/ai-for-research.git
 cd ai-for-research/demos/orchestration-lab
-Rscript -e 'install.packages("projoint")'   # the only dependency beyond R + ggplot2
+Rscript -e 'install.packages(c("projoint", "ivdoctr", "AER", "car", "causaldata", "MatchIt"))'
 ```
 
-Then read `prompts/run.md` and re-run any cell of the matrix. This demo calls hosted models. It is not offline, and the larger tiers cost real money (the committed run logs record what each cost us).
+Then read `prompts/run.md` and re-run any cell of the matrix. This demo calls hosted models. It is not offline, and the larger briefs cost real money (the committed run logs record what each cost us).
 
 ## Why real data
 
-The runs analyze `exampleData1` from the projoint R package, a real community-choice conjoint (400 respondents, 8 tasks, 7 attributes) that ships with the package, so there is nothing to download and no license question. See `data/README.md`.
+Every brief analyzes real, package-shipped, public data: the projoint community-choice conjoint (400 respondents), the Acemoglu-Johnson-Robinson colonial-origins sample (64 countries, via ivdoctr), and the LaLonde NSW experiment with its CPS comparison pool (via causaldata). Nothing to download, no license questions. See `data/README.md`.
 
 ## The skills this demonstrates
 

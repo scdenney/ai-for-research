@@ -162,10 +162,12 @@ normalized axis (`SCORING.md`).
 - **Pass+** = core **+ judgment** (**E**): reaches "helps but does not
   settle," backed by the pre-earnings-necessity and specification-dependence
   numbers.
-- **Distinction** = **all** (core + judgment + **M**), plus the E distinction
-  refinements: "closer-to" not "recovers" language, the −$144 overclaim flagged
-  as an overlap artifact, the single-sample-demonstration caveat, and a complete
-  benchmark-referenced figure.
+- **Distinction** = **all** six items (core + judgment + **M**), the same rule
+  as every other brief. The E refinements listed above ("closer-to" not
+  "recovers" language; an overlap artifact flagged if the submission's own
+  stratification produces one; the single-sample-demonstration caveat) are
+  quality signals for the write-up, not band-blocking — they mark the strongest
+  memos within a band.
 - **Fail** = misses an anchor (A), never conditions on pre-earnings (C), or
   commits an F overclaim (collapses to "matching works" or "matching fails"
   unqualified).

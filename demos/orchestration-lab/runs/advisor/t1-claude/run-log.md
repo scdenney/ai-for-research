@@ -7,7 +7,7 @@
 | Models | solve + revise: session default (Fable 5 · max); consult: Fable 5 · max (CLAUDE_EFFORT=max) |
 | Brief | `prompts/t1-descriptive.md` @ commit `7d681d8` |
 | Capture method | headless, three scripted steps (solve → one consult → revise) |
-| Wall-clock | step 1: 6.3 min, 28 turns; step 3: 6.9 min, 51 turns (envelopes) |
+| Wall-clock | step 1: 6.3 min, 28 turns; step 3: 6.9 min, 51 turns (envelopes); ~20.8 min total including the consult |
 | Tokens / cost | step 1: $2.804; step 3: $2.185 API-equivalent (envelopes). Consult unmetered (advisor script returns text only) |
 
 ## Routing trace

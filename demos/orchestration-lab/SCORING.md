@@ -2,9 +2,10 @@
 
 This file defines the three bands (Pass, Pass+, Distinction) and puts them on a shared
 numeric axis so a chart can draw dotted threshold lines. Grading is by binary items
-derived from `reference/ANSWER-KEY.md` (T1 Describe, T2 Estimate) and
-`reference/t3/RUBRIC.md` (T3 Reviewer-reply). Each item is classed core, judgment, or
-completeness.
+derived from `reference/ANSWER-KEY.md` (T1 Describe, T2 Estimate), `reference/t3/RUBRIC.md`
+(T3 Reviewer-reply), `reference/high-ajr/RUBRIC.md` (IV replication), and
+`reference/vhigh-lalonde/RUBRIC.md` (Methods dispute). Each item is classed core,
+judgment, or completeness.
 
 Core items are pass-blocking facts a competent run must get right. The judgment item is
 the discretionary call the answer key hands to the analyst. The completeness item rewards
@@ -24,7 +25,7 @@ A run that misses any core item is a Fail whatever its fraction. No number of ju
 completeness items redeems a missed core item.
 
 The categorical rule is primary. The normalized score is its chart representation, items
-met divided by six, on a 0-to-1 axis shared by all three briefs. Dotted lines fall at 0.67
+met divided by six, on a 0-to-1 axis shared by all five briefs. Dotted lines fall at 0.67
 (Pass), 0.83 (Pass+), and 1.00 (Distinction). Because every brief is built four core, one
 judgment, one completeness, the same three lines serve all of them.
 
@@ -61,19 +62,37 @@ judgment, one completeness, the same three lines serve all of them.
 | Statistical-tie caveat (D) | judgment | flags the ~1.4 pp crime-vs-commute gap as within noise, CIs overlapping |
 | Both magnitudes (F) | completeness | reports both the uncorrected 16.5 and corrected 25.1 pp |
 
+## IV replication (high) and Methods dispute (very high)
+
+The two ladder briefs carry their own item lists, already in the shared 4/1/1
+composition, in `reference/high-ajr/RUBRIC.md` (core A replication, B stress specs,
+C weak-instrument flagging, E no overclaim; judgment D, the claim ceiling; completeness
+M, one unified table) and `reference/vhigh-lalonde/RUBRIC.md` (core A anchors, C spec
+curve with pre-earnings, D benchmark-referenced table, F no overclaim; judgment E, the
+"helps but does not settle" adjudication; completeness M, the benchmark-referenced
+figure). The same three threshold lines apply unchanged.
+
 ## Retro-scores
+
+All fifteen captured runs, scored on their brief's six items.
 
 | Run | Items met | Points | Norm | Band |
 |---|---|---|---|---|
 | fable / t1 | design counts, attribute set, level counts, repeated task, honest flag | 5/6 | 0.83 | Pass+ |
 | fable / t2 | crime headline, direction and order, clustered SEs, AMCE zeroing, estimand disclosed | 5/6 | 0.83 | Pass+ |
 | fable / t3 | A, B, C, E | 4/6 | 0.67 | Pass |
+| fable / high-ajr | all six | 6/6 | 1.00 | Distinction |
+| fable / vhigh-lalonde | all six | 6/6 | 1.00 | Distinction |
 | opus / t1 | all six | 6/6 | 1.00 | Distinction |
 | opus / t2 | all six | 6/6 | 1.00 | Distinction |
 | opus / t3 | A, B, C, E, D | 5/6 | 0.83 | Pass+ |
+| opus / high-ajr | all six | 6/6 | 1.00 | Distinction |
+| opus / vhigh-lalonde | all six | 6/6 | 1.00 | Distinction |
 | advisor / t1-claude | all six | 6/6 | 1.00 | Distinction |
 | advisor / t2-claude | crime headline, direction and order, clustered SEs, AMCE zeroing, estimand disclosed | 5/6 | 0.83 | Pass+ |
 | advisor / t3-claude | A, B, C, E, D, F | 6/6 | 1.00 | Distinction |
+| advisor / high-ajr-claude | all six | 6/6 | 1.00 | Distinction |
+| advisor / vhigh-lalonde-claude | all six | 6/6 | 1.00 | Distinction |
 
 Failed-item evidence, quoted from disk.
 
@@ -116,3 +135,11 @@ now separates them, because opus reports the exact max deviation and the full pr
 defaults where fable reports a looser spread and a bare "corrected" label. That gap is
 completeness, not correctness, which is why fable lands at Pass+ and opus at Distinction
 rather than either dropping to Pass.
+
+Two scoring decisions on the newer runs, recorded for auditability. advisor / t1-claude's
+completeness item is scored met on a per-attribute "max relative deviation" column
+(Driving Time 7.8% against the 25% uniform target, the same 1.94 pp quantity in relative
+form); the item's bar is exact-deviation precision rather than a min-max spread, and a
+relative form of the exact deviation clears it. The vhigh rubric's extra "distinction
+refinement" clauses were downgraded to non-band-blocking quality signals before any run
+was scored, so Distinction means the same thing (all six items) on every brief.

@@ -41,16 +41,16 @@ $(cat ../../../prompts/t1-descriptive.md)" < /dev/null 2>&1 | tee exec-stdout.lo
 
 The `< /dev/null` is load-bearing (`codex exec` hangs on stdin without it). Token counts are the `tokens used` lines in the log.
 
-## advisor arm (T3 only; three scripted steps per platform)
+## advisor arm (every brief; three scripted steps per platform)
 
-Plain session solves T3, then one advisor consult, then plain session revises. No orchestration skill in steps 1 and 3.
+Plain session solves the brief, then one advisor consult, then plain session revises. No orchestration skill in steps 1 and 3. The same three steps run on every brief in the matrix — the arm is a pattern, not a special treatment for one tier.
 
-**Claude arm** (`runs/advisor/t3-claude/`):
+**Claude arm** (`runs/advisor/<tier>-claude/`, shown for T3):
 
 ```bash
 env -u ANTHROPIC_API_KEY claude -p "$(cat ../../../prompts/t3-reviewer-memo.md)" \
   --output-format json > claude-envelope-1.json
-# compose briefing.md: the brief + the produced memo + "what would you change?"
+# compose briefing.md: the brief + the produced deliverable + "what would you change?"
 env -u ANTHROPIC_API_KEY CLAUDE_EFFORT=max \
   <toolkit>/plugin/skills/advisor/scripts/fable-advisor.sh \
   --prompt-file briefing.md --out advice.md -C "$PWD"
@@ -59,7 +59,13 @@ env -u ANTHROPIC_API_KEY claude -p \
   --output-format json > claude-envelope-2.json
 ```
 
-**Codex arm** (`runs/advisor/t3-codex/`): the same three steps with `codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium` for steps 1 and 3, and the toolkit's Codex-side advisor script for step 2.
+The consult step is unmetered (the advisor script returns text, not a cost envelope); reported advisor-arm costs are the solve + revise envelopes, stated in each run-log.
+
+**Codex arm** (`runs/advisor/<tier>-codex/`): the same three steps with `codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium` for steps 1 and 3, and the toolkit's Codex-side advisor script for step 2.
+
+## The complexity ladder
+
+The three T-briefs sit at the moderate rung. Two harder rungs run the same three arms with the same protocol, one brief each: `prompts/high-ajr.md` (replicate and stress the AJR colonial-origins IV; leaf dirs `runs/<mode>/high-ajr/`) and `prompts/vhigh-lalonde.md` (adjudicate Dehejia-Wahba vs Smith-Todd on LaLonde; leaf dirs `runs/<mode>/vhigh-lalonde/`). Reference solutions and rubrics live in `reference/high-ajr/` and `reference/vhigh-lalonde/`, built and verified before any model run, as always.
 
 ## opus-orchestrate (interactive, user-driven)
 

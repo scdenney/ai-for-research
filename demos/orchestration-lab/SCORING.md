@@ -74,7 +74,9 @@ figure). The same three threshold lines apply unchanged.
 
 ## Retro-scores
 
-All fifteen captured runs, scored on their brief's six items.
+All captured runs, scored on their brief's six items. The 46-orchestrate rows are the
+2026-07-12 re-runs (headless `codex exec`, gpt-5.6-terra · medium); the superseded
+2026-07-11 captures are in git history.
 
 | Run | Items met | Points | Norm | Band |
 |---|---|---|---|---|
@@ -93,6 +95,11 @@ All fifteen captured runs, scored on their brief's six items.
 | advisor / t3-claude | A, B, C, E, D, F | 6/6 | 1.00 | Distinction |
 | advisor / high-ajr-claude | all six | 6/6 | 1.00 | Distinction |
 | advisor / vhigh-lalonde-claude | all six | 6/6 | 1.00 | Distinction |
+| 46 / t1 | design counts, attribute set, level counts, repeated task | 4/6 | 0.67 | Pass |
+| 46 / t2 | crime headline, direction and order, clustered SEs, AMCE zeroing, estimand disclosed | 5/6 | 0.83 | Pass+ |
+| 46 / t3 | A, B, C, E | 4/6 | 0.67 | Pass |
+| 46 / high-ajr | A, B, C, E, M | 5/6 | 0.83 | **Pass** (see note) |
+| 46 / vhigh-lalonde | all six | 6/6 | 1.00 | Distinction |
 
 Failed-item evidence, quoted from disk.
 
@@ -123,9 +130,12 @@ Failed-item evidence, quoted from disk.
 
 Bands are non-compensatory, so the dotted lines mark where the categorical bands sit for
 runs that clear all four core items rather than acting as independent numeric cutoffs.
-Every captured run clears core, so on this chart each run's fraction lands in the band its
-line predicts. Figure conventions (Okabe-Ito palette, caption-not-title, 300+ dpi) are a
-separate quality axis tracked in `RESULTS.md` and are not folded into these items.
+Every captured Claude-arm run clears core and meets items in band order, so each of those
+fractions lands in the band its line predicts. The one exception in the matrix is
+46 / high-ajr, which meets core plus completeness but misses the judgment item: its
+fraction (5/6) sits at the Pass+ line while its band is Pass, exactly the case this
+paragraph exists for. Figure conventions (Okabe-Ito palette, caption-not-title, 300+ dpi)
+are a separate quality axis tracked in `RESULTS.md` and are not folded into these items.
 
 Two results worth flagging. The T3 item scores reproduce the bands already recorded in
 `RESULTS.md` (fable Pass, opus Pass+, advisor Distinction), the check that the item list is

@@ -177,7 +177,7 @@ env -u ANTHROPIC_API_KEY claude -p \
     <p>The full protocol for every arm is in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/run.md">run.md</a>.</p>
     <div class="rule"><b>One draw.</b> A captured run is one sample from a non-deterministic process, not a benchmark. Re-run the briefs yourself and expect your numbers to differ.</div>
   </section>
-  <p class="note">A Codex-led counterpart to these arms, <code>46-orchestrate</code> and a Codex-side advisor, is also captured in the run directories. It stays out of this write-up until it is re-run from a live Codex session.</p>
+  <p class="note">A Codex-led counterpart, <code>46-orchestrate</code> with a gpt-5.6-terra lead, ran the same five briefs through the same rubrics (re-captured 2026-07-12). Its bands: Pass, Pass+, and Pass on the three conjoint briefs, Pass on the IV replication, and Distinction on the methods dispute. Its AJR numbers are all exact; the Pass there comes from the memo stopping one sentence short of the two-sided ceiling (a collapsed instrument neither confirms nor overturns) that every Claude memo stated. It runs on 46k to 92k Codex tokens per brief and stays out of the dollar charts because the Codex CLI reports tokens, not dollars. Full scores and run logs are in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>. A Codex-side advisor arm is captured for the hard brief only, pending its own re-run.</p>
 </main>
 
 <footer class="wrap">

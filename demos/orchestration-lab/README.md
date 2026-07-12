@@ -10,7 +10,7 @@ The modes:
 | `opus-orchestrate` | Opus 4.8 (heavy, ultracode) | same bench; reasons on hard parts itself | Claude Code |
 | `advisor` | plain session + one consult | Fable 5 as the reviewer | Claude Code |
 
-> A Codex-led counterpart (`46-orchestrate`) and a Codex-side advisor are also captured in `runs/`, but they stay out of the public write-up until re-run from a live Codex session.
+> A Codex-led counterpart (`46-orchestrate`, gpt-5.6-terra lead) was re-run on all five briefs via headless `codex exec` on 2026-07-12 and is scored in `RESULTS.md` and `SCORING.md`; it stays out of the dollar charts because Codex reports tokens, not USD. A Codex-side advisor arm is captured for the hard brief only, pending its own re-run.
 
 > **The one rule.** A captured run is one draw from a non-deterministic process, not a benchmark. These are specimens. Read the routing traces and the artifacts, re-run the briefs yourself, and expect your numbers to differ.
 
@@ -44,7 +44,7 @@ Every brief analyzes real, package-shipped, public data: the projoint community-
 
 ## The skills this demonstrates
 
-`fable-orchestrate`, `opus-orchestrate`, and `advisor` from the [Open Science Skills](https://github.com/scdenney/open-science-skills) toolkit, plus the `figures` conventions every brief enforces. The Codex-led `46-orchestrate` is captured but pending re-run.
+`fable-orchestrate`, `opus-orchestrate`, and `advisor` from the [Open Science Skills](https://github.com/scdenney/open-science-skills) toolkit, plus the Codex-led `46-orchestrate` and the `figures` conventions every brief enforces.
 
 ## License
 

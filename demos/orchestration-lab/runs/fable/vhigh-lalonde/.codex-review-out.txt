@@ -1,0 +1,653 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.1
+--------
+workdir: ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/fable/vhigh-lalonde
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f55be-a6a9-7103-8429-4a49dce94715
+--------
+user
+You are acting as an adversarial peer reviewer (fresh, different-vendor perspective) on a completed causal-inference analysis in this directory. Read these four files: script.R, spec-table.md, memo.md, and figures/spec-curve.png (if you can view images; otherwise infer from script.R what it draws).
+
+CONTEXT: This is an adjudication of the Dehejia-Wahba (1999/2002) vs Smith-Todd (2005) dispute over whether propensity-score matching recovers the LaLonde NSW experimental benchmark when experimental controls are replaced by CPS observational controls. The analysis computes an experimental benchmark (~$1,794), a naive observational estimate, and 6 propensity-score matching specifications (2 covariate sets: demographics-only vs demographics+re74+re75, crossed with 3 estimator details: 1-NN no-trim, 1-NN common-support-trim, 6-strata subclassification), then writes a ~450-word memo adjudicating whether recovery is robust / favorable-specification-only / absent.
+
+YOUR JOB — find real problems, don't rubber-stamp. Specifically check:
+
+1. STATISTICAL VALIDITY: Is the standard-error approach for the 1-NN matching specifications actually defensible? The script uses cluster-robust SEs (sandwich::vcovCL) clustered on the reused control-unit id, from a weighted lm(re78 ~ treat) on get_matches() output, explicitly avoiding the nonparametric bootstrap because Abadie & Imbens (2008) show it's invalid for NN matching. Is clustering on control-id actually a reasonable practical substitute, or does it materially understate/overstate uncertainty in a way that would mislead the reader? Is there a better easy fix you'd insist on?
+
+2. CODE CORRECTness: Read script.R end to end. Is the ATT estimand, the matching call (method="nearest", distance="glm", estimand="ATT", replace=TRUE), the common-support caliper (caliper=0.1 with discard="both"), and the subclassification (method="subclass", subclass=6) all being used correctly for what the memo claims? Any bugs, wrong-sign errors, or mismatches between what the code computes and what spec-table.md / memo.md report?
+
+3. OVERCLAIMING / UNDERCLAIMING in memo.md: Given the actual numbers in spec-table.md (demographics-only specs land around -$2,800 to -$3,600, badly biased; demographics+re74+re75 specs land at $1,712/$1,759 for 1-NN [close to benchmark $1,794] but only $61 for 6-strata subclassification [near zero, CI -3,108 to 3,229]), does the memo's characterization "favorable-specification-only recovery" fairly represent this pattern? Or is it too generous to matching (glossing over how fragile even the "favorable" case is, given strata collapses to zero) or too harsh (the CI for strata still technically covers the benchmark)? Push on this — a lazy reviewer would just accept the memo's own framing.
+
+4. ANYTHING ELSE: figure honesty (does the reference line/band match the reported benchmark CI, is the plot free of chartjunk/misleading axis choices), whether 6 specifications with only 3 unique "trim" behaviors (S1==S3 by construction, documented in a trim note) is being transparent enough about not really delivering 4 DISTINCT trim-axis specifications for the demographics-only case, and whether "at least four specifications varying two axes" is genuinely satisfied.
+
+Give me a tight, concrete report: a numbered list of real issues (if any), each with why it matters and (if easy) a one-line fix. If something is fine, say so briefly rather than padding. If you find nothing that rises to a real issue, say that plainly too — don't manufacture problems. Keep total response under 600 words.
+codex
+I’ll inspect the code, reported table/memo, and the plotted artifact, then give a short adversarial review focused on material issues.
+exec
+/bin/zsh -lc "sed -n '1,260p' script.R" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/fable/vhigh-lalonde
+exec
+/bin/zsh -lc "sed -n '1,240p' spec-table.md && sed -n '1,260p' memo.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/fable/vhigh-lalonde
+ succeeded in 0ms:
+# LaLonde specification curve: observational PSM vs experimental benchmark
+
+Experimental benchmark (ATT on re78): **$1,794** [95% CI 551, 3,038].
+Naive observational estimate: **$-8,498** [95% CI -9,893, -7,102].
+
+All dollar figures are 1978 real earnings (re78). `gap` = estimate - benchmark.
+
+| Spec | Covariate set | Estimator / SE method | Estimate | SE | 95% CI low | 95% CI high | Gap to benchmark |
+|------|---------------|-----------------------|---------:|---:|-----------:|------------:|-----------------:|
+| BENCH | experimental | diff-in-means (OLS SE) | 1,794 | 633 | 551 | 3,038 | 0 |
+| NAIVE | none (composite) | diff-in-means (OLS SE) | -8,498 | 712 | -9,893 | -7,102 | -10,292 |
+| S1 | demographics | 1-NN, no trimming (SE: cluster on control id) | -2,798 | 1,071 | -4,897 | -699 | -4,592 |
+| S2 | demographics+re74+re75 | 1-NN, no trimming (SE: cluster on control id) | 1,712 | 803 | 137 | 3,287 | -82 |
+| S3 | demographics | 1-NN, common-support caliper 0.1 (SE: cluster on control id) | -2,798 | 1,071 | -4,897 | -699 | -4,592 |
+| S4 | demographics+re74+re75 | 1-NN, common-support caliper 0.1 (SE: cluster on control id) | 1,759 | 803 | 185 | 3,333 | -36 |
+| S5 | demographics | PS subclassification, 6 strata (SE: cluster by stratum) | -3,622 | 916 | -5,417 | -1,826 | -5,416 |
+| S6 | demographics+re74+re75 | PS subclassification, 6 strata (SE: cluster by stratum) | 61 | 1,617 | -3,108 | 3,229 | -1,734 |
+
+SE note: 1-NN specifications avoid the ordinary nonparametric bootstrap,
+which Abadie & Imbens (2008) show is invalid for nearest-neighbor matching;
+they use cluster-robust SEs clustered on the reused control-unit id.
+Subclassification specifications use cluster-robust SEs by stratum.
+
+Trim note: on the demographics-only propensity score the common-support
+restriction is non-binding -- all 185 treated units find a within-caliper
+match and the discarded off-support controls were never nearest neighbors
+under matching-with-replacement -- so S1 and S3 are identical by
+construction. The restriction binds once re74/re75 enter (S2 vs S4).
+# Does propensity-score matching recover the LaLonde experimental benchmark?
+
+The randomized NSW experiment gives an unbiased benchmark: treated workers earned
+$1,794 more in 1978 than experimental controls (95% CI $551 to $3,038). Replacing
+those controls with 15,992 CPS survey respondents and taking a raw difference
+produces -$8,498 (CI -$9,893 to -$7,102), wrong in sign and off the benchmark by
+$10,292. This is LaLonde's original point: CPS controls are older, better paid, and
+more attached to work than the NSW enrollees, so the raw contrast measures
+selection into the comparison group rather than the effect of training.
+
+Propensity-score matching balances the observed covariates that drive that
+selection, and what it balances is decisive. Conditioning only on demographics
+(age, education, race, marital status, degree) leaves every specification badly
+biased. Nearest-neighbor matching returns -$2,798 (gap -$4,592) with or without
+common-support trimming, and six-stratum subclassification returns -$3,622 (gap
+-$5,416). All three confidence intervals exclude the benchmark. Demographic balance
+alone does not fix the problem, because the CPS and NSW groups differ most in their
+earnings histories, which demographics do not capture.
+
+Adding the pre-treatment earnings re74 and re75 changes the picture. Nearest-neighbor
+matching on the fuller score recovers the benchmark almost exactly: $1,712 without
+trimming (gap -$82) and $1,759 with a common-support caliper (gap -$36), both with
+intervals that cover the experimental estimate. Matching on earnings history removes
+the trajectory difference that demographics missed.
+
+The recovery is not robust across implementation. Holding covariates fixed at the
+full set and switching from nearest-neighbor matching to subclassification collapses
+the estimate to $61 (gap -$1,734), essentially zero, though its wide interval
+(-$3,108 to $3,229) still overlaps the benchmark. Covariate choice moves the estimate
+by roughly $4,500, and estimator detail by roughly $1,700 even after the right
+covariates are included.
+
+This is favorable-specification-only recovery, not universal recovery. Matching
+approximates the experimental answer here only when the propensity score conditions
+on pre-treatment earnings, and even then the point estimate depends on whether one
+matches or stratifies. That is Smith and Todd's fragility critique, reproduced on
+these data.
+
+Two limits bound any claim. Matching balances observables; it cannot correct
+selection on unobservables. The full-covariate specifications land near the benchmark
+because re74 and re75 proxy the relevant heterogeneity, not because the design
+guarantees that the matched CPS controls resemble the treated group on characteristics
+we never measured. A paper may legitimately claim that propensity-score matching
+conditioning on pre-treatment earnings can approximate the experimental benchmark in
+this setting, while stating that the result is sensitive to covariate choice and
+matching method. It may not claim that matching validates observational designs in
+general, or that it universally recovers experimental benchmarks.
+
+ succeeded in 0ms:
+# =============================================================================
+# LaLonde (1986) / Dehejia-Wahba vs Smith-Todd specification curve
+# Experimental benchmark vs observational (NSW treated + CPS controls) PSM.
+# Self-contained: run with `Rscript script.R`.
+# =============================================================================
+
+suppressPackageStartupMessages({
+  library(causaldata)
+  library(MatchIt)
+  library(sandwich)
+  library(lmtest)
+  library(ggplot2)
+})
+
+# ---- Palette + theme first (convention: aesthetics before analysis) ---------
+okabe_ito <- c(
+  orange   = "#E69F00", skyblue = "#56B4E9", green = "#009E73",
+  yellow   = "#F0E442", blue    = "#0072B2", vermil = "#D55E00",
+  purple   = "#CC79A7", black   = "#000000"
+)
+
+theme_clean <- theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    axis.line = element_line(colour = "grey30", linewidth = 0.3),
+    axis.ticks = element_line(colour = "grey30", linewidth = 0.3),
+    plot.caption = element_text(hjust = 0, colour = "grey35", size = 9),
+    legend.position = "top"
+  )
+
+# ---- Seed before anything stochastic (MatchIt ties / glm) -------------------
+set.seed(20260712)
+
+# ---- Data -------------------------------------------------------------------
+data(nsw_mixtape,  package = "causaldata")
+data(cps_mixtape,  package = "causaldata")
+nsw <- as.data.frame(nsw_mixtape)
+cps <- as.data.frame(cps_mixtape)
+
+# =============================================================================
+# 1. EXPERIMENTAL BENCHMARK: treated - control in re78 within randomized NSW.
+#    Randomized -> simple difference-in-means (OLS) SE is valid.
+# =============================================================================
+bench_fit <- lm(re78 ~ treat, data = nsw)
+bench_ci  <- confint(bench_fit)["treat", ]
+benchmark_est  <- unname(coef(bench_fit)["treat"])
+benchmark_se   <- sqrt(vcov(bench_fit)["treat", "treat"])
+benchmark_low  <- unname(bench_ci[1])
+benchmark_high <- unname(bench_ci[2])
+
+# =============================================================================
+# 2. OBSERVATIONAL COMPOSITE: NSW treated (treat==1) + CPS controls (treat==0).
+# =============================================================================
+covs <- c("age", "educ", "black", "hisp", "marr", "nodegree", "re74", "re75", "re78")
+obs <- rbind(
+  data.frame(treat = 1L, nsw[nsw$treat == 1, covs]),
+  data.frame(treat = 0L, cps[, covs])
+)
+obs$treat <- as.integer(obs$treat)
+
+# =============================================================================
+# 3. NAIVE observational estimate: raw treated - control diff in re78.
+# =============================================================================
+naive_fit  <- lm(re78 ~ treat, data = obs)
+naive_ci   <- confint(naive_fit)["treat", ]
+naive_est  <- unname(coef(naive_fit)["treat"])
+naive_se   <- sqrt(vcov(naive_fit)["treat", "treat"])
+naive_low  <- unname(naive_ci[1])
+naive_high <- unname(naive_ci[2])
+
+# =============================================================================
+# 4. PROPENSITY-SCORE MATCHING SPECIFICATIONS
+#    Axis (a) covariate set: demographics-only  vs  demographics + re74 + re75
+#    Axis (b) estimator detail: 1-NN (no trim) / 1-NN (common-support trim) /
+#                               propensity-score subclassification (strata)
+# -----------------------------------------------------------------------------
+# STANDARD ERRORS.
+#   For 1-NN matching we do NOT use the ordinary nonparametric bootstrap:
+#   Abadie & Imbens (2008, Econometrica) prove the bootstrap distribution does
+#   not converge to the correct limit for nearest-neighbor matching, because the
+#   matching functional is extremely non-smooth (number of times a control is
+#   reused is a step function of the data). Instead, for the NN specs we take
+#   the matched pairs from get_matches(), fit a weighted lm(re78 ~ treat), and
+#   report CLUSTER-ROBUST SEs clustered on the original control-unit id. Because
+#   matching is with replacement, a CPS control can be reused across many treated
+#   units; clustering on control id accounts for that repeated-use dependence
+#   (a standard practical fix; see MatchIt docs / Abadie-Imbens discussion).
+#   For the subclassification specs, SEs are cluster-robust by stratum
+#   (a stratified-sampling-style variance), which IS bootstrap-compatible.
+# =============================================================================
+
+demo_covs <- c("age", "educ", "black", "hisp", "marr", "nodegree")
+full_covs <- c(demo_covs, "re74", "re75")
+f_demo <- reformulate(demo_covs, response = "treat")
+f_full <- reformulate(full_covs, response = "treat")
+
+# --- NN estimator: weighted lm on matched pairs, cluster-robust by control id -
+#   trim = FALSE : plain 1-NN with replacement (no common-support restriction).
+#   trim = TRUE  : Dehejia-Wahba style common-support restriction -- a 0.1-SD
+#                  propensity-score caliper plus discard="both", which drops
+#                  treated units with no comparable control and controls off the
+#                  treated support (estimand becomes ATT on the overlap region).
+nn_estimate <- function(f, trim) {
+  m <- matchit(f, data = obs, method = "nearest", distance = "glm",
+               estimand = "ATT", replace = TRUE,
+               discard = if (trim) "both" else "none",
+               caliper = if (trim) 0.1 else NULL)
+  gm <- get_matches(m, data = obs)          # one row per matched pair member
+  fit <- lm(re78 ~ treat, data = gm, weights = gm$weights)
+  # cluster on original control-unit id (reused controls share an id)
+  V  <- sandwich::vcovCL(fit, cluster = gm$id)
+  ct <- lmtest::coeftest(fit, vcov. = V)
+  est <- unname(ct["treat", "Estimate"])
+  se  <- unname(ct["treat", "Std. Error"])
+  c(est = est, se = se, low = est - 1.96 * se, high = est + 1.96 * se)
+}
+
+# --- Subclassification (Cochran-style strata): weighted lm, cluster by stratum
+sub_estimate <- function(f, nsub = 6) {
+  m <- matchit(f, data = obs, method = "subclass", distance = "glm",
+               estimand = "ATT", subclass = nsub, min.n = 2)
+  md  <- match.data(m)
+  fit <- lm(re78 ~ treat, data = md, weights = md$weights)
+  V   <- sandwich::vcovCL(fit, cluster = md$subclass)
+  ct  <- lmtest::coeftest(fit, vcov. = V)
+  est <- unname(ct["treat", "Estimate"])
+  se  <- unname(ct["treat", "Std. Error"])
+  c(est = est, se = se, low = est - 1.96 * se, high = est + 1.96 * se)
+}
+
+specs <- list(
+  list(id = "S1", label = "1NN, no trim (demo)",        cov = "demographics",           det = "1-NN, no trimming (SE: cluster on control id)",       fn = function() nn_estimate(f_demo, FALSE)),
+  list(id = "S2", label = "1NN, no trim (demo+re7475)",  cov = "demographics+re74+re75", det = "1-NN, no trimming (SE: cluster on control id)",       fn = function() nn_estimate(f_full, FALSE)),
+  list(id = "S3", label = "1NN, trim (demo)",            cov = "demographics",           det = "1-NN, common-support caliper 0.1 (SE: cluster on control id)", fn = function() nn_estimate(f_demo, TRUE)),
+  list(id = "S4", label = "1NN, trim (demo+re7475)",     cov = "demographics+re74+re75", det = "1-NN, common-support caliper 0.1 (SE: cluster on control id)", fn = function() nn_estimate(f_full, TRUE)),
+  list(id = "S5", label = "Strata x6 (demo)",            cov = "demographics",           det = "PS subclassification, 6 strata (SE: cluster by stratum)", fn = function() sub_estimate(f_demo)),
+  list(id = "S6", label = "Strata x6 (demo+re7475)",     cov = "demographics+re74+re75", det = "PS subclassification, 6 strata (SE: cluster by stratum)", fn = function() sub_estimate(f_full))
+)
+
+rows <- lapply(specs, function(s) {
+  r <- s$fn()
+  data.frame(
+    spec_id = s$id, label = s$label, covariate_set = s$cov,
+    estimator_detail = s$det,
+    estimate = unname(r["est"]), se = unname(r["se"]),
+    ci_low = unname(r["low"]), ci_high = unname(r["high"]),
+    stringsAsFactors = FALSE
+  )
+})
+spec_df <- do.call(rbind, rows)
+spec_df$gap_to_benchmark <- spec_df$estimate - benchmark_est
+
+# ---- Reference rows (benchmark + naive) -------------------------------------
+ref_bench <- data.frame(
+  spec_id = "BENCH", label = "Experimental benchmark (NSW randomized)",
+  covariate_set = "experimental", estimator_detail = "diff-in-means (OLS SE)",
+  estimate = benchmark_est, se = benchmark_se,
+  ci_low = benchmark_low, ci_high = benchmark_high, gap_to_benchmark = 0
+)
+ref_naive <- data.frame(
+  spec_id = "NAIVE", label = "Naive observational (raw diff)",
+  covariate_set = "none (composite)", estimator_detail = "diff-in-means (OLS SE)",
+  estimate = naive_est, se = naive_se,
+  ci_low = naive_low, ci_high = naive_high,
+  gap_to_benchmark = naive_est - benchmark_est
+)
+
+full_table <- rbind(ref_bench, ref_naive, spec_df)
+
+# =============================================================================
+# 5. WRITE spec-table.md
+# =============================================================================
+fmt <- function(x) formatC(x, format = "f", digits = 0, big.mark = ",")
+md <- c(
+  "# LaLonde specification curve: observational PSM vs experimental benchmark",
+  "",
+  sprintf("Experimental benchmark (ATT on re78): **$%s** [95%% CI %s, %s].",
+          fmt(benchmark_est), fmt(benchmark_low), fmt(benchmark_high)),
+  sprintf("Naive observational estimate: **$%s** [95%% CI %s, %s].",
+          fmt(naive_est), fmt(naive_low), fmt(naive_high)),
+  "",
+  "All dollar figures are 1978 real earnings (re78). `gap` = estimate - benchmark.",
+  "",
+  "| Spec | Covariate set | Estimator / SE method | Estimate | SE | 95% CI low | 95% CI high | Gap to benchmark |",
+  "|------|---------------|-----------------------|---------:|---:|-----------:|------------:|-----------------:|"
+)
+for (i in seq_len(nrow(full_table))) {
+  r <- full_table[i, ]
+  md <- c(md, sprintf("| %s | %s | %s | %s | %s | %s | %s | %s |",
+                      r$spec_id, r$covariate_set, r$estimator_detail,
+                      fmt(r$estimate), fmt(r$se), fmt(r$ci_low),
+                      fmt(r$ci_high), fmt(r$gap_to_benchmark)))
+}
+md <- c(md, "",
+        "SE note: 1-NN specifications avoid the ordinary nonparametric bootstrap,",
+        "which Abadie & Imbens (2008) show is invalid for nearest-neighbor matching;",
+        "they use cluster-robust SEs clustered on the reused control-unit id.",
+        "Subclassification specifications use cluster-robust SEs by stratum.",
+        "",
+        "Trim note: on the demographics-only propensity score the common-support",
+        "restriction is non-binding -- all 185 treated units find a within-caliper",
+        "match and the discarded off-support controls were never nearest neighbors",
+        "under matching-with-replacement -- so S1 and S3 are identical by",
+        "construction. The restriction binds once re74/re75 enter (S2 vs S4).")
+writeLines(md, "spec-table.md")
+
+# =============================================================================
+# 6. FIGURE: spec-curve.png
+# =============================================================================
+if (!dir.exists("figures")) dir.create("figures")
+
+plot_df <- spec_df
+plot_df <- rbind(
+  plot_df,
+  data.frame(spec_id = "NAIVE", label = "Naive (raw diff)",
+             covariate_set = "none (composite)",
+             estimator_detail = "diff-in-means",
+             estimate = naive_est, se = naive_se,
+             ci_low = naive_low, ci_high = naive_high,
+             gap_to_benchmark = naive_est - benchmark_est)
+)
+plot_df <- plot_df[order(plot_df$estimate), ]
+plot_df$label <- factor(plot_df$label, levels = plot_df$label)
+
+pal <- c("demographics"          = okabe_ito[["vermil"]],
+         "demographics+re74+re75" = okabe_ito[["blue"]],
+         "none (composite)"       = okabe_ito[["black"]])
+
+p <- ggplot(plot_df, aes(x = label, y = estimate, colour = covariate_set)) +
+  annotate("rect", xmin = -Inf, xmax = Inf,
+           ymin = benchmark_low, ymax = benchmark_high,
+           fill = okabe_ito[["green"]], alpha = 0.15) +
+  geom_hline(yintercept = benchmark_est, linetype = "dashed",
+             colour = okabe_ito[["green"]], linewidth = 0.6) +
+  geom_hline(yintercept = 0, colour = "grey70", linewidth = 0.3) +
+  geom_errorbar(aes(ymin = ci_low, ymax = ci_high), width = 0.18, linewidth = 0.6) +
+  geom_point(size = 2.6) +
+  annotate("text", x = nrow(plot_df) - 0.35, y = benchmark_est,
+           label = sprintf("Experimental benchmark $%s ", fmt(benchmark_est)),
+           hjust = 1, vjust = 0.5, size = 3.1, colour = okabe_ito[["green"]]) +
+  scale_colour_manual(values = pal, name = "Propensity-score covariates") +
+  scale_y_continuous(labels = function(x) paste0("$", formatC(x, format = "f", digits = 0, big.mark = ","))) +
+  coord_flip() +
+  labs(x = NULL, y = "Estimated ATT on 1978 earnings (re78), 95% CI",
+       caption = paste0(
+         "NSW treated + CPS controls. Green dashed line / band = randomized NSW benchmark (point, 95% CI).\n",
+         "Naive raw difference shown for reference. 1-NN specs: cluster-robust SE on reused control id\n",
+         "(nonparametric bootstrap invalid for NN matching, Abadie-Imbens 2008). Strata specs: cluster-robust SE by stratum.")) +
+  theme_clean
+
+ggsave("figures/spec-curve.png", p, width = 10, height = 5.8, dpi = 320)
+
+# =============================================================================
+# 7. Console summary (for memo authoring)
+# =============================================================================
+cat("\n===== SUMMARY =====\n")
+cat(sprintf("Experimental benchmark: %.1f  [%.1f, %.1f]\n",
+            benchmark_est, benchmark_low, benchmark_high))
+cat(sprintf("Naive observational:    %.1f  [%.1f, %.1f]\n",
+
+exec
+/bin/zsh -lc "file figures/spec-curve.png && identify -verbose figures/spec-curve.png | sed -n '1,80p'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/fable/vhigh-lalonde
+ succeeded in 957ms:
+Image:
+  Filename: figures/spec-curve.png
+  Permissions: rw-r--r--
+  Format: PNG (Portable Network Graphics)
+  Mime type: image/png
+  Class: DirectClass
+  Geometry: 3200x1856+0+0
+  Resolution: 125.98x125.98
+  Print size: 25.4009x14.7325
+  Units: PixelsPerCentimeter
+  Colorspace: sRGB
+  Type: TrueColor
+  Endianness: Undefined
+  Depth: 8-bit
+  Channels: 3.0
+  Channel depth:
+    Red: 8-bit
+    Green: 8-bit
+    Blue: 8-bit
+  Channel statistics:
+    Pixels: 5939200
+    Red:
+      min: 0  (0)
+      max: 255 (1)
+      mean: 246.156 (0.965319)
+      median: 255 (1)
+      standard deviation: 32.1535 (0.126092)
+      kurtosis: 34.4595
+      skewness: -5.55492
+      entropy: 0.119976
+    Green:
+      min: 0  (0)
+      max: 255 (1)
+      mean: 248.673 (0.97519)
+      median: 255 (1)
+      standard deviation: 28.6458 (0.112336)
+      kurtosis: 41.2788
+      skewness: -6.25019
+      entropy: 0.122292
+    Blue:
+      min: 0  (0)
+      max: 255 (1)
+      mean: 247.871 (0.972041)
+      median: 255 (1)
+      standard deviation: 30.1576 (0.118265)
+      kurtosis: 41.4058
+      skewness: -6.21955
+      entropy: 0.120683
+  Image statistics:
+    Overall:
+      min: 0  (0)
+      max: 255 (1)
+      mean: 247.567 (0.97085)
+      median: 255 (1)
+      standard deviation: 30.319 (0.118898)
+      kurtosis: 39.0481
+      skewness: -6.00822
+      entropy: 0.120984
+  Rendering intent: Perceptual
+  Gamma: 0.454545
+  Chromaticity:
+    red primary: (0.64,0.33,0.03)
+    green primary: (0.3,0.6,0.1)
+    blue primary: (0.15,0.06,0.79)
+    white point: (0.3127,0.329,0.3583)
+  Matte color: grey74
+  Background color: white
+  Border color: srgb(223,223,223)
+  Transparent color: black
+  Interlace: None
+  Intensity: Undefined
+  Compose: Over
+  Page geometry: 3200x1856+0+0
+  Dispose: Undefined
+  Iterations: 0
+  Compression: Zip
+  Orientation: Undefined
+  Properties:
+    date:create: 2026-07-12T09:51:51+00:00
+    date:modify: 2026-07-12T09:51:51+00:00
+
+codex
+I’ve found the main inferential pressure point: both matching and subclassification use ad hoc cluster-robust variance estimators, so I’m checking the implementation details and figure before judging whether that undermines the memo’s confidence claims.
+exec
+/bin/zsh -lc "sed -n '1,260p' ~/Documents/github/resources/open-science-skills/codex/advisor/SKILL.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/fable/vhigh-lalonde
+exec
+/bin/zsh -lc "sed -n '261,520p' script.R" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/fable/vhigh-lalonde
+ succeeded in 0ms:
+            naive_est, naive_low, naive_high))
+cat("\nSpec | estimate | SE | CI | gap-to-benchmark\n")
+for (i in seq_len(nrow(spec_df))) {
+  r <- spec_df[i, ]
+  cat(sprintf("%s %-28s est=%8.1f se=%7.1f CI=[%8.1f,%8.1f] gap=%9.1f\n",
+              r$spec_id, r$label, r$estimate, r$se, r$ci_low, r$ci_high,
+              r$gap_to_benchmark))
+}
+cat("\nDone.\n")
+
+ succeeded in 0ms:
+---
+name: advisor
+description: Consult an independent GPT-5.6 reviewer (Terra by default; Sol on request, for a stronger but costlier review), matched to your current reasoning-effort level. Use before committing to an interpretation or a substantial piece of writing/analysis, when stuck (recurring errors, a non-converging approach, results that do not fit), when considering a change of approach, or when you believe a task is complete and want a check before finalizing. Not a co-implementer — read-only advisory only, does not edit files.
+---
+
+# Advisor (GPT-5.6 consulted)
+
+Consult an independent **GPT-5.6** reviewer for one specific decision point, at the same reasoning effort you are currently running at. This is the Codex-side counterpart of the Claude-side `advisor` skill (`plugin/skills/advisor/` in `open-science-skills`), built the same session for the same reason: a single-turn advisory consult, not a delegated implementation.
+
+**Which 5.6 tier, and why it matters.** There are three distinct GPT-5.6 tiers, not one model: `gpt-5.6-sol` (flagship, "most capable"), `gpt-5.6-terra` (balanced, "everyday work"), `gpt-5.6-luna` (fast/cheap). This skill defaults to **`gpt-5.6-terra`** for routine consults — it is cheaper and confirmed reliable. `gpt-5.6-sol` is confirmed working on both hosts this repo runs on (July 2026, both authenticated via ChatGPT login) — an earlier "rejected outright under ChatGPT-account auth" finding no longer reproduces; whether that was a temporary rollout gate or a stale/outdated-CLI artifact is unclear, so re-verify with a smoke test if `sol` ever errors on your account rather than assuming it's gated. Pass `--model gpt-5.6-sol` explicitly for a stronger, costlier consult — see *Effort calibration* below.
+
+Read [`scripts/sol-advisor.sh`](scripts/sol-advisor.sh) before the first run — the flags and the effort-handling note there are load-bearing.
+
+## Sandbox constraint — read this before your first run
+
+`sol-advisor.sh` shells out to a nested `codex exec` process. Confirmed by direct reproduction (July 2026, both hosts this repo runs on): a `codex exec` process running under **any** sandbox mode (`read-only` or `workspace-write`) cannot spawn a working nested `codex exec` child — it fails immediately with `Error: failed to initialize in-process app-server client: Operation not permitted` (macOS) or `Read-only file system` (Linux). This is structural — the OS sandbox applies transitively to the whole process tree — and is **not** fixed by passing `--dangerously-bypass-approvals-and-sandbox` to the nested call itself; only an unsandboxed top-level session avoids it entirely.
+
+- If you are interactive (not `codex exec` invoked non-interactively) and this failure surfaces, request escalation for that one shell command (`sandbox_permissions: require_escalated`, with a short justification) so it runs outside the sandbox — this is exactly the case the built-in escalation path exists for.
+- If you are running non-interactively (`codex exec` at the top level shows `approval: never` in its own banner — no human is available to approve an escalation), this call cannot succeed. Report the failure honestly; do not silently produce the review yourself in place of the consult (that defeats the point of an independent second opinion) and do not retry indefinitely.
+
+## When to use
+
+- **Before substantive work** — before writing, before committing to an interpretation, before building on an assumption. Orientation (finding files, reading a source) is not substantive; writing, editing, and declaring an answer are.
+- **When you believe a task is complete.** Make the deliverable durable first (write the file, save the result, commit the change) — the consult takes real time.
+- **When stuck** — errors recurring, an approach not converging, results that do not fit.
+- **When considering a change of approach.**
+
+On tasks longer than a few steps, consult at least once before committing to an approach and once before declaring done. Give the advice serious weight: if a step you followed on the consult's advice fails empirically, or you have primary-source evidence contradicting a specific claim, adapt. If your own evidence and the consult's advice point different directions, surface the conflict in one more consult rather than silently picking a side.
+
+## Effort calibration — read this before running
+
+The consulted model should run at the **same reasoning effort you are currently running at**, not a hardcoded default. Codex does not expose its own live reasoning-effort setting as an environment variable inheritable by subprocesses (confirmed empirically: dumping `env` inside a running `codex exec` call shows no `CODEX_REASONING_EFFORT` or equivalent — only Claude Code's own `$CLAUDE_EFFORT` leaked through from an enclosing Claude Code process, which is not your effort level when you are the one running as Codex).
+
+What Codex *does* expose: the "reasoning effort: `<level>`" line shown in your own session banner at startup, visible in your own context. Before running the consult, **read that value from your own session context** and pass it explicitly:
+
+```bash
+scripts/sol-advisor.sh --prompt-file <briefing-path> --out <output-path> -C "$PWD" --effort <your-own-level>
+```
+
+Do not omit `--effort` and let it silently default to the script's fallback (`high`) unless `high` genuinely is your own current level — the fallback exists so the script never errors on a missing flag, not as a substitute for checking your own level.
+
+## Steps
+
+1. **Compose the briefing.** A self-contained document: the task, what you have done so far (key steps, findings, decisions), your current approach or the specific claim to check, and the precise question. Concrete — file paths, line numbers, the actual claim. Save to a scratch file. The consulted model has no access to your conversation beyond this file.
+
+2. **If declaring a task complete, make the deliverable durable first.**
+
+3. **Read your own current reasoning-effort level from your session context**, then run:
+
+   ```bash
+   scripts/sol-advisor.sh --prompt-file <briefing-path> --out <output-path> -C "$PWD" --effort <your-level>
+   ```
+
+4. **Read the output file** and weigh the advice. Integrate it; if you diverge from it, be able to say why.
+
+## Notes
+
+- `scripts/sol-advisor.sh --check` verifies the `codex` CLI is on PATH.
+- The spawned session runs `--sandbox read-only` and `--ephemeral` — advisory only, no edits, not saved as a resumable session.
+- **Default model is `gpt-5.6-terra`, not `gpt-5.6-sol`** — cost, not reliability. There are three distinct GPT-5.6 tiers (`sol` flagship / `terra` balanced / `luna` fast) — not one model with a shorthand. An earlier finding claimed `gpt-5.6-sol` was rejected outright on a Codex CLI authenticated via `codex login` with a ChatGPT account (as opposed to an API key) — `"The 'gpt-5.6' model is not supported when using Codex with a ChatGPT account."` This has since been re-tested (July 2026) and no longer reproduces: `sol` now works on hosts authenticated the identical way (`codex login status` → `Logged in using ChatGPT`). Whether the original block was a temporary rollout gate or an artifact of an outdated CLI on that host is unclear — if `sol` ever errors on your account, check `codex --version` first (an outdated CLI rejects even `terra`/`luna` with a *different*, version-specific error) before concluding it's an account gate. Pass `--model gpt-5.6-sol` explicitly for a stronger reviewer at higher cost. If the model you asked for is unreachable for any reason, report it and ask whether to stop or use a named replacement — do not silently fall back further (e.g. to `gpt-5.5`) for what is supposed to be a genuinely independent second opinion (a reviewer identical to the executor defeats the point of this specific skill; if a same-model consult is actually fine for the task at hand, the calling agent should use its own judgment directly rather than spend a consult on it).
+- Effort enum: `none, minimal, low, medium, high, xhigh` (Codex's scale — no `max`; Claude Code's `max` has no Codex equivalent).
+- Companion skill: `plugin/skills/advisor/` (Claude-side) — same pattern, consulting Fable 5, effort read from `$CLAUDE_EFFORT` instead of the session banner.
+
+codex
+I’m using the independent-review skill because this is a substantive statistical adjudication; its required external consult cannot run under this read-only, no-approval session, so I’ll transparently proceed with the direct audit rather than imply a second opinion occurred.
+exec
+/bin/zsh -lc "sed -n '1,260p' ~/Documents/github/resources/open-science-skills/codex/advisor/scripts/sol-advisor.sh" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/fable/vhigh-lalonde
+ succeeded in 0ms:
+#!/usr/bin/env bash
+# sol-advisor.sh — consult GPT-5.6 "Sol" as an independent second reviewer.
+#
+# Read-only advisory consult, not implementation. Spawns a fresh, ephemeral
+# `codex exec` session (--sandbox read-only: no edits) at an explicit
+# reasoning effort level, since (unlike Claude Code's $CLAUDE_EFFORT) Codex
+# does not expose its own live effort as an inheritable environment variable
+# to subprocesses — confirmed empirically by dumping env inside a running
+# codex exec call. The caller must therefore READ its own effort level from
+# its own visible session context (the "reasoning effort: <level>" line
+# shown at session start) and pass it explicitly via --effort. See SKILL.md.
+#
+# This spawns an ISOLATED session with no automatic access to the calling
+# conversation, so the caller must compose a self-contained briefing and
+# pass it as --prompt-file.
+#
+# SANDBOX WARNING (confirmed by direct reproduction, July 2026): this script
+# nests a `codex exec` process inside whatever process runs it. If the
+# CALLER is itself a sandboxed `codex exec`/Codex session, this nested call
+# fails immediately with "failed to initialize in-process app-server
+# client: Operation not permitted" (macOS) or "Read-only file system"
+# (Linux) -- an OS-level sandbox applies transitively to the whole process
+# tree, and passing --dangerously-bypass-approvals-and-sandbox to THIS
+# script does not help, since the restriction is imposed on the parent, not
+# requested by the child. Only an unsandboxed caller, or an interactive
+# caller that requests escalation (sandbox_permissions: require_escalated)
+# for this specific call, can succeed. See SKILL.md's "Sandbox constraint"
+# section before assuming this "just works."
+#
+# Usage:
+#   sol-advisor.sh --prompt-file FILE --out FILE [-C DIR] [--model ID]
+#                   [--effort LEVEL] [--timeout SEC]
+#   sol-advisor.sh --check
+#
+#   --prompt-file FILE  the self-contained briefing (task, progress, question)
+#   --out FILE          where Sol's advice is written
+#   -C DIR              working dir Sol sees (default: $PWD)
+#   --model ID          Codex model to pin (default: gpt-5.6-terra — the
+#                        balanced 5.6 tier, cheaper for routine consults;
+#                        sol/terra/luna are three distinct tiers, not one
+#                        gpt-5.6 model. gpt-5.6-sol is the flagship tier and
+#                        is confirmed WORKING as of July 2026 on ChatGPT-
+#                        account Codex auth (an earlier "rejected outright"
+#                        finding no longer reproduces — re-check `codex
+#                        --version` before assuming a gate if it ever errors,
+#                        since an outdated CLI rejects terra/luna too, with a
+#                        different error). Pass --model gpt-5.6-sol explicitly
+#                        for a stronger reviewer at higher cost.)
+#   --effort LEVEL      none|minimal|low|medium|high|xhigh (default: high —
+#                        the caller should pass its own actual level; this
+#                        default is a fallback only, not a substitute for it)
+#   --timeout SEC        hard kill after SEC seconds (default: 900)
+set -euo pipefail
+
+MODEL="gpt-5.6-terra"
+WORKDIR="$PWD"
+PROMPT_FILE=""
+OUT=""
+EFFORT="high"
+TIMEOUT_SECONDS=900
+
+usage() {
+  printf '%s\n' \
+    'Usage: sol-advisor.sh --prompt-file FILE --out FILE [-C DIR] [--model ID] [--effort LEVEL] [--timeout SEC]' \
+    '       sol-advisor.sh --check'
+}
+
+die() { printf 'sol-advisor: %s\n' "$*" >&2; exit 2; }
+
+if [[ "${1:-}" == "--check" ]]; then
+  command -v codex >/dev/null || die 'codex CLI not found'
+  codex --version
+  exit 0
+fi
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --prompt-file) PROMPT_FILE="${2:-}"; shift 2 ;;
+    --out) OUT="${2:-}"; shift 2 ;;
+    -C) WORKDIR="${2:-}"; shift 2 ;;
+    --model) MODEL="${2:-}"; shift 2 ;;
+    --effort) EFFORT="${2:-}"; shift 2 ;;
+    --timeout) TIMEOUT_SECONDS="${2:-}"; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
+    *) die "unknown argument: $1" ;;
+  esac
+done
+
+command -v codex >/dev/null || die 'codex CLI not found'
+[[ -n "$PROMPT_FILE" && -r "$PROMPT_FILE" ]] || die 'readable --prompt-file is required (the self-contained briefing)'
+[[ -n "$OUT" ]] || die '--out is required'
+[[ -d "$WORKDIR" ]] || die "working directory not found: $WORKDIR"
+[[ "$TIMEOUT_SECONDS" =~ ^[1-9][0-9]*$ ]] || die '--timeout must be a positive integer'
+case "$EFFORT" in none|minimal|low|medium|high|xhigh) ;; *) die "bad --effort: $EFFORT (none|minimal|low|medium|high|xhigh)" ;; esac
+case "$PROMPT_FILE" in /*) ;; *) PROMPT_FILE="$PWD/$PROMPT_FILE" ;; esac
+case "$OUT" in /*) ;; *) OUT="$PWD/$OUT" ;; esac
+WORKDIR="$(cd "$WORKDIR" && pwd -P)"
+mkdir -p "$(dirname "$OUT")"
+
+cmd=(codex exec --ephemeral --model "$MODEL" -c model_reasoning_effort="$EFFORT" --sandbox read-only --skip-git-repo-check -C "$WORKDIR" --output-last-message "$OUT" \
+  'You are consulted as an independent, stronger second reviewer for one specific decision point — not a co-implementer. Read the self-contained briefing supplied on stdin (the task, what has been done so far, the current approach or findings, and the specific question). You have no access to the original conversation beyond this briefing, so if it seems to be missing something you need, say what is missing rather than guessing. Give direct, decisive advice on the specific question asked. If you disagree with the stated approach, say so plainly and explain the specific failure mode, do not hedge into a survey of options. Do not edit any files — you are read-only advisory only. Return only your advice, no preamble.')
+
+if command -v timeout >/dev/null; then
+  timeout "${TIMEOUT_SECONDS}s" "${cmd[@]}" < "$PROMPT_FILE" >/dev/null
+else
+  "${cmd[@]}" < "$PROMPT_FILE" >/dev/null
+fi
+
+[[ -s "$OUT" ]] || die 'Sol returned no output'
+

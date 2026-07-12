@@ -17,10 +17,11 @@ suppressPackageStartupMessages({
 pal <- c(
   "Light lead (fable)" = "#1F4E9B",
   "Heavy lead (opus)"  = "#E0A526",
-  "One consult (advisor)" = "#2C7A4B"
+  "One consult (advisor)" = "#2C7A4B",
+  "Codex lead (46)" = "#A85632"
 )
 
-mode_levels <- c("Light lead (fable)", "Heavy lead (opus)", "One consult (advisor)")
+mode_levels <- c("Light lead (fable)", "Heavy lead (opus)", "One consult (advisor)", "Codex lead (46)")
 
 brief_levels <- c("T1", "T2", "T3", "H", "VH")
 brief_labels <- c(
@@ -58,14 +59,24 @@ df <- rbind(
   data.frame(mode = "One consult (advisor)", brief = "T2", cost_usd = 1.65, minutes = 13.4, out_tokens = 10262, items = 5),
   data.frame(mode = "One consult (advisor)", brief = "T3", cost_usd = 7.08, minutes = 15.9, out_tokens = 45500, items = 6),
   data.frame(mode = "One consult (advisor)", brief = "H",  cost_usd = 1.09, minutes = 8.4,  out_tokens = 15768, items = 6),
-  data.frame(mode = "One consult (advisor)", brief = "VH", cost_usd = 3.36, minutes = 18.3, out_tokens = 56552, items = 6)
+  data.frame(mode = "One consult (advisor)", brief = "VH", cost_usd = 3.36, minutes = 18.3, out_tokens = 56552, items = 6),
+  # Codex arm (2026-07-12 re-run): the CLI reports tokens, not USD, so cost_usd
+  # is NA and these rows drop out of the cost chart only. out_tokens here is the
+  # CLI's total tokens-used figure, not comparable to the Claude columns.
+  data.frame(mode = "Codex lead (46)",       brief = "T1", cost_usd = NA,   minutes = 3.3,  out_tokens = 64057, items = 4),
+  data.frame(mode = "Codex lead (46)",       brief = "T2", cost_usd = NA,   minutes = 4.1,  out_tokens = 63539, items = 5),
+  data.frame(mode = "Codex lead (46)",       brief = "T3", cost_usd = NA,   minutes = 3.9,  out_tokens = 92446, items = 4),
+  data.frame(mode = "Codex lead (46)",       brief = "H",  cost_usd = NA,   minutes = 4.8,  out_tokens = 46016, items = 5),
+  data.frame(mode = "Codex lead (46)",       brief = "VH", cost_usd = NA,   minutes = 3.6,  out_tokens = 74658, items = 6)
 )
 
 df$mode <- factor(df$mode, levels = mode_levels)
 df$brief <- factor(df$brief, levels = brief_levels)
 df$score <- df$items / 6
-
-df <- df[!is.na(df$cost_usd), ]
+# 46/high-ajr met core + completeness but missed the judgment item, so its
+# fraction (5/6) sits at the Pass+ line while its band is Pass (SCORING.md).
+# Drawn hollow to mark the one fraction-above-band case.
+df$band_matches <- !(df$mode == "Codex lead (46)" & df$brief == "H")
 
 out_dirs <- c(
   "/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/analysis/figures",
@@ -86,8 +97,9 @@ save_png <- function(plot, filename, width_in = 8, height_in = 4.5, dpi = 300) {
   }
 }
 
-# ---- Chart 1: cost by brief, grouped bars ----
-p_cost <- ggplot(df, aes(x = brief, y = cost_usd, fill = mode)) +
+# ---- Chart 1: cost by brief, grouped bars (Claude arms only: Codex has no USD) ----
+df_usd <- df[!is.na(df$cost_usd), ]
+p_cost <- ggplot(df_usd, aes(x = brief, y = cost_usd, fill = mode)) +
   geom_col(position = position_dodge2(width = 0.8, preserve = "single"), width = 0.7) +
   scale_fill_manual(values = pal, breaks = mode_levels) +
   scale_x_discrete(labels = brief_labels, drop = FALSE) +
@@ -115,7 +127,7 @@ thresholds <- data.frame(
   band = c("Pass", "Pass+", "Distinction")
 )
 
-dodge <- position_dodge(width = 0.4)
+dodge <- position_dodge(width = 0.5)
 
 p_quality <- ggplot(df, aes(x = brief, y = score, color = mode, group = mode)) +
   geom_hline(
@@ -123,7 +135,11 @@ p_quality <- ggplot(df, aes(x = brief, y = score, color = mode, group = mode)) +
     linetype = "dotted", color = "grey45", linewidth = 0.55
   ) +
   geom_line(position = dodge, linewidth = 0.55, alpha = 0.45) +
-  geom_point(position = dodge, size = 3.4) +
+  geom_point(data = df[df$band_matches, ], position = dodge, size = 3.4) +
+  geom_point(
+    data = df[!df$band_matches, ], position = dodge,
+    size = 3.4, shape = 21, fill = "white", stroke = 1.1
+  ) +
   scale_color_manual(values = pal, breaks = mode_levels) +
   scale_x_discrete(labels = brief_labels, drop = FALSE) +
   scale_y_continuous(
@@ -136,6 +152,7 @@ p_quality <- ggplot(df, aes(x = brief, y = score, color = mode, group = mode)) +
       name = NULL
     )
   ) +
+  guides(color = guide_legend(override.aes = list(shape = 16, fill = NA, linetype = 0))) +
   labs(x = NULL, y = "Rubric items met") +
   theme_demo +
   theme(axis.ticks.y.right = element_blank())

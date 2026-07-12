@@ -45,7 +45,7 @@ Every skill in the toolkit, indexed with a plain-language explanation of what it
 | Demo | What it teaches |
 |------|-----------------|
 | [**reference-check**](demos/reference-check/) | Catch fabricated or malformed citations against your **reference list** (no knowledge base needed), then check whether each cited source actually supports the claim, against a small **knowledge base** of your sources. Runs on local files (no web sources needed) on a synthetic manuscript with planted errors. |
-| [**orchestration-lab**](demos/orchestration-lab/) | Compare three ways of using Claude models — a light Fable lead, a heavy Opus lead, and a single advisor consult — on five real analyses at three rungs of difficulty (a conjoint study, an IV replication, a matching methods dispute), used identically on every brief and scored against pre-built answer keys. Ships the captured runs (run logs, token counts, routing traces, figures) plus re-run instructions; Codex-led runs captured, pending re-run. Calls hosted models, not offline. |
+| [**orchestration-lab**](demos/orchestration-lab/) | Compare four ways of using frontier models — a light Fable lead, a heavy Opus lead, a single advisor consult, and a Codex-led counterpart (gpt-5.6-terra) — on five real analyses at three rungs of difficulty (a conjoint study, an IV replication, a matching methods dispute), used identically on every brief and scored against pre-built answer keys. Ships the captured runs (run logs, token counts, routing traces, figures) plus re-run instructions. Calls hosted models, not offline. |
 
 More to come. Each demo ships sample files, the exact prompts, expected output, and a note on where the human still has to verify.
 

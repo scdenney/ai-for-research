@@ -55,7 +55,7 @@
   th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:middle}
   th{background:var(--paper-2); font-size:12.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--grey)}
   figure.fig{margin:1.4em 0}
-  figure.fig img{max-width:100%; border:1px solid var(--line); border-radius:10px; background:var(--paper-2)}
+  figure.fig img{display:block; max-width:min(100%,640px); margin-left:auto; margin-right:auto; border:1px solid var(--line); border-radius:10px; background:var(--paper-2)}
   figure.fig figcaption{font-size:13.5px; color:var(--grey); margin-top:6px}
   .note{color:var(--grey); font-size:14px; border-top:1px solid var(--line); padding-top:18px; margin-top:20px}
   footer{color:var(--grey); font-size:14px; padding:52px 0 64px; text-align:center; border-top:1px solid var(--line)}
@@ -98,7 +98,8 @@
 <main class="wrap">
   <section id="why">
     <h2>Three ways to use the models</h2>
-    <p>Claude comes as a family of models that trade speed against reasoning depth and cost. Orchestration is how you split one job so each part runs on the model that fits it. The three patterns below cover most cases.</p>
+    <p>Claude comes as a family of models that trade speed and cost against reasoning depth. The strongest model is the scarcest resource, and running every step on it spends a large token budget on work a lighter model does identically well. Orchestration is the alternative. It splits one job so each part runs on the model that fits it, which makes the craft a matter of matching model strength to step difficulty. You send menial, well-specified work down to a lighter model and keep deep reasoning for the steps where it changes the answer. Context isolation matters as much as cost, since each delegate works in a clean context instead of one ever-growing transcript.</p>
+    <p><a href="https://platform.claude.com/docs/en/managed-agents/multi-agent">Anthropic's multi-agent guidance</a> names the patterns this demo exercises. Parallelization fans out independent subtasks. Specialization sends each subtask to a focused agent. Escalation consults a more capable agent or model for a subset of complex subtasks. The three patterns below put these ideas to work.</p>
     <h3>Light lead <code>fable-orchestrate</code></h3>
     <figure class="fig"><img src="../assets/orchestration-lab/fable-architecture.svg" alt="Light-lead architecture: a fast Fable orchestrator plans and delegates, sending reasoning to an Opus deep-reasoner, mechanical work to a Sonnet worker, and an independent check to a peer model."></figure>
     <p>A fast model plans the work and routes each piece to the model that fits it. Reasoning goes to Opus and mechanical work to Sonnet, with a peer model for an outside check. The expensive model runs only on the steps routed to it, which makes this the cheapest way through hard work.</p>
@@ -112,24 +113,27 @@
   </section>
   <section id="demo">
     <h2>The example</h2>
-    <p>The case is a real community-choice conjoint, <code>exampleData1</code> from the <a href="https://cran.r-project.org/package=projoint">projoint</a> R package. Three <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/prompts">briefs</a> rise in difficulty. Tier 1 describes the design and checks randomization balance. Tier 2 estimates the AMCEs and plots them. Tier 3 answers a reviewer who calls the headline crime finding an artifact of the AMCE baseline. Every mode receives the identical brief, and <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">every run is committed</a> with its logs and figures, then scored against a gold-standard key in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
+    <p>The case is a real community-choice conjoint, <code>exampleData1</code> from the <a href="https://cran.r-project.org/package=projoint">projoint</a> R package. The exercise as a whole is moderately complex, code plus analysis on a clean dataset. It is the first rung of a planned complexity ladder that runs from moderate to high to very high. Within this run, three <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/prompts">briefs</a> rise in difficulty. Describe (easy) documents the design and checks randomization balance. Estimate (standard) fits the AMCEs and plots them. Reviewer reply (hard) answers a referee who calls the headline crime finding an artifact of the AMCE baseline. Every mode receives the identical brief, and <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">every run is committed</a> with its logs and figures, then scored against a gold-standard key in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
   </section>
   <section id="results">
     <h2>What the runs cost and how they scored</h2>
     <p>Every number here comes from the committed run logs, scored against the answer key.</p>
     <figure class="fig"><img src="../assets/orchestration-lab/eff-cost.png" alt="Bar chart of API-equivalent cost per tier for the light lead, heavy lead, and consult."><figcaption>API-equivalent cost by tier.</figcaption></figure>
     <figure class="fig"><img src="../assets/orchestration-lab/eff-time.png" alt="Bar chart of wall-clock minutes per tier for each mode."><figcaption>Wall-clock by tier.</figcaption></figure>
-    <figure class="fig"><img src="../assets/orchestration-lab/eff-quality.png" alt="Chart of cost against verdict for the three modes at the judgment tier."><figcaption>Cost against verdict at the judgment tier.</figcaption></figure>
+    <figure class="fig"><img src="../assets/orchestration-lab/eff-quality.png" alt="Horizontal bar chart of API-equivalent cost on the hard brief for the three modes, with each mode's verdict labeled at the end of its cost bar."><figcaption>What more money bought on the hard brief. Verdicts sit at the end of each cost bar.</figcaption></figure>
     <table>
-      <tr><th>Mode</th><th>T1</th><th>T2</th><th>T3</th><th>T3 cost</th></tr>
+      <tr><th>Mode</th><th>Describe (easy)</th><th>Estimate (standard)</th><th>Reviewer reply (hard)</th><th>Cost (hard)</th></tr>
       <tr><td>Light lead <code>fable</code></td><td><span class="verdict v-ok">Pass</span></td><td><span class="verdict v-ok">Pass</span></td><td><span class="verdict v-ok">Pass</span></td><td>$4.13</td></tr>
       <tr><td>Heavy lead <code>opus</code></td><td><span class="verdict v-ok">Pass</span></td><td><span class="verdict v-ok">Pass</span></td><td><span class="verdict v-ok">Pass+</span></td><td>$6.73</td></tr>
       <tr><td>One consult <code>advisor</code></td><td>—</td><td>—</td><td><span class="verdict v-ok">Distinction</span></td><td>$7.08</td></tr>
     </table>
-    <p>On the easy tiers the modes converge. Given the same computable brief, the light lead and the heavy lead reach the same numbers and the same verdict, so the choice between them is about cost and time. The light lead finishes T1 in 3.4 minutes against the heavy lead's 9.9, close to three times faster.</p>
+    <p>On the computable tiers the modes converge. Given the same computable brief, the light lead and the heavy lead reach the same numbers and the same verdict, so the choice between them is about cost and time. The light lead finishes the easy brief in 3.4 minutes against the heavy lead's 9.9, close to three times faster.</p>
     <p>At the judgment tier the structure matters. The light lead split the work, sending the estimation to Opus and a blind copy of the numbers to a peer model that reached the same verdict without seeing the reasoning. The heavy lead kept the reasoning in one place and wrote the strongest single memo. The one consult arm did best of all, solving the problem alone and then buying one review that caught what the solo pass had missed.</p>
-    <p>Cost tracks difficulty. The light lead spans $1.88 to $4.13 across the three tiers. The heavy lead spans $2.14 to $6.73. The single consult costs $7.08 for the one tier where it runs. On the easy tiers any mode reaches the same answer, so spend the least. Buy structure only where the work is hard. That is the whole game.</p>
-    <p>The AMCE figures each mode produced at T2 are in the run directories.</p>
+    <p>Cost tracks difficulty. The light lead spans $1.88 to $4.13 across the three tiers. The heavy lead spans $2.14 to $6.73. The single consult costs $7.08 for the one tier where it runs. On the computable tiers any mode reaches the same answer, so spend the least. Buy structure only where the work is hard. That is the whole game.</p>
+    <p>The AMCE figures each mode produced at the standard tier are in the run directories.</p>
+    <h3>Why the light lead trailed on the hard brief</h3>
+    <p>Here the two orchestration arms differ by exactly one rubric item. The heavy lead's memo flags that crime's razor-thin lead over commute time is a statistical tie, since their confidence intervals overlap. The light lead's memo calls crime the strongest predictor and never notes that the ~1.4pp gap is within the noise. That gap is a seam in the pipeline, not a deficit in the model. The light lead sent the sensitivity computation to an Opus deep-reasoner and had the Fable lead write the memo from the returned table, so the statistical-tie judgment fell between the delegate that produced the numbers and the lead that wrote the prose. The heavy lead held the computation and the memo in one context, so it caught the tie and carried the nuance through.</p>
+    <p>This is a single draw at a tier where one sentence separates the bands. The single best memo in the whole comparison, the only Distinction, came from the advisor arm, where Fable solved and a Fable consult reviewed. What trailed here was the delegate-and-synthesize topology on one draw, not the Fable model.</p>
   </section>
   <section id="run-it">
     <h2>Run it yourself</h2>

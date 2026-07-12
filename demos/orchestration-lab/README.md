@@ -1,16 +1,17 @@
 # Orchestration Lab
 
-**Five real analyses, run three ways with Claude models.** Five briefs across three rungs of difficulty — a conjoint description, estimation, and reviewer reply (moderate), an IV replication-and-stress exercise (high), and a genuine methods-dispute adjudication (very high) — each run under a light lead, a heavy lead, and a single advisor consult. The three arms are used identically on every brief. Every run is committed with its transcript record, token counts, and figures.
+**Five real analyses, run four ways.** Five briefs across three rungs of difficulty — a conjoint description, estimation, and reviewer reply (moderate), an IV replication-and-stress exercise (high), and a genuine methods-dispute adjudication (very high) — each run under a Fable lead, an Opus lead, a single advisor consult, and a Codex lead. The four arms are used identically on every brief. None dials effort down; the split is strategy, not a weaker setting. Every run is committed with its transcript record, token counts, and figures.
 
-The modes:
+The arms and their exact settings:
 
-| Mode | Lead | Delegates to | Platform |
+| Arm | Lead model + effort | Delegates to | Platform |
 |---|---|---|---|
-| `fable-orchestrate` | Fable 5 (light, effort max) | Opus deep-reasoner · Sonnet fast-worker · peer-model check | Claude Code |
-| `opus-orchestrate` | Opus 4.8 (heavy, ultracode) | same bench; reasons on hard parts itself | Claude Code |
-| `advisor` | plain session + one consult | Fable 5 as the reviewer | Claude Code |
+| `fable-orchestrate` | Fable 5 · max | Opus 4.8 deep-reasoner (max) · Sonnet 4.5 fast-worker (low) · gpt-5.6-terra Codex peer (xhigh) | Claude Code |
+| `opus-orchestrate` | Opus 4.8 · ultracode | Sonnet 4.5 fast-worker (low); reasons on hard parts itself | Claude Code |
+| `advisor` | Fable 5 · max (solve + revise) | one Fable 5 reviewer · max (single consult) | Claude Code |
+| `46-orchestrate` | gpt-5.6-terra · medium | its own subagents, which inherit the lead's model and effort | Codex CLI |
 
-> A Codex-led counterpart (`46-orchestrate`, gpt-5.6-terra lead) was re-run on all five briefs via headless `codex exec` on 2026-07-12 and is scored in `RESULTS.md` and `SCORING.md`; it stays out of the dollar charts because Codex reports tokens, not USD. A Codex-side advisor arm is captured for the hard brief only, pending its own re-run.
+The `46-orchestrate` arm was re-run on all five briefs via headless `codex exec` on 2026-07-12 and is scored in `RESULTS.md` and `SCORING.md`; it stays out of the dollar charts because Codex reports tokens, not USD. A Codex-side advisor arm is captured for the hard brief only, pending its own re-run.
 
 > **The one rule.** A captured run is one draw from a non-deterministic process, not a benchmark. These are specimens. Read the routing traces and the artifacts, re-run the briefs yourself, and expect your numbers to differ.
 

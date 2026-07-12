@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Orchestration Lab — AI for Research</title>
-<meta name="description" content="Five real social-science analyses at three rungs of difficulty, each run four ways (a light Claude lead, a heavy Claude lead, a single advisor consult, and a Codex-led counterpart), with every run captured, scored against a pre-built answer key, and priced.">
+<meta name="description" content="Five real social-science analyses at three rungs of difficulty, each run four ways (a Fable lead, an Opus lead, a single advisor consult, and a Codex lead), with every run captured, scored against a pre-built answer key, and priced. Each arm's exact model and effort settings are documented.">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,6 +59,10 @@
   figure.fig{margin:1.4em 0}
   figure.fig img{display:block; max-width:min(100%,640px); margin-left:auto; margin-right:auto; border:1px solid var(--line); border-radius:10px; background:var(--paper-2)}
   figure.fig figcaption{font-size:13.5px; color:var(--grey); margin-top:6px}
+  /* multi-panel charts break slightly past the text column for legible labels */
+  figure.fig.fig-wide{width:min(94vw,880px); margin-left:50%; transform:translateX(-50%)}
+  figure.fig.fig-wide img{max-width:100%}
+  figure.fig.fig-wide figcaption{max-width:640px; margin-left:auto; margin-right:auto}
   .note{color:var(--grey); font-size:14px; border-top:1px solid var(--line); padding-top:18px; margin-top:20px}
   footer{color:var(--grey); font-size:14px; padding:52px 0 64px; text-align:center; border-top:1px solid var(--line)}
   footer a{color:var(--cobalt); text-decoration:none}
@@ -99,72 +103,92 @@
 
 <main class="wrap">
   <section id="why">
-    <h2>Three ways to use the models</h2>
-    <p>Claude models trade speed and cost against reasoning depth. The strongest model is the scarcest resource. Running every step on it spends a large token budget on work a lighter model can do just as well. Orchestration splits one job so each part runs on the model that fits it. The task is to match model strength to step difficulty. You send routine, well-specified work to a lighter model and keep deep reasoning for the steps where it changes the answer. Context isolation matters as much as cost, because each delegate works in a clean context instead of one ever-growing transcript.</p>
-    <p><a href="https://platform.claude.com/docs/en/managed-agents/multi-agent">Anthropic's multi-agent guidance</a> names the patterns this demo exercises. Parallelization fans out independent subtasks. Specialization sends each subtask to a focused agent. Escalation consults a more capable agent or model for a subset of complex subtasks. The three patterns below put these ideas to work.</p>
-    <h3>Light lead <code>fable-orchestrate</code></h3>
-    <figure class="fig"><img src="../assets/orchestration-lab/fable-architecture.svg" alt="Light-lead architecture: a fast Fable orchestrator plans and delegates, sending reasoning to an Opus deep-reasoner, mechanical work to a Sonnet worker, and an independent check to a peer model."></figure>
-    <p>A fast model plans the work and routes each piece to the model that fits it. Reasoning goes to Opus and mechanical work to Sonnet, with a peer model for an outside check. The expensive model runs only on the steps routed to it, which makes this the cheapest way through hard work.</p>
-    <h3>Heavy lead <code>opus-orchestrate</code></h3>
-    <figure class="fig"><img src="../assets/orchestration-lab/opus-architecture.svg" alt="Heavy-lead architecture: an Opus orchestrator reasons on the hard parts itself and delegates only mechanical work to a Sonnet worker."></figure>
-    <p>Opus leads and reasons on the hard parts itself. It delegates only mechanical work, so the deepest thinking stays with one model and never gets compressed into a handoff. That costs more, because the expensive model runs throughout.</p>
-    <h3>One consult <code>advisor</code></h3>
-    <figure class="fig"><img src="../assets/orchestration-lab/advisor-architecture.svg" alt="One-consult architecture: a plain working session solves the task, then sends the finished work to a stronger reviewer model for a single read-only review."></figure>
-    <p>Sometimes the right choice is a plain session. You solve the problem once, then send the finished work to a stronger model for one review where a second opinion can change the decision. The reviewer reads and comments only and never edits your files.</p>
-    <p>Which pattern you use depends on the work. For easy, computable tasks, the three arms reach the same answer, so you choose on cost and speed. For hard judgment calls, the arms differ in what they cost and what they catch. The runs below show that split.</p>
+    <h2>Four ways to run the models</h2>
+    <p>The four arms differ in one thing: where the reasoning happens. Two are orchestrators that lead with one model and delegate parts of the job. One skips orchestration and buys a single review. One leads with a different vendor's model. None of them dials effort down; the split is about strategy and cost, not about running a weaker setting. The difference matters because running every step on a top model in one long context is expensive, and the transcript re-pays its own token cost on every turn. Delegating bounded work to fresh, task-scoped contexts avoids that growth, which is where most of the saving comes from.</p>
+    <p><a href="https://platform.claude.com/docs/en/managed-agents/multi-agent">Anthropic's multi-agent guidance</a> names the patterns this demo exercises. Parallelization fans out independent subtasks. Specialization sends each subtask to a focused agent. Escalation consults a more capable agent or model for a subset of complex subtasks. The four arms below put these ideas to work.</p>
+    <h3>Fable lead <code>fable-orchestrate</code></h3>
+    <figure class="fig"><img src="../assets/orchestration-lab/fable-architecture.svg" alt="Fable-lead architecture: a Fable orchestrator plans and delegates, sending hard reasoning to an Opus deep-reasoner, mechanical work to a Sonnet worker, and an independent check to a Codex peer model."></figure>
+    <p>The lead is Fable 5 at max effort. It plans the work and routes each piece: bounded hard reasoning to an Opus 4.8 subagent, mechanical work to a Sonnet 4.5 worker at low effort, and an independent check to a Codex peer (gpt-5.6-terra). Each delegate works in a clean context, so the lead's own context stays lean. In these runs this is the cheapest path through hard work, because the lead delegates instead of carrying every subtask in one growing transcript.</p>
+    <h3>Opus lead <code>opus-orchestrate</code></h3>
+    <figure class="fig"><img src="../assets/orchestration-lab/opus-architecture.svg" alt="Opus-lead architecture: an Opus orchestrator reasons on the hard parts itself and delegates only mechanical work to a Sonnet worker."></figure>
+    <p>The lead is Opus 4.8 at ultracode, the highest Opus effort. It reasons on the hard parts itself and delegates only mechanical work to a Sonnet 4.5 worker, so the deepest thinking stays in one context and never gets compressed into a handoff. That costs more, because the lead runs at full effort throughout.</p>
+    <h3>Advisor <code>advisor</code></h3>
+    <figure class="fig"><img src="../assets/orchestration-lab/advisor-architecture.svg" alt="Advisor architecture: a plain working session solves the task, then sends the finished work to a second reviewer model for a single read-only review."></figure>
+    <p>Sometimes the right choice is a plain session. A Fable 5 session at max effort solves the problem, a second Fable 5 reviewer at max effort reads the finished work once and comments, and the plain session revises. The reviewer never edits your files. The single consult is the whole intervention.</p>
+    <h3>Codex lead <code>46-orchestrate</code></h3>
+    <p>The lead is a different vendor's model, gpt-5.6-terra at medium effort, run through the Codex CLI. It orchestrates the same way an orchestrator does, planning and spawning subagents, except that Codex subagents inherit the lead's model and effort rather than being routed to cheaper tiers. It is the counterpart that shows how the same job looks outside the Claude family.</p>
+    <h3>The exact settings</h3>
+    <div class="tablewrap"><table>
+      <tr><th>Arm</th><th>Lead model</th><th>Effort</th><th>Delegates to</th></tr>
+      <tr><td>Fable lead</td><td>Fable 5</td><td>max</td><td>Opus 4.8 for hard reasoning, Sonnet 4.5 for mechanical work (low effort), a Codex gpt-5.6-terra peer for an independent check</td></tr>
+      <tr><td>Opus lead</td><td>Opus 4.8</td><td>ultracode</td><td>Sonnet 4.5 for mechanical work (low effort)</td></tr>
+      <tr><td>Advisor</td><td>Fable 5</td><td>max</td><td>one Fable 5 reviewer at max effort for a single consult</td></tr>
+      <tr><td>Codex lead</td><td>gpt-5.6-terra</td><td>medium</td><td>its own subagents, which inherit the lead's model and effort</td></tr>
+    </table></div>
+    <p>These are the settings this run used, not the only sensible ones. You could push the Fable lead's Codex peer higher, hold the Opus lead at a lower effort, or give the advisor a stronger reviewer. The point of the matrix is to see how one fixed set of choices plays out across difficulty, then adjust from there.</p>
+    <p>Which arm you reach for depends on the work. For easy, computable tasks, the arms reach the same answer, so you choose on cost and speed. For hard judgment calls, the arms differ in what they cost and what they catch. The runs below show that split.</p>
   </section>
   <section id="demo">
     <h2>The examples</h2>
     <p>Five <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/prompts">briefs</a> climb a ladder of difficulty. All use real, public data shipped with R packages, so anyone can re-run them with zero downloads.</p>
     <p>The <strong>moderate rung</strong> is a community-choice conjoint, <code>exampleData1</code> from the <a href="https://cran.r-project.org/package=projoint">projoint</a> R package, worked through three briefs. Describe (easy) documents the design and checks randomization balance. Estimate (standard) fits the AMCEs and plots them. Reviewer reply (hard) answers a referee who calls the headline crime finding an artifact of the AMCE baseline.</p>
     <p>The <strong>high rung</strong> replicates and stress-tests a famous instrumental-variables result, Acemoglu, Johnson, and Robinson's colonial-origins finding. The 64-country sample ships with the <a href="https://cran.r-project.org/package=ivdoctr">ivdoctr</a> package. The brief asks the arm to reproduce the headline, add controls, restrict the sample, and flag where the instrument fails. The <strong>very high rung</strong> adjudicates a methods dispute, Dehejia-Wahba versus Smith-Todd on whether propensity-score matching recovers the LaLonde experimental benchmark. The data come via <a href="https://cran.r-project.org/package=causaldata">causaldata</a>. The brief asks the arm to compute the benchmark, run the specification curve, and decide which claim the evidence supports.</p>
-    <p>The three arms are used the same way on every brief. The orchestrators receive the brief verbatim in a fresh session. The advisor arm always runs the same three scripted steps, a plain solve, one consult, and a plain revise. Before any model ran, each brief got an executed reference solution and a written rubric, so grading never depends on what the runs happened to produce. <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">Every run is committed</a> with its logs and figures. The findings are in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
+    <p>All four arms are used the same way on every brief. The three orchestrators receive the brief verbatim in a fresh session. The advisor arm always runs the same three scripted steps, a plain solve, a single consult, and a plain revise. Before any model ran, each brief got an executed reference solution and a written rubric, so grading never depends on what the runs happened to produce. <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">Every run is committed</a> with its logs and figures. The findings are in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
   </section>
   <section id="results">
     <h2>How the runs are scored</h2>
     <p>Every brief is graded on six yes-or-no items from its pre-built rubric. Four are <strong>core</strong> items, the facts a competent run must get right, like reproducing the reference estimates or flagging a collapsed instrument. One is a <strong>judgment</strong> item, the call the analyst has to make, like noticing that two leading effects are a statistical tie. One is a <strong>completeness</strong> item, which gives credit for work beyond a correct answer, like reporting both the corrected and uncorrected magnitudes.</p>
     <p>The bands follow from the items. <strong>Pass</strong> means every core item is met. <strong>Pass+</strong> means core plus the judgment item. <strong>Distinction</strong> means all six. A run that misses any core item fails outright, whatever else it does well, because correctness cannot be traded for polish. Every brief uses the same four-one-one setup. That puts the three bands at the same heights on one shared axis, four, five, and six items of six. The dotted lines in the chart below mark them. Definitions and every run's item-by-item score are in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/SCORING.md">SCORING.md</a>.</p>
-    <figure class="fig"><img src="../assets/orchestration-lab/eff-quality.png" alt="Four small panels, one per arm, each plotting rubric items met across the five briefs against dotted threshold lines labeled Pass, Pass plus, and Distinction."><figcaption>Rubric items met across the five briefs, one panel per arm, each read against the same three band thresholds. Every Claude arm dips only at the reviewer reply and reaches Distinction on the two hardest rungs. The Codex arm climbs with difficulty. Its hollow point marks the one case where items met (5 of 6) sit above the band (Pass): it met core and completeness but missed the judgment item, and the bands never trade one for the other.</figcaption></figure>
+    <figure class="fig fig-wide"><img src="../assets/orchestration-lab/eff-quality.png" alt="Four small panels, one per arm, each plotting rubric items met across the five briefs against dotted threshold lines labeled Pass, Pass plus, and Distinction."><figcaption>Rubric items met across the five briefs, one panel per arm, each read against the same three band thresholds. Every Claude arm dips only at the reviewer reply and reaches Distinction on the two hardest rungs. The Codex arm climbs with difficulty. Its hollow point marks the one case where items met (5 of 6) sit above the band (Pass): it met core and completeness but missed the judgment item, and the bands never trade one for the other.</figcaption></figure>
     <h2>What the runs cost and how they scored</h2>
     <p>Every number here comes from the committed run logs, scored against the answer keys.</p>
-    <figure class="fig"><img src="../assets/orchestration-lab/eff-cost.png" alt="Two panels: a dollar-cost bar chart for the three Claude arms on the left, a token-count bar chart for the Codex arm on the right, each brief along the x-axis."><figcaption>Spend by brief, each arm in its own unit. The Claude CLI prices runs in dollars (left); the Codex CLI reports a token count and no dollars, and cross-vendor tokens are not comparable, so the Codex arm is shown separately in thousands of tokens (right). Advisor dollar bars are the metered solve and revise steps. The consult itself returns text without a cost envelope.</figcaption></figure>
+    <figure class="fig fig-wide"><img src="../assets/orchestration-lab/eff-cost.png" alt="Two panels: a dollar-cost bar chart for the three Claude arms on the left, a token-count bar chart for the Codex arm on the right, each brief along the x-axis."><figcaption>Spend by brief, each arm in its own unit. The Claude CLI prices runs in dollars (left); the Codex CLI reports a token count and no dollars, and cross-vendor tokens are not comparable, so the Codex arm is shown separately in thousands of tokens (right). Advisor dollar bars are the metered solve and revise steps. The consult itself returns text without a cost envelope.</figcaption></figure>
     <figure class="fig"><img src="../assets/orchestration-lab/eff-time.png" alt="Bar chart of wall-clock minutes per brief for each mode."><figcaption>Wall-clock by brief, all four arms. Advisor times include the consult. The Codex arm finishes every brief in 3 to 5 minutes.</figcaption></figure>
     <div class="tablewrap"><table>
       <tr><th>Mode</th><th>Describe (easy)</th><th>Estimate (standard)</th><th>Reviewer reply (hard)</th><th>IV replication (high)</th><th>Methods dispute (very high)</th></tr>
-      <tr><td>Light lead <code>fable</code></td>
+      <tr><td>Fable lead <code>fable</code></td>
         <td><span class="verdict v-ok">Pass+</span><span class="cellcost">$1.88</span></td>
         <td><span class="verdict v-ok">Pass+</span><span class="cellcost">$2.27</span></td>
         <td><span class="verdict v-ok">Pass</span><span class="cellcost">$4.13</span></td>
         <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$1.00</span></td>
         <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$1.83</span></td></tr>
-      <tr><td>Heavy lead <code>opus</code></td>
+      <tr><td>Opus lead <code>opus</code></td>
         <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$2.26</span></td>
         <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$2.14</span></td>
         <td><span class="verdict v-ok">Pass+</span><span class="cellcost">$6.73</span></td>
         <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$1.60</span></td>
         <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$5.01</span></td></tr>
-      <tr><td>One consult <code>advisor</code></td>
+      <tr><td>Advisor <code>advisor</code></td>
         <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$4.99</span></td>
         <td><span class="verdict v-ok">Pass+</span><span class="cellcost">$1.65</span></td>
         <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$7.08</span></td>
         <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$1.09</span></td>
         <td><span class="verdict v-ok">Distinction</span><span class="cellcost">$3.36</span></td></tr>
       <tr><td>Codex lead <code>46</code></td>
-        <td><span class="verdict v-ok">Pass</span><span class="cellcost">64k tokens</span></td>
-        <td><span class="verdict v-ok">Pass+</span><span class="cellcost">64k tokens</span></td>
-        <td><span class="verdict v-ok">Pass</span><span class="cellcost">92k tokens</span></td>
-        <td><span class="verdict v-ok">Pass</span><span class="cellcost">46k tokens</span></td>
-        <td><span class="verdict v-ok">Distinction</span><span class="cellcost">75k tokens</span></td></tr>
+        <td><span class="verdict v-ok">Pass</span><span class="cellcost">64k tok</span></td>
+        <td><span class="verdict v-ok">Pass+</span><span class="cellcost">64k tok</span></td>
+        <td><span class="verdict v-ok">Pass</span><span class="cellcost">92k tok</span></td>
+        <td><span class="verdict v-ok">Pass</span><span class="cellcost">46k tok</span></td>
+        <td><span class="verdict v-ok">Distinction</span><span class="cellcost">75k tok</span></td></tr>
     </table></div>
-    <p>Three patterns stand out. First, on the easy and standard briefs, the arms reach the same numbers. The differences are completeness details, like whether a report names the exact estimand behind its correction. There, you are choosing on cost and speed. The light lead finishes the easy brief in 3.4 minutes against the heavy lead's 9.9.</p>
+    <p>The cells above show the priced metric per run, dollars for the Claude arms and total tokens for the Codex arm. The table below gives both dimensions side by side, since cost and tokens tell slightly different stories.</p>
+    <div class="tablewrap"><table>
+      <tr><th>Arm</th><th>Priced in</th><th>Cost across the 5 briefs</th><th>Output tokens across the 5 briefs</th></tr>
+      <tr><td>Fable lead</td><td>USD, metered</td><td>$1.00 to $4.13</td><td>5k to 13k</td></tr>
+      <tr><td>Opus lead</td><td>USD, metered</td><td>$1.60 to $6.73</td><td>16k to 85k</td></tr>
+      <tr><td>Advisor</td><td>USD, metered (solve + revise)</td><td>$1.09 to $7.08</td><td>10k to 57k</td></tr>
+      <tr><td>Codex lead</td><td>tokens only, no USD</td><td>&mdash;</td><td>46k to 92k (total, not output)</td></tr>
+    </table></div>
+    <p>Two caveats make these numbers honest. The Claude token figures are output tokens from the run envelope; the CLI's input count folds in cached-context reads and runs into the millions, so output tokens are the cleaner within-Claude measure. The Codex figure is a single total-tokens count, the only number its CLI reports, so it is not comparable to the Claude output-token column and carries no dollar figure at all.</p>
+    <p>Three patterns stand out. First, on the easy and standard briefs, the arms reach the same numbers. The differences are completeness details, like whether a report names the exact estimand behind its correction. There, you are choosing on cost and speed. The Fable lead finishes the easy brief in 3.4 minutes against the Opus lead's 9.9.</p>
     <p>Second, the reviewer reply is the only brief that separates the Claude arms on quality. It stayed the only one even after two harder rungs joined the ladder. Every Claude arm hit Distinction on the IV replication and the methods dispute, and every one did it for less money than its own reviewer-reply run. Those tasks involve harder statistics, but they are canonical problems with settled answers in the literature. The reviewer reply demands an original judgment call. In these data, two leading effects are a statistical tie, and no publication settles that call for you. The arms differ less in how advanced the methods are than in where that judgment call sits. Spend tracks that ambiguity too. Every arm's most expensive run was the brief whose answer was least settled.</p>
-    <p>Third, the same band can rest on different amounts of checking. On the methods dispute, all three arms reached the same verdict, but their standard-error choices were not equally strong. The heavy lead reached the defensible choices unaided. The advisor arm's first pass fell into two subtle variance traps that its consult then caught and fixed. The light lead shipped defensible but second-best choices that nothing challenged, because its outside check never landed (below). A rubric on deliverables does not show that difference. The run logs do.</p>
-    <p>The practical rule stays simple. On computable work, spend the least. The cheapest arm reaches the same answer. Buy structure, a heavy lead or a consult, where the judgment is original to your data. The advisor consult repeatedly turned a good draft into the top band, because a reviewer that re-computes everything catches what a solo pass leaves implicit.</p>
-    <p>The fourth row is the Codex counterpart, <code>46-orchestrate</code> with a gpt-5.6-terra lead, re-run on all five briefs on 2026-07-12 through the same rubrics. It is fast and lean on every brief, 3 to 5 minutes and 46k to 92k tokens, and it climbs the quality chart as the briefs get harder, ending with a Distinction on the methods dispute. Its numbers are reliable throughout; every AJR estimate is exact. What it drops are the same judgment sentences the light lead dropped: the statistical-tie caveat on the reviewer reply, and the two-sided ceiling on the IV replication (a collapsed instrument neither confirms nor overturns), where its memo stopped one sentence short of the band above. It stays out of the dollar chart because the Codex CLI reports tokens, not dollars, and token counts across vendors are not comparable.</p>
-    <h3>Why the light lead trailed on the hard brief</h3>
-    <p>On the reviewer reply, the two orchestration arms differ by exactly one rubric item. The heavy lead's memo flags that crime's razor-thin lead over commute time is a statistical tie, since their confidence intervals overlap. The light lead's memo calls crime the strongest predictor and never notes that the ~1.4pp gap is within the noise. That gap comes from the pipeline, not from the model. The light lead sent the sensitivity computation to an Opus deep-reasoner and had the Fable lead write the memo from the returned table. The statistical-tie judgment fell between the delegate that produced the numbers and the lead that wrote the prose. The heavy lead held the computation and the memo in one context, so it caught the tie and carried the caveat through.</p>
-    <p>This is a single draw at a tier where one sentence separates the bands. The rest of the ladder matters. The same light lead met all six rubric items on both harder rungs, at $1.00 and $1.83, the cheapest runs in their columns. The single best memo on the reviewer brief, the only Distinction there, came from the advisor arm, where Fable solved and a Fable consult reviewed. What trailed on this one draw was the handoff design, not the Fable model.</p>
-    <p>One process finding from the very-high rung matters. The light lead launched its cross-vendor peer review as a background task. The headless session ended before the verdict returned, so the check was lost. The deliverables were already final, and they were right. A run that had needed the peer's catch would have shipped without it. That argues for interactive sessions, or for protocols that wait, when the outside check is the point.</p>
+    <p>Third, the same band can rest on different amounts of checking. On the methods dispute, all four arms reached the same verdict, but their standard-error choices were not equally strong. The Opus lead reached the defensible choices unaided, as did the Codex lead. The advisor arm's first pass fell into two subtle variance traps that its consult then caught and fixed. The Fable lead shipped defensible but second-best choices that nothing challenged, because its outside check never landed (below). A rubric on deliverables does not show that difference. The run logs do.</p>
+    <p>The practical rule stays simple. On computable work, spend the least. The cheapest arm reaches the same answer. Buy structure, an Opus lead or a consult, where the judgment is original to your data. The advisor consult repeatedly turned a good draft into the top band, because a reviewer that re-computes everything catches what a solo pass leaves implicit.</p>
+    <p>The fourth row is the Codex counterpart, <code>46-orchestrate</code> with a gpt-5.6-terra lead, re-run on all five briefs on 2026-07-12 through the same rubrics. It is fast and lean on every brief, 3 to 5 minutes and 46k to 92k tokens, and it climbs the quality chart as the briefs get harder, ending with a Distinction on the methods dispute. Its numbers are reliable throughout; every AJR estimate is exact. What it drops are the same judgment sentences the Fable lead dropped: the statistical-tie caveat on the reviewer reply, and the two-sided ceiling on the IV replication (a collapsed instrument neither confirms nor overturns), where its memo stopped one sentence short of the band above. It stays out of the dollar chart because the Codex CLI reports tokens, not dollars, and token counts across vendors are not comparable.</p>
+    <h3>Why the Fable lead trailed on the hard brief</h3>
+    <p>On the reviewer reply, the two orchestration arms differ by exactly one rubric item. The Opus lead's memo flags that crime's razor-thin lead over commute time is a statistical tie, since their confidence intervals overlap. The Fable lead's memo calls crime the strongest predictor and never notes that the ~1.4pp gap is within the noise. That gap comes from the pipeline, not from the model. The Fable lead sent the sensitivity computation to an Opus deep-reasoner and then wrote the memo itself from the returned table. The statistical-tie judgment fell between the delegate that produced the numbers and the lead that wrote the prose. The Opus lead held the computation and the memo in one context, so it caught the tie and carried the caveat through.</p>
+    <p>This is a single draw at a tier where one sentence separates the bands. The rest of the ladder matters. The same Fable lead met all six rubric items on both harder rungs, at $1.00 and $1.83, the cheapest runs in their columns. The single best memo on the reviewer brief, the only Distinction there, came from the advisor arm, where Fable solved and a Fable consult reviewed. What trailed on this one draw was the handoff design, not the Fable model.</p>
+    <p>One process finding from the very-high rung matters. The Fable lead launched its cross-vendor peer review as a background task. The headless session ended before the verdict returned, so the check was lost. The deliverables were already final, and they were right. A run that had needed the peer's catch would have shipped without it. That argues for interactive sessions, or for protocols that wait, when the outside check is the point.</p>
   </section>
   <section id="run-it">
     <h2>Run it yourself</h2>
@@ -174,13 +198,14 @@ claude plugin marketplace add scdenney/open-science-skills
 claude plugin install oss@open-science-skills
 Rscript -e 'install.packages(c("projoint","ivdoctr","AER","car","causaldata","MatchIt"))'</code></pre>
     <p>For the headless Claude runs, keep <code>ANTHROPIC_API_KEY</code> unset. Otherwise, the API account is billed instead of your claude.ai login. One representative command per arm follows. Any brief slots in the same way.</p>
-    <pre><code># light lead (fable), headless
+    <pre><code># Fable lead (fable-orchestrate), headless: Fable 5 at max effort
 cd runs/fable/t1
 env -u ANTHROPIC_API_KEY claude -p \
   "/oss:fable-orchestrate $(cat ../../../prompts/t1-descriptive.md)" \
   --output-format json &gt; claude-envelope.json
-# heavy lead (opus), interactive Opus session, see runs/opus/SESSION-PROTOCOL.md
-# one consult (advisor), plain solve then one review then revise, see prompts/run.md</code></pre>
+# Opus lead (opus-orchestrate), interactive Opus 4.8 + ultracode session, see runs/opus/SESSION-PROTOCOL.md
+# Advisor, plain Fable solve then one Fable review then revise, see prompts/run.md
+# Codex lead (46-orchestrate), gpt-5.6-terra at medium via the Codex CLI, see prompts/run.md</code></pre>
     <p>The full protocol for every arm is in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/run.md">run.md</a>.</p>
     <div class="rule"><b>One draw.</b> A captured run is one sample from a non-deterministic process, not a benchmark. Re-run the briefs yourself and expect your numbers to differ.</div>
   </section>

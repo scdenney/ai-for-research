@@ -8,7 +8,7 @@ approval: never
 sandbox: workspace-write [workdir, /tmp, $TMPDIR]
 reasoning effort: medium
 reasoning summaries: none
-session id: 019f5217-d3b4-7d42-a45d-640f04fa5391
+session id: 019f574c-76e8-7171-be31-4b003ce97940
 --------
 user
 $46-orchestrate
@@ -36,9 +36,14 @@ out <- reshape_projoint(exampleData1,
 
 **Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. Do not fetch anything from the web. Do not install packages.
 codex
-I’m using the requested orchestration workflow: I’ll route a design-inventory check to an analyst, assign the reproducible R artifact to one implementer, then independently verify the finished deliverables.
+I’m using the requested orchestration workflow: I’ll have one agent independently inspect the dataset structure and another review the finished deliverables, while I retain ownership of the script, figure, and summary.
 exec
-/bin/zsh -lc "sed -n '1,"'$p'"' ~/Documents/github/resources/open-science-skills/codex/46-orchestrate/SKILL.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
+/bin/zsh -lc "pwd && rg --files -g 'AGENTS.md' -g '"'!figures/**'"' -g '"'!**/.git/**'"' && git status --short" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
+ exited 1 in 0ms:
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
+
+exec
+/bin/zsh -lc "sed -n '1,260p' ~/Documents/github/resources/open-science-skills/codex/46-orchestrate/SKILL.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
  succeeded in 0ms:
 ---
 name: 46-orchestrate
@@ -193,74 +198,1535 @@ Complete only when every requested deliverable has authoritative evidence, integ
 - If a spawn fails outright, report the exact error rather than silently falling back to doing the work in the lead context — a silent fallback is what causes runaway lead-context token growth. If the failure looks environmental (not a task-brief problem), stop and ask rather than spending tokens on unbounded self-diagnosis.
 
 codex
-Route:
-- Analyst (read-only): inventory the reshaped data and labels; acceptance is a concrete schema/count report.
-- Implementer: own `script.R`, `summary.md`, and `figures/`; acceptance is successful `Rscript script.R` plus the requested files.
-- Verifier (after implementation): independently rerun and audit content, figure resolution, and reproducibility.
-
-I’ll integrate only after directly inspecting the artifacts.
+Route: (1) analyst—read-only inventory of the reshaped design and exact label/level structure, accepted by reproducible R output; (2) lead—create `script.R`, run it, and integrate `summary.md` plus the PNG; (3) verifier—read-only end-to-end review of those three artifacts, accepted only if the script reruns cleanly and the reported counts match.
 exec
-/bin/zsh -lc "pwd && rg --files -g '"'!*'"' -g '"'!*'"' . 2>/dev/null || true; git status --short" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
- succeeded in 0ms:
-~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
-?? ../
-?? ../../../../../docs/.syncthing.index.html.tmp
-?? ../../../../../docs/demos/.syncthing.index.html.tmp
-?? ../../../../../docs/getting-started/.syncthing.index.html.tmp
-?? ../../../../../docs/lectures/.syncthing.index.html.tmp
-?? ../../../../../docs/skills/.syncthing.index.html.tmp
-?? ../../../../../scripts/.syncthing.sync-skills.mjs.tmp
+/bin/zsh -lc "Rscript -e 'library(projoint); data(exampleData1); out <- reshape_projoint(exampleData1, .outcomes=c(paste0(\"choice\",1:8),\"choice1_repeated_flipped\")); str(out, max.level=2); print(head(out"'$data)); print(out$labels)'"'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
+ succeeded in 869ms:
+List of 2
+ $ labels: tibble [24 × 4] (S3: tbl_df/tbl/data.frame)
+ $ data  : tibble [6,400 × 13] (S3: tbl_df/tbl/data.frame)
+ - attr(*, "class")= chr "projoint_data"
+# A tibble: 6 × 13
+  id             task profile att4  att7  att3  att1  att2  att5  att6  selected
+  <chr>         <dbl>   <dbl> <fct> <fct> <fct> <fct> <fct> <fct> <fct>    <dbl>
+1 R_00zYHdY1te…     1       1 att4… att7… att3… att1… att2… att5… att6…        1
+2 R_00zYHdY1te…     1       2 att4… att7… att3… att1… att2… att5… att6…        0
+3 R_00zYHdY1te…     2       1 att4… att7… att3… att1… att2… att5… att6…        1
+4 R_00zYHdY1te…     2       2 att4… att7… att3… att1… att2… att5… att6…        0
+5 R_00zYHdY1te…     3       1 att4… att7… att3… att1… att2… att5… att6…        1
+6 R_00zYHdY1te…     3       2 att4… att7… att3… att1… att2… att5… att6…        0
+# ℹ 2 more variables: selected_repeated <dbl>, agree <dbl>
+# A tibble: 24 × 4
+   attribute                level                        attribute_id level_id  
+   <chr>                    <chr>                        <chr>        <chr>     
+ 1 Housing Cost             15% of pre-tax income        att1         att1:leve…
+ 2 Housing Cost             30% of pre-tax income        att1         att1:leve…
+ 3 Housing Cost             40% of pre-tax income        att1         att1:leve…
+ 4 Presidential Vote (2020) 30% Democrat, 70% Republican att2         att2:leve…
+ 5 Presidential Vote (2020) 50% Democrat, 50% Republican att2         att2:leve…
+ 6 Presidential Vote (2020) 70% Democrat, 30% Republican att2         att2:leve…
+ 7 Racial Composition       50% White, 50% Nonwhite      att3         att3:leve…
+ 8 Racial Composition       75% White, 25% Nonwhite      att3         att3:leve…
+ 9 Racial Composition       90% White, 10% Nonwhite      att3         att3:leve…
+10 Racial Composition       96% White, 4% Nonwhite       att3         att3:leve…
+# ℹ 14 more rows
 
 exec
-/bin/zsh -lc "Rscript -e 'cat(R.version.string, \"\\n\"); cat(\"projoint=\", requireNamespace(\"projoint\", quietly=TRUE), \" ggplot2=\", requireNamespace(\"ggplot2\", quietly=TRUE), \"\\n\", sep=\"\")'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
- succeeded in 375ms:
-projoint=TRUE ggplot2=TRUE
+/bin/zsh -lc "Rscript -e 'library(projoint); data(exampleData1); o<-reshape_projoint(exampleData1,.outcomes=c(paste0(\"choice\",1:8),\"choice1_repeated_flipped\")); for(a in paste0(\"att\",1:7)){cat(a,\"\\n\"); print(levels(o"'$data[[a]]));}; print(o$labels)'"'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
+ succeeded in 936ms:
+att1 
+[1] "att1:level1" "att1:level2" "att1:level3"
+att2 
+[1] "att2:level1" "att2:level2" "att2:level3"
+att3 
+[1] "att3:level1" "att3:level2" "att3:level3" "att3:level4"
+att4 
+[1] "att4:level1" "att4:level2"
+att5 
+[1] "att5:level1" "att5:level2" "att5:level3" "att5:level4"
+att6 
+[1] "att6:level1" "att6:level2" "att6:level3" "att6:level4" "att6:level5"
+[6] "att6:level6"
+att7 
+[1] "att7:level1" "att7:level2"
+# A tibble: 24 × 4
+   attribute                level                        attribute_id level_id  
+   <chr>                    <chr>                        <chr>        <chr>     
+ 1 Housing Cost             15% of pre-tax income        att1         att1:leve…
+ 2 Housing Cost             30% of pre-tax income        att1         att1:leve…
+ 3 Housing Cost             40% of pre-tax income        att1         att1:leve…
+ 4 Presidential Vote (2020) 30% Democrat, 70% Republican att2         att2:leve…
+ 5 Presidential Vote (2020) 50% Democrat, 50% Republican att2         att2:leve…
+ 6 Presidential Vote (2020) 70% Democrat, 30% Republican att2         att2:leve…
+ 7 Racial Composition       50% White, 50% Nonwhite      att3         att3:leve…
+ 8 Racial Composition       75% White, 25% Nonwhite      att3         att3:leve…
+ 9 Racial Composition       90% White, 10% Nonwhite      att3         att3:leve…
+10 Racial Composition       96% White, 4% Nonwhite       att3         att3:leve…
+# ℹ 14 more rows
 
-collab: Wait
+2026-07-12T17:08:43.402949Z ERROR codex_core::tools::router: error=apply_patch verification failed: invalid hunk at line 32, 'dat <- out$data' is not a valid hunk header. Valid hunk headers: '*** Add File: {path}', '*** Delete File: {path}', '*** Update File: {path}'
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1/script.R
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5092257c06be6c921f5343249832b51cf98834bf
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,80 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 12, 8, 8))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 2) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.22),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 10, height = 8, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5092257c06be6c921f5343249832b51cf98834bf
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,80 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 12, 8, 8))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 2) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.22),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 10, height = 8, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
+exec
+/bin/zsh -lc "Rscript script.R && file figures/level-frequencies.png && identify -format '%wx%h %x %y\\n' figures/level-frequencies.png 2>/dev/null || true && sed -n '1,220p' summary.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5092257c06be6c921f5343249832b51cf98834bf
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,80 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 12, 8, 8))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 2) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.22),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 10, height = 8, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
+ succeeded in 1255ms:
+Warning messages:
+1: No shared levels found between `names(values)` of the manual scale and the
+data's fill values. 
+2: No shared levels found between `names(values)` of the manual scale and the
+data's fill values. 
+3: No shared levels found between `names(values)` of the manual scale and the
+data's fill values. 
+figures/level-frequencies.png: PNG image data, 3200 x 2560, 8-bit/color RGB, non-interlaced
+3200x2560 125.98000000000000398 125.98000000000000398
+# Conjoint design summary
+
+## Design
+
+- Respondents: 400
+- Primary choice tasks per respondent: 8
+- Repeated reliability task: 1 (a flipped repeat of choice task 1)
+- Total presented choice tasks per respondent: 9
+- Profiles per task: 2
+- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)
+
+## Attributes and levels
+
+| Attribute ID | Attribute | Levels |
+|---|---|---:|
+| att1 | Housing Cost | 3 |
+| att2 | Presidential Vote (2020) | 3 |
+| att3 | Racial Composition | 4 |
+| att4 | School Quality | 2 |
+| att5 | Total Daily Driving Time for Commuting and Errands | 4 |
+| att6 | Type of Place | 6 |
+| att7 | Violent Crime Rate (Vs National Rate) | 2 |
+
+## Randomization balance
+
+Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.
+
+| Attribute | Level | n | % |
+|---|---|---:|---:|
+| Housing Cost | 15% of pre-tax income | 2114 | 33.0% |
+| Housing Cost | 30% of pre-tax income | 2155 | 33.7% |
+| Housing Cost | 40% of pre-tax income | 2131 | 33.3% |
+| Presidential Vote (2020) | 30% Democrat, 70% Republican | 2144 | 33.5% |
+| Presidential Vote (2020) | 50% Democrat, 50% Republican | 2147 | 33.5% |
+| Presidential Vote (2020) | 70% Democrat, 30% Republican | 2109 | 33.0% |
+| Racial Composition | 50% White, 50% Nonwhite | 1618 | 25.3% |
+| Racial Composition | 75% White, 25% Nonwhite | 1600 | 25.0% |
+| Racial Composition | 90% White, 10% Nonwhite | 1605 | 25.1% |
+| Racial Composition | 96% White, 4% Nonwhite | 1577 | 24.6% |
+| School Quality | 5 out of 10 | 3178 | 49.7% |
+| School Quality | 9 out of 10 | 3222 | 50.3% |
+| Total Daily Driving Time for Commuting and Errands | 10 min | 1601 | 25.0% |
+| Total Daily Driving Time for Commuting and Errands | 25 min | 1724 | 26.9% |
+| Total Daily Driving Time for Commuting and Errands | 45 min | 1527 | 23.9% |
+| Total Daily Driving Time for Commuting and Errands | 75 min | 1548 | 24.2% |
+| Type of Place | City – downtown, with a mix of offices, apartments, and shops | 1047 | 16.4% |
+| Type of Place | City, more residential area | 1032 | 16.1% |
+| Type of Place | Rural area | 1117 | 17.5% |
+| Type of Place | Small town | 1092 | 17.1% |
+| Type of Place | Suburban neighborhood with houses only | 1045 | 16.3% |
+| Type of Place | Suburban neighborhood with mix of shops, houses, businesses | 1067 | 16.7% |
+| Violent Crime Rate (Vs National Rate) | 20% Less Crime Than National Average | 3225 | 50.4% |
+| Violent Crime Rate (Vs National Rate) | 20% More Crime Than National Average | 3175 | 49.6% |
+
+## Figure
+
+![Attribute-level frequencies](figures/level-frequencies.png)
+
+**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.
+
+
 codex
-The required R environment is available (`projoint` and `ggplot2`). The analyst and implementer are working independently; the main design summary will use the eight primary choice tasks, with the repeated task kept out of the primary balance calculation.
+The first run produced the requested files and confirmed 400 × 8 × 2 analysis rows. I found a harmless but avoidable palette-mapping warning in the plotting code, so I’m correcting it before the single verification pass.
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1/script.R
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..f90c4134f86991a60e7c5b730e9204c5dd89305e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,80 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 12, 8, 8))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 2) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.22),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 10, height = 8, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..f90c4134f86991a60e7c5b730e9204c5dd89305e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,80 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 12, 8, 8))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 2) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.22),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 10, height = 8, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..f90c4134f86991a60e7c5b730e9204c5dd89305e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,80 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 12, 8, 8))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 2) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.22),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 10, height = 8, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
+exec
+/bin/zsh -lc "Rscript script.R && identify -format 'pixels=%wx%h; resolution=%x x %y pixels/cm\\n' figures/level-frequencies.png && git status --short" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..f90c4134f86991a60e7c5b730e9204c5dd89305e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,80 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 12, 8, 8))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 2) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.22),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 10, height = 8, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
+ succeeded in 1235ms:
+pixels=3200x2560; resolution=125.98000000000000398 x 125.98000000000000398 pixels/cm
+ D SHA256SUMS
+ M exec-stdout.log
+ M figures/level-frequencies.png
+ D run-log.md
+ M script.R
+ M summary.md
+ D ../t2/SHA256SUMS
+ M ../t2/exec-stdout.log
+ M ../t2/figures/amce-dotwhisker.png
+ M ../t2/report.md
+ D ../t2/run-log.md
+ M ../t2/script.R
+ D ../t3/SHA256SUMS
+ M ../t3/exec-stdout.log
+ D ../t3/figures/sensitivity.png
+ D ../t3/memo.md
+ D ../t3/run-log.md
+ D ../t3/script.R
+ D ../t3/sensitivity-table.md
+
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..f90c4134f86991a60e7c5b730e9204c5dd89305e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,80 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 12, 8, 8))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 2) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.22),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 10, height = 8, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1/script.R
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..859c47601d096b9064f45d6b97d97958439a2381
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,84 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 80, 8, 150))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 1,
++             labeller = label_wrap_gen(width = 45)) +
++  scale_y_discrete(labels = function(x) vapply(x, function(label) {
++    paste(strwrap(label, width = 52), collapse = "\n")
++  }, character(1))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.60),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 12, height = 16, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..859c47601d096b9064f45d6b97d97958439a2381
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,84 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 80, 8, 150))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 1,
++             labeller = label_wrap_gen(width = 45)) +
++  scale_y_discrete(labels = function(x) vapply(x, function(label) {
++    paste(strwrap(label, width = 52), collapse = "\n")
++  }, character(1))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.60),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 12, height = 16, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
+exec
+/bin/zsh -lc "Rscript script.R && identify -format 'pixels=%wx%h; resolution=%x x %y pixels/cm\\n' figures/level-frequencies.png" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..859c47601d096b9064f45d6b97d97958439a2381
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,84 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 80, 8, 150))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 1,
++             labeller = label_wrap_gen(width = 45)) +
++  scale_y_discrete(labels = function(x) vapply(x, function(label) {
++    paste(strwrap(label, width = 52), collapse = "\n")
++  }, character(1))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.60),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 12, height = 16, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
+ succeeded in 1422ms:
+pixels=3840x5120; resolution=125.98000000000000398 x 125.98000000000000398 pixels/cm
+
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..859c47601d096b9064f45d6b97d97958439a2381
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,84 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 80, 8, 150))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 1,
++             labeller = label_wrap_gen(width = 45)) +
++  scale_y_discrete(labels = function(x) vapply(x, function(label) {
++    paste(strwrap(label, width = 52), collapse = "\n")
++  }, character(1))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.60),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 12, height = 16, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
 collab: Wait
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..859c47601d096b9064f45d6b97d97958439a2381
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,84 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 80, 8, 150))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 1,
++             labeller = label_wrap_gen(width = 45)) +
++  scale_y_discrete(labels = function(x) vapply(x, function(label) {
++    paste(strwrap(label, width = 52), collapse = "\n")
++  }, character(1))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.60),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 12, height = 16, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
 collab: Wait
-collab: Wait
-collab: Wait
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..859c47601d096b9064f45d6b97d97958439a2381
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,84 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 80, 8, 150))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 1,
++             labeller = label_wrap_gen(width = 45)) +
++  scale_y_discrete(labels = function(x) vapply(x, function(label) {
++    paste(strwrap(label, width = 52), collapse = "\n")
++  }, character(1))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.60),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 12, height = 16, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
 codex
-Implementation is complete and reports the expected 6,400 primary profile appearances. I’m now running the one allowed independent revision/check cycle: a verifier will rerun the script and inspect the summary and PNG against the task constraints.
-exec
-/bin/zsh -lc "sed -n '1,260p' script.R && sed -n '1,260p' summary.md && file figures/level-frequencies.png && identify -verbose figures/level-frequencies.png | rg 'Geometry|Resolution|Units'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
- succeeded in 8292ms:
-  Geometry: 3520x3200+0+0
-  Resolution: 125.98x125.98
-  Units: PixelsPerCentimeter
-
-exec
-/bin/zsh -lc "Rscript script.R && Rscript -e 'x <- png::readPNG(\"figures/level-frequencies.png\"); cat(dim(x), \"\\n\")'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
- succeeded in 1398ms:
-Created figures/level-frequencies.png and summary.md: 400 respondents, 8 tasks/respondent, 2 profiles/task, 6400 profile appearances.
-3200 3520 3 
-
-exec
-/bin/zsh -lc 'git status --short -- script.R summary.md figures/level-frequencies.png && find figures -maxdepth 1 -type f -print' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1
- succeeded in 0ms:
-?? figures/level-frequencies.png
-?? script.R
-?? summary.md
-figures/level-frequencies.png
-
-collab: Wait
-codex
-Completed and independently verified all requested deliverables:
+Completed and verified.
 
 - [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1/script.R)
 - [summary.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1/summary.md)
 - [level-frequencies.png](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1/figures/level-frequencies.png)
 
-Checks passed: `Rscript script.R` runs successfully; the summary reports 400 respondents, 8 tasks/respondent, 2 profiles/task, all seven labeled attributes and balance frequencies; the sole figure is title-free and exported at 320 dpi.
+The script reruns cleanly, generates the summary and a 320 dpi figure, and reports all requested design and balance details.
+diff --git a/demos/orchestration-lab/runs/46/t1/script.R b/demos/orchestration-lab/runs/46/t1/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..859c47601d096b9064f45d6b97d97958439a2381
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46/t1/script.R
+@@ -0,0 +1,84 @@
++# Design description for projoint::exampleData1
++# Re-runnable from the project root with: Rscript script.R
++
++set.seed(4601)
++
++# Plot styling declared up front.
++library(projoint)
++library(ggplot2)
++
++theme_design <- theme_minimal(base_size = 11) +
++  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
++        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
++        plot.margin = margin(8, 80, 8, 150))
++okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
++                reddish_purple = "#CC79A7", black = "#000000")
++
++data(exampleData1)
++out <- reshape_projoint(exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
++dat <- out$data
++labels <- out$labels
++attributes <- paste0("att", 1:7)
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++# Convert design columns to labelled level-frequency data.
++frequency_list <- lapply(attributes, function(attribute_id) {
++  values <- as.character(dat[[attribute_id]])
++  lookup <- labels[labels$attribute_id == attribute_id, ]
++  counts <- table(factor(values, levels = lookup$level_id))
++  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
++             level = lookup$level, n = as.integer(counts),
++             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
++})
++frequencies <- do.call(rbind, frequency_list)
++
++# One descriptive figure; facet-specific y axes preserve readable labels.
++plot_data <- frequencies
++plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
++level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
++  geom_col(width = 0.72, show.legend = FALSE) +
++  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
++            hjust = -0.08, size = 3.1) +
++  facet_wrap(~ attribute, scales = "free_y", ncol = 1,
++             labeller = label_wrap_gen(width = 45)) +
++  scale_y_discrete(labels = function(x) vapply(x, function(label) {
++    paste(strwrap(label, width = 52), collapse = "\n")
++  }, character(1))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
++                     limits = c(0, max(plot_data$proportion) * 1.60),
++                     expand = expansion(mult = c(0, 0.02))) +
++  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
++  labs(x = "Profile frequency") + theme_design
++ggsave("figures/level-frequencies.png", level_frequency_plot,
++       width = 12, height = 16, units = "in", dpi = 320, bg = "white")
++
++# Write the Markdown report without a rendering-package dependency.
++n_respondents <- length(unique(dat$id))
++n_primary_tasks <- length(unique(dat$task))
++n_profiles <- length(unique(dat$profile))
++attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
++attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
++  sum(labels$attribute_id == a)
++}, integer(1))
++
++md <- c("# Conjoint design summary", "", "## Design", "",
++  sprintf("- Respondents: %d", n_respondents),
++  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
++  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
++  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
++  sprintf("- Profiles per task: %d", n_profiles),
++  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
++  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
++  "|---|---|---:|")
++md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
++  attribute_summary$attribute, attribute_summary$n_levels))
++md <- c(md, "", "## Randomization balance", "",
++  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
++  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
++md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
++  frequencies$level, frequencies$n, 100 * frequencies$proportion))
++md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
++  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
++writeLines(md, "summary.md")
+
 tokens used
-66,987
-Completed and independently verified all requested deliverables:
+64,057
+Completed and verified.
 
 - [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1/script.R)
 - [summary.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1/summary.md)
 - [level-frequencies.png](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t1/figures/level-frequencies.png)
 
-Checks passed: `Rscript script.R` runs successfully; the summary reports 400 respondents, 8 tasks/respondent, 2 profiles/task, all seven labeled attributes and balance frequencies; the sole figure is title-free and exported at 320 dpi.
+The script reruns cleanly, generates the summary and a 320 dpi figure, and reports all requested design and balance details.

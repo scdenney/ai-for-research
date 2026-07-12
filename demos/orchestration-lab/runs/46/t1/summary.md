@@ -1,31 +1,31 @@
 # Conjoint design summary
 
-## Level-frequency figure
-![Level frequencies by attribute](figures/level-frequencies.png)
-*Caption: Each bar is the number of primary-design profile appearances assigned to a level; panels use their own count scales to keep level labels legible.*
+## Design
 
-## Primary design
+- Respondents: 400
+- Primary choice tasks per respondent: 8
+- Repeated reliability task: 1 (a flipped repeat of choice task 1)
+- Total presented choice tasks per respondent: 9
+- Profiles per task: 2
+- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)
 
-The primary design contains 400 respondents, 8 tasks per respondent, and 2 profiles per task (6400 profile appearances).
-The eight primary tasks (choice1–choice8) define all summaries. The `choice1_repeated_flipped` outcome is retained by `reshape_projoint()` as `selected_repeated` and is excluded so it does not add a task or duplicate profiles.
+## Attributes and levels
 
-## Attributes and level counts
+| Attribute ID | Attribute | Levels |
+|---|---|---:|
+| att1 | Housing Cost | 3 |
+| att2 | Presidential Vote (2020) | 3 |
+| att3 | Racial Composition | 4 |
+| att4 | School Quality | 2 |
+| att5 | Total Daily Driving Time for Commuting and Errands | 4 |
+| att6 | Type of Place | 6 |
+| att7 | Violent Crime Rate (Vs National Rate) | 2 |
 
-| Attribute | Levels |
-|---|---:|
-| Housing Cost | 3 |
-| Presidential Vote (2020) | 3 |
-| Racial Composition | 4 |
-| School Quality | 2 |
-| Total Daily Driving Time for Commuting and Errands | 4 |
-| Type of Place | 6 |
-| Violent Crime Rate (Vs National Rate) | 2 |
+## Randomization balance
 
-## Level frequencies
+Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.
 
-Counts are profile appearances, not respondent counts: each attribute is observed once for every primary-design profile (denominator = 6,400 within attribute). Percentages are therefore within-attribute profile shares.
-
-| Attribute | Level | Profile appearances | Share within attribute |
+| Attribute | Level | n | % |
 |---|---|---:|---:|
 | Housing Cost | 15% of pre-tax income | 2114 | 33.0% |
 | Housing Cost | 30% of pre-tax income | 2155 | 33.7% |
@@ -51,3 +51,10 @@ Counts are profile appearances, not respondent counts: each attribute is observe
 | Type of Place | Suburban neighborhood with mix of shops, houses, businesses | 1067 | 16.7% |
 | Violent Crime Rate (Vs National Rate) | 20% Less Crime Than National Average | 3225 | 50.4% |
 | Violent Crime Rate (Vs National Rate) | 20% More Crime Than National Average | 3175 | 49.6% |
+
+## Figure
+
+![Attribute-level frequencies](figures/level-frequencies.png)
+
+**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.
+

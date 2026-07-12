@@ -8,7 +8,7 @@ approval: never
 sandbox: workspace-write [workdir, /tmp, $TMPDIR]
 reasoning effort: medium
 reasoning summaries: none
-session id: 019f5220-17b4-7450-9d8a-f56c09e262d5
+session id: 019f574c-81f4-7341-ba72-87b5010a9daf
 --------
 user
 $46-orchestrate
@@ -45,48 +45,205 @@ out <- reshape_projoint(exampleData1,
 
 **Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. No web access. Do not install packages. The memo must not overclaim: if the headline finding is baseline-sensitive, say so plainly.
 codex
-I’m using the requested orchestration workflow: one analyst will independently characterize the baseline sensitivity, one implementer will build the requested artifacts, and I’ll integrate and run the final R checks.
+I’m using the orchestration workflow because you explicitly invoked it. I’ll separate the R estimation, a read-only methodological check, and final integration/verification, with no overlapping edits.
 exec
-/bin/zsh -lc "pwd && rg --files -g 'AGENTS.md' -g '"'!figures/*'"' -g '"'!*.png'"' . | sed -n '1,80p' && find . -maxdepth 2 -type f | sed -n '1,80p'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
+/bin/zsh -lc "sed -n '1,240p' ~/Documents/github/resources/open-science-skills/codex/46-orchestrate/SKILL.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
  succeeded in 0ms:
-~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
-./.start-time
-./exec-stdout.log
+---
+name: 46-orchestrate
+description: Orchestrate complex work as the Codex lead on the GPT-5.6 family — gpt-5.6-terra by default for token economy, gpt-5.6-sol reserved for intensive focus. Use when the user explicitly asks to orchestrate, delegate, fan out, parallelize, assign subagents, obtain independent checks, or have Codex act as tech lead. Decompose work, route bounded tasks to role-based subagents via Codex's native spawn_agent tool (subagents inherit the lead's model and effort), escalate the hardest compact problems to a one-shot Sol consult, preserve integration ownership, and synthesize verified results.
+---
+
+# 4.6 Orchestrate
+
+<p align="center"><img src="assets/architecture.svg" alt="46-orchestrate: a GPT-5.6 Terra Codex orchestrator in a main loop fans work out to researcher, implementer, and verifier subagents that inherit the lead's model, and escalates the hardest problems to a one-shot gpt-5.6-sol consult at xhigh" width="900"></p>
+
+Act as the lead orchestrator for the GPT-5.6 family. Plan, decompose, delegate, integrate, and verify. Keep architectural decisions and final accountability in the lead context. The intended lead tier is **`gpt-5.6-terra`** — because subagents inherit the lead's model, a Terra lead makes the entire spawn tree token-economical by construction; `gpt-5.6-sol` is reserved for the moments that need intensive focus (see *Model and effort calibration*).
+
+The lead is the currently-running Codex session itself. Subagents are spawned with Codex's **native, in-process multi-agent tool** (`functions.collaboration.spawn_agent`, plus `send_message`, `followup_task`, `wait_agent`, `interrupt_agent`, `list_agents` — feature `multi_agent`, stable). Do not shell out to a nested `codex exec` subprocess for delegation: a `codex exec` process running under any sandbox mode cannot spawn a working nested `codex exec` child — confirmed by direct reproduction on both macOS (`Operation not permitted, os error 1`) and Linux (`Read-only file system, os error 30`) hosts, and unfixable by passing bypass flags to the child, since an OS-level sandbox applies transitively to the whole process tree regardless of what the child requests. `spawn_agent` has no such problem: it runs in-process, in the same sandbox as the lead.
+
+**Honest capability limit — read this before promising cost savings.** `spawn_agent`'s model-visible schema has exactly three fields — `task_name`, `message`, `fork_turns` — and no `model` or `effort` parameter (re-verified 2026-07-11 on Codex CLI v0.144.1, which is also the newest published release; three differently-flagged live probes, including `multi_agent_v2` forced on). Every subagent runs at the **same model and reasoning effort as the lead**. This is a regression-by-default rather than a permanent absence: override fields existed and worked around v0.137 (openai/codex#26948), but current releases hide them from the schema (`hide_spawn_agent_metadata`, openai/codex#31814), v2 full-history forks reject them (openai/codex#20077), and the TOML custom-agent path is broken (openai/codex#26363) — community reports agree (community.openai.com, 2026-07-10). An "unhide + `fork_turns=\"none\"`" escape hatch circulates but is unconfirmed and reportedly still drops overrides; do not build on it without re-verifying on the installed version. In-process spawning therefore cannot reproduce `fable-orchestrate`'s cost tiering — the calibration section below is how this skill approximates it instead. What spawning *does* save: the lead's own context never has to grow with the full working-through of every subtask. A single lead handling everything serially in one continuously-growing context re-pays the cost of that whole context on every turn; spawning several parallel subagents with short, fresh, task-scoped contexts and pulling back only their summaries avoids that growth. The saving is from **context isolation and parallelism**, not from a cheaper model — say so plainly if a user asks whether a spawn delegates to a cheaper tier.
+
+## Model and effort calibration
+
+The lead's `--model` and `model_reasoning_effort` are the only reliable cost levers — they set the price of the whole spawn tree. Calibrate them the way `fable-orchestrate` calibrates its cheap lead:
+
+| Choice | Setting | Why |
+|---|---|---|
+| **Default lead** | `gpt-5.6-terra`, effort `medium` (raise to `high` when the orchestration itself is hard) | the whole in-process tree becomes Terra by construction — the balanced tier (about half of Sol's per-token price) with current multi-agent (v2) support |
+| **Intensive focus** | one-shot `codex exec --model gpt-5.6-sol -c model_reasoning_effort=xhigh --sandbox read-only --skip-git-repo-check "<self-contained brief>" < /dev/null` | pays Sol only for the compact hardest problems — architecture calls, gnarly debugging, the decorrelated half of a high-stakes check; Sol sees only the brief, so write a complete one |
+| **Cheap bulk** | one-shot `codex exec --model gpt-5.6-luna -c model_reasoning_effort=low …` | Luna (about 2.5× cheaper than Terra) for fully-specified mechanical work worth taking out of process |
+| **Sol lead** | only when lead quality is the bottleneck for the whole task | every spawn is then Sol at the lead's effort — the economics invert; spawn sparingly, only for context isolation or blind parallel checks |
+
+Rules of thumb: **escalate effort before escalating tier**, and never leave the session at `xhigh` while fanning out routine work — the effort propagates to every subagent.
+
+**Environment caveat for the cross-tier one-shots:** a nested `codex exec` fails under any sandbox mode (the OS sandbox applies to the whole process tree), so they must run as escalated or unsandboxed calls under a live session; when escalation is unavailable, keep the hard problem in the lead instead. The `< /dev/null` on the nested call is load-bearing — without it `codex exec` hangs waiting on stdin.
+
+## Delegation gate
+
+Use subagents only when the user explicitly invokes `$46-orchestrate` or requests orchestration, delegation, fan-out, parallel agents, or independent agent review. If loaded implicitly without that authorization, work locally.
+
+## Show the route
+
+Before spawning work, publish a compact plan that names each workstream, owner role, dependency, expected artifact, and acceptance check. Update it as dependencies or evidence change.
+
+## Route by first match
+
+| Priority | Work type | Owner |
+|---|---|---|
+| 1 | decomposition, architecture ownership, integration, conflict resolution, user communication | lead |
+| 2 | trivial, single-step work where briefing costs more than execution | lead |
+| 3 | high blast radius **and** hard to verify | two independent lines, then the lead adjudicates |
+| 4 | a compact problem that outclasses the lead's tier (hard architecture call, gnarly debug) | out-of-band Sol one-shot (calibration table), briefed self-contained |
+| 5 | bounded research, inventory, or diagnosis with no overlapping writes | analyst subagent |
+| 6 | fully specified implementation with objective acceptance checks | implementer subagent |
+| 7 | verification, tests, review, or adversarial challenge of an existing artifact | verifier subagent |
+| 8 | ambiguous or tightly coupled work that cannot be cleanly contracted | lead until separable |
+
+High blast radius includes security/authentication, destructive data operations, public API compatibility, concurrency, cryptography, production incidents, privacy, and externally visible irreversible changes. "Hard to verify" means no cheap test, authoritative lookup, reversible experiment, or inspectable artifact can settle the answer.
+
+Do not use multiple agents merely to increase activity. Parallelize independent work or genuinely independent judgments — since spawning does not reduce per-call cost here, an unnecessary spawn is pure overhead, not a cheap experiment.
+
+## Spawn subagents correctly
+
+Every subagent is created with `spawn_agent`. Confirmed parameters: `task_name` (a short identifier other calls use to address this agent), `message` (the task brief — this is the subagent's entire starting context unless `fork_turns` adds more), and `fork_turns` (how much of the lead's own conversation to propagate — `"all"` gives the subagent full history; for a bounded, fully-specified task, propagate the minimum needed, since a large `fork_turns` value defeats the context-isolation saving this tool exists for). Consult the tool's own schema at call time for any parameters not listed here — this list reflects what has been directly exercised, not a full spec.
+
+| Role | Behavior | fork_turns |
+|---|---|---|
+| analyst / verifier | inspect, inventory, diagnose, adversarially review, or high-stakes cross-check without editing | minimal — pass only the artifact path and the specific question, not the lead's full history |
+| implementer | make bounded, fully-specified edits with objective acceptance checks and run them | minimal — a complete delegation contract (below) should make full history unnecessary |
+| high-stakes independent check | two agents spawned in the same round on the identical prompt, blind to each other's reasoning | minimal, identical for both, so neither is anchored by the other |
+
+All agents share the same container, filesystem, and working directory as the lead — edits by one are immediately visible to all others, including the lead. This makes write-collision discipline (below) load-bearing, not optional.
+
+**Concurrency is real and bounded.** The tool itself states 4 available concurrency slots, including the lead — so at most 3 subagents run at once regardless of how many are queued. Batch additional work after prior agents finish; do not assume unlimited fan-out.
+
+Use `wait_agent` to block on a spawned agent's result, `send_message` to pass it a message without triggering a new turn, `followup_task` to give a *running* agent a new task, `list_agents` to check what's active, and `interrupt_agent` to reclaim a stalled one.
+
+## Write a delegation contract
+
+Every subagent brief (the `message` passed to `spawn_agent`) must specify:
+
+```text
+Objective:
+Inputs and authoritative paths:
+In scope:
+Out of scope:
+Constraints and invariants:
+Write ownership:
+Expected artifact:
+Acceptance checks:
+Return format: conclusion, evidence, changed files, residual risk
+```
+
+Give each worker the minimum task-local context required. Do not leak another worker's conclusions into an independent round. Ask for evidence and artifacts, not confidence alone.
+
+## Prevent write collisions
+
+- Assign disjoint files or directories to concurrent implementers.
+- Use read-only agents for overlapping analysis or review.
+- State that the shared workspace may change while an agent runs; require rereading before edits.
+- Never let two agents edit the same file concurrently.
+- Preserve user changes and unrelated worktree modifications.
+- Keep commits, pushes, deployments, destructive operations, and external messages under the same authorization rules as the lead.
+
+The lead owns shared configuration, interfaces between workstreams, and final integration unless one bounded owner is explicitly assigned.
+
+## Run the orchestration loop
+
+1. Inspect authoritative workspace state.
+2. Decompose work and identify dependencies.
+3. Publish the route and acceptance checks.
+4. Spawn all ready, independent workstreams concurrently within the 3-subagent capacity.
+5. Continue useful lead work while agents run; do not duplicate delegated work.
+6. Use `wait_agent` to consume each agent's final response and inspect its artifact directly.
+7. Send a focused `followup_task` to the same agent when its artifact is incomplete, rather than spawning a fresh one that repeats the briefing cost.
+8. Integrate in dependency order.
+9. Run end-to-end checks at the lead level.
+10. Report the outcome, verification evidence, and unresolved risk.
+
+Send concise progress updates during long work so the user is not left without visibility.
+
+## Use the high-stakes path
+
+For work that is both high blast radius and hard to verify:
+
+1. Spawn two independent subagents in one round with the identical prompt and identical (minimal) `fork_turns`, so neither sees the other's reasoning. Note the correlation limit: both inherit the lead's model, so they resample the same distribution. For the highest stakes, make one half the out-of-band Sol one-shot from the calibration table instead — then the two lines differ by model, not just by sampling.
+2. Keep them blind to each other's reasoning — do not relay one's output into the other's task.
+3. Compare assumptions, evidence, and failure modes — not tone or confidence.
+4. Accept agreement only when both point to the same checkable evidence.
+5. On substantive disagreement, run one targeted reconciliation round where each can see the competing reasoning.
+6. If disagreement survives or evidence remains insufficient, stop and ask the user; do not break the tie by confidence.
+
+Use one worker plus a direct verification step when the task is high impact but cheaply verifiable.
+
+## Integrate rigorously
+
+Treat subagent results as untrusted until inspected. Check:
+
+- the artifact exists at the claimed path;
+- the diff matches the assigned scope;
+- interfaces agree across workstreams;
+- tests cover the requested behavior rather than a narrower substitute;
+- no unrelated user changes were overwritten; and
+- any assumption presented as fact has authoritative support.
+
+If locally correct pieces conflict, revise the contracts or integration layer. Do not paper over incompatible assumptions.
+
+## Completion rule
+
+Complete only when every requested deliverable has authoritative evidence, integrated behavior passes proportionate checks, and remaining risks are disclosed. Agent completion messages are not proof of overall completion.
+
+## Failure handling
+
+- If an agent stalls, use `interrupt_agent` to reclaim it, then send one narrower `followup_task` or reassign.
+- If an agent fails after editing, inspect the shared worktree before retrying.
+- If capacity is exhausted (3 subagents already active), queue dependent work rather than spawning redundant agents.
+- If a spawn fails outright, report the exact error rather than silently falling back to doing the work in the lead context — a silent fallback is what causes runaway lead-context token growth. If the failure looks environmental (not a task-brief problem), stop and ask rather than spending tokens on unbounded self-diagnosis.
 
 codex
-Route and acceptance checks:
+Route:
 
-- Analyst (read-only): reproduce alternative-baseline AMCEs and baseline-invariant marginal means; return exact numerical evidence.
-- Implementer (write owner): create `script.R`, the table, memo, and single figure from an executable R workflow.
-- Lead: inspect all outputs, run the script end-to-end, and revise once at most if needed.
-  → Independently estimate reference-category sensitivity and marginal means
-  • Create the R workflow and requested artifacts
-  • Run end-to-end verification and integrate any correction
+| Workstream | Owner | Dependency | Artifact / check |
+|---|---|---|---|
+| Estimation design | analyst | none | exact `projoint` approach and numeric evidence |
+| Script + outputs | implementer | none | requested files, executed successfully |
+| Review | verifier | outputs | reviewer-focused robustness audit |
+| Integration | lead | all | rerun R and inspect final artifacts |
+
+
 exec
-/bin/zsh -lc "Rscript -e 'library(projoint); data(exampleData1); out <- reshape_projoint(exampleData1, .outcomes=c(paste0(\"choice\",1:8), \"choice1_repeated_flipped\")); str(out); print(names(out)); print(utils::head(out)); print(getAnywhere(amce)); print(getAnywhere(mm))'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
- succeeded in 835ms:
+/bin/zsh -lc "rg --files -g '"'!*~'"' -g '"'!figures/*'"' && git status --short" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
+ succeeded in 0ms:
+exec-stdout.log
+ D ../t1/SHA256SUMS
+ M ../t1/exec-stdout.log
+ D ../t1/figures/level-frequencies.png
+ D ../t1/run-log.md
+ D ../t1/script.R
+ D ../t1/summary.md
+ D ../t2/SHA256SUMS
+ M ../t2/exec-stdout.log
+ D ../t2/figures/amce-dotwhisker.png
+ D ../t2/report.md
+ D ../t2/run-log.md
+ D ../t2/script.R
+ D SHA256SUMS
+ M exec-stdout.log
+ D figures/sensitivity.png
+ D memo.md
+ D run-log.md
+ D script.R
+ D sensitivity-table.md
+
+exec
+/bin/zsh -lc "Rscript -e 'library(projoint); data(exampleData1); out <- reshape_projoint(exampleData1,.outcomes=c(paste0(\"choice\",1:8),\"choice1_repeated_flipped\")); print(names(out)); str(out, max.level=1); print(head(out)); print(ls(\"package:projoint\"))'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
+ succeeded in 932ms:
+[1] "labels" "data"  
 List of 2
  $ labels: tibble [24 × 4] (S3: tbl_df/tbl/data.frame)
-  ..$ attribute   : chr [1:24] "Housing Cost" "Housing Cost" "Housing Cost" "Presidential Vote (2020)" ...
-  ..$ level       : chr [1:24] "15% of pre-tax income" "30% of pre-tax income" "40% of pre-tax income" "30% Democrat, 70% Republican" ...
-  ..$ attribute_id: chr [1:24] "att1" "att1" "att1" "att2" ...
-  ..$ level_id    : chr [1:24] "att1:level1" "att1:level2" "att1:level3" "att2:level1" ...
  $ data  : tibble [6,400 × 13] (S3: tbl_df/tbl/data.frame)
-  ..$ id               : chr [1:6400] "R_00zYHdY1te1Qlrz" "R_00zYHdY1te1Qlrz" "R_00zYHdY1te1Qlrz" "R_00zYHdY1te1Qlrz" ...
-  ..$ task             : num [1:6400] 1 1 2 2 3 3 4 4 5 5 ...
-  ..$ profile          : num [1:6400] 1 2 1 2 1 2 1 2 1 2 ...
-  ..$ att4             : Factor w/ 2 levels "att4:level1",..: 2 1 2 2 1 2 1 2 1 1 ...
-  ..$ att7             : Factor w/ 2 levels "att7:level1",..: 1 2 2 2 2 2 1 1 1 1 ...
-  ..$ att3             : Factor w/ 4 levels "att3:level1",..: 1 1 3 4 4 3 1 1 2 4 ...
-  ..$ att1             : Factor w/ 3 levels "att1:level1",..: 2 2 2 3 3 2 1 1 1 2 ...
-  ..$ att2             : Factor w/ 3 levels "att2:level1",..: 2 3 2 1 3 1 3 2 2 2 ...
-  ..$ att5             : Factor w/ 4 levels "att5:level1",..: 4 1 4 1 1 3 2 1 4 2 ...
-  ..$ att6             : Factor w/ 6 levels "att6:level1",..: 5 1 6 6 3 3 5 6 2 2 ...
-  ..$ selected         : num [1:6400] 1 0 1 0 1 0 0 1 1 0 ...
-  ..$ selected_repeated: num [1:6400] 1 0 NA NA NA NA NA NA NA NA ...
-  ..$ agree            : num [1:6400] 1 1 NA NA NA NA NA NA NA NA ...
  - attr(*, "class")= chr "projoint_data"
-[1] "labels" "data"  
 $labels
 # A tibble: 24 × 4
    attribute                level                        attribute_id level_id  
@@ -120,40 +277,24 @@ $data
 # ℹ 6,390 more rows
 # ℹ 2 more variables: selected_repeated <dbl>, agree <dbl>
 
-no object named ‘amce’ was found
-no object named ‘mm’ was found
-
-exec
-/bin/zsh -lc "Rscript -e 'library(projoint); print(ls(\"package:projoint\")); data(exampleData1); out<-reshape_projoint(exampleData1,.outcomes=c(paste0(\"choice\",1:8),\"choice1_repeated_flipped\")); print(out"'$labels)'"'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
- succeeded in 813ms:
 [1] "make_projoint_data" "predict_tau"        "projoint"          
 [4] "read_labels"        "read_Qualtrics"     "reshape_projoint"  
 [7] "save_labels"        "set_qoi"           
-# A tibble: 24 × 4
-   attribute                level                        attribute_id level_id  
-   <chr>                    <chr>                        <chr>        <chr>     
- 1 Housing Cost             15% of pre-tax income        att1         att1:leve…
- 2 Housing Cost             30% of pre-tax income        att1         att1:leve…
- 3 Housing Cost             40% of pre-tax income        att1         att1:leve…
- 4 Presidential Vote (2020) 30% Democrat, 70% Republican att2         att2:leve…
- 5 Presidential Vote (2020) 50% Democrat, 50% Republican att2         att2:leve…
- 6 Presidential Vote (2020) 70% Democrat, 30% Republican att2         att2:leve…
- 7 Racial Composition       50% White, 50% Nonwhite      att3         att3:leve…
- 8 Racial Composition       75% White, 25% Nonwhite      att3         att3:leve…
- 9 Racial Composition       90% White, 10% Nonwhite      att3         att3:leve…
-10 Racial Composition       96% White, 4% Nonwhite       att3         att3:leve…
-# ℹ 14 more rows
 
-collab: Wait
 exec
-/bin/zsh -lc "Rscript -e 'library(projoint); print(args(projoint)); print(utils::capture.output(help(\"projoint\")))'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
- succeeded in 429ms:
+/bin/zsh -lc "Rscript -e 'library(projoint); print(args(projoint)); print(args(set_qoi)); print(utils::help(\"projoint\",package=\"projoint\"))'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
+ succeeded in 438ms:
 function (.data, .qoi = NULL, .by_var = NULL, .structure = "choice_level", 
     .estimand = "mm", .se_method = "analytical", .irr = NULL, 
     .remove_ties = TRUE, .ignore_position = NULL, .n_sims = NULL, 
     .n_boot = NULL, .weights_1 = NULL, .clusters_1 = NULL, .se_type_1 = NULL, 
     .weights_2 = NULL, .clusters_2 = NULL, .se_type_2 = NULL, 
     .auto_cluster = TRUE, .seed = NULL) 
+NULL
+function (.structure = "choice_level", .estimand = "mm", .att_choose, 
+    .lev_choose, .att_notchoose = NULL, .lev_notchoose = NULL, 
+    .att_choose_b = NULL, .lev_choose_b = NULL, .att_notchoose_b = NULL, 
+    .lev_notchoose_b = NULL) 
 NULL
 projoint               package:projoint                R Documentation
 
@@ -328,11 +469,19 @@ _E_x_a_m_p_l_e_s:
      print(p)
      
 
-character(0)
 
 exec
-/bin/zsh -lc "Rscript -e 'library(projoint); data(exampleData1); out<-reshape_projoint(exampleData1,.outcomes=c(paste0(\"choice\",1:8),\"choice1_repeated_flipped\")); print(out"'$labels); z<-projoint(out,.structure="profile_level",.estimand="amce",.irr=0.8); str(z); print(z$estimates)'"'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
- succeeded in 1655ms:
+/bin/zsh -lc "Rscript - <<'RS'
+library(projoint)
+data(exampleData1)
+out <- reshape_projoint(exampleData1,.outcomes=c(paste0('choice',1:8),'choice1_repeated_flipped'))
+print(out"'$labels)
+r <- projoint(out,.structure='"'profile_level',.estimand='mm',.se_method='analytical')
+print(r"'$estimates)
+a <- projoint(out,.structure='"'profile_level',.estimand='amce',.se_method='analytical')
+print(a"'$estimates)
+RS' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
+ succeeded in 2106ms:
 # A tibble: 24 × 4
    attribute                level                        attribute_id level_id  
    <chr>                    <chr>                        <chr>        <chr>     
@@ -347,6 +496,20 @@ exec
  9 Racial Composition       90% White, 10% Nonwhite      att3         att3:leve…
 10 Racial Composition       96% White, 4% Nonwhite       att3         att3:leve…
 # ℹ 14 more rows
+# A tibble: 48 × 6
+   estimand       estimate     se conf.low conf.high att_level_choose
+   <chr>             <dbl>  <dbl>    <dbl>     <dbl> <chr>           
+ 1 mm_uncorrected    0.574 0.0142    0.546     0.602 att1:level1     
+ 2 mm_corrected      0.614 0.0219    0.571     0.657 att1:level1     
+ 3 mm_uncorrected    0.485 0.0136    0.458     0.511 att1:level2     
+ 4 mm_corrected      0.477 0.0207    0.436     0.517 att1:level2     
+ 5 mm_uncorrected    0.445 0.0142    0.417     0.472 att1:level3     
+ 6 mm_corrected      0.416 0.0219    0.372     0.459 att1:level3     
+ 7 mm_uncorrected    0.489 0.0150    0.459     0.518 att2:level1     
+ 8 mm_corrected      0.483 0.0229    0.438     0.528 att2:level1     
+ 9 mm_uncorrected    0.524 0.0133    0.497     0.550 att2:level2     
+10 mm_corrected      0.536 0.0203    0.496     0.576 att2:level2     
+# ℹ 38 more rows
 Warning messages:
 1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
   AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
@@ -354,410 +517,397 @@ Warning messages:
   AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
 3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
   AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
-List of 20
- $ estimand                        : chr "amce"
- $ structure                       : chr "profile_level"
- $ estimates                       : tibble [34 × 7] (S3: tbl_df/tbl/data.frame)
-  ..$ estimand                 : chr [1:34] "amce_uncorrected" "amce_corrected" "amce_uncorrected" "amce_corrected" ...
-  ..$ estimate                 : num [1:34] -0.0899 -0.116 -0.1299 -0.1677 0.0348 ...
-  ..$ se                       : num [1:34] 0.0236 0.0304 0.025 0.0322 0.0244 ...
-  ..$ conf.low                 : num [1:34] -0.1362 -0.1758 -0.179 -0.2311 -0.0132 ...
-  ..$ conf.high                : num [1:34] -0.0435 -0.0562 -0.0808 -0.1043 0.0828 ...
-  ..$ att_level_choose         : chr [1:34] "att1:level2" "att1:level2" "att1:level3" "att1:level3" ...
-  ..$ att_level_choose_baseline: chr [1:34] "att1:level1" "att1:level1" "att1:level1" "att1:level1" ...
-  ..- attr(*, "se_type_used")= chr "stata"
-  ..- attr(*, "cluster_by")= chr "id"
- $ se_method                       : chr "analytical"
- $ irr                             : chr "Assumed (0.8)"
- $ tau                             : num 0.113
- $ remove_ties                     : logi TRUE
- $ ignore_position                 : NULL
- $ attribute_of_interest           : chr "all"
- $ levels_of_interest              : chr "all except level1"
- $ attribute_of_interest_0         : NULL
- $ levels_of_interest_0            : NULL
- $ attribute_of_interest_baseline  : chr "all"
- $ levels_of_interest_baseline     : chr "level1"
- $ attribute_of_interest_0_baseline: NULL
- $ levels_of_interest_0_baseline   : NULL
- $ se_type_used                    : chr "stata"
- $ cluster_by                      : chr "id"
- $ labels                          : tibble [24 × 4] (S3: tbl_df/tbl/data.frame)
-  ..$ attribute   : chr [1:24] "Housing Cost" "Housing Cost" "Housing Cost" "Presidential Vote (2020)" ...
-  ..$ level       : chr [1:24] "15% of pre-tax income" "30% of pre-tax income" "40% of pre-tax income" "30% Democrat, 70% Republican" ...
-  ..$ attribute_id: chr [1:24] "att1" "att1" "att1" "att2" ...
-  ..$ level_id    : chr [1:24] "att1:level1" "att1:level2" "att1:level3" "att2:level1" ...
- $ data                            : tibble [6,400 × 13] (S3: tbl_df/tbl/data.frame)
-  ..$ id               : chr [1:6400] "R_00zYHdY1te1Qlrz" "R_00zYHdY1te1Qlrz" "R_00zYHdY1te1Qlrz" "R_00zYHdY1te1Qlrz" ...
-  ..$ task             : num [1:6400] 1 1 2 2 3 3 4 4 5 5 ...
-  ..$ profile          : num [1:6400] 1 2 1 2 1 2 1 2 1 2 ...
-  ..$ att4             : Factor w/ 2 levels "att4:level1",..: 2 1 2 2 1 2 1 2 1 1 ...
-  ..$ att7             : Factor w/ 2 levels "att7:level1",..: 1 2 2 2 2 2 1 1 1 1 ...
-  ..$ att3             : Factor w/ 4 levels "att3:level1",..: 1 1 3 4 4 3 1 1 2 4 ...
-  ..$ att1             : Factor w/ 3 levels "att1:level1",..: 2 2 2 3 3 2 1 1 1 2 ...
-  ..$ att2             : Factor w/ 3 levels "att2:level1",..: 2 3 2 1 3 1 3 2 2 2 ...
-  ..$ att5             : Factor w/ 4 levels "att5:level1",..: 4 1 4 1 1 3 2 1 4 2 ...
-  ..$ att6             : Factor w/ 6 levels "att6:level1",..: 5 1 6 6 3 3 5 6 2 2 ...
-  ..$ selected         : num [1:6400] 1 0 1 0 1 0 0 1 1 0 ...
-  ..$ selected_repeated: num [1:6400] 1 0 NA NA NA NA NA NA NA NA ...
-  ..$ agree            : num [1:6400] 1 1 NA NA NA NA NA NA NA NA ...
- - attr(*, "class")= chr "projoint_results"
 # A tibble: 34 × 7
    estimand         estimate     se conf.low conf.high att_level_choose
    <chr>               <dbl>  <dbl>    <dbl>     <dbl> <chr>           
  1 amce_uncorrected -0.0899  0.0236  -0.136    -0.0435 att1:level2     
- 2 amce_corrected   -0.116   0.0304  -0.176    -0.0562 att1:level2     
+ 2 amce_corrected   -0.137   0.0360  -0.208    -0.0662 att1:level2     
  3 amce_uncorrected -0.130   0.0250  -0.179    -0.0808 att1:level3     
- 4 amce_corrected   -0.168   0.0322  -0.231    -0.104  att1:level3     
+ 4 amce_corrected   -0.198   0.0386  -0.274    -0.122  att1:level3     
  5 amce_uncorrected  0.0348  0.0244  -0.0132    0.0828 att2:level2     
- 6 amce_corrected    0.0449  0.0315  -0.0171    0.107  att2:level2     
+ 6 amce_corrected    0.0530  0.0372  -0.0202    0.126  att2:level2     
  7 amce_uncorrected -0.00177 0.0263  -0.0536    0.0500 att2:level3     
- 8 amce_corrected   -0.00228 0.0340  -0.0692    0.0646 att2:level3     
+ 8 amce_corrected   -0.00270 0.0402  -0.0817    0.0763 att2:level3     
  9 amce_uncorrected  0.0240  0.0233  -0.0218    0.0699 att3:level2     
-10 amce_corrected    0.0310  0.0301  -0.0282    0.0902 att3:level2     
+10 amce_corrected    0.0366  0.0357  -0.0336    0.107  att3:level2     
 # ℹ 24 more rows
 # ℹ 1 more variable: att_level_choose_baseline <chr>
 
-exec
-/bin/zsh -lc "Rscript -e 'library(projoint); print(args(set_qoi)); print(utils::capture.output(help(\"set_qoi\")))'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
- succeeded in 428ms:
-function (.structure = "choice_level", .estimand = "mm", .att_choose, 
-    .lev_choose, .att_notchoose = NULL, .lev_notchoose = NULL, 
-    .att_choose_b = NULL, .lev_choose_b = NULL, .att_notchoose_b = NULL, 
-    .lev_notchoose_b = NULL) 
-NULL
-set_qoi                package:projoint                R Documentation
-
-_S_e_t _t_h_e _q_u_a_n_t_i_t_i_e_s _o_f _i_n_t_e_r_e_s_t (_Q_o_I_s)
-
-_D_e_s_c_r_i_p_t_i_o_n:
-
-     Constructs a quantities-of-interest (QoI) specification for
-     ‘projoint’. Use this to request specific estimands—marginal means
-     (MMs) or average marginal component effects (AMCEs)—at either the
-     choice- or profile-level, and to declare which attribute levels
-     are compared (including baselines).
-
-_U_s_a_g_e:
-
-     set_qoi(
-       .structure = "choice_level",
-       .estimand = "mm",
-       .att_choose,
-       .lev_choose,
-       .att_notchoose = NULL,
-       .lev_notchoose = NULL,
-       .att_choose_b = NULL,
-       .lev_choose_b = NULL,
-       .att_notchoose_b = NULL,
-       .lev_notchoose_b = NULL
-     )
-     
-_A_r_g_u_m_e_n_t_s:
-
-.structure: Either ‘"choice_level"’ (default) or ‘"profile_level"’.
-
-.estimand: Either ‘"mm"’ for marginal means or ‘"amce"’ for average
-          marginal component effects.
-
-.att_choose: Character scalar: the attribute (column) for the level(s)
-          that are _chosen_.
-
-.lev_choose: Character vector: the level id(s) for the _chosen_ side.
-          Length 1 for profile-level, >=1 for choice-level.
-
-.att_notchoose: Character scalar: the attribute (column) for the
-          level(s) that are _not chosen_. Only used for ‘.structure ==
-          "choice_level"’.
-
-.lev_notchoose: Character vector: the level id(s) for the _not chosen_
-          side. Length 1 for profile-level, >=1 for choice-level. Only
-          used for ‘.structure == "choice_level"’.
-
-.att_choose_b: Character scalar: _baseline_ attribute for the chosen
-          side when computing AMCEs.
-
-.lev_choose_b: Character vector: _baseline_ level id(s) for the chosen
-          side when computing AMCEs. Length 1 for profile-level, >=1
-          for choice-level.
-
-.att_notchoose_b: Character scalar: _baseline_ attribute for the
-          not-chosen side (choice-level only) when computing AMCEs.
-
-.lev_notchoose_b: Character vector: _baseline_ level id(s) for the
-          not-chosen side (choice-level only) when computing AMCEs.
-
-_V_a_l_u_e:
-
-     A ‘projoint_qoi’ object (list-like) containing fields such as:
-     ‘structure’, ‘estimand’, ‘attribute_of_interest’,
-     ‘levels_of_interest’, and their baseline counterparts. This object
-     can be supplied to downstream estimation helpers that accept a QoI
-     spec.
-
-_E_x_a_m_p_l_e_s:
-
-     # Specify a simple choice-level MM comparison for att1 levels:
-     q_mm <- set_qoi(
-       .structure  = "choice_level",
-       .estimand   = "mm",
-       .att_choose = "att1",
-       .lev_choose = c("att1:lev2"),
-       .att_notchoose = "att1",
-       .lev_notchoose = c("att1:lev1")
-     )
-     str(q_mm)
-     
-     # Example AMCE with explicit baselines (profile-level):
-     q_amce <- set_qoi(
-       .structure   = "profile_level",
-       .estimand    = "amce",
-       .att_choose  = "att2",
-       .lev_choose  = "att2:lev3",
-       .att_choose_b = "att2",
-       .lev_choose_b = "att2:lev1"
-     )
-     str(q_amce)
-     
-
-character(0)
-
 collab: Wait
-Independent analysis confirms the crime feature is binary: a baseline swap only flips the same contrast. The implementer is producing the executable reporting artifacts.
-  ✓ Independently estimate reference-category sensitivity and marginal means
-  → Create the R workflow and requested artifacts
-  • Run end-to-end verification and integrate any correction
 codex
-The independent check has already clarified the central point: crime is binary here, so exchanging its reference level changes the sign but cannot create a different ordering of levels. I’m now validating the generated reporting workflow and its visuals.
-collab: Wait
+The initial package check confirms the data have 24 levels across seven attributes and that `projoint` returns corrected and uncorrected estimands. I’ll base the memo/table on one explicitly selected, consistent estimand and label it clearly.
 collab: Wait
 collab: Wait
 exec
-/bin/zsh -lc "rg --files . && Rscript script.R && file figures/sensitivity.png && sed -n '1,240p' sensitivity-table.md && printf '\\n--- MEMO ---\\n' && sed -n '1,260p' memo.md && printf '\\n--- SCRIPT ---\\n' && sed -n '1,320p' script.R && printf '\\n--- words ---\\n' && wc -w memo.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
- succeeded in 1164ms:
+/bin/zsh -lc 'rg --files . && ls -lh figures 2>/dev/null || true' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
+ succeeded in 0ms:
+./exec-stdout.log
+
+collab: Wait
+collab: Wait
+2026-07-12T17:09:54.988448Z ERROR codex_core::tools::router: error=timeout_ms must be at least 10000
+codex
+The independent checks agree on the key judgment: reference dependence is real for multi-level attributes, but crime is binary, so its sole AMCE reverses sign without changing magnitude. The invariant MM gap is 25.1 percentage points, only slightly larger than commuting time’s 23.7 points.
+collab: Wait
+collab: Wait
+exec
+/bin/zsh -lc "Rscript script.R && find figures -maxdepth 1 -type f -print && file figures/sensitivity.png && wc -w memo.md && sed -n '1,240p' script.R && sed -n '1,220p' sensitivity-table.md && sed -n '1,240p' memo.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
+ succeeded in 1578ms:
+
+Summary of Projoint Estimates
+------------------------------
+Estimand: mm
+Structure: profile_level
+Standard error method: analytical
+SE type (lm_robust):   CR2 (clustered by id)
+IRR: Estimated
+Tau: 0.172
+
+
+Summary of Projoint Estimates
+------------------------------
+Estimand: amce
+Structure: profile_level
+Standard error method: analytical
+SE type (lm_robust):   CR2 (clustered by id)
+IRR: Estimated
+Tau: 0.172
+
+
+Summary of Projoint Estimates
+------------------------------
+Estimand: amce
+Structure: profile_level
+Standard error method: analytical
+SE type (lm_robust):   CR2 (clustered by id)
+IRR: Estimated
+Tau: 0.172
+
+
+Summary of Projoint Estimates
+------------------------------
+Estimand: amce
+Structure: profile_level
+Standard error method: analytical
+SE type (lm_robust):   CR2 (clustered by id)
+IRR: Estimated
+Tau: 0.172
+
+
+Summary of Projoint Estimates
+------------------------------
+Estimand: amce
+Structure: profile_level
+Standard error method: analytical
+SE type (lm_robust):   CR2 (clustered by id)
+IRR: Estimated
+Tau: 0.172
+
+
+Summary of Projoint Estimates
+------------------------------
+Estimand: amce
+Structure: profile_level
+Standard error method: analytical
+SE type (lm_robust):   CR2 (clustered by id)
+IRR: Estimated
+Tau: 0.172
+
+
+Summary of Projoint Estimates
+------------------------------
+Estimand: amce
+Structure: profile_level
+Standard error method: analytical
+SE type (lm_robust):   CR2 (clustered by id)
+IRR: Estimated
+Tau: 0.172
+
+
+Summary of Projoint Estimates
+------------------------------
+Estimand: amce
+Structure: profile_level
+Standard error method: analytical
+SE type (lm_robust):   CR2 (clustered by id)
+IRR: Estimated
+Tau: 0.172
+
+
+Summary of Projoint Estimates
+------------------------------
+Estimand: amce
+Structure: profile_level
+Standard error method: analytical
+SE type (lm_robust):   CR2 (clustered by id)
+IRR: Estimated
+Tau: 0.172
+
 null device 
           1 
-Wrote script.R outputs: figures/sensitivity.png, sensitivity-table.md, memo.md
-figures/sensitivity.png: PNG image data, 3300 x 2700, 8-bit/color RGB, non-interlaced
-# Violent-crime reference-category sensitivity
-
-AMCEs are percentage-point changes in profile selection relative to the stated baseline; CR2 95% confidence intervals are in brackets. Marginal means (MMs) are level-specific selection probabilities and do not depend on a baseline.
-
-| Level | AMCE; baseline = 20% Less Crime Than National Average | AMCE; baseline = 20% More Crime Than National Average | Marginal mean [95% CI] |
-|---|---|---|---|
-| 20% Less Crime Than National Average | 0.000 (reference) | 0.083 [0.055, 0.111] | 0.541 [0.527, 0.555] |
-| 20% More Crime Than National Average | -0.083 [-0.111, -0.055] | 0.000 (reference) | 0.458 [0.444, 0.472] |
-
-## Multi-level check: Housing Cost
-
-Changing the three-category housing-cost baseline similarly only changes the contrast origin. The fitted AMCEs are reproduced below as a check.
-
-- Baseline **15% of pre-tax income**: 15% of pre-tax income = 0.000 (reference); 30% of pre-tax income = -0.061 [-0.090, -0.031]; 40% of pre-tax income = -0.085 [-0.117, -0.053]
-- Baseline **30% of pre-tax income**: 15% of pre-tax income = 0.061 [0.031, 0.090]; 30% of pre-tax income = 0.000 (reference); 40% of pre-tax income = -0.025 [-0.056, 0.006]
-- Baseline **40% of pre-tax income**: 15% of pre-tax income = 0.085 [0.053, 0.117]; 30% of pre-tax income = 0.025 [-0.006, 0.056]; 40% of pre-tax income = 0.000 (reference)
-
---- MEMO ---
-# Response to reviewer
-
-We agree with the reviewer’s mechanical point. An AMCE is a contrast, so its displayed coefficient is defined relative to the omitted category. We therefore re-estimated the profile-level AMCE model with respondent-clustered (CR2) standard errors under every possible reference category. For violent crime, using 20% less crime than the national average as the baseline yields an AMCE for 20% more crime of -0.083 (95% CI -0.111 to -0.055). When the baseline is switched, the coefficient for 20% less crime is 0.083 (0.055 to 0.111). These are the same pairwise comparison expressed in opposite directions, rather than different substantive estimates. The attribute is binary, so there are only these two possible baselines; no within-attribute ordering can change. The analogous exercise for the three-level housing-cost attribute produces a different set of displayed coefficients for each baseline, while preserving each pairwise difference.
-
-The baseline-invariant evidence is clearer. The marginal mean (MM) of selection is 0.541 (95% CI 0.527 to 0.555) for a profile with 20% less crime and 0.458 (0.444 to 0.472) for one with 20% more crime. Thus the observed MM gap is 8.3 percentage points in favor of lower crime. These MMs are direct level-specific selection probabilities, estimated without choosing an omitted level, and the full set is shown in Figure 1. The table also reports the two AMCE parameterizations next to those MMs.
-
-We will nevertheless revise the manuscript’s language. It should not claim that violent crime ‘drives’ community choice on the basis of a particular AMCE coefficient or an unqualified ranking of attributes. Reference recoding can alter coefficient signs and the apparent magnitudes of non-comparable contrast vectors, especially for attributes with more than two levels. The defensible claim is narrower: in this experiment, profiles describing violent crime as 20% below the national rate were selected more often than profiles describing it as 20% above the national rate, by about 8.3 percentage points. That directional lower-versus-higher-crime preference is robust to reference coding; a general assertion that crime is the dominant attribute is not established by this sensitivity analysis. We will present MMs and the explicit pairwise contrast as the headline evidence, and describe AMCEs as baseline-specific parameterizations.
-
---- SCRIPT ---
+Wrote script.R, sensitivity-table.md, memo.md, and figures/sensitivity.png
+figures/sensitivity.png
+figures/sensitivity.png: PNG image data, 2304 x 1312, 8-bit/color RGBA, non-interlaced
+     385 memo.md
 #!/usr/bin/env Rscript
 
-# Sensitivity analysis for reference-category coding in the conjoint data.
-# Run from this directory: Rscript script.R
+# Reference-category sensitivity analysis for exampleData1
+# Reproduces: figures/sensitivity.png, sensitivity-table.md, and memo.md.
 
-suppressPackageStartupMessages({
-  library(projoint)
-  library(estimatr)
-})
+library(projoint)
 
 dir.create("figures", showWarnings = FALSE, recursive = TRUE)
 
 data(exampleData1)
-pj <- reshape_projoint(
+out <- reshape_projoint(
   exampleData1,
   .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
 )
-d <- as.data.frame(pj$data)
-labs <- as.data.frame(pj$labels)
-attrs <- grep("^att[0-9]+$", names(d), value = TRUE)
 
-# Conventional profile-level AMCE regression.  CR2 standard errors are
-# clustered by respondent because each respondent evaluates multiple profiles.
-fit_amce <- function(reference_attribute, reference_level) {
-  dd <- d
-  dd[[reference_attribute]] <- stats::relevel(dd[[reference_attribute]], ref = reference_level)
-  f <- stats::as.formula(paste("selected ~", paste(attrs, collapse = " + ")))
-  estimatr::lm_robust(f, data = dd, clusters = id, se_type = "CR2")
+# The package estimates the repeated-task reliability correction and uses
+# respondent-clustered analytical standard errors for these profile-level QoIs.
+mm_fit <- projoint(out, .structure = "profile_level", .estimand = "mm")
+mm <- as.data.frame(summary(mm_fit))
+mm <- mm[mm$estimand == "mm_corrected", ]
+names(mm)[names(mm) == "att_level_choose"] <- "level_id"
+mm <- merge(out$labels, mm, by = "level_id", sort = FALSE)
+mm <- mm[order(mm$attribute_id, mm$level_id), ]
+
+# Explicitly refit an AMCE for each focal/reference pairing.  This avoids
+# treating a post-estimation sign change as though it were a new estimand.
+fit_amce <- function(attribute_id, focal, reference) {
+  qoi <- set_qoi(
+    .structure = "profile_level", .estimand = "amce",
+    .att_choose = attribute_id, .lev_choose = focal,
+    .att_choose_b = attribute_id, .lev_choose_b = reference
+  )
+  fit <- suppressWarnings(projoint(out, .qoi = qoi))
+  ans <- as.data.frame(summary(fit))
+  ans <- ans[ans$estimand == "amce_corrected", ]
+  ans[1, c("estimate", "conf.low", "conf.high")]
 }
 
-crime_id <- "att7"
-housing_id <- "att1"
-crime_labs <- labs[labs$attribute_id == crime_id, ]
-housing_labs <- labs[labs$attribute_id == housing_id, ]
-
-# Re-estimate after each possible baseline.  Crime is binary, so the two
-# regressions contain the same single contrast with its sign reversed.
-crime_fits <- setNames(lapply(levels(d[[crime_id]]), function(ref) {
-  fit_amce(crime_id, ref)
-}), levels(d[[crime_id]]))
-
-# Housing cost is a multi-level check: every baseline supplies two contrasts.
-housing_fits <- setNames(lapply(levels(d[[housing_id]]), function(ref) {
-  fit_amce(housing_id, ref)
-}), levels(d[[housing_id]]))
-
-fmt_ci <- function(est, lo, hi) sprintf("%.3f [%.3f, %.3f]", est, lo, hi)
-coef_for_level <- function(fit, attribute, level, reference) {
-  if (identical(level, reference)) return("0.000 (reference)")
-  nm <- paste0(attribute, level)
-  ci <- stats::confint(fit)[nm, ]
-  fmt_ci(unname(stats::coef(fit)[nm]), ci[1], ci[2])
+baseline_grid <- function(attribute_id) {
+  lev <- out$labels[out$labels$attribute_id == attribute_id, ]
+  result <- matrix(NA_real_, nrow = nrow(lev), ncol = nrow(lev),
+                   dimnames = list(lev$level_id, lev$level_id))
+  low <- high <- result
+  for (j in seq_len(nrow(lev))) {
+    for (i in seq_len(nrow(lev))) {
+      if (i == j) {
+        result[i, j] <- 0
+      } else {
+        est <- fit_amce(attribute_id, sub(".*:", "", lev$level_id[i]),
+                        sub(".*:", "", lev$level_id[j]))
+        result[i, j] <- est$estimate
+        low[i, j] <- est$conf.low
+        high[i, j] <- est$conf.high
+      }
+    }
+  }
+  list(levels = lev, estimate = result, low = low, high = high)
 }
 
-# Marginal means are level-specific average selection probabilities.  They do
-# not require a reference category.  CR2 intervals use the same respondent
-# clustering as the AMCE models.
-mm_rows <- do.call(rbind, lapply(attrs, function(a) {
-  levs <- levels(d[[a]])
-  fit <- estimatr::lm_robust(
-    stats::as.formula(paste0("selected ~ 0 + ", a)),
-    data = d, clusters = id, se_type = "CR2"
-  )
-  ci <- stats::confint(fit)
-  data.frame(
-    attribute_id = a,
-    level_id = levs,
-    estimate = unname(stats::coef(fit)[paste0(a, levs)]),
-    low = ci[paste0(a, levs), 1], high = ci[paste0(a, levs), 2],
-    stringsAsFactors = FALSE
-  )
-}))
-mm_rows <- merge(mm_rows, labs, by = c("attribute_id", "level_id"), sort = FALSE)
-mm_rows <- mm_rows[match(labs$level_id, mm_rows$level_id), ]
+crime <- baseline_grid("att7")                 # binary: only a sign reversal is possible
+housing <- baseline_grid("att1")               # multi-level sensitivity check
 
-# Required side-by-side crime sensitivity table.
-crime_mm <- mm_rows[mm_rows$attribute_id == crime_id, ]
-crime_table <- data.frame(Level = crime_labs$level, check.names = FALSE)
-for (ref in levels(d[[crime_id]])) {
-  ref_label <- crime_labs$level[match(ref, crime_labs$level_id)]
-  crime_table[[paste0("AMCE; baseline = ", ref_label)]] <- vapply(
-    crime_labs$level_id,
-    function(lev) coef_for_level(crime_fits[[ref]], crime_id, lev, ref),
-    character(1)
-  )
+fmt_num <- function(x) sprintf("%.3f", x)
+fmt_ci <- function(est, lo, hi) {
+  if (is.na(lo)) "0.000 (reference)" else
+    sprintf("%.3f [%.3f, %.3f]", est, lo, hi)
 }
-crime_table[["Marginal mean [95% CI]"]] <- vapply(seq_len(nrow(crime_mm)), function(i) {
-  fmt_ci(crime_mm$estimate[i], crime_mm$low[i], crime_mm$high[i])
+# Tiny helper to retain base-R compatibility without importing a formatting package.
+`%+%` <- paste0
+amce_markdown <- function(grid, heading) {
+  lev_names <- grid$levels$level
+  header <- paste(c("Level", paste0("Reference: ", lev_names)), collapse = " | ")
+  divider <- paste(rep("---", length(lev_names) + 1), collapse = " | ")
+  rows <- vapply(seq_along(lev_names), function(i) {
+    vals <- vapply(seq_along(lev_names), function(j) {
+      fmt_ci(grid$estimate[i, j], grid$low[i, j], grid$high[i, j])
+    }, character(1))
+    paste(c(lev_names[i], vals), collapse = " | ")
+  }, character(1))
+  c(paste0("## ", heading), "", header, divider, rows, "")
+}
+
+mm_rows <- vapply(seq_len(nrow(mm)), function(i) {
+  sprintf("| %s | %s | %.3f [%.3f, %.3f] |",
+          mm$attribute[i], mm$level[i], mm$estimate[i],
+          mm$conf.low[i], mm$conf.high[i])
 }, character(1))
 
+range_by_attribute <- aggregate(estimate ~ attribute, data = mm,
+                                FUN = function(x) diff(range(x)))
+range_by_attribute <- range_by_attribute[order(-range_by_attribute$estimate), ]
+range_text <- paste(sprintf("%s = %.3f", range_by_attribute$attribute,
+                            range_by_attribute$estimate), collapse = "; ")
+
 table_lines <- c(
-  "# Violent-crime reference-category sensitivity",
+  "# Reference-category sensitivity and marginal means",
   "",
-  "AMCEs are percentage-point changes in profile selection relative to the stated baseline; CR2 95% confidence intervals are in brackets. Marginal means (MMs) are level-specific selection probabilities and do not depend on a baseline.",
+  "All estimates are profile-level, IRR-corrected `projoint` estimates with respondent-clustered analytical 95% confidence intervals. The repeated-task correction estimated tau = " %+% fmt_num(mm_fit$tau) %+% ". A zero is the fitted reference category, not an estimated null effect.",
   "",
-  paste0("| ", paste(names(crime_table), collapse = " | "), " |"),
-  paste0("|", paste(rep("---", ncol(crime_table)), collapse = "|"), "|")
+  amce_markdown(crime, "Violent Crime Rate: AMCEs under each reference"),
+  "The crime attribute is binary. Changing the reference can only reverse the contrast: 20% more crime versus 20% less crime, or its negative.",
+  "",
+  amce_markdown(housing, "Housing Cost (multi-level check): AMCEs under each reference"),
+  "For a multi-level attribute, the particular AMCE displayed changes with the reference; pairwise contrasts themselves remain the same when expressed in the corresponding direction.",
+  "",
+  "## Marginal means for every experimental level",
+  "",
+  "| Attribute | Level | Marginal mean [95% CI] |",
+  "| --- | --- | --- |",
+  mm_rows,
+  "",
+  "Observed within-attribute MM ranges (descriptive): " %+% range_text %+% ". Ranges are included as a descriptive summary, not a universal importance ranking: attributes have different numbers of levels and different possible contrast ranges."
 )
-table_lines <- c(table_lines, apply(crime_table, 1, function(x) paste0("| ", paste(x, collapse = " | "), " |")))
-table_lines <- c(table_lines,
-  "",
-  "## Multi-level check: Housing Cost",
-  "",
-  "Changing the three-category housing-cost baseline similarly only changes the contrast origin. The fitted AMCEs are reproduced below as a check.",
-  "")
-for (ref in levels(d[[housing_id]])) {
-  ref_label <- housing_labs$level[match(ref, housing_labs$level_id)]
-  vals <- vapply(housing_labs$level_id, function(lev) coef_for_level(housing_fits[[ref]], housing_id, lev, ref), character(1))
-  table_lines <- c(table_lines, paste0("- Baseline **", ref_label, "**: ", paste(paste0(housing_labs$level, " = ", vals), collapse = "; ")))
-}
+
 writeLines(table_lines, "sensitivity-table.md")
 
-# Exactly one figure: baseline-invariant MMs for every attribute level.
-ragg::agg_png("figures/sensitivity.png", width = 3300, height = 2700,
-              units = "px", res = 320)
-op <- par(mfrow = c(4, 2), mar = c(3.3, 8.0, 1.5, 0.8), las = 1, cex.axis = 0.72)
-for (a in attrs) {
-  z <- mm_rows[mm_rows$attribute_id == a, ]
-  z <- z[order(z$estimate), ]
-  y <- seq_len(nrow(z))
-  xlim <- range(c(z$low, z$high, 0.35, 0.65))
-  plot(z$estimate, y, xlim = xlim, ylim = c(0.5, nrow(z) + 0.5),
-       yaxt = "n", ylab = "", xlab = "Selection probability", pch = 16,
-       col = "#1B5E7A")
-  segments(z$low, y, z$high, y, col = "#1B5E7A", lwd = 2)
-  abline(v = 0.5, lty = 2, col = "grey55")
-  axis(2, at = y, labels = z$level, tick = FALSE)
-  mtext(unique(z$attribute), side = 3, adj = 0, line = 0.1, font = 2, cex = 0.85)
+crime_mm <- mm[mm$attribute_id == "att7", ]
+housing_mm <- mm[mm$attribute_id == "att1", ]
+
+# Figure plan: compare baseline-invariant choice probabilities across levels.
+# Two panels keep the binary crime contrast alongside an illustrative multi-level
+# attribute. Direct labels and point shapes keep the figure readable in grayscale.
+png("figures/sensitivity.png", width = 7.2, height = 4.1, units = "in", res = 320)
+par(mfrow = c(1, 2), mar = c(7.0, 4.4, 1.2, 0.8), las = 1,
+    family = "sans", cex.axis = 0.82, cex.lab = 0.96)
+plot_mm <- function(d, x_labels, x_axis_label, point_col) {
+  x <- seq_len(nrow(d))
+  plot(x, d$estimate, ylim = c(0.25, 0.72), xlim = c(0.6, nrow(d) + 0.4),
+       xaxt = "n", pch = 16, col = point_col, xlab = "", ylab = "Marginal mean choice probability (0–1)")
+  segments(x, d$conf.low, x, d$conf.high, col = point_col, lwd = 1.35)
+  segments(x - 0.06, d$conf.low, x + 0.06, d$conf.low, col = point_col, lwd = 1.35)
+  segments(x - 0.06, d$conf.high, x + 0.06, d$conf.high, col = point_col, lwd = 1.35)
+  axis(1, at = x, labels = x_labels, las = 1, cex.axis = 0.76)
+  abline(h = 0.5, lty = 2, col = "grey55")
+  mtext(x_axis_label, side = 1, line = 4.8, cex = 0.92)
 }
-plot.new()
-par(op)
+plot_mm(crime_mm, c("20% less\ncrime", "20% more\ncrime"),
+        "Violent crime rate (relative to national average)", "#0072B2")
+plot_mm(housing_mm, c("15%", "30%", "40%"),
+        "Housing cost (share of pre-tax income)", "#D55E00")
 dev.off()
 
-less <- crime_mm[crime_mm$level == "20% Less Crime Than National Average", ]
-more <- crime_mm[crime_mm$level == "20% More Crime Than National Average", ]
-crime_diff <- less$estimate - more$estimate
-crime_level_1 <- levels(d[[crime_id]])[1]
-crime_level_2 <- levels(d[[crime_id]])[2]
-crime_ci_more_vs_less <- stats::confint(crime_fits[[crime_level_1]])[paste0(crime_id, crime_level_2), ]
-crime_ci_less_vs_more <- stats::confint(crime_fits[[crime_level_2]])[paste0(crime_id, crime_level_1), ]
-
-memo <- c(
-  "# Response to reviewer",
+memo_lines <- c(
+  "# Reply to reviewer",
   "",
-  sprintf("We agree with the reviewer’s mechanical point. An AMCE is a contrast, so its displayed coefficient is defined relative to the omitted category. We therefore re-estimated the profile-level AMCE model with respondent-clustered (CR2) standard errors under every possible reference category. For violent crime, using 20%% less crime than the national average as the baseline yields an AMCE for 20%% more crime of %.3f (95%% CI %.3f to %.3f). When the baseline is switched, the coefficient for 20%% less crime is %.3f (%.3f to %.3f). These are the same pairwise comparison expressed in opposite directions, rather than different substantive estimates. The attribute is binary, so there are only these two possible baselines; no within-attribute ordering can change. The analogous exercise for the three-level housing-cost attribute produces a different set of displayed coefficients for each baseline, while preserving each pairwise difference.",
-          -crime_diff, crime_ci_more_vs_less[1], crime_ci_more_vs_less[2],
-          crime_diff, crime_ci_less_vs_more[1], crime_ci_less_vs_more[2]),
+  "The reviewer is mechanically correct about AMCE parameterization. An AMCE is a contrast against a named reference level, so its displayed sign and magnitude depend on that reference. We have rerun the estimates with every available crime reference and, as a multi-level check, every housing-cost reference (Table `sensitivity-table.md`). The crime attribute is binary. Consequently, switching its reference does not create a different substantive comparison: the estimate for 20% more crime relative to 20% less crime is -0.251 (95% CI [-0.334, -0.168]), whereas the reverse contrast is +0.251 (95% CI [0.168, 0.334]). The sign flips because the comparison has been reversed. Housing cost illustrates the reviewer’s broader point: with three levels, the individual AMCE reported depends on which of the three is set to zero, even though each directed pairwise contrast is unchanged.",
   "",
-  sprintf("The baseline-invariant evidence is clearer. The marginal mean (MM) of selection is %.3f (95%% CI %.3f to %.3f) for a profile with 20%% less crime and %.3f (%.3f to %.3f) for one with 20%% more crime. Thus the observed MM gap is %.1f percentage points in favor of lower crime. These MMs are direct level-specific selection probabilities, estimated without choosing an omitted level, and the full set is shown in Figure 1. The table also reports the two AMCE parameterizations next to those MMs.",
-          less$estimate, less$low, less$high, more$estimate, more$low, more$high, 100 * crime_diff),
+  "That coding dependence is a reason not to treat a single dummy coefficient as an attribute-importance ranking. It does not, however, erase the pattern in these data. We therefore also report marginal means (MMs) for every level. MMs have no reference category: they are the modeled probability that a profile with a given level is selected, averaging over the randomized distribution of the other attributes. The IRR-corrected MM is 0.626 (95% CI [0.584, 0.667]) for a community with 20% less violent crime than the national average and 0.374 (95% CI [0.333, 0.416]) for one with 20% more crime. Thus, the 25.1-percentage-point separation is visible without choosing a baseline. In this design it is the largest observed within-attribute MM range (commuting time: 23.7 points; housing cost: 19.8 points), although ranges across attributes with different numbers and spacings of levels should not be promoted as a universal scale of importance.",
   "",
-  sprintf("We will nevertheless revise the manuscript’s language. It should not claim that violent crime ‘drives’ community choice on the basis of a particular AMCE coefficient or an unqualified ranking of attributes. Reference recoding can alter coefficient signs and the apparent magnitudes of non-comparable contrast vectors, especially for attributes with more than two levels. The defensible claim is narrower: in this experiment, profiles describing violent crime as 20%% below the national rate were selected more often than profiles describing it as 20%% above the national rate, by about %.1f percentage points. That directional lower-versus-higher-crime preference is robust to reference coding; a general assertion that crime is the dominant attribute is not established by this sensitivity analysis. We will present MMs and the explicit pairwise contrast as the headline evidence, and describe AMCEs as baseline-specific parameterizations.", 100 * crime_diff)
+  "We will revise the manuscript accordingly. The headline will say that, among the experimentally varied levels, respondents strongly prefer communities with lower rather than higher violent crime; this conclusion is robust to reference coding and is supported directly by the MMs. We will not say that crime ‘drives’ community choice in a general sense, nor claim a definitive cross-attribute importance ordering from AMCE magnitudes. The revised results will present the MM figure and table as the primary evidence, retain AMCEs only with explicit references, and state that the evidence pertains to the specified 20% less-versus-more crime contrast in this conjoint design."
 )
-writeLines(memo, "memo.md")
+writeLines(memo_lines, "memo.md")
 
-message("Wrote script.R outputs: figures/sensitivity.png, sensitivity-table.md, memo.md")
+message("Wrote script.R, sensitivity-table.md, memo.md, and figures/sensitivity.png")
+# Reference-category sensitivity and marginal means
 
---- words ---
-     361 memo.md
+All estimates are profile-level, IRR-corrected `projoint` estimates with respondent-clustered analytical 95% confidence intervals. The repeated-task correction estimated tau = 0.172. A zero is the fitted reference category, not an estimated null effect.
 
-codex
-I found one presentational issue in the first render: the dense multi-panel layout clips long labels. I’m using the single allowed revision cycle to make the one figure readable without changing the analysis.
-collab: Wait
+## Violent Crime Rate: AMCEs under each reference
+
+Level | Reference: 20% Less Crime Than National Average | Reference: 20% More Crime Than National Average
+--- | --- | ---
+20% Less Crime Than National Average | 0.000 (reference) | 0.251 [0.168, 0.334]
+20% More Crime Than National Average | -0.251 [-0.334, -0.168] | 0.000 (reference)
+
+The crime attribute is binary. Changing the reference can only reverse the contrast: 20% more crime versus 20% less crime, or its negative.
+
+## Housing Cost (multi-level check): AMCEs under each reference
+
+Level | Reference: 15% of pre-tax income | Reference: 30% of pre-tax income | Reference: 40% of pre-tax income
+--- | --- | --- | ---
+15% of pre-tax income | 0.000 (reference) | 0.137 [0.066, 0.208] | 0.198 [0.122, 0.274]
+30% of pre-tax income | -0.137 [-0.208, -0.066] | 0.000 (reference) | 0.061 [-0.011, 0.133]
+40% of pre-tax income | -0.198 [-0.274, -0.122] | -0.061 [-0.133, 0.011] | 0.000 (reference)
+
+For a multi-level attribute, the particular AMCE displayed changes with the reference; pairwise contrasts themselves remain the same when expressed in the corresponding direction.
+
+## Marginal means for every experimental level
+
+| Attribute | Level | Marginal mean [95% CI] |
+| --- | --- | --- |
+| Housing Cost | 15% of pre-tax income | 0.614 [0.571, 0.657] |
+| Housing Cost | 30% of pre-tax income | 0.477 [0.436, 0.517] |
+| Housing Cost | 40% of pre-tax income | 0.416 [0.372, 0.459] |
+| Presidential Vote (2020) | 30% Democrat, 70% Republican | 0.483 [0.438, 0.528] |
+| Presidential Vote (2020) | 50% Democrat, 50% Republican | 0.536 [0.496, 0.576] |
+| Presidential Vote (2020) | 70% Democrat, 30% Republican | 0.480 [0.436, 0.524] |
+| Racial Composition | 50% White, 50% Nonwhite | 0.500 [0.456, 0.544] |
+| Racial Composition | 75% White, 25% Nonwhite | 0.537 [0.492, 0.581] |
+| Racial Composition | 90% White, 10% Nonwhite | 0.477 [0.437, 0.518] |
+| Racial Composition | 96% White, 4% Nonwhite | 0.488 [0.442, 0.534] |
+| School Quality | 5 out of 10 | 0.442 [0.401, 0.484] |
+| School Quality | 9 out of 10 | 0.558 [0.516, 0.599] |
+| Total Daily Driving Time for Commuting and Errands | 10 min | 0.610 [0.567, 0.654] |
+| Total Daily Driving Time for Commuting and Errands | 25 min | 0.541 [0.498, 0.584] |
+| Total Daily Driving Time for Commuting and Errands | 45 min | 0.470 [0.425, 0.514] |
+| Total Daily Driving Time for Commuting and Errands | 75 min | 0.373 [0.329, 0.417] |
+| Type of Place | City – downtown, with a mix of offices, apartments, and shops | 0.394 [0.342, 0.446] |
+| Type of Place | City, more residential area | 0.509 [0.454, 0.564] |
+| Type of Place | Rural area | 0.529 [0.474, 0.583] |
+| Type of Place | Small town | 0.552 [0.499, 0.605] |
+| Type of Place | Suburban neighborhood with houses only | 0.473 [0.420, 0.526] |
+| Type of Place | Suburban neighborhood with mix of shops, houses, businesses | 0.540 [0.489, 0.591] |
+| Violent Crime Rate (Vs National Rate) | 20% Less Crime Than National Average | 0.626 [0.584, 0.667] |
+| Violent Crime Rate (Vs National Rate) | 20% More Crime Than National Average | 0.374 [0.333, 0.416] |
+
+Observed within-attribute MM ranges (descriptive): Violent Crime Rate (Vs National Rate) = 0.251; Total Daily Driving Time for Commuting and Errands = 0.237; Housing Cost = 0.198; Type of Place = 0.158; School Quality = 0.116; Racial Composition = 0.059; Presidential Vote (2020) = 0.056. Ranges are included as a descriptive summary, not a universal importance ranking: attributes have different numbers of levels and different possible contrast ranges.
+# Reply to reviewer
+
+The reviewer is mechanically correct about AMCE parameterization. An AMCE is a contrast against a named reference level, so its displayed sign and magnitude depend on that reference. We have rerun the estimates with every available crime reference and, as a multi-level check, every housing-cost reference (Table `sensitivity-table.md`). The crime attribute is binary. Consequently, switching its reference does not create a different substantive comparison: the estimate for 20% more crime relative to 20% less crime is -0.251 (95% CI [-0.334, -0.168]), whereas the reverse contrast is +0.251 (95% CI [0.168, 0.334]). The sign flips because the comparison has been reversed. Housing cost illustrates the reviewer’s broader point: with three levels, the individual AMCE reported depends on which of the three is set to zero, even though each directed pairwise contrast is unchanged.
+
+That coding dependence is a reason not to treat a single dummy coefficient as an attribute-importance ranking. It does not, however, erase the pattern in these data. We therefore also report marginal means (MMs) for every level. MMs have no reference category: they are the modeled probability that a profile with a given level is selected, averaging over the randomized distribution of the other attributes. The IRR-corrected MM is 0.626 (95% CI [0.584, 0.667]) for a community with 20% less violent crime than the national average and 0.374 (95% CI [0.333, 0.416]) for one with 20% more crime. Thus, the 25.1-percentage-point separation is visible without choosing a baseline. In this design it is the largest observed within-attribute MM range (commuting time: 23.7 points; housing cost: 19.8 points), although ranges across attributes with different numbers and spacings of levels should not be promoted as a universal scale of importance.
+
+We will revise the manuscript accordingly. The headline will say that, among the experimentally varied levels, respondents strongly prefer communities with lower rather than higher violent crime; this conclusion is robust to reference coding and is supported directly by the MMs. We will not say that crime ‘drives’ community choice in a general sense, nor claim a definitive cross-attribute importance ordering from AMCE magnitudes. The revised results will present the MM figure and table as the primary evidence, retain AMCEs only with explicit references, and state that the evidence pertains to the specified 20% less-versus-more crime contrast in this conjoint design.
+
 exec
-/bin/zsh -lc 'Rscript script.R && file figures/sensitivity.png && find figures -maxdepth 1 -type f -print && git diff -- script.R sensitivity-table.md memo.md 2>/dev/null || true' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
- succeeded in 1323ms:
-null device 
-          1 
-Wrote script.R outputs: figures/sensitivity.png, sensitivity-table.md, memo.md
-figures/sensitivity.png: PNG image data, 3600 x 5600, 8-bit/color RGB, non-interlaced
-figures/sensitivity.png
+/bin/zsh -lc 'git status --short && find figures -maxdepth 1 -type f | wc -l' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3
+ succeeded in 0ms:
+ D ../t1/SHA256SUMS
+ M ../t1/exec-stdout.log
+ M ../t1/figures/level-frequencies.png
+ D ../t1/run-log.md
+ M ../t1/script.R
+ M ../t1/summary.md
+ D ../t2/SHA256SUMS
+ M ../t2/exec-stdout.log
+ M ../t2/figures/amce-dotwhisker.png
+ M ../t2/report.md
+ D ../t2/run-log.md
+ M ../t2/script.R
+ D SHA256SUMS
+ M exec-stdout.log
+ M figures/sensitivity.png
+ M memo.md
+ D run-log.md
+ M script.R
+ M sensitivity-table.md
+       1
 
-The script was rerun after the one allowed visual revision. All required deliverables are present and the rendered figure is readable.
-  ✓ Independently estimate reference-category sensitivity and marginal means
-  ✓ Create the R workflow and requested artifacts
-  ✓ Run end-to-end verification and integrate any correction
 codex
-Completed and verified with `Rscript script.R`.
+Completed and verified all requested deliverables:
 
 - [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3/script.R)
 - [sensitivity-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3/sensitivity-table.md)
 - [memo.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3/memo.md)
 - [sensitivity.png](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3/figures/sensitivity.png)
 
-The evidence supports a narrower claim: lower violent crime is preferred by 8.3 percentage points (MMs .541 vs .458). Because crime is binary, changing its reference category only reverses the AMCE sign; it does not alter the underlying comparison. The memo appropriately rejects the stronger “dominant driver” headline.
+`Rscript script.R` runs successfully. The figure is the sole PNG, 320 dpi, and has no in-plot title.
+
+The conclusion is appropriately narrowed: crime’s binary AMCE merely reverses sign under the alternate baseline, while its baseline-invariant MM gap is 25.1 percentage points. That is the largest observed MM span, but only narrowly above commuting time, so the memo avoids claiming a definitive general importance ranking.
 tokens used
-104,929
-Completed and verified with `Rscript script.R`.
+92,446
+Completed and verified all requested deliverables:
 
 - [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3/script.R)
 - [sensitivity-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3/sensitivity-table.md)
 - [memo.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3/memo.md)
 - [sensitivity.png](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/t3/figures/sensitivity.png)
 
-The evidence supports a narrower claim: lower violent crime is preferred by 8.3 percentage points (MMs .541 vs .458). Because crime is binary, changing its reference category only reverses the AMCE sign; it does not alter the underlying comparison. The memo appropriately rejects the stronger “dominant driver” headline.
+`Rscript script.R` runs successfully. The figure is the sole PNG, 320 dpi, and has no in-plot title.
+
+The conclusion is appropriately narrowed: crime’s binary AMCE merely reverses sign under the alternate baseline, while its baseline-invariant MM gap is 25.1 percentage points. That is the largest observed MM span, but only narrowly above commuting time, so the memo avoids claiming a definitive general importance ranking.

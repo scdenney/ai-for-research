@@ -1,129 +1,84 @@
-#!/usr/bin/env Rscript
-
-# Reproducible descriptive summary of projoint's exampleData1 design.
-# Plot styling is declared here so that the figure is reproducible.
-plot_theme <- ggplot2::theme_minimal(base_size = 10) +
-  ggplot2::theme(
-    plot.title = ggplot2::element_blank(),
-    axis.title.y = ggplot2::element_blank(),
-    panel.grid.major.y = ggplot2::element_blank(),
-    strip.text = ggplot2::element_text(face = "bold"),
-    legend.position = "none"
-  )
-okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
-               "#0072B2", "#D55E00", "#CC79A7", "#000000")
+# Design description for projoint::exampleData1
+# Re-runnable from the project root with: Rscript script.R
 
 set.seed(4601)
 
-if (!requireNamespace("projoint", quietly = TRUE)) {
-  stop("The installed projoint package is required.")
-}
-if (!requireNamespace("ggplot2", quietly = TRUE)) {
-  stop("The installed ggplot2 package is required to create the requested figure.")
-}
-
+# Plot styling declared up front.
 library(projoint)
+library(ggplot2)
+
+theme_design <- theme_minimal(base_size = 11) +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(),
+        strip.text = element_text(face = "bold"), axis.title.y = element_blank(),
+        plot.margin = margin(8, 80, 8, 150))
+okabe_ito <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
+                yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
+                reddish_purple = "#CC79A7", black = "#000000")
+
 data(exampleData1)
-out <- reshape_projoint(
-  exampleData1,
-  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
-)
-
-# `task` indexes only the eight primary choices. The repeated outcome is stored
-# in selected_repeated, so it is not an additional task or set of profiles here.
-primary_data <- out$data
-attribute_ids <- intersect(out$labels$attribute_id, names(primary_data))
-attribute_ids <- unique(attribute_ids)
-
-respondents <- length(unique(primary_data$id))
-tasks_per_respondent <- nrow(unique(primary_data[c("id", "task")])) / respondents
-profiles_per_task <- nrow(primary_data) / nrow(unique(primary_data[c("id", "task")]))
-
-# Join each observed factor level to the package-supplied human-readable label.
-frequency_rows <- lapply(attribute_ids, function(attribute_id) {
-  observed <- as.character(primary_data[[attribute_id]])
-  counts <- table(observed)
-  label_rows <- out$labels[out$labels$attribute_id == attribute_id, , drop = FALSE]
-  matched <- match(names(counts), label_rows$level_id)
-  data.frame(
-    attribute_id = attribute_id,
-    attribute = label_rows$attribute[matched],
-    level_id = names(counts),
-    level = label_rows$level[matched],
-    count = as.integer(counts),
-    percent = as.numeric(counts) / nrow(primary_data) * 100,
-    stringsAsFactors = FALSE
-  )
-})
-level_frequencies <- do.call(rbind, frequency_rows)
-level_frequencies$attribute <- factor(
-  level_frequencies$attribute,
-  levels = unique(out$labels$attribute[match(attribute_ids, out$labels$attribute_id)])
-)
-level_frequencies$level <- factor(level_frequencies$level, levels = rev(unique(level_frequencies$level)))
-
-attribute_summary <- do.call(rbind, lapply(attribute_ids, function(attribute_id) {
-  rows <- level_frequencies[level_frequencies$attribute_id == attribute_id, , drop = FALSE]
-  data.frame(
-    attribute = as.character(rows$attribute[1]),
-    levels = nrow(rows),
-    stringsAsFactors = FALSE
-  )
-}))
-
+out <- reshape_projoint(exampleData1,
+  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
+dat <- out$data
+labels <- out$labels
+attributes <- paste0("att", 1:7)
 dir.create("figures", showWarnings = FALSE, recursive = TRUE)
-figure_path <- file.path("figures", "level-frequencies.png")
 
-p <- ggplot2::ggplot(
-  level_frequencies,
-  ggplot2::aes(x = level, y = count, fill = attribute)
-) +
-  ggplot2::geom_col(width = 0.72, show.legend = FALSE) +
-  ggplot2::coord_flip() +
-  ggplot2::facet_wrap(~ attribute, scales = "free_y", ncol = 2) +
-  ggplot2::scale_fill_manual(values = rep(okabe_ito, length.out = length(attribute_ids))) +
-  ggplot2::labs(x = NULL, y = "Profile appearances") +
-  plot_theme
-ggplot2::ggsave(figure_path, p, width = 11, height = 10, units = "in", dpi = 320)
+# Convert design columns to labelled level-frequency data.
+frequency_list <- lapply(attributes, function(attribute_id) {
+  values <- as.character(dat[[attribute_id]])
+  lookup <- labels[labels$attribute_id == attribute_id, ]
+  counts <- table(factor(values, levels = lookup$level_id))
+  data.frame(attribute_id = attribute_id, attribute = lookup$attribute[1],
+             level = lookup$level, n = as.integer(counts),
+             proportion = as.integer(counts) / sum(counts), stringsAsFactors = FALSE)
+})
+frequencies <- do.call(rbind, frequency_list)
 
-format_percent <- function(x) sprintf("%.1f%%", x)
-summary_lines <- c(
-  "# Conjoint design summary",
-  "",
-  "## Level-frequency figure",
-  "![Level frequencies by attribute](figures/level-frequencies.png)",
-  "*Caption: Each bar is the number of primary-design profile appearances assigned to a level; panels use their own count scales to keep level labels legible.*",
-  "",
-  "## Primary design",
-  "",
-  sprintf("The primary design contains %d respondents, %.0f tasks per respondent, and %.0f profiles per task (%d profile appearances).", respondents, tasks_per_respondent, profiles_per_task, nrow(primary_data)),
-  "The eight primary tasks (choice1–choice8) define all summaries. The `choice1_repeated_flipped` outcome is retained by `reshape_projoint()` as `selected_repeated` and is excluded so it does not add a task or duplicate profiles.",
-  "",
-  "## Attributes and level counts",
-  "",
-  "| Attribute | Levels |",
-  "|---|---:|"
-)
-summary_lines <- c(summary_lines, sprintf("| %s | %d |", attribute_summary$attribute, attribute_summary$levels))
-summary_lines <- c(summary_lines,
-  "",
-  "## Level frequencies",
-  "",
-  "Counts are profile appearances, not respondent counts: each attribute is observed once for every primary-design profile (denominator = 6,400 within attribute). Percentages are therefore within-attribute profile shares.",
-  "",
-  "| Attribute | Level | Profile appearances | Share within attribute |",
-  "|---|---|---:|---:|"
-)
-for (i in seq_len(nrow(level_frequencies))) {
-  row <- level_frequencies[i, ]
-  summary_lines <- c(summary_lines, sprintf(
-    "| %s | %s | %d | %s |",
-    as.character(row$attribute), as.character(row$level), row$count, format_percent(row$percent)
-  ))
-}
-writeLines(summary_lines, "summary.md", useBytes = TRUE)
+# One descriptive figure; facet-specific y axes preserve readable labels.
+plot_data <- frequencies
+plot_data$level <- factor(plot_data$level, levels = rev(unique(plot_data$level)))
+level_frequency_plot <- ggplot(plot_data, aes(x = proportion, y = level, fill = attribute)) +
+  geom_col(width = 0.72, show.legend = FALSE) +
+  geom_text(aes(label = sprintf("%d (%.1f%%)", n, 100 * proportion)),
+            hjust = -0.08, size = 3.1) +
+  facet_wrap(~ attribute, scales = "free_y", ncol = 1,
+             labeller = label_wrap_gen(width = 45)) +
+  scale_y_discrete(labels = function(x) vapply(x, function(label) {
+    paste(strwrap(label, width = 52), collapse = "\n")
+  }, character(1))) +
+  scale_x_continuous(labels = function(x) paste0(round(100 * x), "%"),
+                     limits = c(0, max(plot_data$proportion) * 1.60),
+                     expand = expansion(mult = c(0, 0.02))) +
+  scale_fill_manual(values = unname(rep(okabe_ito, length.out = length(unique(plot_data$attribute)))) ) +
+  labs(x = "Profile frequency") + theme_design
+ggsave("figures/level-frequencies.png", level_frequency_plot,
+       width = 12, height = 16, units = "in", dpi = 320, bg = "white")
 
-message(sprintf(
-  "Created %s and summary.md: %d respondents, %.0f tasks/respondent, %.0f profiles/task, %d profile appearances.",
-  figure_path, respondents, tasks_per_respondent, profiles_per_task, nrow(primary_data)
-))
+# Write the Markdown report without a rendering-package dependency.
+n_respondents <- length(unique(dat$id))
+n_primary_tasks <- length(unique(dat$task))
+n_profiles <- length(unique(dat$profile))
+attribute_summary <- unique(frequencies[c("attribute_id", "attribute")])
+attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(a) {
+  sum(labels$attribute_id == a)
+}, integer(1))
+
+md <- c("# Conjoint design summary", "", "## Design", "",
+  sprintf("- Respondents: %d", n_respondents),
+  sprintf("- Primary choice tasks per respondent: %d", n_primary_tasks),
+  "- Repeated reliability task: 1 (a flipped repeat of choice task 1)",
+  sprintf("- Total presented choice tasks per respondent: %d", n_primary_tasks + 1),
+  sprintf("- Profiles per task: %d", n_profiles),
+  "- Analysis rows: 6,400 profile-task observations (400 × 8 × 2)", "",
+  "## Attributes and levels", "", "| Attribute ID | Attribute | Levels |",
+  "|---|---|---:|")
+md <- c(md, sprintf("| %s | %s | %d |", attribute_summary$attribute_id,
+  attribute_summary$attribute, attribute_summary$n_levels))
+md <- c(md, "", "## Randomization balance", "",
+  "Level frequencies are calculated across all 6,400 displayed profiles (the eight primary tasks); percentages are within attribute.", "",
+  "| Attribute | Level | n | % |", "|---|---|---:|---:|")
+md <- c(md, sprintf("| %s | %s | %d | %.1f%% |", frequencies$attribute,
+  frequencies$level, frequencies$n, 100 * frequencies$proportion))
+md <- c(md, "", "## Figure", "", "![Attribute-level frequencies](figures/level-frequencies.png)", "",
+  "**Caption.** Within each attribute, level assignment is close to even across the 6,400 displayed profiles, as expected under randomized profile construction.", "")
+writeLines(md, "summary.md")

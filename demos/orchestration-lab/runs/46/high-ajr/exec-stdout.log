@@ -1,0 +1,491 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.1
+--------
+workdir: ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f5750-70b1-7782-812e-466d031f250f
+--------
+user
+$46-orchestrate
+
+# Task H — Replicate and stress a famous IV result (high-complexity tier)
+
+You are working in a project directory. Use R (`Rscript`); the `ivdoctr`, `AER`, and `car` packages are installed.
+
+**Data.** Acemoglu, Johnson & Robinson (2001), *The Colonial Origins of Comparative Development*. The base sample ships with `ivdoctr`:
+
+```r
+library(ivdoctr)
+data(colonial, package = "ivdoctr")   # 64 countries, AJR base sample
+```
+
+Key columns: `logpgp95` (log PPP GDP per capita, 1995 — the outcome); `avexpr` (average protection against expropriation risk — the institutions measure, endogenous); `logem4` (log settler mortality — the excluded instrument); `lat_abst` (absolute latitude / 90); `africa`, `asia` (continent dummies); `shortnam` (three-letter country code); `rich4` (= 1 for the four "neo-Europes").
+
+**Background.** A manuscript uses these data to replicate AJR's headline: settler mortality instruments expropriation-risk institutions, which in turn predict long-run income. Structurally, `logpgp95 ~ avexpr`, with `avexpr` instrumented by `logem4`. The paper reports a 2SLS coefficient far above its OLS counterpart and treats the finding as established. Your job is to reproduce that headline and then find out how much weight it will bear.
+
+**Task.**
+
+1. **Replicate the headline.** Estimate the bivariate 2SLS coefficient of `logpgp95` on `avexpr` instrumented by `logem4`, and its OLS counterpart on the same sample. Report the first stage (the coefficient of `avexpr` on `logem4`).
+2. **Stress the result** with four perturbations, each re-estimating OLS and 2SLS on the same sample/controls: (a) add latitude (`lat_abst`); (b) add continent controls (`africa`, `asia`); (c) drop the neo-Europes (`AUS`, `CAN`, `NZL`, `USA`, by `shortnam`); (d) restrict to Africa only (`africa == 1`).
+3. **Report first-stage strength per specification** — the first-stage F on the excluded instrument — and **flag any specification where the instrument is weak** (rule of thumb: F below ~10). Do not report a 2SLS point estimate as if it were reliable when its first stage is weak.
+4. **Deliverables** (see below): a script, a robustness table, and a short memo stating what survives the stress tests and what the paper is entitled to claim.
+
+**Produce, in the current working directory:**
+
+1. `script.R` — one self-contained script; conventions as in the other briefs (packages and any palette/theme declared at the top; `set.seed()` before anything stochastic — note that OLS/2SLS here are deterministic). If you produce a figure it is optional; follow house figure conventions if you do (Okabe-Ito palette, 300+ dpi, no in-plot title).
+2. `robustness-table.md` — **one** table reporting, for every specification, the OLS estimate, the 2SLS estimate, and the first-stage F (with the first-stage coefficient), so all specs are comparable at a glance. Note which specs are weakly identified.
+3. `memo.md` — roughly 400 words: state what survives the stress tests and what does not, and say precisely what the manuscript may and may not claim on this evidence. Do not overclaim in either direction — a specification whose instrument has collapsed does not confirm the result, and it does not overturn it either.
+
+**Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. No web access. Do not install packages. For 2SLS use `AER::ivreg` if it is available; otherwise estimate explicit two-stage least squares via two `lm` stages and note that the second-stage standard errors are approximate (uncorrected for the generated regressor). Say which path you took.
+codex
+I’m using the requested orchestration workflow: one analyst will independently validate the estimands and identification diagnostics, one implementer will produce the requested artifacts, and one verifier will review the completed outputs. I’ll integrate and run the final end-to-end check.
+exec
+/bin/zsh -lc "sed -n '1,260p' ~/Documents/github/resources/open-science-skills/codex/46-orchestrate/SKILL.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr
+ succeeded in 0ms:
+---
+name: 46-orchestrate
+description: Orchestrate complex work as the Codex lead on the GPT-5.6 family — gpt-5.6-terra by default for token economy, gpt-5.6-sol reserved for intensive focus. Use when the user explicitly asks to orchestrate, delegate, fan out, parallelize, assign subagents, obtain independent checks, or have Codex act as tech lead. Decompose work, route bounded tasks to role-based subagents via Codex's native spawn_agent tool (subagents inherit the lead's model and effort), escalate the hardest compact problems to a one-shot Sol consult, preserve integration ownership, and synthesize verified results.
+---
+
+# 4.6 Orchestrate
+
+<p align="center"><img src="assets/architecture.svg" alt="46-orchestrate: a GPT-5.6 Terra Codex orchestrator in a main loop fans work out to researcher, implementer, and verifier subagents that inherit the lead's model, and escalates the hardest problems to a one-shot gpt-5.6-sol consult at xhigh" width="900"></p>
+
+Act as the lead orchestrator for the GPT-5.6 family. Plan, decompose, delegate, integrate, and verify. Keep architectural decisions and final accountability in the lead context. The intended lead tier is **`gpt-5.6-terra`** — because subagents inherit the lead's model, a Terra lead makes the entire spawn tree token-economical by construction; `gpt-5.6-sol` is reserved for the moments that need intensive focus (see *Model and effort calibration*).
+
+The lead is the currently-running Codex session itself. Subagents are spawned with Codex's **native, in-process multi-agent tool** (`functions.collaboration.spawn_agent`, plus `send_message`, `followup_task`, `wait_agent`, `interrupt_agent`, `list_agents` — feature `multi_agent`, stable). Do not shell out to a nested `codex exec` subprocess for delegation: a `codex exec` process running under any sandbox mode cannot spawn a working nested `codex exec` child — confirmed by direct reproduction on both macOS (`Operation not permitted, os error 1`) and Linux (`Read-only file system, os error 30`) hosts, and unfixable by passing bypass flags to the child, since an OS-level sandbox applies transitively to the whole process tree regardless of what the child requests. `spawn_agent` has no such problem: it runs in-process, in the same sandbox as the lead.
+
+**Honest capability limit — read this before promising cost savings.** `spawn_agent`'s model-visible schema has exactly three fields — `task_name`, `message`, `fork_turns` — and no `model` or `effort` parameter (re-verified 2026-07-11 on Codex CLI v0.144.1, which is also the newest published release; three differently-flagged live probes, including `multi_agent_v2` forced on). Every subagent runs at the **same model and reasoning effort as the lead**. This is a regression-by-default rather than a permanent absence: override fields existed and worked around v0.137 (openai/codex#26948), but current releases hide them from the schema (`hide_spawn_agent_metadata`, openai/codex#31814), v2 full-history forks reject them (openai/codex#20077), and the TOML custom-agent path is broken (openai/codex#26363) — community reports agree (community.openai.com, 2026-07-10). An "unhide + `fork_turns=\"none\"`" escape hatch circulates but is unconfirmed and reportedly still drops overrides; do not build on it without re-verifying on the installed version. In-process spawning therefore cannot reproduce `fable-orchestrate`'s cost tiering — the calibration section below is how this skill approximates it instead. What spawning *does* save: the lead's own context never has to grow with the full working-through of every subtask. A single lead handling everything serially in one continuously-growing context re-pays the cost of that whole context on every turn; spawning several parallel subagents with short, fresh, task-scoped contexts and pulling back only their summaries avoids that growth. The saving is from **context isolation and parallelism**, not from a cheaper model — say so plainly if a user asks whether a spawn delegates to a cheaper tier.
+
+## Model and effort calibration
+
+The lead's `--model` and `model_reasoning_effort` are the only reliable cost levers — they set the price of the whole spawn tree. Calibrate them the way `fable-orchestrate` calibrates its cheap lead:
+
+| Choice | Setting | Why |
+|---|---|---|
+| **Default lead** | `gpt-5.6-terra`, effort `medium` (raise to `high` when the orchestration itself is hard) | the whole in-process tree becomes Terra by construction — the balanced tier (about half of Sol's per-token price) with current multi-agent (v2) support |
+| **Intensive focus** | one-shot `codex exec --model gpt-5.6-sol -c model_reasoning_effort=xhigh --sandbox read-only --skip-git-repo-check "<self-contained brief>" < /dev/null` | pays Sol only for the compact hardest problems — architecture calls, gnarly debugging, the decorrelated half of a high-stakes check; Sol sees only the brief, so write a complete one |
+| **Cheap bulk** | one-shot `codex exec --model gpt-5.6-luna -c model_reasoning_effort=low …` | Luna (about 2.5× cheaper than Terra) for fully-specified mechanical work worth taking out of process |
+| **Sol lead** | only when lead quality is the bottleneck for the whole task | every spawn is then Sol at the lead's effort — the economics invert; spawn sparingly, only for context isolation or blind parallel checks |
+
+Rules of thumb: **escalate effort before escalating tier**, and never leave the session at `xhigh` while fanning out routine work — the effort propagates to every subagent.
+
+**Environment caveat for the cross-tier one-shots:** a nested `codex exec` fails under any sandbox mode (the OS sandbox applies to the whole process tree), so they must run as escalated or unsandboxed calls under a live session; when escalation is unavailable, keep the hard problem in the lead instead. The `< /dev/null` on the nested call is load-bearing — without it `codex exec` hangs waiting on stdin.
+
+## Delegation gate
+
+Use subagents only when the user explicitly invokes `$46-orchestrate` or requests orchestration, delegation, fan-out, parallel agents, or independent agent review. If loaded implicitly without that authorization, work locally.
+
+## Show the route
+
+Before spawning work, publish a compact plan that names each workstream, owner role, dependency, expected artifact, and acceptance check. Update it as dependencies or evidence change.
+
+## Route by first match
+
+| Priority | Work type | Owner |
+|---|---|---|
+| 1 | decomposition, architecture ownership, integration, conflict resolution, user communication | lead |
+| 2 | trivial, single-step work where briefing costs more than execution | lead |
+| 3 | high blast radius **and** hard to verify | two independent lines, then the lead adjudicates |
+| 4 | a compact problem that outclasses the lead's tier (hard architecture call, gnarly debug) | out-of-band Sol one-shot (calibration table), briefed self-contained |
+| 5 | bounded research, inventory, or diagnosis with no overlapping writes | analyst subagent |
+| 6 | fully specified implementation with objective acceptance checks | implementer subagent |
+| 7 | verification, tests, review, or adversarial challenge of an existing artifact | verifier subagent |
+| 8 | ambiguous or tightly coupled work that cannot be cleanly contracted | lead until separable |
+
+High blast radius includes security/authentication, destructive data operations, public API compatibility, concurrency, cryptography, production incidents, privacy, and externally visible irreversible changes. "Hard to verify" means no cheap test, authoritative lookup, reversible experiment, or inspectable artifact can settle the answer.
+
+Do not use multiple agents merely to increase activity. Parallelize independent work or genuinely independent judgments — since spawning does not reduce per-call cost here, an unnecessary spawn is pure overhead, not a cheap experiment.
+
+## Spawn subagents correctly
+
+Every subagent is created with `spawn_agent`. Confirmed parameters: `task_name` (a short identifier other calls use to address this agent), `message` (the task brief — this is the subagent's entire starting context unless `fork_turns` adds more), and `fork_turns` (how much of the lead's own conversation to propagate — `"all"` gives the subagent full history; for a bounded, fully-specified task, propagate the minimum needed, since a large `fork_turns` value defeats the context-isolation saving this tool exists for). Consult the tool's own schema at call time for any parameters not listed here — this list reflects what has been directly exercised, not a full spec.
+
+| Role | Behavior | fork_turns |
+|---|---|---|
+| analyst / verifier | inspect, inventory, diagnose, adversarially review, or high-stakes cross-check without editing | minimal — pass only the artifact path and the specific question, not the lead's full history |
+| implementer | make bounded, fully-specified edits with objective acceptance checks and run them | minimal — a complete delegation contract (below) should make full history unnecessary |
+| high-stakes independent check | two agents spawned in the same round on the identical prompt, blind to each other's reasoning | minimal, identical for both, so neither is anchored by the other |
+
+All agents share the same container, filesystem, and working directory as the lead — edits by one are immediately visible to all others, including the lead. This makes write-collision discipline (below) load-bearing, not optional.
+
+**Concurrency is real and bounded.** The tool itself states 4 available concurrency slots, including the lead — so at most 3 subagents run at once regardless of how many are queued. Batch additional work after prior agents finish; do not assume unlimited fan-out.
+
+Use `wait_agent` to block on a spawned agent's result, `send_message` to pass it a message without triggering a new turn, `followup_task` to give a *running* agent a new task, `list_agents` to check what's active, and `interrupt_agent` to reclaim a stalled one.
+
+## Write a delegation contract
+
+Every subagent brief (the `message` passed to `spawn_agent`) must specify:
+
+```text
+Objective:
+Inputs and authoritative paths:
+In scope:
+Out of scope:
+Constraints and invariants:
+Write ownership:
+Expected artifact:
+Acceptance checks:
+Return format: conclusion, evidence, changed files, residual risk
+```
+
+Give each worker the minimum task-local context required. Do not leak another worker's conclusions into an independent round. Ask for evidence and artifacts, not confidence alone.
+
+## Prevent write collisions
+
+- Assign disjoint files or directories to concurrent implementers.
+- Use read-only agents for overlapping analysis or review.
+- State that the shared workspace may change while an agent runs; require rereading before edits.
+- Never let two agents edit the same file concurrently.
+- Preserve user changes and unrelated worktree modifications.
+- Keep commits, pushes, deployments, destructive operations, and external messages under the same authorization rules as the lead.
+
+The lead owns shared configuration, interfaces between workstreams, and final integration unless one bounded owner is explicitly assigned.
+
+## Run the orchestration loop
+
+1. Inspect authoritative workspace state.
+2. Decompose work and identify dependencies.
+3. Publish the route and acceptance checks.
+4. Spawn all ready, independent workstreams concurrently within the 3-subagent capacity.
+5. Continue useful lead work while agents run; do not duplicate delegated work.
+6. Use `wait_agent` to consume each agent's final response and inspect its artifact directly.
+7. Send a focused `followup_task` to the same agent when its artifact is incomplete, rather than spawning a fresh one that repeats the briefing cost.
+8. Integrate in dependency order.
+9. Run end-to-end checks at the lead level.
+10. Report the outcome, verification evidence, and unresolved risk.
+
+Send concise progress updates during long work so the user is not left without visibility.
+
+## Use the high-stakes path
+
+For work that is both high blast radius and hard to verify:
+
+1. Spawn two independent subagents in one round with the identical prompt and identical (minimal) `fork_turns`, so neither sees the other's reasoning. Note the correlation limit: both inherit the lead's model, so they resample the same distribution. For the highest stakes, make one half the out-of-band Sol one-shot from the calibration table instead — then the two lines differ by model, not just by sampling.
+2. Keep them blind to each other's reasoning — do not relay one's output into the other's task.
+3. Compare assumptions, evidence, and failure modes — not tone or confidence.
+4. Accept agreement only when both point to the same checkable evidence.
+5. On substantive disagreement, run one targeted reconciliation round where each can see the competing reasoning.
+6. If disagreement survives or evidence remains insufficient, stop and ask the user; do not break the tie by confidence.
+
+Use one worker plus a direct verification step when the task is high impact but cheaply verifiable.
+
+## Integrate rigorously
+
+Treat subagent results as untrusted until inspected. Check:
+
+- the artifact exists at the claimed path;
+- the diff matches the assigned scope;
+- interfaces agree across workstreams;
+- tests cover the requested behavior rather than a narrower substitute;
+- no unrelated user changes were overwritten; and
+- any assumption presented as fact has authoritative support.
+
+If locally correct pieces conflict, revise the contracts or integration layer. Do not paper over incompatible assumptions.
+
+## Completion rule
+
+Complete only when every requested deliverable has authoritative evidence, integrated behavior passes proportionate checks, and remaining risks are disclosed. Agent completion messages are not proof of overall completion.
+
+## Failure handling
+
+- If an agent stalls, use `interrupt_agent` to reclaim it, then send one narrower `followup_task` or reassign.
+- If an agent fails after editing, inspect the shared worktree before retrying.
+- If capacity is exhausted (3 subagents already active), queue dependent work rather than spawning redundant agents.
+- If a spawn fails outright, report the exact error rather than silently falling back to doing the work in the lead context — a silent fallback is what causes runaway lead-context token growth. If the failure looks environmental (not a task-brief problem), stop and ask rather than spending tokens on unbounded self-diagnosis.
+
+codex
+Route and acceptance checks:
+
+| Workstream | Owner | Artifact/dependency | Acceptance check |
+|---|---|---|---|
+| Estimation audit | Analyst | Read-only numerical results | Correct common samples, first-stage partial F, weak-IV flags |
+| Deliverables | Implementer | `script.R`, table, memo | Runs cleanly with `Rscript`; follows requested content |
+| Adversarial review | Verifier | Read-only review after files exist | Checks estimands, wording, reproducibility |
+
+I’ll keep final integration and rerun the script myself.
+exec
+/bin/zsh -lc "pwd && rg --files -g '"'!*'"\\.Rproj.user*' -g '"'!*.pdf'"' | sed -n '1,160p' && git status --short" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr
+ succeeded in 0ms:
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr
+exec-stdout.log
+ D ../t1/SHA256SUMS
+ M ../t1/exec-stdout.log
+ M ../t1/figures/level-frequencies.png
+ D ../t1/run-log.md
+ M ../t1/script.R
+ M ../t1/summary.md
+ D ../t2/SHA256SUMS
+ M ../t2/exec-stdout.log
+ M ../t2/figures/amce-dotwhisker.png
+ M ../t2/report.md
+ D ../t2/run-log.md
+ M ../t2/script.R
+ D ../t3/SHA256SUMS
+ M ../t3/exec-stdout.log
+ M ../t3/figures/sensitivity.png
+ M ../t3/memo.md
+ D ../t3/run-log.md
+ M ../t3/script.R
+ M ../t3/sensitivity-table.md
+?? ./
+?? ../vhigh-lalonde/
+
+collab: Wait
+codex
+The two independent workstreams are underway. I’ve confirmed this run directory is clean of prior task artifacts; I’ll add the reviewer only after the implementation is present so the review is truly artifact-based.
+collab: Wait
+collab: Wait
+collab: Wait
+codex
+Independent estimation confirms the expected pattern: the headline remains identified under latitude and continent controls, while identification becomes weak without neo-Europes and collapses in Africa-only data. I’m waiting on the reproducible files, then will run a separate adversarial review.
+collab: Wait
+exec
+/bin/zsh -lc "Rscript script.R && printf '\\n--- script ---\\n' && sed -n '1,260p' script.R && printf '\\n--- table ---\\n' && sed -n '1,200p' robustness-table.md && printf '\\n--- memo ---\\n' && sed -n '1,260p' memo.md && printf '\\n--- status ---\\n' && git status --short -- ." in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr
+ succeeded in 493ms:
+
+--- script ---
+#!/usr/bin/env Rscript
+
+# Reproduce OLS/2SLS robustness checks for Acemoglu, Johnson, and Robinson
+# (2001), using the `colonial` data distributed with ivdoctr.
+suppressPackageStartupMessages({
+  library(ivdoctr)
+  library(AER)
+  library(car)
+})
+
+# The analyses below are deterministic, but fix a seed before any operation
+# that could become stochastic if this script is extended.
+set.seed(20260712)
+
+data("colonial", package = "ivdoctr")
+colonial <- as.data.frame(colonial)
+
+excluded_countries <- c("AUS", "CAN", "NZL", "USA")
+
+specifications <- list(
+  list(label = "Bivariate", controls = character(), subset = rep(TRUE, nrow(colonial))),
+  list(label = "Absolute latitude", controls = "lat_abst", subset = rep(TRUE, nrow(colonial))),
+  list(label = "Africa and Asia indicators", controls = c("africa", "asia"), subset = rep(TRUE, nrow(colonial))),
+  list(label = "Exclude AUS/CAN/NZL/USA", controls = character(), subset = !colonial$shortnam %in% excluded_countries),
+  list(label = "Africa only", controls = character(), subset = colonial$africa == 1)
+)
+
+fmt_num <- function(x, digits = 3) formatC(x, format = "f", digits = digits)
+fmt_p <- function(x) {
+  if (is.na(x)) return("NA")
+  if (x < 0.001) return("<0.001")
+  formatC(x, format = "f", digits = 3)
+}
+
+run_specification <- function(spec) {
+  variables <- c("logpgp95", "avexpr", "logem4", spec$controls)
+  dat <- colonial[spec$subset, , drop = FALSE]
+
+  # Construct the analysis sample once, then pass exactly this data frame to
+  # every model in this specification. This prevents OLS/2SLS sample drift.
+  dat <- dat[complete.cases(dat[, variables, drop = FALSE]), , drop = FALSE]
+  if (nrow(dat) < 4L) stop("Too few complete observations in: ", spec$label)
+
+  outcome_rhs <- paste(c("avexpr", spec$controls), collapse = " + ")
+  first_stage_rhs <- paste(c("logem4", spec$controls), collapse = " + ")
+  ols <- lm(as.formula(paste("logpgp95 ~", outcome_rhs)), data = dat)
+  two_sls <- AER::ivreg(
+    as.formula(paste("logpgp95 ~", outcome_rhs, "|", first_stage_rhs)),
+    data = dat
+  )
+  first_stage <- lm(as.formula(paste("avexpr ~", first_stage_rhs)), data = dat)
+  # This is the usual homoskedastic partial F test for the excluded instrument,
+  # conditional on the stated controls. With one excluded instrument it equals t^2.
+  partial_test <- car::linearHypothesis(first_stage, "logem4 = 0", test = "F")
+  partial_f <- partial_test$F[2L]
+  partial_p <- partial_test$`Pr(>F)`[2L]
+
+  stopifnot(
+    nobs(ols) == nrow(dat),
+    nobs(two_sls) == nrow(dat),
+    nobs(first_stage) == nrow(dat)
+  )
+
+  list(
+    label = spec$label,
+    controls = if (length(spec$controls)) paste(spec$controls, collapse = ", ") else "None",
+    n = nrow(dat),
+    ols = unname(coef(ols)["avexpr"]),
+    two_sls = unname(coef(two_sls)["avexpr"]),
+    first_stage = unname(coef(first_stage)["logem4"]),
+    partial_f = partial_f,
+    partial_p = partial_p,
+    weak = partial_f < 10
+  )
+}
+
+results <- lapply(specifications, run_specification)
+
+table_rows <- vapply(results, function(x) {
+  paste0(
+    "| ", x$label, " | ", x$controls, " | ", x$n,
+    " | ", fmt_num(x$ols), " | ", fmt_num(x$two_sls),
+    " | ", fmt_num(x$first_stage), " | ", fmt_num(x$partial_f),
+    " | ", fmt_p(x$partial_p), " | ", if (x$weak) "Yes" else "No", " |"
+  )
+}, character(1))
+
+table_text <- c(
+  "# AJR IV robustness checks",
+  "",
+  "Outcome: `logpgp95`; endogenous regressor: `avexpr`; excluded instrument: `logem4`.",
+  "Each row constructs one complete-case sample before estimating both OLS and 2SLS, so the two estimates in a row use identical observations.",
+  "",
+  "| Specification | Controls in OLS, 2SLS, and first stage | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | Partial F for logem4 | F-test p-value | Weak IV (F < 10)? |",
+  "|---|---|---:|---:|---:|---:|---:|---:|---|",
+  table_rows,
+  "",
+  "Notes: 2SLS is estimated with `AER::ivreg()`. The reported partial F is the conventional homoskedastic first-stage F test for adding `logem4` to a first stage that already includes the row's controls (computed from the nested-model comparison). `Yes` applies the common rule-of-thumb threshold F < 10; it is a diagnostic, not a formal validity test."
+)
+writeLines(table_text, "robustness-table.md")
+
+by_label <- setNames(results, vapply(results, `[[`, character(1), "label"))
+memo_text <- c(
+  "# Memo: AJR IV robustness checks",
+  "",
+  "This exercise estimates the association between protection against expropriation risk (`avexpr`) and log GDP per capita in 1995 (`logpgp95`) in the Acemoglu, Johnson, and Robinson colonial sample. The IV specification treats `avexpr` as endogenous and uses log settler mortality (`logem4`) as its excluded instrument. The script takes the `AER::ivreg()` path for 2SLS. For every row, it first forms the complete-case sample for the outcome, endogenous variable, instrument, and any row-specific controls, then estimates OLS and 2SLS on that identical sample. Thus, differences between the two estimates within a row are not artifacts of different missing-data samples.",
+  "",
+  paste0("In the bivariate full sample (N = ", by_label[["Bivariate"]]$n, "), the OLS coefficient on `avexpr` is ", fmt_num(by_label[["Bivariate"]]$ols), ", while the 2SLS coefficient is ", fmt_num(by_label[["Bivariate"]]$two_sls), ". The first-stage association between settler mortality and institutional quality is negative (", fmt_num(by_label[["Bivariate"]]$first_stage), ") and the excluded-instrument F statistic is ", fmt_num(by_label[["Bivariate"]]$partial_f), ". Adding absolute latitude produces a 2SLS estimate of ", fmt_num(by_label[["Absolute latitude"]]$two_sls), " and a conditional first-stage F of ", fmt_num(by_label[["Absolute latitude"]]$partial_f), ". Controlling instead for Africa and Asia indicators gives a 2SLS estimate of ", fmt_num(by_label[["Africa and Asia indicators"]]$two_sls), " with F = ", fmt_num(by_label[["Africa and Asia indicators"]]$partial_f), ". These full-sample first stages exceed the conventional F = 10 screen, although that threshold is only a rough diagnostic.") ,
+  "",
+  paste0("The restricted samples are less reassuring. Excluding Australia, Canada, New Zealand, and the United States leaves N = ", by_label[["Exclude AUS/CAN/NZL/USA"]]$n, ", raises the 2SLS estimate to ", fmt_num(by_label[["Exclude AUS/CAN/NZL/USA"]]$two_sls), ", and lowers the conditional F to ", fmt_num(by_label[["Exclude AUS/CAN/NZL/USA"]]$partial_f), "; this is flagged as weak under F < 10. In the Africa-only sample (N = ", by_label[["Africa only"]]$n, "), the estimate is ", fmt_num(by_label[["Africa only"]]$two_sls), ", but the first-stage F is only ", fmt_num(by_label[["Africa only"]]$partial_f), ". That first stage is too weak for the conventional screen, making the Africa-only IV point estimate especially imprecise and vulnerable to weak-instrument distortions."),
+  "",
+  "The results are consistent with a positive causal interpretation only under the IV assumptions: settler mortality must be relevant, affect 1995 income through institutions rather than other channels, and be sufficiently independent of unobserved determinants after the stated controls. These checks do not establish those assumptions. The sample changes also alter estimates and instrument strength, so the evidence is best read as suggestive robustness information rather than as proof that a single stable causal effect applies across all subsamples. The table reports conventional, homoskedastic first-stage diagnostics; it does not replace weak-IV-robust inference or a substantive defense of the exclusion restriction."
+)
+writeLines(memo_text, "memo.md")
+
+--- table ---
+# AJR IV robustness checks
+
+Outcome: `logpgp95`; endogenous regressor: `avexpr`; excluded instrument: `logem4`.
+Each row constructs one complete-case sample before estimating both OLS and 2SLS, so the two estimates in a row use identical observations.
+
+| Specification | Controls in OLS, 2SLS, and first stage | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | Partial F for logem4 | F-test p-value | Weak IV (F < 10)? |
+|---|---|---:|---:|---:|---:|---:|---:|---|
+| Bivariate | None | 64 | 0.522 | 0.944 | -0.607 | 22.947 | <0.001 | No |
+| Absolute latitude | lat_abst | 64 | 0.468 | 0.996 | -0.510 | 13.093 | <0.001 | No |
+| Africa and Asia indicators | africa, asia | 64 | 0.434 | 0.839 | -0.533 | 11.006 | 0.002 | No |
+| Exclude AUS/CAN/NZL/USA | None | 60 | 0.487 | 1.281 | -0.391 | 8.646 | 0.005 | Yes |
+| Africa only | None | 27 | 0.302 | 2.400 | -0.108 | 0.298 | 0.590 | Yes |
+
+Notes: 2SLS is estimated with `AER::ivreg()`. The reported partial F is the conventional homoskedastic first-stage F test for adding `logem4` to a first stage that already includes the row's controls (computed from the nested-model comparison). `Yes` applies the common rule-of-thumb threshold F < 10; it is a diagnostic, not a formal validity test.
+
+--- memo ---
+# Memo: AJR IV robustness checks
+
+This exercise estimates the association between protection against expropriation risk (`avexpr`) and log GDP per capita in 1995 (`logpgp95`) in the Acemoglu, Johnson, and Robinson colonial sample. The IV specification treats `avexpr` as endogenous and uses log settler mortality (`logem4`) as its excluded instrument. The script takes the `AER::ivreg()` path for 2SLS. For every row, it first forms the complete-case sample for the outcome, endogenous variable, instrument, and any row-specific controls, then estimates OLS and 2SLS on that identical sample. Thus, differences between the two estimates within a row are not artifacts of different missing-data samples.
+
+In the bivariate full sample (N = 64), the OLS coefficient on `avexpr` is 0.522, while the 2SLS coefficient is 0.944. The first-stage association between settler mortality and institutional quality is negative (-0.607) and the excluded-instrument F statistic is 22.947. Adding absolute latitude produces a 2SLS estimate of 0.996 and a conditional first-stage F of 13.093. Controlling instead for Africa and Asia indicators gives a 2SLS estimate of 0.839 with F = 11.006. These full-sample first stages exceed the conventional F = 10 screen, although that threshold is only a rough diagnostic.
+
+The restricted samples are less reassuring. Excluding Australia, Canada, New Zealand, and the United States leaves N = 60, raises the 2SLS estimate to 1.281, and lowers the conditional F to 8.646; this is flagged as weak under F < 10. In the Africa-only sample (N = 27), the estimate is 2.400, but the first-stage F is only 0.298. That first stage is too weak for the conventional screen, making the Africa-only IV point estimate especially imprecise and vulnerable to weak-instrument distortions.
+
+The results are consistent with a positive causal interpretation only under the IV assumptions: settler mortality must be relevant, affect 1995 income through institutions rather than other channels, and be sufficiently independent of unobserved determinants after the stated controls. These checks do not establish those assumptions. The sample changes also alter estimates and instrument strength, so the evidence is best read as suggestive robustness information rather than as proof that a single stable causal effect applies across all subsamples. The table reports conventional, homoskedastic first-stage diagnostics; it does not replace weak-IV-robust inference or a substantive defense of the exclusion restriction.
+
+--- status ---
+?? ./
+
+collab: Wait
+2026-07-12T17:15:14.635970Z ERROR codex_core::tools::router: error=exec_command failed for `/bin/zsh -lc "rm -rf /private/tmp/ajr-review-run && mkdir -p /private/tmp/ajr-review-run && cd /private/tmp/ajr-review-run && Rscript ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/script.R && diff -u ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/robustness-table.md robustness-table.md && diff -u ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/memo.md memo.md && wc -w ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/memo.md && Rscript -e 'd <- getRversion(); cat(\"R\", as.character(d), \"\\n\"); for(p in c(\"ivdoctr\",\"AER\",\"car\")) cat(p, as.character(packageVersion(p)), \"\\n\")'"`: CreateProcess { message: "Rejected(\"`/bin/zsh -lc \\\"rm -rf /private/tmp/ajr-review-run && mkdir -p /private/tmp/ajr-review-run && cd /private/tmp/ajr-review-run && Rscript ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/script.R && diff -u ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/robustness-table.md robustness-table.md && diff -u ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/memo.md memo.md && wc -w ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/memo.md && Rscript -e 'd <- getRversion(); cat(\\\\\\\"R\\\\\\\", as.character(d), \\\\\\\"\\\\\\\\n\\\\\\\"); for(p in c(\\\\\\\"ivdoctr\\\\\\\",\\\\\\\"AER\\\\\\\",\\\\\\\"car\\\\\\\")) cat(p, as.character(packageVersion(p)), \\\\\\\"\\\\\\\\n\\\\\\\")'\\\"` rejected: blocked by policy\")" }
+2026-07-12T17:15:21.692266Z ERROR codex_core::tools::router: error=exec_command failed for `/bin/zsh -lc "mkdir -p /private/tmp/ajr-review-run-46
+Rscript ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/script.R
+diff -u ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/robustness-table.md robustness-table.md
+diff -u ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/memo.md memo.md
+wc -w ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/memo.md
+Rscript -e 'cat(\"R \", as.character(getRversion()), \"\\n\", sep=\"\"); for (p in c(\"ivdoctr\", \"AER\", \"car\")) cat(p, \" \", as.character(packageVersion(p)), \"\\n\", sep=\"\")'"`: CreateProcess { message: "Rejected(\"Failed to create unified exec process: No such file or directory (os error 2)\")" }
+codex
+The integrated script has now run successfully in this directory and reproduces the independent audit exactly. The table uses the conditional, homoskedastic partial first-stage F; it explicitly marks the two weak specifications.
+collab: Wait
+collab: Wait
+codex
+The adversarial review passed all requested calculations and deliverables. I found one minor wording mismatch in the table note (the code uses `linearHypothesis`, though it is equivalent to the stated nested-model F); I’m correcting that documentation now and will rerun once.
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/script.R
+diff --git a/demos/orchestration-lab/runs/46/high-ajr/script.R b/demos/orchestration-lab/runs/46/high-ajr/script.R
+index 9b80371abe94215969fed1f7f0487cfda18a9966..01882e67cadc51adc5d2524d3fdd8b59ac6f8a16
+--- a/demos/orchestration-lab/runs/46/high-ajr/script.R
++++ b/demos/orchestration-lab/runs/46/high-ajr/script.R
+@@ -95,7 +95,7 @@
+   "|---|---|---:|---:|---:|---:|---:|---:|---|",
+   table_rows,
+   "",
+-  "Notes: 2SLS is estimated with `AER::ivreg()`. The reported partial F is the conventional homoskedastic first-stage F test for adding `logem4` to a first stage that already includes the row's controls (computed from the nested-model comparison). `Yes` applies the common rule-of-thumb threshold F < 10; it is a diagnostic, not a formal validity test."
++  "Notes: 2SLS is estimated with `AER::ivreg()`. The reported partial F is the conventional homoskedastic first-stage F test for adding `logem4` to a first stage that already includes the row's controls (computed with `car::linearHypothesis()`; equivalently, the nested-model F test). `Yes` applies the common rule-of-thumb threshold F < 10; it is a diagnostic, not a formal validity test."
+ )
+ writeLines(table_text, "robustness-table.md")
+ 
+
+exec
+/bin/zsh -lc 'Rscript script.R && rg -n "Notes:|linearHypothesis|Weak IV" robustness-table.md script.R && wc -w memo.md' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr
+diff --git a/demos/orchestration-lab/runs/46/high-ajr/script.R b/demos/orchestration-lab/runs/46/high-ajr/script.R
+index 9b80371abe94215969fed1f7f0487cfda18a9966..01882e67cadc51adc5d2524d3fdd8b59ac6f8a16
+--- a/demos/orchestration-lab/runs/46/high-ajr/script.R
++++ b/demos/orchestration-lab/runs/46/high-ajr/script.R
+@@ -95,7 +95,7 @@
+   "|---|---|---:|---:|---:|---:|---:|---:|---|",
+   table_rows,
+   "",
+-  "Notes: 2SLS is estimated with `AER::ivreg()`. The reported partial F is the conventional homoskedastic first-stage F test for adding `logem4` to a first stage that already includes the row's controls (computed from the nested-model comparison). `Yes` applies the common rule-of-thumb threshold F < 10; it is a diagnostic, not a formal validity test."
++  "Notes: 2SLS is estimated with `AER::ivreg()`. The reported partial F is the conventional homoskedastic first-stage F test for adding `logem4` to a first stage that already includes the row's controls (computed with `car::linearHypothesis()`; equivalently, the nested-model F test). `Yes` applies the common rule-of-thumb threshold F < 10; it is a diagnostic, not a formal validity test."
+ )
+ writeLines(table_text, "robustness-table.md")
+ 
+
+ succeeded in 473ms:
+script.R:54:  partial_test <- car::linearHypothesis(first_stage, "logem4 = 0", test = "F")
+script.R:94:  "| Specification | Controls in OLS, 2SLS, and first stage | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | Partial F for logem4 | F-test p-value | Weak IV (F < 10)? |",
+script.R:98:  "Notes: 2SLS is estimated with `AER::ivreg()`. The reported partial F is the conventional homoskedastic first-stage F test for adding `logem4` to a first stage that already includes the row's controls (computed with `car::linearHypothesis()`; equivalently, the nested-model F test). `Yes` applies the common rule-of-thumb threshold F < 10; it is a diagnostic, not a formal validity test."
+robustness-table.md:6:| Specification | Controls in OLS, 2SLS, and first stage | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | Partial F for logem4 | F-test p-value | Weak IV (F < 10)? |
+robustness-table.md:14:Notes: 2SLS is estimated with `AER::ivreg()`. The reported partial F is the conventional homoskedastic first-stage F test for adding `logem4` to a first stage that already includes the row's controls (computed with `car::linearHypothesis()`; equivalently, the nested-model F test). `Yes` applies the common rule-of-thumb threshold F < 10; it is a diagnostic, not a formal validity test.
+     376 memo.md
+
+codex
+Completed and verified all deliverables:
+
+- [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/script.R)
+- [robustness-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/robustness-table.md)
+- [memo.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/memo.md)
+
+`Rscript script.R` runs cleanly using `AER::ivreg()`.
+
+Headline: OLS = 0.522; 2SLS = 0.944; first-stage coefficient = −0.607 and F = 22.947.
+
+Latitude and continent controls retain F > 10. Dropping neo-Europes is weakly identified (F = 8.646), and Africa-only identification collapses (F = 0.298), so those 2SLS estimates are explicitly flagged as unreliable rather than treated as confirmation or refutation.
+diff --git a/demos/orchestration-lab/runs/46/high-ajr/script.R b/demos/orchestration-lab/runs/46/high-ajr/script.R
+index 9b80371abe94215969fed1f7f0487cfda18a9966..01882e67cadc51adc5d2524d3fdd8b59ac6f8a16
+--- a/demos/orchestration-lab/runs/46/high-ajr/script.R
++++ b/demos/orchestration-lab/runs/46/high-ajr/script.R
+@@ -95,7 +95,7 @@
+   "|---|---|---:|---:|---:|---:|---:|---:|---|",
+   table_rows,
+   "",
+-  "Notes: 2SLS is estimated with `AER::ivreg()`. The reported partial F is the conventional homoskedastic first-stage F test for adding `logem4` to a first stage that already includes the row's controls (computed from the nested-model comparison). `Yes` applies the common rule-of-thumb threshold F < 10; it is a diagnostic, not a formal validity test."
++  "Notes: 2SLS is estimated with `AER::ivreg()`. The reported partial F is the conventional homoskedastic first-stage F test for adding `logem4` to a first stage that already includes the row's controls (computed with `car::linearHypothesis()`; equivalently, the nested-model F test). `Yes` applies the common rule-of-thumb threshold F < 10; it is a diagnostic, not a formal validity test."
+ )
+ writeLines(table_text, "robustness-table.md")
+ 
+
+tokens used
+46,016
+Completed and verified all deliverables:
+
+- [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/script.R)
+- [robustness-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/robustness-table.md)
+- [memo.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46/high-ajr/memo.md)
+
+`Rscript script.R` runs cleanly using `AER::ivreg()`.
+
+Headline: OLS = 0.522; 2SLS = 0.944; first-stage coefficient = −0.607 and F = 22.947.
+
+Latitude and continent controls retain F > 10. Dropping neo-Europes is weakly identified (F = 8.646), and Africa-only identification collapses (F = 0.298), so those 2SLS estimates are explicitly flagged as unreliable rather than treated as confirmation or refutation.

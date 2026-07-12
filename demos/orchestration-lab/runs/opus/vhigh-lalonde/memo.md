@@ -1,0 +1,15 @@
+# Does propensity-score matching recover the NSW benchmark?
+
+**The target.** Inside the experiment, treated earnings exceed control earnings by **+$1,794** (HC3 SE $673; 95% CI [$476, $3,113]). Randomisation makes this unbiased, and it is the number matching must reproduce once the experimental controls are discarded and 15,992 CPS controls take their place.
+
+**What the raw comparison says.** The naive treated−control difference in the composite is **−$8,498** — as if the program *destroyed* $8,500 of earnings. That $10,292 error is selection and composition: CPS controls are older, better-educated, and far richer than NSW enrollees.
+
+**The covariate set is the decisive axis.** Matching on demographics alone (age, education, race, marriage, degree) closes only part of the gap: 1-NN gives **−$2,798**, stratification **−$4,137**. All three demographics-only specifications sit well below zero, and none of their 95% intervals contain the benchmark. Adding the two pre-treatment earnings variables, `re74` and `re75`, is what brings the estimate onto the target: 1-NN returns **+$1,712** (gap −$82) and **+$1,759** under common-support trimming (gap −$36) — both intervals cover the benchmark.
+
+**But the estimator detail still bites.** Holding the earnings covariates fixed and switching from 1-NN matching to five-stratum score stratification collapses the estimate to **−$144** — essentially zero, missing the benchmark by ~$1,900; its heteroskedasticity-robust interval [−$1,439, $1,152] excludes +$1,794 outright. So even with the earnings covariates, recovery is specific to 1-NN matching — stratification fails on both point and interval. Common-support trimming, by contrast, was non-binding (no treated unit outside overlap), so the fragility runs through the covariates and the estimator, not the analysis sample.
+
+**What conditioning is and is not doing.** The earnings histories proxy the selection that put disadvantaged workers into NSW — the transitory pre-program earnings dip. Conditioning on them removes bias *attributable to observed covariates*; it does not manufacture experimental variation. The clean recovery in S4/S5 is evidence that, in this dataset, the confounding is well summarised by two lagged earnings measures — an assumption we can check only *because* we already hold the experimental answer. Strip those measures, or change the estimator, and the same machinery returns −$2,800.
+
+**Verdict: favorable-specification-only.** Recovery is neither robust nor absent. It is real but contingent — on including pre-treatment earnings *and* on 1-NN matching.
+
+**What a paper may claim.** With `re74`/`re75` in the propensity score and 1-NN matching, PS methods reproduce the NSW benchmark in the Dehejia–Wahba sample (gap < $100). It may **not** claim that "matching recovers the experimental estimate" as a general result: the finding survives only under favorable specifications, must be reported as the whole specification curve rather than one favorable cell, and rests on having — and trusting — earnings-history covariates that an observational study cannot validate against an experiment.

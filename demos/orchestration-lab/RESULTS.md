@@ -2,6 +2,8 @@
 
 Single aggregation point: the walkthrough page copies numbers only from this file. Filled after each captured run from its `run-log.md`; scored against `reference/ANSWER-KEY.md`.
 
+_The public write-up covers the Anthropic arms (fable-orchestrate, opus-orchestrate, and the Claude advisor consult). The Codex-led runs (46-orchestrate and advisor-Codex) remain committed here as captured evidence, pending a re-run from a live Codex session before they join the page._
+
 **Scoring columns.** Correctness vs answer key (T1 exact; T2 within bootstrap tolerance, SEs clustered; T3 = rubric items met); figure-convention compliance (Okabe-Ito, caption-not-title, 300+ dpi, reference levels at zero for T2); tokens; wall-clock; delegations (count, models, efforts); friction events. Claude-Code token "in" = input + cache-creation + cache-read; Codex reports a single tokens-used figure and no USD, so the two platforms' token counts are not directly comparable.
 
 ## T1 — mechanical

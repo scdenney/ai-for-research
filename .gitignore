@@ -11,3 +11,4 @@ __pycache__/
 
 # Claude Code local session state
 .claude/
+.syncthing.*.tmp

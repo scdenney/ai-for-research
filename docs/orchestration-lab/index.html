@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Orchestration Lab — AI for Research</title>
-<meta name="description" content="One real conjoint analysis, run four ways — Fable-led, Opus-led, Codex-led, and a single advisor consult — across three difficulty tiers, with every run committed.">
+<meta name="description" content="One real conjoint analysis, run three ways with Claude models (a light lead, a heavy lead, and a single advisor consult), across three difficulty tiers, with every run captured and costed.">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,7 +25,6 @@
     font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
   .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
   a{color:var(--cobalt)}
-
   .nav{position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:saturate(160%) blur(10px)}
   .nav .row{max-width:var(--maxw); margin:0 auto; padding:13px 24px 14px; display:flex; align-items:center; justify-content:space-between; gap:18px; border-bottom:1px solid var(--line)}
   .brand{display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit; white-space:nowrap}
@@ -34,20 +33,16 @@
   .topmenu{display:flex; align-items:center; gap:22px; font-size:15px; letter-spacing:.01em; flex-wrap:wrap; justify-content:flex-end}
   .topmenu a{color:var(--grey); text-decoration:none; padding:4px 0}
   .topmenu a:hover{color:var(--cobalt)}
-  .topmenu a.ext::after{content:" ↗"; font-size:.85em; opacity:.7}
-
   header.hero{padding:46px 0 0; border-bottom:0}
   header.hero .wrap{padding-bottom:22px; border-bottom:1px solid var(--line)}
   .kicker{font:600 13px/1 -apple-system,sans-serif; letter-spacing:.16em; text-transform:uppercase; color:var(--grey); margin:0 0 14px}
   .wave{font-size:26px; letter-spacing:.3em; margin:0 0 8px; color:var(--cobalt)} .wave b{color:var(--gold); font-weight:inherit}
   h1{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:44px; line-height:1.08; margin:.08em 0 .3em; letter-spacing:-.01em}
   .lede{font-family:"EB Garamond",Georgia,serif; font-size:22px; line-height:1.42; opacity:.92; margin:0}
-
-
   main{padding:8px 0 40px}
   main p{margin:1em 0}
   main h2{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:30px; margin:1.5em 0 .35em; scroll-margin-top:108px}
-  h2 .tag{font:600 13px/1 -apple-system,sans-serif; letter-spacing:.09em; text-transform:uppercase; color:var(--gold); margin-left:.6em; vertical-align:middle}
+  main h3{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:20px; margin:1.5em 0 .1em} main h3 code{font-weight:500; font-size:14px; color:var(--grey); background:none; padding:0}
   strong{font-weight:650}
   code{font:14px/1.5 Menlo,"SF Mono",ui-monospace,monospace; background:var(--paper-2); padding:.12em .4em; border-radius:4px}
   pre{background:var(--paper-2); border:1px solid var(--line); border-radius:10px; padding:15px 18px; overflow:auto; margin:1em 0}
@@ -57,11 +52,12 @@
   .verdict{font:600 12px/1 -apple-system,sans-serif; letter-spacing:.05em; text-transform:uppercase; padding:.32em .55em; border-radius:5px; display:inline-block; white-space:nowrap}
   .v-bad{background:#b22; color:#fff} .v-warn{background:var(--gold); color:#3a2a06} .v-ok{background:#2c7a4b; color:#fff}
   table{border-collapse:collapse; width:100%; font-size:15px; margin:1em 0}
-  th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top}
+  th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:middle}
   th{background:var(--paper-2); font-size:12.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--grey)}
   figure.fig{margin:1.4em 0}
   figure.fig img{max-width:100%; border:1px solid var(--line); border-radius:10px; background:var(--paper-2)}
   figure.fig figcaption{font-size:13.5px; color:var(--grey); margin-top:6px}
+  .note{color:var(--grey); font-size:14px; border-top:1px solid var(--line); padding-top:18px; margin-top:20px}
   footer{color:var(--grey); font-size:14px; padding:52px 0 64px; text-align:center; border-top:1px solid var(--line)}
   footer a{color:var(--cobalt); text-decoration:none}
   footer a:hover{text-decoration:underline}
@@ -96,220 +92,64 @@
   <p class="kicker">Demo</p>
   <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
   <h1>Orchestration Lab</h1>
-  <p class="lede">One real conjoint analysis, run four ways, with the captured runs committed.</p>
+  <p class="lede">One real analysis, three ways of using Claude models, with every run captured and priced.</p>
 </div></header>
 
 <main class="wrap">
-  <section id="motivation">
-    <h2>Motivation</h2>
-    <p>Pick an orchestration mode and you are really picking who leads and who gets the delegated work, each at a set reasoning effort. This demo runs one real conjoint analysis four ways (Fable-led, Opus-led, Codex-led, and a plain session with a single advisor consult) and commits every run, so you can read what actually changed instead of taking a claim on faith.</p>
-    <p>The honest framing first. On easy, computable work the modes converge. Given the same mechanical brief, a light Fable lead, a heavy Opus lead, and a medium Codex lead all produce the same numbers and reach the same verdict. That convergence is itself a finding. It means the routing shape is a cost-and-latency choice when the task is single-step. Difficulty is the differentiator. Only at the judgment tier do the modes produce visibly different products, and that is what this lab is built to show.</p>
+  <section id="why">
+    <h2>Three ways to use the models</h2>
+    <p>Claude comes as a family of models that trade speed against reasoning depth and cost. Orchestration is how you split one job so each part runs on the model that fits it. The three patterns below cover most cases.</p>
+    <h3>Light lead <code>fable-orchestrate</code></h3>
+    <figure class="fig"><img src="../assets/orchestration-lab/fable-architecture.svg" alt="Light-lead architecture: a fast Fable orchestrator plans and delegates, sending reasoning to an Opus deep-reasoner, mechanical work to a Sonnet worker, and an independent check to a peer model."></figure>
+    <p>A fast model plans the work and routes each piece to the model that fits it. Reasoning goes to Opus and mechanical work to Sonnet, with a peer model for an outside check. The expensive model runs only on the steps routed to it, which makes this the cheapest way through hard work.</p>
+    <h3>Heavy lead <code>opus-orchestrate</code></h3>
+    <figure class="fig"><img src="../assets/orchestration-lab/opus-architecture.svg" alt="Heavy-lead architecture: an Opus orchestrator reasons on the hard parts itself and delegates only mechanical work to a Sonnet worker."></figure>
+    <p>Opus leads and reasons on the hard parts itself. It delegates only mechanical work, so the deepest thinking stays with one model and never gets compressed into a handoff. That costs more, because the expensive model runs throughout.</p>
+    <h3>One consult <code>advisor</code></h3>
+    <figure class="fig"><img src="../assets/orchestration-lab/advisor-architecture.svg" alt="One-consult architecture: a plain working session solves the task, then sends the finished work to a stronger reviewer model for a single read-only review."></figure>
+    <p>Sometimes the right move is not to orchestrate. You solve the problem in a plain session, then send the finished work to a stronger model for one review where a second opinion changes the decision. The reviewer reads and comments only and never edits your files.</p>
+    <p>Which pattern you reach for depends on the work. For easy, computable tasks the three converge on the same answer, so you choose on cost and speed. For hard judgment calls the structures pull apart in what they cost and what they catch, and the run below is one worked example of that split.</p>
   </section>
-
-  <section id="setup">
-    <h2>Set up</h2>
-    <p>Install Claude Code and the Open Science Skills first (see <a href="../getting-started/">Getting started</a>):</p>
+  <section id="demo">
+    <h2>The example</h2>
+    <p>The case is a real community-choice conjoint, <code>exampleData1</code> from the <a href="https://cran.r-project.org/package=projoint">projoint</a> R package. Three <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/prompts">briefs</a> rise in difficulty. Tier 1 describes the design and checks randomization balance. Tier 2 estimates the AMCEs and plots them. Tier 3 answers a reviewer who calls the headline crime finding an artifact of the AMCE baseline. Every mode receives the identical brief, and <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">every run is committed</a> with its logs and figures, then scored against a gold-standard key in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
+  </section>
+  <section id="results">
+    <h2>What the runs cost and how they scored</h2>
+    <p>Every number here comes from the committed run logs, scored against the answer key.</p>
+    <figure class="fig"><img src="../assets/orchestration-lab/eff-cost.png" alt="Bar chart of API-equivalent cost per tier for the light lead, heavy lead, and consult."><figcaption>API-equivalent cost by tier.</figcaption></figure>
+    <figure class="fig"><img src="../assets/orchestration-lab/eff-time.png" alt="Bar chart of wall-clock minutes per tier for each mode."><figcaption>Wall-clock by tier.</figcaption></figure>
+    <figure class="fig"><img src="../assets/orchestration-lab/eff-quality.png" alt="Chart of cost against verdict for the three modes at the judgment tier."><figcaption>Cost against verdict at the judgment tier.</figcaption></figure>
+    <table>
+      <tr><th>Mode</th><th>T1</th><th>T2</th><th>T3</th><th>T3 cost</th></tr>
+      <tr><td>Light lead <code>fable</code></td><td><span class="verdict v-ok">Pass</span></td><td><span class="verdict v-ok">Pass</span></td><td><span class="verdict v-ok">Pass</span></td><td>$4.13</td></tr>
+      <tr><td>Heavy lead <code>opus</code></td><td><span class="verdict v-ok">Pass</span></td><td><span class="verdict v-ok">Pass</span></td><td><span class="verdict v-ok">Pass+</span></td><td>$6.73</td></tr>
+      <tr><td>One consult <code>advisor</code></td><td>—</td><td>—</td><td><span class="verdict v-ok">Distinction</span></td><td>$7.08</td></tr>
+    </table>
+    <p>On the easy tiers the modes converge. Given the same computable brief, the light lead and the heavy lead reach the same numbers and the same verdict, so the choice between them is about cost and time. The light lead finishes T1 in 3.4 minutes against the heavy lead's 9.9, close to three times faster.</p>
+    <p>At the judgment tier the structure matters. The light lead split the work, sending the estimation to Opus and a blind copy of the numbers to a peer model that reached the same verdict without seeing the reasoning. The heavy lead kept the reasoning in one place and wrote the strongest single memo. The one consult arm did best of all, solving the problem alone and then buying one review that caught what the solo pass had missed.</p>
+    <p>Cost tracks difficulty. The light lead spans $1.88 to $4.13 across the three tiers. The heavy lead spans $2.14 to $6.73. The single consult costs $7.08 for the one tier where it runs. On the easy tiers any mode reaches the same answer, so spend the least. Buy structure only where the work is hard. That is the whole game.</p>
+    <p>The AMCE figures each mode produced at T2 are in the run directories.</p>
+  </section>
+  <section id="run-it">
+    <h2>Run it yourself</h2>
+    <p>First install Claude Code and the Open Science Skills plugin. You also need R with the <code>projoint</code> package.</p>
     <pre><code>npm install -g @anthropic-ai/claude-code
 claude plugin marketplace add scdenney/open-science-skills
-claude plugin install oss@open-science-skills</code></pre>
-    <p>For the Codex-led mode, install the Codex CLI (follow <a href="https://developers.openai.com/codex/skills">OpenAI's own instructions</a>) and symlink the skills into Codex's user-wide skills folder:</p>
-    <pre><code>git clone https://github.com/scdenney/open-science-skills
-cd open-science-skills
-mkdir -p "$HOME/.agents/skills"
-for skill in "$PWD"/codex/*/; do
-  ln -sfn "${skill%/}" "$HOME/.agents/skills/$(basename "$skill")"
-done</code></pre>
-    <p>Every run analyzes package-shipped data in R, so install R (4.5+) and the <code>projoint</code> package, the only dependency beyond base R and <code>ggplot2</code>:</p>
-    <pre><code>Rscript -e 'install.packages("projoint")'</code></pre>
-    <p>Then clone the demo:</p>
-    <pre><code>git clone https://github.com/scdenney/ai-for-research.git
-cd ai-for-research/demos/orchestration-lab</code></pre>
-    <p><strong>This demo calls hosted models. It is not offline and it is not free.</strong> The mechanical and standard tiers are cheap, but the hard-tier runs committed here cost <strong>$4–7 each</strong> (API-equivalent). The run logs record what each one cost. Re-run selectively.</p>
-  </section>
-
-  <section id="design">
-    <h2>The design <span class="tag">one dataset, three tiers</span></h2>
-    <p>Every run analyzes <code>exampleData1</code> from the <a href="https://cran.r-project.org/package=projoint">projoint</a> R package, a real community-choice conjoint (400 respondents, 8 choice tasks, 2 profiles per task, 7 attributes, plus one repeated task for a reliability check), shipped as a wide-format Qualtrics export. Because it ships with the package there is nothing to download and no license question, so no data is committed to the repo. See <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/data/README.md">data/README.md</a>.</p>
-    <p>Three tiers share one brief each, identical across modes. <strong>T1 (mechanical):</strong> describe the design and check randomization balance. <strong>T2 (standard):</strong> estimate AMCEs for all seven attributes with respondent-clustered uncertainty, plus a dot-and-whisker figure. <strong>T3 (judgment):</strong> answer a reviewer who argues the headline crime finding is an artifact of arbitrary AMCE baselines, using marginal means as the baseline-invariant check.</p>
-    <p>The matrix is 11 runs. Three modes (fable, opus, 46) each run all three tiers. The advisor arm runs only at T3, in two flavors (Claude/Fable and Codex/Sol). That is 3&times;3 + 2 = 11 captured runs.</p>
-    <p>Each run records a <code>run-log.md</code> (tokens, wall-clock, turn count, every delegation, and any friction), a transcript excerpt, the <code>script.R</code> and figures the run produced, and a <code>SHA256SUMS</code> of the artifacts. Every run is scored against <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/reference/ANSWER-KEY.md">reference/ANSWER-KEY.md</a>, whose numbers were computed first from gold-standard scripts. The scores are in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>, the single source every number on this page is copied from.</p>
-  </section>
-
-  <section id="modes">
-    <h2>The four modes</h2>
-    <p>Each mode is one of the Open Science Skills. What they share is a lead model that plans and integrates. What they differ on is who does the work and at what effort.</p>
-
-    <h3>Fable-led</h3>
-    <figure class="fig"><img src="../assets/orchestration-lab/fable-architecture.svg" alt="fable-orchestrate architecture: a Fable 5 orchestrator that plans, delegates, and synthesizes, routing reasoning-heavy work to an Opus deep-reasoner, mechanical work to a Sonnet fast-worker, and second opinions to a GPT-5.6 (gpt-5.6-terra) Codex peer."></figure>
-    <p>Fable 5 leads at maximum effort as a light, fast orchestrator. It plans and synthesizes but delegates the actual work. Reasoning-heavy analysis goes to an Opus deep-reasoner, mechanical work to a Sonnet fast-worker, and high-stakes or fresh-perspective questions to a GPT-5.6 Codex peer (gpt-5.6-terra). Runs in Claude Code.</p>
-
-    <h3>Opus-led</h3>
-    <figure class="fig"><img src="../assets/orchestration-lab/opus-architecture.svg" alt="opus-orchestrate architecture: an Opus 4.8 orchestrator under ultracode that reasons on the hard parts itself and delegates the rest — parallel or blind reasoning to an Opus deep-reasoner, mechanical work to a Sonnet fast-worker, and second opinions to a GPT-5.6 (gpt-5.6-terra) Codex peer."></figure>
-    <p>Opus 4.8 leads under ultracode as a heavy orchestrator that reasons on the hard parts itself. It draws on the same bench (Opus deep-reasoner, Sonnet fast-worker, GPT-5.6 Codex peer) but delegates only to fan out or stay context-lean, which is why it does the most work inline and runs the longest. Runs in Claude Code.</p>
-
-    <h3>Codex-led</h3>
-    <figure class="fig"><img src="../assets/orchestration-lab/46-architecture.svg" alt="46-orchestrate architecture: a GPT-5.6 Terra orchestrator on Codex that plans, delegates, and integrates, spawning same-model researcher, implementer, and verifier subagents, with an optional higher-effort Sol consult held in reserve for the hardest one-shot problems."></figure>
-    <p>GPT-5.6 Terra leads at medium effort on Codex. This is <code>46-orchestrate</code>, the Codex-side name for the Fable mode. It spawns same-model researcher, implementer, and verifier subagents rather than a mixed bench, with an optional higher-effort consult held in reserve for the hardest calls. On this demo's compact tasks it judged briefing more expensive than doing, and worked inline throughout.</p>
-
-    <h3>Advisor consult</h3>
-    <figure class="fig"><img src="../assets/orchestration-lab/advisor-architecture.svg" alt="advisor architecture: a working session at any model and effort solves the task itself, sends one self-contained briefing to a stronger, effort-matched Advisor (Fable 5, or GPT-5.6 on Codex), and receives one decisive, read-only review."></figure>
-    <p>No orchestration. A plain working session solves the task itself, then sends one self-contained briefing to a stronger, effort-matched reviewer for a single decisive read. The reviewer is Fable 5 on Claude Code, or GPT-5.6 on Codex, and is read-only. It never edits your files. Runs on either platform. Here it appears only at T3, the tier where a second opinion is worth paying for.</p>
-  </section>
-
-  <section id="t1">
-    <h2>T1 — describe the design <span class="tag">mechanical</span></h2>
-    <p>The brief (<a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/t1-descriptive.md">t1-descriptive.md</a>) asks for a design summary and a balance check (respondents, tasks, the seven attributes and their level counts, and one faceted frequency figure), within at most one revision cycle and at most three delegations.</p>
-    <table>
-      <tr><th>Mode</th><th>Verdict</th><th>Tokens / cost</th><th>Time</th><th>Routing</th></tr>
-      <tr>
-        <td><a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs/fable/t1">fable</a></td>
-        <td><span class="verdict v-ok">Pass</span> facts correct; flags Driving Time (3.08pp spread)</td>
-        <td>361k in / 5.1k out · $1.88</td>
-        <td>205 s · 3.4 min</td>
-        <td>1 &rarr; Sonnet (low)</td>
-      </tr>
-      <tr>
-        <td><a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs/opus/t1">opus</a></td>
-        <td><span class="verdict v-ok">Pass</span> facts correct; exact 1.94pp max dev, called negligible</td>
-        <td>1.60M in / 25.8k out · $2.26</td>
-        <td>594 s · 9.9 min</td>
-        <td>1 &rarr; Sonnet (low)</td>
-      </tr>
-      <tr>
-        <td><a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs/46/t1">46</a></td>
-        <td><span class="verdict v-ok">Pass</span> facts correct; exact 1.94pp max dev, called negligible</td>
-        <td>66,987 tok</td>
-        <td>194 s · 3.2 min</td>
-        <td>0 — inline</td>
-      </tr>
-    </table>
-    <p>All three get the design facts right. None claims "perfect balance." None reproduces the reference &chi;&sup2;&nbsp;=&nbsp;14.6 test. Full per-run detail (friction, figure conventions, the exact balance language) is in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
-  </section>
-
-  <section id="t2">
-    <h2>T2 — estimate and report <span class="tag">standard</span></h2>
-    <p>The brief (<a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/t2-amce.md">t2-amce.md</a>) asks for AMCEs on all seven attributes with respondent-clustered uncertainty, plus a dot-and-whisker with reference levels at zero and a roughly 200-word results paragraph.</p>
-    <table>
-      <tr><th>Mode</th><th>Verdict</th><th>Tokens / cost</th><th>Time</th><th>Routing</th></tr>
-      <tr>
-        <td><a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs/fable/t2">fable</a></td>
-        <td><span class="verdict v-ok">Pass</span> IRR-corrected AMCEs; crime &minus;25.1</td>
-        <td>617k in / 8.0k out · $2.27</td>
-        <td>303 s · 5.0 min</td>
-        <td>1 &rarr; Sonnet (low)</td>
-      </tr>
-      <tr>
-        <td><a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs/opus/t2">opus</a></td>
-        <td><span class="verdict v-ok">Pass</span> IRR-corrected AMCEs; crime &minus;25.1; &tau;=0.17</td>
-        <td>1.14M in / 35.8k out · $2.14</td>
-        <td>775 s · 12.9 min</td>
-        <td>0 — inline</td>
-      </tr>
-      <tr>
-        <td><a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs/46/t2">46</a></td>
-        <td><span class="verdict v-ok">Pass</span> uncorrected AMCEs (labeled); crime &minus;16.5</td>
-        <td>68,811 tok</td>
-        <td>266 s · 4.4 min</td>
-        <td>0 — inline</td>
-      </tr>
-    </table>
-    <p>The estimand split shows up in the figures, where fable and opus lead with the IRR-corrected AMCEs and 46 with the uncorrected (labeled) ones, a constant 1.525&times; smaller. Below, the reference solution comes first, then the figure each mode produced.</p>
-    <figure class="fig"><img src="../assets/orchestration-lab/t2-reference.png" alt="Reference AMCE dot-and-whisker plot: IRR-corrected estimates for all seven attributes with 95% intervals, reference levels at zero, Violent Crime Rate the largest effect."><figcaption>Reference solution (gold standard, IRR-corrected).</figcaption></figure>
-    <figure class="fig"><img src="../assets/orchestration-lab/t2-fable.png" alt="fable-orchestrate AMCE dot-and-whisker plot: IRR-corrected estimates matching the reference, Okabe-Ito palette, reference levels at zero."><figcaption>fable-orchestrate (IRR-corrected).</figcaption></figure>
-    <figure class="fig"><img src="../assets/orchestration-lab/t2-opus.png" alt="opus-orchestrate AMCE dot-and-whisker plot: IRR-corrected estimates matching the reference, Okabe-Ito palette, reference levels at zero."><figcaption>opus-orchestrate (IRR-corrected).</figcaption></figure>
-    <figure class="fig"><img src="../assets/orchestration-lab/t2-46.png" alt="46-orchestrate AMCE dot-and-whisker plot: uncorrected estimates (about 1.5 times smaller than the corrected reference), Okabe-Ito palette, reference levels at zero."><figcaption>46-orchestrate (uncorrected, labeled).</figcaption></figure>
-    <p>Full detail (figure conventions, the results paragraphs, per-run friction) is in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
-  </section>
-
-  <section id="t3">
-    <h2>T3 — answer the reviewer <span class="tag">judgment</span></h2>
-    <p>The brief (<a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/t3-reviewer-memo.md">t3-reviewer-memo.md</a>) hands each mode a reviewer's objection (that the headline crime finding is an artifact of arbitrary AMCE baselines) and asks for a roughly 400-word reply grounded in marginal means, the baseline-invariant quantity. The trap is over-conceding. The headline attribute is binary, so its magnitude is baseline-invariant.</p>
-    <table>
-      <tr><th>Mode</th><th>Verdict</th><th>Tokens / cost</th><th>Time</th><th>Routing</th></tr>
-      <tr>
-        <td><a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs/fable/t3">fable</a></td>
-        <td><span class="verdict v-ok">Pass</span> misses D (crime&ndash;commute gap within noise)</td>
-        <td>875k in / 12.7k out · $4.13</td>
-        <td>790 s · 13.2 min</td>
-        <td>2 &rarr; Opus (max) + Codex peer, parallel</td>
-      </tr>
-      <tr>
-        <td><a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs/opus/t3">opus</a></td>
-        <td><span class="verdict v-ok">Pass+</span> full MM ranking; calls the top a CI tie</td>
-        <td>6.28M in / 84.8k out · $6.73</td>
-        <td>1469 s · 24.5 min</td>
-        <td>1 &rarr; Codex consult (unpinned)</td>
-      </tr>
-      <tr>
-        <td><a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs/46/t3">46</a></td>
-        <td><span class="verdict v-warn">Partial</span> MMs wrong (.541/.458 vs .626/.374)</td>
-        <td>104,929 tok</td>
-        <td>259 s · 4.3 min</td>
-        <td>0 — inline</td>
-      </tr>
-      <tr>
-        <td><a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs/advisor/t3-claude">advisor · Claude</a></td>
-        <td><span class="verdict v-ok">Distinction</span> reports both 16.5 / 25.1; adds the decisive argument</td>
-        <td>$7.08 (solve $5.52 + revise $1.57)</td>
-        <td>955 s · 15.9 min</td>
-        <td>1 consult (Fable 5 · max)</td>
-      </tr>
-      <tr>
-        <td><a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs/advisor/t3-codex">advisor · Codex</a></td>
-        <td><span class="verdict v-ok">Pass</span> corrected only; A thin, consult fixed over/under-claims</td>
-        <td>115,348 + 111,520 tok</td>
-        <td>~8 min</td>
-        <td>1 consult (gpt-5.6-terra · med)</td>
-      </tr>
-    </table>
-    <p>This is the tier where routing matters. fable's run fanned out along a parallel path (an Opus deep-reasoner for the estimation and a blind Codex peer for an independent read), recorded verbatim in its run log, <code>runs/fable/t3/run-log.md</code>:</p>
-    <pre><code>1. Task → **deep-reasoner** (Opus, inherits session effort): "D1: projoint
-   sensitivity analysis" — the estimation line: alternative baselines via
-   set_qoi, marginal means, the sensitivity figure and table; internal
-   consistency check AMCE ≡ MM-difference holds to 7e-15; corrected (IRR)
-   estimates used throughout.
-2. `codex-peer.sh --mode consult` → **Codex peer** (gpt-5.6-terra @ xhigh):
-   "D2", run blind to the deep-reasoner's interpretation — given only the
-   numbers, it independently reached the same verdict and contributed two
-   residual caveats. This is the skill's high-stakes parallel path (high blast
-   radius: a published claim; hard to verify: judgment about claim strength).</code></pre>
-    <p>Full detail, including every rubric item (A&ndash;E) and each advisor consult's catch, is in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
-  </section>
-
-  <section id="findings">
-    <h2>What the runs show</h2>
-    <p>At the mechanical tier all three modes land in the same place. Each independently arrived at the same design facts (400 respondents, 8 tasks, 2 profiles, 7 attributes, identical level counts) and none claimed "perfect balance." A light Fable lead delegating to Sonnet, a heavy Opus lead delegating to Sonnet, and a medium Codex lead working inline all reach the same numbers. The only gradient is how each phrases the honest imbalance flag. opus and 46 report the exact 1.94pp maximum deviation and call it negligible, while fable reports a 3.08pp spread and calls Driving Time "not indicative of a randomization problem." None reproduced the reference &chi;&sup2;&nbsp;=&nbsp;14.6 test. When the task is computable and single-step, the routing shape is a cost-and-latency choice, not a correctness one. That convergence is itself the finding.</p>
-    <p>The modes differ most in how they route work. 46-orchestrate spawned zero subagents across all three tiers, working inline even on the judgment tier. Its rule is that for compact work, briefing a subagent costs more than doing it. fable-orchestrate delegated both mechanical tiers wholesale to a low-effort Sonnet (one contract each) and saved its fan-out for T3, splitting the estimation to an Opus deep-reasoner and running a blind gpt-5.6-terra Codex peer in parallel. opus-orchestrate kept the reasoning with the lead (zero delegations at T2, zero Task spawns at T3, only the T1 script sent to Sonnet), which is why it runs the longest (24.5 min, 67 turns at T3). The advisor arms are a different shape entirely. A plain solve, one out-of-band consult, one revise, where the consult is the whole intervention.</p>
-    <p>The modes also produce different answers. At T2, fable and opus lead with IRR-corrected AMCEs (crime &minus;25.1pp, projoint's default) while 46 leads with uncorrected AMCEs (crime &minus;16.5pp, labeled). A reader takes away 25pp from two modes and 16pp from the third. 46's T3 marginal means are simply wrong (.541/.458, an 8.3pp gap, against the reference .626/.374), and it never disclosed its IRR choice. opus's T3 Codex consult was uncalibrated. The lead called <code>codex exec</code> without a <code>--model</code> pin, so the second opinion ran at the machine's gpt-5.5 default rather than the prescribed gpt-5.6-terra@xhigh. The deviation cost process fidelity, not accuracy. The two advisor consults each caught a different failure. The Claude/Fable consult verified every number against the on-disk script, table, and figure, added the single decisive argument (no baseline can lift a rival's displayed AMCE above crime's point estimate, so the softening is sampling error, not baselines), surfaced the IRR magnitude, and fixed a &plusmn; notation hazard, which lifted the memo to Distinction. The Codex/Sol consult caught the opposite pair. It flagged an overclaim (crime called the "largest span" untested) and an over-concession (the max&minus;min MM range is baseline-invariant, so concede less), softening the headline to "among the largest, comparable to commuting time."</p>
-    <p>Cost tracks the lead, and the gap widens with difficulty. Within Claude Code the light-lead mode is cheaper than the heavy-lead mode. fable runs $1.88 / $2.27 / $4.13 across the three tiers against opus's $2.26 / $2.14 / $6.73, whose own-reasoning routing spends 6.3M input tokens and 24.5 minutes at T3. The single most expensive cell is the T3 advisor-Claude arm at $7.08 (solve $5.52 + revise $1.57), the two-step protocol that bought the Distinction memo. Codex sits off the USD scale (its CLI reports only tokens), but its footprint is a different order of magnitude. It runs 67k&ndash;105k tokens per tier against fable's 361k&ndash;875k and opus's 1.14M&ndash;6.28M "input" (Claude Code's figure counts cache reads). At the hard tier the within-platform ranking is fable ($4.13) &lt; opus ($6.73) &lt; advisor-Claude ($7.08). 46 and advisor-Codex sit outside the dollar comparison.</p>
-  </section>
-
-  <section id="by-hand">
-    <h2>Check by hand</h2>
-    <div class="rule"><b>The one rule.</b> A captured run is one draw from a non-deterministic process, not a benchmark. These are specimens — one per cell, n&nbsp;=&nbsp;1 — not scores. Read the routing traces and the artifacts, then re-run the briefs yourself and expect your numbers to differ.</div>
-    <p>Re-run T2 yourself and check your estimates against <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/reference">reference/</a>. Under projoint's defaults the corrected column is exact and seed-independent, so your numbers should reproduce to the digit. That is a clean way to see whether a mode's estimand and labeling are honest.</p>
-    <p>Then read every memo against the sensitivity table (<code>reference/t3/sensitivity-table.md</code>). The judgment tier is where the modes diverge, and the table is what settles who is right. It shows whether the marginal means are correct, whether the crime&ndash;commute gap is treated as a statistical tie, and whether the memo concedes exactly what is mechanically true and no more.</p>
-  </section>
-
-  <section id="rerun">
-    <h2>Re-run the matrix</h2>
-    <p>Each run starts from its own leaf directory under <code>runs/&lt;mode&gt;/&lt;tier&gt;/</code>, in a fresh session, so it writes its artifacts in place. Short forms below. The full protocol (excerpt rules, hashing, the advisor arm's three steps) is in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/run.md">prompts/run.md</a>.</p>
-    <p><strong>Fable-led</strong> (headless Claude Code):</p>
-    <pre><code>cd runs/fable/t1
+claude plugin install oss@open-science-skills
+Rscript -e 'install.packages("projoint")'</code></pre>
+    <p>For the headless Claude runs, keep <code>ANTHROPIC_API_KEY</code> unset, or the API account is billed instead of your claude.ai login. One representative command per arm.</p>
+    <pre><code># light lead (fable), headless
+cd runs/fable/t1
 env -u ANTHROPIC_API_KEY claude -p \
   "/oss:fable-orchestrate $(cat ../../../prompts/t1-descriptive.md)" \
-  --output-format json &gt; claude-envelope.json</code></pre>
-    <p><strong>Codex-led</strong> (headless Codex):</p>
-    <pre><code>cd runs/46/t1
-codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium \
-  --sandbox workspace-write --skip-git-repo-check -C "$PWD" \
-  "\$46-orchestrate
-
-$(cat ../../../prompts/t1-descriptive.md)" &lt; /dev/null 2&gt;&amp;1 | tee exec-stdout.log</code></pre>
-    <p>The <code>&lt; /dev/null</code> is load-bearing. <code>codex exec</code> hangs on stdin without it. Swap the tier's prompt file to re-run T2 or T3.</p>
-    <p><strong>Opus-led</strong> is interactive and user-driven, a real Opus 4.8 + ultracode session rather than a headless call. Follow <code>runs/opus/SESSION-PROTOCOL.md</code>. <strong>The advisor arm</strong> is three scripted steps at T3 only (solve, then consult, then revise). See <code>prompts/run.md</code>.</p>
-    <div class="rule"><b>Unset your API key.</b> For headless Claude runs, <code>ANTHROPIC_API_KEY</code> must be unset (<code>env -u ANTHROPIC_API_KEY</code>). If it is set, it overrides the claude.ai login and bills — or fails on — the API account instead.</div>
+  --output-format json &gt; claude-envelope.json
+# heavy lead (opus), interactive Opus session, see runs/opus/SESSION-PROTOCOL.md
+# one consult (advisor), plain solve then one review then revise, see prompts/run.md</code></pre>
+    <p>The full protocol for every arm is in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/run.md">run.md</a>.</p>
+    <div class="rule"><b>One draw.</b> A captured run is one sample from a non-deterministic process, not a benchmark. Re-run the briefs yourself and expect your numbers to differ.</div>
   </section>
+  <p class="note">A Codex-led counterpart to these arms, <code>46-orchestrate</code> and a Codex-side advisor, is also captured in the run directories. It stays out of this write-up until it is re-run from a live Codex session.</p>
 </main>
 
 <footer class="wrap">

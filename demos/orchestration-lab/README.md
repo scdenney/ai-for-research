@@ -1,15 +1,16 @@
 # Orchestration Lab
 
-**One real conjoint analysis, run four ways.** The same three analysis briefs (easy, standard, and hard) run under four multi-model orchestration modes. Every run is committed, with transcripts, token counts, routing traces, and the figures each mode produced.
+**One real conjoint analysis, run three ways with Claude models.** The same three briefs (easy, standard, hard) run under a light lead, a heavy lead, and a single advisor consult. Every run is committed with its transcript, token counts, and figures.
 
 The modes:
 
 | Mode | Lead | Delegates to | Platform |
 |---|---|---|---|
-| `fable-orchestrate` | Fable 5 (light, effort max) | Opus deep-reasoner · Sonnet fast-worker · GPT-5.6 Codex peer | Claude Code |
+| `fable-orchestrate` | Fable 5 (light, effort max) | Opus deep-reasoner · Sonnet fast-worker · peer-model check | Claude Code |
 | `opus-orchestrate` | Opus 4.8 (heavy, ultracode) | same bench; reasons on hard parts itself | Claude Code |
-| `46-orchestrate` | GPT-5.6 Terra (medium effort) | researcher / implementer / verifier spawns (same model) | Codex |
-| `advisor` | plain session + one second-opinion consult | Fable 5 or GPT-5.6 as the reviewer | either |
+| `advisor` | plain session + one consult | Fable 5 as the reviewer | Claude Code |
+
+> A Codex-led counterpart (`46-orchestrate`) and a Codex-side advisor are also captured in `runs/`, but they stay out of the public write-up until re-run from a live Codex session.
 
 > **The one rule.** A captured run is one draw from a non-deterministic process, not a benchmark. These are specimens. Read the routing traces and the artifacts, re-run the briefs yourself, and expect your numbers to differ.
 
@@ -41,7 +42,7 @@ The runs analyze `exampleData1` from the projoint R package, a real community-ch
 
 ## The skills this demonstrates
 
-`fable-orchestrate`, `opus-orchestrate`, `46-orchestrate`, and `advisor` from the [Open Science Skills](https://github.com/scdenney/open-science-skills) toolkit, plus the `figures` conventions every brief enforces.
+`fable-orchestrate`, `opus-orchestrate`, and `advisor` from the [Open Science Skills](https://github.com/scdenney/open-science-skills) toolkit, plus the `figures` conventions every brief enforces. The Codex-led `46-orchestrate` is captured but pending re-run.
 
 ## License
 

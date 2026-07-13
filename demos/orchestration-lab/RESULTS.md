@@ -2,6 +2,29 @@
 
 Single aggregation point: the walkthrough page copies numbers only from this file. Filled after each captured run from its `run-log.md`; scored against the reference answer keys and rubrics, with bands per `SCORING.md` (every brief is graded on six binary items — four core, one judgment, one completeness — so Pass = all core, Pass+ = core plus judgment, Distinction = all six).
 
+## 2026-07-13 re-run — fable + opus on the recalibrated v2.17.0 skills
+
+After the fast-worker `low → medium` recalibration (v2.17.0), the fable and opus arms were re-run headless on all five briefs. The page's fable/opus figures are now this re-run; the original 2026-07-12 captures are in git history. Advisor and 46 were **not** re-run (unaffected: advisor uses no fast-worker; 46 headless is the Terra-lead fallback either way).
+
+Token unit note: the page now reports **tokens processed excluding cached reads** (input + cache_creation + output) for the Claude arms and the Codex CLI's single total for 46 — one unit shared by all four arms, since Claude Code's cache_read counts run into the millions and would dwarf the comparison.
+
+| Run | New band | Prior band | New cost | Prior cost | Tokens (excl. cache reads) | min |
+|---|---|---|---:|---:|---:|---:|
+| fable / t1 | **Pass** (4/6) | Pass+ (5/6) | $0.91 | $1.88 | 37k | 3.7 |
+| fable / t2 | Pass+ (5/6) | Pass+ (5/6) | $0.50 | $2.27 | 35k | 1.6 |
+| fable / t3 | **Pass+** (5/6) | Pass (4/6) | $1.18 | $4.13 | 65k | 3.8 |
+| fable / high-ajr | Distinction (6/6) | Distinction | $1.93 | $1.00 | 73k | 6.4 |
+| fable / vhigh | Distinction (6/6) | Distinction | $3.46 | $1.83 | 126k | 19.0 |
+| opus / t1 | Distinction (6/6) | Distinction | $1.08 | $2.26 | 55k | 4.8 |
+| opus / t2 | Distinction (6/6) | Distinction | $1.23 | $2.14 | 71k | 5.0 |
+| opus / t3 | Pass+ (5/6) | Pass+ (5/6) | $5.19 | $6.73 | 225k | 33.7 |
+| opus / high-ajr | Distinction (6/6) | Distinction | $2.12 | $1.60 | 99k | 8.2 |
+| opus / vhigh | Distinction (6/6) | Distinction | $3.36 | $5.01 | 18k | 2.3 |
+
+**Findings.** (1) opus reproduced all five prior scores exactly; fable moved two moderate-tier verdicts in **opposite** directions — t1 Pass+ → Pass (this run asserted balance without naming the Driving-Time departure) and t3 Pass → Pass+ (this run **caught** the statistical-tie caveat the original missed). So the "reviewer reply separates fable from opus" finding did not reproduce: both are Pass+ now. The misses are draws, not fixed properties — the n=1 caveat, demonstrated. (2) Cost fell across the board on the re-run: fable $11.11 → $7.98, opus $17.74 → $12.98. (3) The ladder held Distinction for both arms. (4) opus/vhigh again ended at a headless session boundary (2 turns) while a background blind audit was outstanding — deliverable complete and Distinction-scoring, but the audit did not fold in (same failure mode as the original fable/vhigh Codex-peer orphan).
+
+The original fifteen-run matrix below is retained as the first capture. The bands in it are the 2026-07-12 scores; where the re-run above differs (fable t1, t3), the re-run is the current page value.
+
 _The page's charts cover the Anthropic arms (fable-orchestrate, opus-orchestrate, and the Claude advisor consult), run identically on every brief: the two orchestrators get the brief verbatim in a fresh headless session, and the advisor arm always runs the same three scripted steps (plain solve, one consult, plain revise). The Codex-led 46-orchestrate arm was re-run on 2026-07-12 at the owner's direction — headless `codex exec`, gpt-5.6-terra · medium, all five briefs, same protocol and rubrics — and its results are integrated below and summarized on the page; it stays out of the USD charts because Codex reports tokens, not dollars. The superseded 2026-07-11 46 captures are in git history. The advisor-Codex arm remains deferred._
 
 **The matrix.** Five briefs at three rungs of difficulty — moderate (T1 Describe, T2 Estimate, T3 Reviewer reply, all on `projoint::exampleData1`), high (`high-ajr`: replicate and stress the AJR colonial-origins IV), very high (`vhigh-lalonde`: adjudicate Dehejia-Wahba vs Smith-Todd on LaLonde) — each run by all three arms. Fifteen captured runs.

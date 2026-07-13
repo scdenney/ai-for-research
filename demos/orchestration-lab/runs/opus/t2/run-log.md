@@ -1,24 +1,24 @@
-# Run log — opus-orchestrate / T2
+# Run log — opus-orchestrate / T2 Estimate (re-run 2026-07-13, v2.17.0)
 
 | Field | Value |
 |---|---|
-| Date | 2026-07-11 |
-| Platform + version | Claude Code 2.1.207 (headless `claude -p --model opus --effort ultracode`, `env -u ANTHROPIC_API_KEY`) |
+| Date | 2026-07-13 (re-run on the recalibrated v2.17.0 skill; the 2026-07-12 capture is in git history) |
+| Platform + version | Claude Code (headless `claude -p --model opus --effort ultracode`, `env -u ANTHROPIC_API_KEY`); oss plugin v2.17.0 |
 | Lead model + effort | Claude Opus 4.8 · ultracode |
-| Brief | `prompts/t2-amce.md` @ commit `7d681d8` |
+| Brief | `prompts/t2-amce.md` |
 | Capture method | headless |
-| Wall-clock | 774.5 s (envelope duration_ms), 24 turns |
-| Tokens / cost | $2.137 API-equivalent (envelope total_cost_usd; usage in claude-envelope.json) |
+| Wall-clock | 4.98 min (envelope duration_ms), 19 turns |
+| Tokens / cost | 17235 output; 71150 tokens excl. cache reads; $1.23 API-equivalent (envelope) |
+| Score | **Distinction (6/6).** All items incl. the full projoint defaults (tau = 0.17, ×1.52, profile-level estimand). Reproduces prior Distinction. |
 
 ## Routing trace
 
-1. none
-2. Lead verified artifacts itself, including a deliberate figure-quality judgment: Okabe-Ito's yellow (assigned to School Quality) is the palette's lightest color, judged legible with whiskers rather than re-plotted — a documented convention trade-off, not an error.
+Lead worked inline; no subagent delegations recorded.
 
-## Friction log
+## Score vs rubric (SCORING.md)
 
-- None fatal recorded.
+**Distinction (6/6).** All items incl. the full projoint defaults (tau = 0.17, ×1.52, profile-level estimand). Reproduces prior Distinction.
 
 ## Artifacts
 
-See `SHA256SUMS`. Deliverables produced by the run itself, unedited. Full transcript retained locally (session eba8b394-c481-430b-a653-a2ed1701a98b).
+See `SHA256SUMS`. Full transcript retained locally (envelope carries the session id).

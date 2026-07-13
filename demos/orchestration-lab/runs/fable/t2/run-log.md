@@ -1,24 +1,24 @@
-# Run log — fable-orchestrate / T2
+# Run log — fable-orchestrate / T2 Estimate (re-run 2026-07-13, v2.17.0)
 
 | Field | Value |
 |---|---|
-| Date | 2026-07-11 |
-| Platform + version | Claude Code 2.1.207 (headless `claude -p`, `env -u ANTHROPIC_API_KEY`) |
+| Date | 2026-07-13 (re-run on the recalibrated v2.17.0 skill; the 2026-07-12 capture is in git history) |
+| Platform + version | Claude Code (headless `claude -p`, `env -u ANTHROPIC_API_KEY`); oss plugin v2.17.0 |
 | Lead model + effort | Fable 5 · max (session default) |
-| Brief | `prompts/t2-amce.md` @ commit `7d681d8` |
+| Brief | `prompts/t2-amce.md` |
 | Capture method | headless |
-| Wall-clock | 302.6 s (envelope duration_ms), 18 turns |
-| Tokens / cost | 616785 in / 8009 out; $2.267 API-equivalent (envelope total_cost_usd) |
+| Wall-clock | 1.6 min (envelope duration_ms), 7 turns |
+| Tokens / cost | 5615 output; 34698 tokens excl. cache reads; $0.504426 API-equivalent (envelope) |
+| Score | Pass+ (5/6). Met crime headline, direction/order (all 17 AMCEs match the key), clustered SEs, AMCE zeroing, estimand disclosed. Missed projoint-defaults-in-full completeness (no tau/×1.52/profile-level estimand in the report). |
 
 ## Routing trace
 
-1. Task → **fast-worker** (Sonnet, effort pinned low): the estimation-and-figure implementation, delegated as one contract (1 of 3 allowed delegations used).
-2. Lead verified the returned artifacts (PNG checked visually and by dimensions, 2700×2700 @ 300 dpi) and wrote `report.md` itself, retaining integration ownership.
+Lead worked inline; no subagent delegations recorded.
 
-## Friction log
+## Score vs rubric (SCORING.md)
 
-- Native advisor tool unavailable in the headless session (noted by the lead; it proceeded on the low-risk mechanical path).
+Pass+ (5/6). Met crime headline, direction/order (all 17 AMCEs match the key), clustered SEs, AMCE zeroing, estimand disclosed. Missed projoint-defaults-in-full completeness (no tau/×1.52/profile-level estimand in the report).
 
 ## Artifacts
 
-See `SHA256SUMS`. Deliverables produced by the run itself, unedited (the run also left an extra `estimates.csv`). Full transcript retained locally (session `dfe5d0ca-3816-4332-8458-1bd6f92a0fa4`).
+See `SHA256SUMS`. Full transcript retained locally (envelope carries the session id).

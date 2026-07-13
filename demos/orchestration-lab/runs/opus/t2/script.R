@@ -110,8 +110,8 @@ pal <- setNames(okabe_ito[seq_along(attr_levels)], attr_levels)
 # ---- Dot-and-whisker plot --------------------------------------------
 p <- ggplot(plot_df, aes(x = est_pp, y = level, colour = attribute_lab)) +
   geom_vline(xintercept = 0, linetype = "dashed", colour = "grey55") +
-  geom_errorbarh(aes(xmin = lo_pp, xmax = hi_pp),
-                 height = 0, linewidth = 0.5, na.rm = TRUE) +
+  geom_errorbar(aes(xmin = lo_pp, xmax = hi_pp), orientation = "y",
+                width = 0, linewidth = 0.5, na.rm = TRUE) +
   geom_point(aes(shape = is_ref), size = 2.4, stroke = 0.7, na.rm = TRUE) +
   facet_grid(attribute_lab ~ ., scales = "free_y", space = "free_y", switch = "y") +
   scale_colour_manual(values = pal, guide = "none") +

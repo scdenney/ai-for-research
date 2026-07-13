@@ -78,6 +78,12 @@ All captured runs, scored on their brief's six items. The 46-orchestrate rows ar
 2026-07-12 re-runs (headless `codex exec`, gpt-5.6-terra · medium); the superseded
 2026-07-11 captures are in git history.
 
+**2026-07-13 re-run (v2.17.0 recalibrated skills):** fable and opus were re-run; the fresh
+scores and the fable t1/t3 band moves are documented in `RESULTS.md` ("2026-07-13 re-run"
+section). opus reproduced all five prior bands; fable moved t1 Pass+ → Pass and t3 Pass →
+Pass+ (the misses moved between draws — the non-compensatory bands held, only which item
+was missed changed). The table below is the original-capture scoring, retained.
+
 | Run | Items met | Points | Norm | Band |
 |---|---|---|---|---|
 | fable / t1 | design counts, attribute set, level counts, repeated task, honest flag | 5/6 | 0.83 | Pass+ |

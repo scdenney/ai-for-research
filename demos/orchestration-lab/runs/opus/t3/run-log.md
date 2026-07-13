@@ -1,26 +1,26 @@
-# Run log — opus-orchestrate / T3
+# Run log — opus-orchestrate / T3 Reviewer reply (re-run 2026-07-13, v2.17.0)
 
 | Field | Value |
 |---|---|
-| Date | 2026-07-11 |
-| Platform + version | Claude Code 2.1.207 (headless `claude -p --model opus --effort ultracode`, `env -u ANTHROPIC_API_KEY`) |
+| Date | 2026-07-13 (re-run on the recalibrated v2.17.0 skill; the 2026-07-12 capture is in git history) |
+| Platform + version | Claude Code (headless `claude -p --model opus --effort ultracode`, `env -u ANTHROPIC_API_KEY`); oss plugin v2.17.0 |
 | Lead model + effort | Claude Opus 4.8 · ultracode |
-| Brief | `prompts/t3-reviewer-memo.md` @ commit `7d681d8` |
+| Brief | `prompts/t3-reviewer-memo.md` |
 | Capture method | headless |
-| Wall-clock | 1468.9 s (~24.5 min), 67 turns |
-| Tokens / cost | $6.729 API-equivalent (envelope total_cost_usd; usage in claude-envelope.json) |
+| Wall-clock | 33.74 min (envelope duration_ms), 37 turns |
+| Tokens / cost | 76640 output; 224653 tokens excl. cache reads; $5.19 API-equivalent (envelope) |
+| Score | **Pass+ (5/6).** Met A, B, C, E, and D the statistical-tie caveat. Missed both-magnitudes completeness F (corrected 25.1 only). Same as prior. |
 
 ## Routing trace
 
-1. No Task delegations — the Opus lead did the sensitivity analysis itself (its routing rule keeps compact hard reasoning with the lead).
-2. One blind Codex consult for the decorrelated second line: the lead composed its own reviewer prompt and called `codex exec` DIRECTLY (read the toolkit's codex-peer.sh first but did not use it), omitting a `--model` pin — so the peer ran at this machine's Codex config default (gpt-5.5), not the calibrated gpt-5.6-terra @ xhigh.
-3. Lead finalized memo.md (437 words), sensitivity-table.md, and the two-panel figure; bootstrap p-values computed by a ~7-minute R run the lead awaited.
+1. Bash discovery calls to locate `codex-peer.sh` (opus-orchestrate skill, v2.17.0).
+2. Task → **deep-reasoner** (Opus): "Blind verdict check (Opus)".
+3. Codex peer call via `codex-peer.sh --mode consult --model gpt-5.6-terra` — blind statistical-tie check on the reviewer memo, correctly pinned to the calibrated peer (terra @ xhigh).
 
-## Friction log
+## Score vs rubric (SCORING.md)
 
-- The envelope's final message is a mid-run status narration rather than a closing summary — the headless session ended its print-mode turn while narrating a background R wait; all artifacts are nonetheless complete and self-consistent.
-- The unpinned `codex exec` call is a calibration deviation worth scoring: the skill's own docs prescribe codex-peer.sh (terra @ xhigh).
+**Pass+ (5/6).** Met A, B, C, E, and D the statistical-tie caveat. Missed both-magnitudes completeness F (corrected 25.1 only). Same as prior.
 
 ## Artifacts
 
-See `SHA256SUMS`. Deliverables produced by the run itself, unedited. Full transcript retained locally (session 9e7144a8-4d63-4c76-80c1-95fdd456218f).
+See `SHA256SUMS`. Full transcript retained locally (envelope carries the session id).

@@ -1,33 +1,30 @@
 # T3 — Reference-category sensitivity: crime AMCEs and marginal means
 
 All estimates are `projoint` measurement-error-**corrected**, profile-level,
-with SEs clustered by respondent (95% CIs in brackets). AMCEs are in
-percentage points on P(profile chosen); MMs are probabilities.
+SEs clustered by respondent (95% CIs in brackets). AMCEs are percentage
+points on P(profile chosen); MMs are probabilities.
 
 ## Table 1. Crime AMCE under each possible baseline (attribute is BINARY)
 
-| Crime level | 20% Less Crime Than National Average | 20% More Crime Than National Average |
+| Level | Baseline: 20% Less Crime Than National Average | Baseline: 20% More Crime Than National Average |
 |---|---|---|
 | 20% More Crime Than National Average | -25.1 [-33.4, -16.8] | 0 (ref) |
 | 20% Less Crime Than National Average | 0 (ref) | +25.1 [+16.8, +33.4] |
 
-A binary attribute admits only ONE contrast. Switching the reference does
-nothing but flip the sign: |AMCE| = 25.1 pp under either baseline. There is
-no baseline under which the crime effect shrinks or vanishes.
+A binary attribute admits ONE contrast, so switching the reference only flips the sign: |AMCE| = 25.1 pp under either baseline. No baseline exists under which the crime effect shrinks or vanishes.
 
 ## Table 2. Commute AMCE under two baselines (a MULTI-LEVEL attribute)
 
-| Commute level | 10 min | 75 min |
+| Level | Baseline: 10 min | Baseline: 75 min |
 |---|---|---|
 | 25 min | -7.0 [-13.9, +0.0] | +16.8 [+9.5, +24.0] |
 | 45 min | -14.1 [-21.2, -6.9] | +9.7 [+2.8, +16.6] |
 | 75 min | -23.7 [-31.0, -16.5] | 0 (ref) |
 | 10 min | 0 (ref) | +23.7 [+16.5, +31.0] |
 
-Here the individual coefficients DO change: the largest single AMCE moves
-from the 75-min level (baseline 10 min) to the 10-min level (baseline 75 min).
-But every pairwise difference — and thus the 23.7 pp min-to-max spread — is
-identical across baselines. The reference only relabels; it does not create effect.
+Individual coefficients DO move with the reference, but every pairwise
+difference — and the min-to-max span — is preserved. The baseline relabels;
+it does not create or destroy effect.
 
 ## Table 3. Marginal means for all levels (baseline-INVARIANT)
 
@@ -60,6 +57,10 @@ identical across baselines. The reference only relabels; it does not create effe
 
 ## Baseline-invariant importance ranking (within-attribute MM range)
 
+AMCE-based importance is baseline-fragile: Table 2 shows the largest commute
+coefficient switching levels with the reference. We therefore rank attributes
+by their marginal-mean range — a quantity that invokes no reference category.
+
 | Rank | Attribute | MM range (pp) |
 |---|---|---|
 | 1 | Violent Crime Rate (Vs National Rate) | 25.1 |
@@ -70,6 +71,27 @@ identical across baselines. The reference only relabels; it does not create effe
 | 6 | Racial Composition | 5.9 |
 | 7 | Presidential Vote (2020) | 5.6 |
 
-Crime has the widest MM spread (25.1 pp), narrowly ahead of commute time
-(23.7 pp); their confidence intervals overlap, so the two sit in a
-statistical tie at the top of a ranking that uses no reference category.
+## Is crime's lead real? Difference in MM ranges vs each other attribute (respondent-cluster bootstrap, B = 500)
+
+Fixed a-priori contrasts (each attribute's max-MM vs min-MM level); two-sided
+p from the bootstrap SE. Note the range metric mechanically favours attributes
+with MORE levels, so it is stacked against binary crime — which still leads.
+
+| Crime range - ... | Diff (pp) | 95% CI | p |
+|---|---|---|---|
+| Total Daily Driving Time for Commuting and Errands | +1.4 | [-10.7, +12.4] | 0.815 |
+| Housing Cost | +5.3 | [-7.4, +17.1] | 0.374 |
+| Type of Place | +9.3 | [-4.0, +20.2] | 0.133 |
+| School Quality | +13.5 | [+1.4, +26.0] | 0.029 |
+| Racial Composition | +19.2 | [+5.8, +30.2] | 0.001 |
+| Presidential Vote (2020) | +19.5 | [+8.0, +29.3] | 0.000 |
+
+Crime has the largest point estimate, but under these pre-specified contrasts its lead is not statistically distinguishable from commute (diff +1.4 pp) or housing (diff +5.3 pp): no detected superiority, which is weaker than proven equality. Crime separates clearly only from the bottom tier (school, race, presidential vote).
+
+Two caveats, both running AGAINST crime: the MM range is design-dependent (it
+reflects each attribute's chosen level set), and for multi-level attributes it is a
+selected max-min extremum that is mechanically inflated relative to binary crime's
+single clean contrast. Crime leads despite both. The difference SEs come from a
+joint respondent-cluster bootstrap that re-estimates every MM (and the IRR
+correction) within each resample, so cross-attribute covariance is carried through;
+the near-zero bootstrap correlation is a diagnostic, not an assumption.

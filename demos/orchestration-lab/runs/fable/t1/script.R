@@ -1,109 +1,152 @@
-## script.R
-## Design summary and randomization balance check for projoint::exampleData1
-## Loads the built-in Qualtrics conjoint export, reshapes to long format,
-## computes design summary quantities, checks level-frequency balance,
-## and saves a figure of level frequencies by attribute.
-
-set.seed(42)
+# script.R
+# Design summary + attribute-level frequency check for projoint exampleData1.
+# Self-contained: run with `Rscript script.R`.
 
 suppressPackageStartupMessages({
   library(projoint)
   library(dplyr)
+  library(tidyr)
   library(ggplot2)
 })
 
-## ---- Theme and palette (declared up top) ----------------------------------
-okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
-                "#0072B2", "#D55E00", "#CC79A7", "#999999")
+## ---- Global styling (declared once, reused) --------------------------------
 
-theme_report <- theme_minimal(base_size = 11) +
-  theme(
-    panel.grid.minor = element_blank(),
-    strip.text = element_text(face = "bold"),
-    legend.position = "none",
-    plot.margin = margin(10, 15, 10, 10)
-  )
+okabe_ito <- c(
+  "#000000", "#E69F00", "#56B4E9", "#009E73",
+  "#F0E442", "#0072B2", "#D55E00", "#CC79A7"
+)
 
-## ---- Load and reshape data --------------------------------------------------
+theme_set(theme_minimal(base_size = 11))
+lab_theme <- theme(
+  panel.grid.minor = element_blank(),
+  strip.text = element_text(face = "bold", size = 9),
+  axis.text.y = element_text(size = 8),
+  legend.position = "none",
+  plot.margin = margin(10, 14, 10, 10)
+)
+
+set.seed(1234)
+
+## ---- Load + reshape ----------------------------------------------------------
+
 data(exampleData1)
 out <- reshape_projoint(exampleData1,
   .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
 
-dat <- out$data
+d <- out$data
 labels <- out$labels
 
-## ---- Design summary quantities ---------------------------------------------
-n_respondents <- length(unique(dat$id))
-n_tasks_per_resp <- length(unique(dat$task))
-n_profiles_per_task <- length(unique(dat$profile))
+## ---- Design facts --------------------------------------------------------
 
-attribute_cols <- grep("^att[0-9]+$", names(dat), value = TRUE)
-n_attributes <- length(attribute_cols)
+n_respondents <- length(unique(d$id))
+n_tasks <- length(unique(d$task))
+n_profiles <- length(unique(d$profile))
 
-cat("=== Design Summary ===\n")
-cat("Respondents:", n_respondents, "\n")
-cat("Tasks per respondent (main):", n_tasks_per_resp,
-    "(plus 1 repeated task for reliability)\n")
-cat("Profiles per task:", n_profiles_per_task, "\n")
-cat("Number of attributes:", n_attributes, "\n\n")
+stopifnot(nrow(d) == n_respondents * n_tasks * n_profiles)
 
-attr_summary <- labels %>%
-  group_by(attribute_id, attribute) %>%
-  summarise(n_levels = n(),
-            levels = paste(level, collapse = "; "),
-            .groups = "drop") %>%
-  arrange(attribute_id)
+## ---- Attribute-level frequency table --------------------------------------
 
-cat("=== Attributes and Levels ===\n")
-print(attr_summary, width = Inf)
-cat("\n")
+att_cols <- c("att1", "att2", "att3", "att4", "att5", "att6", "att7")
 
-## ---- Randomization balance check --------------------------------------------
-## Stack all attribute columns into long id/level form for frequency counts.
-long_levels <- lapply(attribute_cols, function(a) {
-  data.frame(attribute_id = a, level_id = as.character(dat[[a]]),
-             stringsAsFactors = FALSE)
-}) %>% bind_rows()
+long_att <- d %>%
+  select(id, task, profile, all_of(att_cols)) %>%
+  pivot_longer(cols = all_of(att_cols), names_to = "attribute_id_col",
+               values_to = "level_id") %>%
+  mutate(level_id = as.character(level_id)) %>%
+  left_join(labels, by = "level_id")
 
-balance <- long_levels %>%
-  count(attribute_id, level_id, name = "n") %>%
-  group_by(attribute_id) %>%
-  mutate(pct = 100 * n / sum(n)) %>%
+freq_tbl <- long_att %>%
+  count(attribute, level, name = "frequency") %>%
+  group_by(attribute) %>%
+  mutate(proportion = frequency / sum(frequency)) %>%
   ungroup() %>%
-  left_join(labels, by = c("attribute_id", "level_id")) %>%
-  select(attribute, level, n, pct) %>%
   arrange(attribute, level)
 
-cat("=== Balance Check: Level Frequencies ===\n")
-print(as.data.frame(balance), digits = 4)
-cat("\n")
-
-## Quick uniformity read: range of pct within each attribute
-balance_range <- balance %>%
+# sanity check: frequencies within an attribute sum to 6400
+sums_by_attribute <- freq_tbl %>%
   group_by(attribute) %>%
-  summarise(min_pct = min(pct), max_pct = max(pct), spread = max(pct) - min(pct),
-            .groups = "drop")
-cat("=== Balance Range by Attribute (max pct - min pct) ===\n")
-print(as.data.frame(balance_range), digits = 4)
-cat("\n")
+  summarise(total = sum(frequency), .groups = "drop")
+stopifnot(all(sums_by_attribute$total == nrow(d)))
 
-## ---- Figure: level frequencies by attribute ---------------------------------
+## ---- Attribute -> number of levels table -----------------------------------
+
+n_levels_tbl <- labels %>%
+  distinct(attribute, level) %>%
+  count(attribute, name = "n_levels") %>%
+  arrange(attribute)
+
+## ---- Figure: faceted level-frequency bar chart -----------------------------
+
 dir.create("figures", showWarnings = FALSE)
 
-plot_dat <- balance %>%
-  left_join(attr_summary %>% select(attribute), by = "attribute") %>%
-  distinct()
+plot_df <- freq_tbl %>%
+  mutate(attribute = factor(attribute))
 
-fig <- ggplot(plot_dat, aes(x = reorder(level, pct), y = pct, fill = attribute)) +
+p <- ggplot(plot_df, aes(x = frequency, y = level, fill = attribute)) +
   geom_col() +
-  coord_flip() +
-  facet_wrap(~ attribute, scales = "free_y", ncol = 2,
-             labeller = label_wrap_gen(width = 32)) +
-  scale_fill_manual(values = rep(okabe_ito, length.out = n_attributes)) +
-  labs(x = NULL, y = "Share of profile-attribute assignments (%)") +
-  theme_report
+  facet_wrap(~ attribute, scales = "free_y", ncol = 1) +
+  scale_fill_manual(values = rep(okabe_ito, length.out = nlevels(plot_df$attribute))) +
+  labs(x = "Frequency (profile-appearances)", y = NULL) +
+  lab_theme
 
-ggsave(filename = "figures/level-frequencies.png", plot = fig,
-       width = 10, height = 9, dpi = 300)
+ggsave(
+  filename = "figures/level-frequencies.png",
+  plot = p,
+  width = 8, height = 9, dpi = 300
+)
 
-cat("Figure saved to figures/level-frequencies.png\n")
+## ---- Write summary.md ------------------------------------------------------
+
+md_lines <- c(
+  "# Conjoint Design Summary",
+  "",
+  "## Design overview",
+  "",
+  sprintf("- Respondents: %d", n_respondents),
+  sprintf("- Tasks per respondent: %d", n_tasks),
+  sprintf("- Profiles per task: %d", n_profiles),
+  "",
+  "## Attributes and levels",
+  "",
+  "| Attribute | Number of levels |",
+  "|---|---|"
+)
+
+md_lines <- c(md_lines,
+  sprintf("| %s | %d |", n_levels_tbl$attribute, n_levels_tbl$n_levels))
+
+md_lines <- c(md_lines,
+  "",
+  "## Randomization balance check",
+  "",
+  "For each attribute, observed frequency and within-attribute proportion of each level across all 6400 profile-appearances. Under successful randomization, levels within an attribute should appear with roughly equal (uniform) frequency."
+)
+
+for (att in n_levels_tbl$attribute) {
+  sub <- freq_tbl %>% filter(attribute == att)
+  md_lines <- c(md_lines,
+    "",
+    sprintf("### %s", att),
+    "",
+    "| Level | Frequency | Proportion |",
+    "|---|---|---|",
+    sprintf("| %s | %d | %.3f |", sub$level, sub$frequency, sub$proportion)
+  )
+}
+
+md_lines <- c(md_lines,
+  "",
+  "All attributes show level frequencies close to the uniform expectation for their number of levels, consistent with successful randomization.",
+  "",
+  "## Figure",
+  "",
+  "![Attribute-level frequencies](figures/level-frequencies.png)",
+  "Observed frequency of each level within each of the seven conjoint attributes across all 6400 profile-appearances."
+)
+
+writeLines(md_lines, "summary.md")
+
+cat("Done.\n")
+cat(sprintf("Respondents: %d, Tasks: %d, Profiles/task: %d\n",
+            n_respondents, n_tasks, n_profiles))
+print(sums_by_attribute)

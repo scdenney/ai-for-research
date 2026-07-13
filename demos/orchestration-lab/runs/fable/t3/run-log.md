@@ -1,25 +1,24 @@
-# Run log — fable-orchestrate / T3
+# Run log — fable-orchestrate / T3 Reviewer reply (re-run 2026-07-13, v2.17.0)
 
 | Field | Value |
 |---|---|
-| Date | 2026-07-11 |
-| Platform + version | Claude Code 2.1.207 (headless `claude -p`, `env -u ANTHROPIC_API_KEY`) |
+| Date | 2026-07-13 (re-run on the recalibrated v2.17.0 skill; the 2026-07-12 capture is in git history) |
+| Platform + version | Claude Code (headless `claude -p`, `env -u ANTHROPIC_API_KEY`); oss plugin v2.17.0 |
 | Lead model + effort | Fable 5 · max (session default) |
-| Brief | `prompts/t3-reviewer-memo.md` @ commit `7d681d8` |
+| Brief | `prompts/t3-reviewer-memo.md` |
 | Capture method | headless |
-| Wall-clock | 790.3 s (envelope duration_ms), 21 turns |
-| Tokens / cost | 874679 in / 12709 out; $4.134 API-equivalent (envelope total_cost_usd) |
+| Wall-clock | 3.8 min (envelope duration_ms), 13 turns |
+| Tokens / cost | 11807 output; 64674 tokens excl. cache reads; $1.1837259999999998 API-equivalent (envelope) |
+| Score | Pass+ (5/6). Met A baseline-relativity, B binary-invariance, C marginal means (.626/.374), E claim ceiling, and D the statistical-tie caveat ("crime and driving time … statistically indistinguishable at the top"). Missed both-magnitudes completeness F (corrected only). Improved from Pass on the prior capture — this run caught the tie. |
 
 ## Routing trace
 
-1. Task → **deep-reasoner** (Opus, inherits session effort): "D1: projoint sensitivity analysis" — the estimation line: alternative baselines via set_qoi, marginal means, the sensitivity figure and table; internal consistency check AMCE ≡ MM-difference holds to 7e-15; corrected (IRR) estimates used throughout.
-2. `codex-peer.sh --mode consult` → **Codex peer** (gpt-5.6-terra @ xhigh): "D2", run blind to the deep-reasoner's interpretation — given only the numbers, it independently reached the same verdict and contributed two residual caveats. This is the skill's high-stakes parallel path (high blast radius: a published claim; hard to verify: judgment about claim strength).
-3. Lead wrote `memo.md` itself (409 words) and verified all artifacts.
+1. Task → **deep-reasoner** (Opus): "Adversarial audit of reviewer memo" — the lead decided the numbers did not warrant escalating to the parallel Opus‖Codex path this run, so no Codex peer call was made.
 
-## Friction log
+## Score vs rubric (SCORING.md)
 
-- The lead first probed for `codex-peer.sh` locations (one exploratory shell call) before the consult; otherwise clean.
+Pass+ (5/6). Met A baseline-relativity, B binary-invariance, C marginal means (.626/.374), E claim ceiling, and D the statistical-tie caveat ("crime and driving time … statistically indistinguishable at the top"). Missed both-magnitudes completeness F (corrected only). Improved from Pass on the prior capture — this run caught the tie.
 
 ## Artifacts
 
-See `SHA256SUMS`. Deliverables produced by the run itself, unedited. Full transcript retained locally (session ``).
+See `SHA256SUMS`. Full transcript retained locally (envelope carries the session id).

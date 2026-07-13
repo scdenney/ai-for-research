@@ -1,27 +1,25 @@
-# Run log — opus-orchestrate / HIGH (AJR replication and stress)
+# Run log — opus-orchestrate / HIGH (AJR IV replication) (re-run 2026-07-13, v2.17.0)
 
 | Field | Value |
 |---|---|
-| Date | 2026-07-12 |
-| Platform + version | Claude Code 2.1.207 (headless `claude -p --model opus --effort ultracode`, `env -u ANTHROPIC_API_KEY`) |
+| Date | 2026-07-13 (re-run on the recalibrated v2.17.0 skill; the 2026-07-12 capture is in git history) |
+| Platform + version | Claude Code (headless `claude -p --model opus --effort ultracode`, `env -u ANTHROPIC_API_KEY`); oss plugin v2.17.0 |
 | Lead model + effort | Claude Opus 4.8 · ultracode |
-| Brief | `prompts/high-ajr.md` @ commit `0ae449d` |
+| Brief | `prompts/high-ajr.md` |
 | Capture method | headless |
-| Wall-clock | 6.2 min (envelope duration_ms), 20 turns |
-| Tokens / cost | $1.600 API-equivalent (envelope total_cost_usd; usage in claude-envelope.json). The blind Codex check ran on the local Codex CLI and is not in this envelope |
-| Delegations | 1 (blind cross-vendor replication) |
+| Wall-clock | 8.17 min (envelope duration_ms), 28 turns |
+| Tokens / cost | 29395 output; 99147 tokens excl. cache reads; $2.12 API-equivalent (envelope) |
+| Score | **Distinction (6/6).** Replication exact, four stress specs with controls on both IV sides, weak-IV flagged for every spec, unified table, claim ceiling, no overclaim. |
 
 ## Routing trace
 
-1. Lead (Opus 4.8) wrote and ran the full R analysis itself — no Claude subagents.
-2. One delegation: a **blind cross-vendor replication check** via `codex exec` in an isolated `/tmp` directory — the checker got only the data description and the five spec definitions, no access to the lead's numbers, and returned its own estimates for comparison. The lead read the skill's `codex-peer.sh` but composed its own `codex exec` call without a `--model` flag, so the check ran on the CLI default **gpt-5.5 · medium** (not the skill's pinned gpt-5.6-terra · xhigh). The memo's "GPT-5.5 via Codex" note is accurate about what ran.
-3. Lead reconciled (blind check agreed), assembled the table, memo, optional figure, and full-precision CSV.
+1. Bash discovery calls to locate `codex-peer.sh` (opus-orchestrate skill, v2.17.0).
+2. Codex peer call via `codex-peer.sh --mode implement`, run in an isolated `/tmp/ajr-blind` sandbox — a blind cross-vendor replication check: Codex received only the data description and spec definitions, no access to the lead's files or numbers, and wrote and ran its own R independently.
 
-## Friction log
+## Score vs rubric (SCORING.md)
 
-- First blind-check attempt used `--sandbox read-only`; Rscript needs a writable TMPDIR, so the lead retried with `workspace-write` and an explicit TMPDIR. Cost of one wasted Codex round.
-- The hand-rolled Codex call silently inherited the CLI default model instead of the skill's pinned peer — worth knowing when comparing "what the skill specifies" to "what a lead actually does."
+**Distinction (6/6).** Replication exact, four stress specs with controls on both IV sides, weak-IV flagged for every spec, unified table, claim ceiling, no overclaim.
 
 ## Artifacts
 
-See `SHA256SUMS`. All five spec estimates match the reference key; `results.csv` carries full precision; `robustness-figure.png` is the optional figure (Okabe-Ito, no in-plot title). Full transcript retained locally (envelope carries the session id).
+See `SHA256SUMS`. Full transcript retained locally (envelope carries the session id).

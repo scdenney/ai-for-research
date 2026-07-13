@@ -9,8 +9,10 @@ library(ggplot2)
 
 set.seed(1234)
 
-okabe_ito <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
-               "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+## Okabe-Ito palette, 7 colors (pale yellow #F0E442 deliberately omitted
+## for poor contrast on white; 7 attributes = 7 colors is exactly right)
+okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#0072B2",
+               "#D55E00", "#CC79A7", "#000000")
 
 theme_conjoint <- theme_minimal(base_size = 11) +
   theme(

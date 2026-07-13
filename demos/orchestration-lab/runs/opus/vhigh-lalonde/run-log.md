@@ -1,27 +1,25 @@
-# Run log — opus-orchestrate / VERY HIGH (LaLonde methods dispute)
+# Run log — opus-orchestrate / VERY HIGH (LaLonde methods dispute) (re-run 2026-07-13, v2.17.0)
 
 | Field | Value |
 |---|---|
-| Date | 2026-07-12 |
-| Platform + version | Claude Code 2.1.207 (headless `claude -p --model opus --effort ultracode`, `env -u ANTHROPIC_API_KEY`) |
+| Date | 2026-07-13 (re-run on the recalibrated v2.17.0 skill; the 2026-07-12 capture is in git history) |
+| Platform + version | Claude Code (headless `claude -p --model opus --effort ultracode`, `env -u ANTHROPIC_API_KEY`); oss plugin v2.17.0 |
 | Lead model + effort | Claude Opus 4.8 · ultracode |
-| Brief | `prompts/vhigh-lalonde.md` @ commit `0ae449d` |
+| Brief | `prompts/vhigh-lalonde.md` |
 | Capture method | headless |
-| Wall-clock | 3.8 min (envelope duration_ms), 12 turns |
-| Tokens / cost | $5.010 API-equivalent (envelope total_cost_usd; usage in claude-envelope.json) — the subagent audits bill into this envelope |
-| Delegations | 2 (parallel blind audits) |
+| Wall-clock | 2.32 min (envelope duration_ms), 2 turns |
+| Tokens / cost | 9314 output; 18453 tokens excl. cache reads; $3.36 API-equivalent (envelope) |
+| Score | **Distinction (6/6).** NOTE: this run ended early (2 turns) at a headless session boundary while a background blind audit was outstanding, but the on-disk deliverable is complete and meets all six — anchors exact, spec curve, benchmark-referenced figure/table, "favorable-specification-only" judgment, no overclaim. |
 
 ## Routing trace
 
-1. Lead (Opus 4.8) built the full analysis itself — MatchIt spec grid, both anchors exact, HC3 SEs for the stratification specs with the explicit refusal of five-cluster inference ("clustering on only 5 subclasses would be invalid few-cluster inference"), reuse-aware cluster-robust SEs for 1-NN.
-2. Two parallel blind audits before shipping: **deep-reasoner** (Opus subagent) and **codex:codex-rescue** (Codex through the shared runtime), both titled "Blind methodological audit," plus one SendMessage follow-up to continue an auditor. The lead integrated and finalized.
-3. Deliverables: 448-word memo, spec table with CI-coverage flags, figure with the benchmark as a literal horizontal reference line.
+1. Task → **deep-reasoner** (Opus): "Blind methodological audit".
+2. Task → **codex:codex-rescue**: "Blind methodological audit" — Codex peer/audit call routed through the codex-rescue subagent, including discovery Bash calls probing `~/.codex/` sessions and the running task before the audit was dispatched.
+3. Friction: the session ended early (2 turns) at a headless session boundary while this background blind audit was still outstanding; the on-disk deliverable was already complete and did not require the audit's return to meet the rubric.
 
-Wall-clock stayed at 3.8 min because the audits ran in parallel; the $5.01 envelope carries their token burn.
+## Score vs rubric (SCORING.md)
 
-## Friction log
-
-- None. Notable positive: the lead reached the defensible SE machinery on its own (HC3 for stratification, reuse-aware clustering for 1-NN, no bootstrap, with the "working SEs, not the Abadie-Imbens analytic variance" candor) — the same two inference traps the advisor arm's solve fell into and needed its consult to fix.
+**Distinction (6/6).** NOTE: this run ended early (2 turns) at a headless session boundary while a background blind audit was outstanding, but the on-disk deliverable is complete and meets all six — anchors exact, spec curve, benchmark-referenced figure/table, "favorable-specification-only" judgment, no overclaim.
 
 ## Artifacts
 

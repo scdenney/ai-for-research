@@ -3,11 +3,16 @@
 # Produces: eff-cost.png, eff-time.png, eff-quality.png
 # Outputs copied to both analysis/figures/ and docs/assets/orchestration-lab/
 #
-# Sources: every number below is copied from the run-logs (cost, minutes,
-# output tokens, from the claude -p JSON envelopes; advisor rows sum the
-# solve + revise envelopes and their minutes include the unmetered consult)
-# and from SCORING.md (items met of 6; bands are categorical, the fraction
-# is their chart representation).
+# Sources: cost (USD), minutes, and tokens from the claude -p JSON envelopes
+# (fable + opus RE-RUN 2026-07-13 on the recalibrated v2.17.0 skill; advisor
+# and Codex unchanged from 2026-07-12; advisor rows sum the solve + revise
+# envelopes and their minutes include the unmetered consult) and from
+# SCORING.md (items met of 6; bands are categorical, the fraction is their
+# chart representation). The token column is "tokens processed, excluding
+# cached reads" = input + cache_creation + output for the Claude arms (cache
+# reads are cheap reused context and would otherwise dwarf the comparison);
+# for the Codex arm it is the CLI's single total-tokens figure, its only
+# number. This is the one unit shared by all four arms.
 
 suppressPackageStartupMessages({
   library(ggplot2)
@@ -45,24 +50,24 @@ theme_demo <- theme_minimal(base_size = 15) +
 
 # ---- data (captured-run numbers) ----
 df <- rbind(
-  data.frame(mode = "Fable lead",    brief = "T1", cost_usd = 1.88, minutes = 3.4,  out_tokens = 5100,  items = 5),
-  data.frame(mode = "Fable lead",    brief = "T2", cost_usd = 2.27, minutes = 5.0,  out_tokens = 8000,  items = 5),
-  data.frame(mode = "Fable lead",    brief = "T3", cost_usd = 4.13, minutes = 13.2, out_tokens = 12700, items = 4),
-  data.frame(mode = "Fable lead",    brief = "H",  cost_usd = 1.00, minutes = 3.5,  out_tokens = 9256,  items = 6),
-  data.frame(mode = "Fable lead",    brief = "VH", cost_usd = 1.83, minutes = 8.1,  out_tokens = 9732,  items = 6),
-  data.frame(mode = "Opus lead",     brief = "T1", cost_usd = 2.26, minutes = 9.9,  out_tokens = 25800, items = 6),
-  data.frame(mode = "Opus lead",     brief = "T2", cost_usd = 2.14, minutes = 12.9, out_tokens = 35800, items = 6),
-  data.frame(mode = "Opus lead",     brief = "T3", cost_usd = 6.73, minutes = 24.5, out_tokens = 84800, items = 5),
-  data.frame(mode = "Opus lead",     brief = "H",  cost_usd = 1.60, minutes = 6.2,  out_tokens = 22940, items = 6),
-  data.frame(mode = "Opus lead",     brief = "VH", cost_usd = 5.01, minutes = 3.8,  out_tokens = 15723, items = 6),
-  data.frame(mode = "Advisor", brief = "T1", cost_usd = 4.99, minutes = 20.8, out_tokens = 45832, items = 6),
-  data.frame(mode = "Advisor", brief = "T2", cost_usd = 1.65, minutes = 13.4, out_tokens = 10262, items = 5),
-  data.frame(mode = "Advisor", brief = "T3", cost_usd = 7.08, minutes = 15.9, out_tokens = 45500, items = 6),
-  data.frame(mode = "Advisor", brief = "H",  cost_usd = 1.09, minutes = 8.4,  out_tokens = 15768, items = 6),
-  data.frame(mode = "Advisor", brief = "VH", cost_usd = 3.36, minutes = 18.3, out_tokens = 56552, items = 6),
-  # Codex arm (2026-07-12 re-run): the CLI reports tokens, not USD, so cost_usd
-  # is NA and these rows drop out of the cost chart only. out_tokens here is the
-  # CLI's total tokens-used figure, not comparable to the Claude columns.
+  data.frame(mode = "Fable lead",    brief = "T1", cost_usd = 0.91, minutes = 3.7,  out_tokens = 37000,  items = 4),
+  data.frame(mode = "Fable lead",    brief = "T2", cost_usd = 0.50, minutes = 1.6,  out_tokens = 34700,  items = 5),
+  data.frame(mode = "Fable lead",    brief = "T3", cost_usd = 1.18, minutes = 3.8,  out_tokens = 64700,  items = 5),
+  data.frame(mode = "Fable lead",    brief = "H",  cost_usd = 1.93, minutes = 6.4,  out_tokens = 73300,  items = 6),
+  data.frame(mode = "Fable lead",    brief = "VH", cost_usd = 3.46, minutes = 19.0, out_tokens = 126000, items = 6),
+  data.frame(mode = "Opus lead",     brief = "T1", cost_usd = 1.08, minutes = 4.8,  out_tokens = 55100,  items = 6),
+  data.frame(mode = "Opus lead",     brief = "T2", cost_usd = 1.23, minutes = 5.0,  out_tokens = 71200,  items = 6),
+  data.frame(mode = "Opus lead",     brief = "T3", cost_usd = 5.19, minutes = 33.7, out_tokens = 224700, items = 5),
+  data.frame(mode = "Opus lead",     brief = "H",  cost_usd = 2.12, minutes = 8.2,  out_tokens = 99100,  items = 6),
+  data.frame(mode = "Opus lead",     brief = "VH", cost_usd = 3.36, minutes = 2.3,  out_tokens = 18500,  items = 6),
+  data.frame(mode = "Advisor", brief = "T1", cost_usd = 4.99, minutes = 20.8, out_tokens = 196800, items = 6),
+  data.frame(mode = "Advisor", brief = "T2", cost_usd = 1.65, minutes = 13.4, out_tokens = 73100,  items = 5),
+  data.frame(mode = "Advisor", brief = "T3", cost_usd = 7.08, minutes = 15.9, out_tokens = 160600, items = 6),
+  data.frame(mode = "Advisor", brief = "H",  cost_usd = 1.09, minutes = 8.4,  out_tokens = 89700,  items = 6),
+  data.frame(mode = "Advisor", brief = "VH", cost_usd = 3.36, minutes = 18.3, out_tokens = 212300, items = 6),
+  # Codex arm (2026-07-12; unaffected by the recalibration — headless = the
+  # Terra-lead fallback either way, so not re-run). out_tokens is the CLI's
+  # single total-tokens figure (no input/output breakdown; no USD reported).
   data.frame(mode = "Codex lead",       brief = "T1", cost_usd = NA,   minutes = 3.3,  out_tokens = 64057, items = 4),
   data.frame(mode = "Codex lead",       brief = "T2", cost_usd = NA,   minutes = 4.1,  out_tokens = 63539, items = 5),
   data.frame(mode = "Codex lead",       brief = "T3", cost_usd = NA,   minutes = 3.9,  out_tokens = 92446, items = 4),
@@ -97,35 +102,30 @@ save_png <- function(plot, filename, width_in = 8, height_in = 4.5, dpi = 300) {
   }
 }
 
-# ---- Chart 1: spend by brief, all four arms ----
-# The Claude CLI prices its runs in USD; the Codex CLI reports a token count
-# and no dollars, and cross-vendor token counts are not comparable. So one
-# figure, two panels, each in its own honest unit.
-df_usd <- df[!is.na(df$cost_usd), ]
-df_usd$metric <- "Claude arms: API-equivalent cost (USD)"
-df_usd$value <- df_usd$cost_usd
-df_tok <- df[df$mode == "Codex lead", ]
-df_tok$metric <- "Codex arm: tokens (thousands)"
-df_tok$value <- df_tok$out_tokens / 1000
-df_cost <- rbind(df_usd, df_tok)
-df_cost$metric <- factor(df_cost$metric, levels = c(
-  "Claude arms: API-equivalent cost (USD)",
-  "Codex arm: tokens (thousands)"
-))
+# ---- Chart 1: tokens by brief, all four arms on one unit ----
+# One unit so the Codex arm sits with the rest. For the Claude arms this is
+# output (generated) tokens from the run envelope; the Codex CLI reports only a
+# single total-tokens figure, shown as-is. Neither counts Claude Code's
+# cached-context reads (billed at a fraction, and millions per run), which would
+# otherwise dwarf the comparison. USD is labeled on the Claude bars where the
+# CLI reports it; the Codex CLI reports no dollars.
+tok_dodge <- position_dodge2(width = 0.85, preserve = "single")
+df$tok_k <- df$out_tokens / 1000
+df$usd_lab <- ifelse(is.na(df$cost_usd), "",
+                     paste0("$", formatC(df$cost_usd, format = "f", digits = 2)))
 
-p_cost <- ggplot(df_cost, aes(x = brief, y = value, fill = mode)) +
-  geom_col(position = position_dodge2(width = 0.8, preserve = "single"), width = 0.7) +
-  facet_wrap(~metric, scales = "free_y") +
+p_cost <- ggplot(df, aes(x = brief, y = tok_k, fill = mode)) +
+  geom_col(position = tok_dodge, width = 0.78) +
+  geom_text(aes(label = usd_lab), position = tok_dodge,
+            vjust = -0.45, size = 2.5, colour = "grey25") +
   scale_fill_manual(values = pal, breaks = mode_levels) +
   scale_x_discrete(labels = brief_labels, drop = FALSE) +
-  labs(x = NULL, y = NULL) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.10))) +
+  labs(x = NULL, y = "Tokens per run (thousands)") +
   theme_demo +
-  theme(
-    axis.text.x = element_text(size = 8.5),
-    strip.text = element_text(size = 11.5, face = "bold")
-  )
+  theme(axis.text.x = element_text(size = 9))
 
-save_png(p_cost, "eff-cost.png", width_in = 9.5, height_in = 4.5)
+save_png(p_cost, "eff-cost.png", width_in = 9, height_in = 5)
 
 # ---- Chart 2: wall-clock minutes by brief, grouped bars ----
 p_time <- ggplot(df, aes(x = brief, y = minutes, fill = mode)) +

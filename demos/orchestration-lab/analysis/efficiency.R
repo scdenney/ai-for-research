@@ -35,9 +35,9 @@ brief_levels <- c("T1", "T2", "T3", "H", "VH")
 brief_labels <- c(
   "T1" = "Describe\n(easy)",
   "T2" = "Estimate\n(standard)",
-  "T3" = "Reviewer reply\n(hard)",
-  "H"  = "IV replication\n(high)",
-  "VH" = "Methods dispute\n(very high)"
+  "T3" = "Reviewer reply\n(moderate)",
+  "H"  = "IV replication\n(hard)",
+  "VH" = "Methods dispute\n(very hard)"
 )
 
 # ---- shared theme ----
@@ -62,7 +62,7 @@ df <- rbind(
   data.frame(mode = "Opus lead",     brief = "T2", cost_usd = 1.23, minutes = 5.0,  out_tokens = 71200,  items = 6),
   data.frame(mode = "Opus lead",     brief = "T3", cost_usd = 5.19, minutes = 33.7, out_tokens = 224700, items = 5),
   data.frame(mode = "Opus lead",     brief = "H",  cost_usd = 2.12, minutes = 8.2,  out_tokens = 99100,  items = 6),
-  data.frame(mode = "Opus lead",     brief = "VH", cost_usd = 3.36, minutes = 2.3,  out_tokens = 18500,  items = 6),
+  data.frame(mode = "Opus lead",     brief = "VH", cost_usd = 2.72, minutes = 10.9, out_tokens = 129000, items = 6),
   data.frame(mode = "Advisor", brief = "T1", cost_usd = 4.99, minutes = 20.8, out_tokens = 196800, items = 6),
   data.frame(mode = "Advisor", brief = "T2", cost_usd = 1.65, minutes = 13.4, out_tokens = 73100,  items = 5),
   data.frame(mode = "Advisor", brief = "T3", cost_usd = 7.08, minutes = 15.9, out_tokens = 160600, items = 6),

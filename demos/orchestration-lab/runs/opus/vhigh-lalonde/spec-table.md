@@ -1,19 +1,19 @@
-# Specification table — does matching recover the NSW benchmark?
+# Specification table — recovering the NSW experimental benchmark
 
-**Experimental benchmark (treated − control in `nsw_mixtape`): $1,794** (HC3 SE $673, 95% CI [$476, $3,113]).
-This is the unbiased target. Estimator = ATT on `re78`. Positive **gap** = estimate above benchmark; negative = below.
+**Experimental benchmark (unbiased target):** +$1,794  (SE 673; 95% CI [+$476, +$3,113]).
 
-| Spec | Covariates | Estimator | Common support | Treated used | ATT estimate | 95% CI | Benchmark | Gap vs benchmark | CI covers benchmark? |
-|---|---|---|---|---:|---:|---|---:|---:|:--:|
-| Naive | — (raw diff) | none | all | 185 | -$8,498 | [-$9,644, -$7,351] | $1,794 | -$10,292 | **no** |
-| S1 | Demographics only | 1-NN (replace) | none | 185 | -$2,798 | [-$4,866, -$730] | $1,794 | -$4,592 | **no** |
-| S2 | Demographics only | 1-NN (replace) | common support | 185 | -$2,798 | [-$4,866, -$730] | $1,794 | -$4,592 | **no** |
-| S3 | Demographics only | Stratification (5) | none | 185 | -$4,137 | [-$5,492, -$2,782] | $1,794 | -$5,931 | **no** |
-| S4 | Demographics + re74/re75 | 1-NN (replace) | none | 185 | $1,712 | [$178, $3,247] | $1,794 | -$82 | yes |
-| S5 | Demographics + re74/re75 | 1-NN (replace) | common support | 185 | $1,759 | [$221, $3,296] | $1,794 | -$36 | yes |
-| S6 | Demographics + re74/re75 | Stratification (5) | none | 185 | -$144 | [-$1,439, $1,152] | $1,794 | -$1,938 | **no** |
+Estimand: ATT of NSW training on 1978 earnings (re78). Composite sample = 185 NSW treated + 15,992 CPS controls. `Gap = estimate - benchmark`. `Covers?` = does the estimate's 95% CI contain the benchmark point (+$1,794).
 
-**Standard errors.** Benchmark and naive: HC3 heteroskedasticity-robust. 1-NN specs: cluster-robust sandwich on the matched sample (matched set + reused-control identity; ~185 matched-set clusters). Stratification specs: HC3 robust — units within a subclass are independent by design, so clustering on only 5 subclasses would be invalid few-cluster inference. The ordinary nonparametric bootstrap is **not** used — Abadie & Imbens (2008) show it is invalid for nearest-neighbour matching variances. The 1-NN cluster-robust SEs are defensible *working* SEs, not the Abadie-Imbens analytic matching variance (the `Matching` package is unavailable); they also treat the propensity score as known (AI 2016), which for the ATT is typically conservative.
+| Specification | Covariate set | Estimator | Treated N | Estimate | 95% CI | Gap vs. benchmark | Covers? |
+|---|---|---|---:|---:|:---:|---:|:---:|
+| Naive (observational) | - | unadjusted | 185 | -$8,498 | [-$9,644, -$7,351] | -$10,292 | **no** |
+| NN · demog. · no-trim | Demographics only | 1-NN (replace) | 185 | -$2,798 | [-$4,866, -$730] | -$4,592 | **no** |
+| NN · demog. · trim | Demographics only | 1-NN (replace) | 185 | -$2,798 | [-$4,866, -$730] | -$4,592 | **no** |
+| Strat · demog. | Demographics only | Stratification (6) | 185 | -$3,622 | [-$4,924, -$2,319] | -$5,416 | **no** |
+| NN · +re74/75 · no-trim | Demographics + re74/re75 | 1-NN (replace) | 185 | +$1,712 | [+$178, +$3,247] | -$82 | yes |
+| NN · +re74/75 · trim | Demographics + re74/re75 | 1-NN (replace) | 185 | +$1,759 | [+$221, +$3,296] | -$36 | yes |
+| Strat · +re74/75 | Demographics + re74/re75 | Stratification (6) | 185 | +$61 | [-$1,209, +$1,330] | -$1,734 | **no** |
 
-**Notes.** ATT via weighted outcome regression on the MatchIt sample (`estimand = "ATT"`, 1-NN with `replace = TRUE`; logit propensity score). Common-support trimming (`discard = "both"`) discards units outside the propensity-score overlap. It was **non-binding for the ATT**: no treated unit fell outside the CPS controls' score range (all 185 retained, so S1≡S2 and S4/S5 differ only trivially); it trimmed many never-matched controls (≈3,300 in demo-only, ≈10,200 in demo+earn) that were not selected as neighbours anyway. The sensitivity here is driven by the covariate set and the estimator, not by trimming.
+**Benchmark row (reference):** Experimental | — | unadjusted | 185 | +$1,794 | [+$476, +$3,113] | +$0 | yes |
 
+*SEs:* naive, stratification, and benchmark use HC3 heteroskedasticity-robust SEs; 1-NN specs use cluster-robust SEs clustered on the matched pair **and** the reused control unit (`~subclass + id` on `get_matches()`). The ordinary nonparametric bootstrap is **not** used — it is invalid for nearest-neighbour matching variances (Abadie & Imbens 2008). Cluster-robust matching SEs approximate but do not equal Abadie-Imbens analytic SEs (the `Matching` package is not installed).

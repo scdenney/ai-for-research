@@ -1,8 +1,13 @@
-# =============================================================================
-# LaLonde (1986) / Dehejia-Wahba vs Smith-Todd specification curve
-# Experimental benchmark vs observational (NSW treated + CPS controls) PSM.
-# Self-contained: run with `Rscript script.R`.
-# =============================================================================
+## script.R
+## VHIGH -- LaLonde NSW experiment vs. Dehejia-Wahba / Smith-Todd dispute.
+## Does propensity-score matching on an observational composite (NSW treated +
+## CPS controls) recover the experimental benchmark? We run a specification
+## curve over two axes -- covariate set (demographics vs. + re74/re75) and
+## estimator detail (1-NN matching, 1-NN with common-support trimming, PS
+## stratification) -- and lay every estimate against the benchmark.
+##
+## Produces: spec-table.md and figures/spec-curve.png
+## Self-contained: Rscript script.R
 
 suppressPackageStartupMessages({
   library(causaldata)
@@ -10,304 +15,197 @@ suppressPackageStartupMessages({
   library(sandwich)
   library(lmtest)
   library(ggplot2)
+  library(dplyr)
 })
 
-# ---- Palette + theme first (convention: aesthetics before analysis) ---------
-okabe_ito <- c(
-  orange   = "#E69F00", skyblue = "#56B4E9", green = "#009E73",
-  yellow   = "#F0E442", blue    = "#0072B2", vermil = "#D55E00",
-  purple   = "#CC79A7", black   = "#000000"
-)
-
-theme_clean <- theme_minimal(base_size = 12) +
+## ---- Plotting theme (declared up top) ---------------------------------
+theme_report <- theme_minimal(base_size = 12) +
   theme(
+    plot.title      = element_blank(),
+    axis.title      = element_text(size = 10),
+    axis.text       = element_text(size = 9),
     panel.grid.minor = element_blank(),
-    panel.grid.major.x = element_blank(),
-    axis.line = element_line(colour = "grey30", linewidth = 0.3),
-    axis.ticks = element_line(colour = "grey30", linewidth = 0.3),
-    plot.caption = element_text(hjust = 0, colour = "grey35", size = 9),
-    legend.position = "top"
+    legend.position = "top",
+    legend.title    = element_text(size = 9),
+    legend.text     = element_text(size = 9)
   )
+theme_set(theme_report)
 
-# ---- Seed before anything stochastic (MatchIt ties / glm) -------------------
-set.seed(20260712)
-
-# ---- Data -------------------------------------------------------------------
-data(nsw_mixtape,  package = "causaldata")
-data(cps_mixtape,  package = "causaldata")
-nsw <- as.data.frame(nsw_mixtape)
-cps <- as.data.frame(cps_mixtape)
-
-# =============================================================================
-# 1. EXPERIMENTAL BENCHMARK: treated - control in re78 within randomized NSW.
-#    Randomized -> simple difference-in-means (OLS) SE is valid.
-# =============================================================================
-#    SE: heteroskedasticity-robust (HC2) = the Neyman randomization variance for
-#    a two-arm experiment; more defensible than homoskedastic OLS when the two
-#    arms have unequal outcome variance (they do here).
-bench_fit      <- lm(re78 ~ treat, data = nsw)
-benchmark_est  <- unname(coef(bench_fit)["treat"])
-benchmark_se   <- sqrt(sandwich::vcovHC(bench_fit, type = "HC2")["treat", "treat"])
-benchmark_low  <- benchmark_est - 1.96 * benchmark_se
-benchmark_high <- benchmark_est + 1.96 * benchmark_se
-
-# =============================================================================
-# 2. OBSERVATIONAL COMPOSITE: NSW treated (treat==1) + CPS controls (treat==0).
-# =============================================================================
-covs <- c("age", "educ", "black", "hisp", "marr", "nodegree", "re74", "re75", "re78")
-obs <- rbind(
-  data.frame(treat = 1L, nsw[nsw$treat == 1, covs]),
-  data.frame(treat = 0L, cps[, covs])
+## ---- Okabe-Ito colorblind-safe palette --------------------------------
+okabe_ito <- c(
+  "#E69F00", "#56B4E9", "#009E73", "#F0E442",
+  "#0072B2", "#D55E00", "#CC79A7", "#000000"
 )
-obs$treat <- as.integer(obs$treat)
 
-# =============================================================================
-# 3. NAIVE observational estimate: raw treated - control diff in re78.
-# =============================================================================
-naive_fit  <- lm(re78 ~ treat, data = obs)
-naive_est  <- unname(coef(naive_fit)["treat"])
-naive_se   <- sqrt(sandwich::vcovHC(naive_fit, type = "HC2")["treat", "treat"])  # HC2 robust
-naive_low  <- naive_est - 1.96 * naive_se
-naive_high <- naive_est + 1.96 * naive_se
+## ---- Fixed seed (before anything stochastic) --------------------------
+set.seed(20260713)
 
-# =============================================================================
-# 4. PROPENSITY-SCORE MATCHING SPECIFICATIONS
-#    Axis (a) covariate set: demographics-only  vs  demographics + re74 + re75
-#    Axis (b) estimator detail: 1-NN (no trim) / 1-NN (common-support trim) /
-#                               propensity-score subclassification (strata)
-# -----------------------------------------------------------------------------
-# STANDARD ERRORS.
-#   For 1-NN matching we do NOT use the ordinary nonparametric bootstrap:
-#   Abadie & Imbens (2008, Econometrica) prove the bootstrap distribution does
-#   not converge to the correct limit for nearest-neighbor matching, because the
-#   matching functional is extremely non-smooth (number of times a control is
-#   reused is a step function of the data). Instead, for the NN specs we take
-#   the matched pairs from get_matches(), fit a weighted lm(re78 ~ treat), and
-#   report CLUSTER-ROBUST SEs clustered on the original control-unit id. Because
-#   matching is with replacement, a CPS control can be reused across many treated
-#   units; clustering on control id accounts for that repeated-use dependence.
-#   This is the handling MatchIt's own "estimating effects" guidance recommends
-#   for matching WITH REPLACEMENT. It is a pragmatic sandwich, NOT the
-#   Abadie-Imbens (2006) score-adjusted matching variance -- the `Matching`
-#   package that implements that estimator is not installed, and we do not hand-
-#   roll it here -- so uncertainty from ESTIMATING the propensity score is not
-#   fully propagated into the NN intervals (they are, if anything, mildly
-#   optimistic). We flag this rather than overclaim precision.
-#   For the subclassification specs we use HC3 heteroskedasticity-robust SEs on
-#   the subclass-weighted outcome regression (the MatchIt-documented default for
-#   weighted/subclassified estimators) -- NOT clustering on the 6 strata, which
-#   would be an indefensibly small number of clusters for cluster asymptotics.
-# =============================================================================
+dir.create("figures", showWarnings = FALSE)
 
-demo_covs <- c("age", "educ", "black", "hisp", "marr", "nodegree")
-full_covs <- c(demo_covs, "re74", "re75")
-f_demo <- reformulate(demo_covs, response = "treat")
-f_full <- reformulate(full_covs, response = "treat")
+## ---- Data (exact loading spec) ----------------------------------------
+nsw <- causaldata::nsw_mixtape   # 445 = 185 treated + 260 control (experimental)
+cps <- causaldata::cps_mixtape   # 15,992 CPS observational controls
+z    <- 1.959964                 # 95% normal critical value
 
-# --- NN estimator: weighted lm on matched pairs, cluster-robust by control id -
-#   trim = FALSE : plain 1-NN with replacement (no common-support restriction).
-#   trim = TRUE  : Dehejia-Wahba style common-support restriction -- a 0.1-SD
-#                  propensity-score caliper plus discard="both", which drops
-#                  treated units with no comparable control and controls off the
-#                  treated support (estimand becomes ATT on the overlap region).
-nn_estimate <- function(f, trim) {
-  m <- matchit(f, data = obs, method = "nearest", distance = "glm",
-               estimand = "ATT", replace = TRUE,
-               discard = if (trim) "both" else "none",
-               caliper = if (trim) 0.1 else NULL)
-  gm <- get_matches(m, data = obs)          # one row per matched pair member
-  fit <- lm(re78 ~ treat, data = gm, weights = gm$weights)
-  # cluster on original control-unit id (reused controls share an id)
-  V  <- sandwich::vcovCL(fit, cluster = gm$id)
-  ct <- lmtest::coeftest(fit, vcov. = V)
-  est <- unname(ct["treat", "Estimate"])
-  se  <- unname(ct["treat", "Std. Error"])
-  # diagnostics: treated retained (justifies the ATT label) + control reuse +
-  #   worst-case post-match covariate imbalance (max |standardized mean diff|).
-  n_tr    <- sum(m$treat == 1 & m$weights > 0)       # treated kept after discard
-  n_ctrl  <- length(unique(gm$id[gm$treat == 0]))    # distinct controls used
-  smd     <- summary(m)$sum.matched[, "Std. Mean Diff."]
-  max_smd <- max(abs(smd[!is.na(smd)]))
-  c(est = est, se = se, low = est - 1.96 * se, high = est + 1.96 * se,
-    n_tr = n_tr, n_ctrl = n_ctrl, max_smd = max_smd)
+## =======================================================================
+## 1. EXPERIMENTAL BENCHMARK  (treated - control within the NSW experiment)
+## =======================================================================
+bench_fit <- lm(re78 ~ treat, data = nsw)
+bench_est <- unname(coef(bench_fit)["treat"])
+bench_se  <- sqrt(vcovHC(bench_fit, type = "HC2")["treat", "treat"])
+bench_lo  <- bench_est - z * bench_se
+bench_hi  <- bench_est + z * bench_se
+
+## =======================================================================
+## 2. OBSERVATIONAL COMPOSITE  (NSW treated + CPS controls)
+## =======================================================================
+comp <- rbind(subset(nsw, treat == 1), cps)   # treat: NSW-treated=1, CPS=0
+comp$id <- seq_len(nrow(comp))                 # stable unit id for clustering
+
+## ---- 2a. Naive raw difference (no adjustment) -------------------------
+naive_fit <- lm(re78 ~ treat, data = comp)
+naive_est <- unname(coef(naive_fit)["treat"])
+naive_se  <- sqrt(vcovHC(naive_fit, type = "HC2")["treat", "treat"])
+naive_lo  <- naive_est - z * naive_se
+naive_hi  <- naive_est + z * naive_se
+
+## ---- Covariate sets (the first axis) ----------------------------------
+f_demog <- treat ~ age + educ + black + hisp + marr + nodegree
+f_earn  <- treat ~ age + educ + black + hisp + marr + nodegree + re74 + re75
+
+## ---- 2b(i). 1-NN PS matching, ATT, with replacement -------------------
+## SE: Abadie-Imbens (2008) show the ordinary nonparametric bootstrap is
+## invalid for NN-matching variances, and the exact Abadie-Imbens (2006)
+## analytic matching variance lives in the `Matching` package, which is not
+## installed. As the defensible MatchIt-only substitute we fit the outcome on
+## the matched set and take cluster-robust SEs, clustering on the matched pair
+## (subclass) AND the original unit id -- the latter accounts for control units
+## reused across matches under replacement (Greifer, MatchIt vignette). This is
+## a design-based APPROXIMATION to the AI variance, not the AI estimator itself.
+est_nn <- function(formula, data, trim) {
+  m <- matchit(formula, data = data, method = "nearest", distance = "glm",
+               link = "logit", estimand = "ATT", replace = TRUE,
+               discard = if (trim) "both" else "none")
+  gm  <- get_matches(m, id = "unit")     # one row per (pair) membership
+  fit <- lm(re78 ~ treat, data = gm, weights = weights)
+  V   <- vcovCL(fit, cluster = ~ subclass + unit)
+  est <- unname(coef(fit)["treat"])
+  se  <- sqrt(V["treat", "treat"])
+  n_t <- sum(m$treat == 1 & m$weights > 0)
+  list(est = est, se = se, lo = est - z * se, hi = est + z * se, n_treat = n_t)
 }
 
-# --- Subclassification (Cochran-style strata): weighted lm, cluster by stratum
-sub_estimate <- function(f, nsub = 6) {
-  m <- matchit(f, data = obs, method = "subclass", distance = "glm",
-               estimand = "ATT", subclass = nsub, min.n = 2)
-  md  <- match.data(m)
-  fit <- lm(re78 ~ treat, data = md, weights = md$weights)
-  V   <- sandwich::vcovHC(fit, type = "HC3")   # HC3 robust on subclass-weighted fit
-  ct  <- lmtest::coeftest(fit, vcov. = V)
-  est <- unname(ct["treat", "Estimate"])
-  se  <- unname(ct["treat", "Std. Error"])
-  smd     <- summary(m)$sum.across[, "Std. Mean Diff."]
-  max_smd <- max(abs(smd[!is.na(smd)]))
-  c(est = est, se = se, low = est - 1.96 * se, high = est + 1.96 * se,
-    n_tr = sum(m$treat == 1 & m$weights > 0), n_ctrl = NA, max_smd = max_smd)
+## ---- 2b(ii). Simple PS stratification, ATT ----------------------------
+## Subclassify on quintiles of the estimated propensity score (cut points at
+## quantiles of the score among TREATED units, the standard DW subclassif-
+## ication so each stratum holds ~37 treated). ATT = treated-count-weighted
+## average of within-stratum treated-control mean differences; analytic
+## (delta-method) SE from the within-stratum sampling variances.
+est_strat <- function(formula, data, nq = 5) {
+  ps_fit    <- glm(formula, data = data, family = binomial)
+  data$ps   <- predict(ps_fit, type = "response")
+  brks      <- quantile(data$ps[data$treat == 1], probs = seq(0, 1, length.out = nq + 1))
+  brks[1]   <- -Inf; brks[length(brks)] <- Inf
+  data$stratum <- cut(data$ps, breaks = unique(brks), include.lowest = TRUE)
+  parts <- data %>%
+    group_by(stratum) %>%
+    summarise(
+      nt = sum(treat == 1), nc = sum(treat == 0),
+      mt = mean(re78[treat == 1]), mc = mean(re78[treat == 0]),
+      vt = if (sum(treat == 1) > 1) var(re78[treat == 1]) else 0,
+      vc = if (sum(treat == 0) > 1) var(re78[treat == 0]) else 0,
+      .groups = "drop"
+    ) %>%
+    filter(nt > 0, nc > 0)                      # keep strata with both groups
+  w   <- parts$nt / sum(parts$nt)
+  est <- sum(w * (parts$mt - parts$mc))
+  se  <- sqrt(sum(w^2 * (parts$vt / parts$nt + parts$vc / parts$nc)))
+  list(est = est, se = se, lo = est - z * se, hi = est + z * se,
+       n_treat = sum(parts$nt))
 }
 
+## ---- Run the 6 matching specifications --------------------------------
 specs <- list(
-  list(id = "S1", label = "1NN, no trim (demo)",        cov = "demographics",           det = "1-NN w/ replacement, no trimming (SE: cluster on reused control id)",       fn = function() nn_estimate(f_demo, FALSE)),
-  list(id = "S2", label = "1NN, no trim (demo+re7475)",  cov = "demographics+re74+re75", det = "1-NN w/ replacement, no trimming (SE: cluster on reused control id)",       fn = function() nn_estimate(f_full, FALSE)),
-  list(id = "S3", label = "1NN, trim (demo)",            cov = "demographics",           det = "1-NN w/ replacement, common-support caliper 0.1 (SE: cluster on reused control id)", fn = function() nn_estimate(f_demo, TRUE)),
-  list(id = "S4", label = "1NN, trim (demo+re7475)",     cov = "demographics+re74+re75", det = "1-NN w/ replacement, common-support caliper 0.1 (SE: cluster on reused control id)", fn = function() nn_estimate(f_full, TRUE)),
-  list(id = "S5", label = "Strata x6 (demo)",            cov = "demographics",           det = "PS subclassification, 6 strata (SE: HC3 robust, subclass wts)", fn = function() sub_estimate(f_demo)),
-  list(id = "S6", label = "Strata x6 (demo+re7475)",     cov = "demographics+re74+re75", det = "PS subclassification, 6 strata (SE: HC3 robust, subclass wts)", fn = function() sub_estimate(f_full))
+  list(cov = "Demographics",       est = "1-NN",          fn = "nn",    trim = FALSE, f = f_demog),
+  list(cov = "Demographics",       est = "1-NN + trim",   fn = "nn",    trim = TRUE,  f = f_demog),
+  list(cov = "Demographics",       est = "Stratify (5)",  fn = "strat", trim = FALSE, f = f_demog),
+  list(cov = "+ re74/re75",        est = "1-NN",          fn = "nn",    trim = FALSE, f = f_earn),
+  list(cov = "+ re74/re75",        est = "1-NN + trim",   fn = "nn",    trim = TRUE,  f = f_earn),
+  list(cov = "+ re74/re75",        est = "Stratify (5)",  fn = "strat", trim = FALSE, f = f_earn)
 )
 
 rows <- lapply(specs, function(s) {
-  r <- s$fn()
-  data.frame(
-    spec_id = s$id, label = s$label, covariate_set = s$cov,
-    estimator_detail = s$det,
-    estimate = unname(r["est"]), se = unname(r["se"]),
-    ci_low = unname(r["low"]), ci_high = unname(r["high"]),
-    n_treated = unname(r["n_tr"]), n_ctrl = unname(r["n_ctrl"]),
-    max_smd = unname(r["max_smd"]),
-    stringsAsFactors = FALSE
-  )
+  r <- if (s$fn == "nn") est_nn(s$f, comp, s$trim) else est_strat(s$f, comp)
+  data.frame(covset = s$cov, estimator = s$est,
+             est = r$est, se = r$se, lo = r$lo, hi = r$hi,
+             n_treat = r$n_treat, stringsAsFactors = FALSE)
 })
-spec_df <- do.call(rbind, rows)
-spec_df$gap_to_benchmark <- spec_df$estimate - benchmark_est
+res <- do.call(rbind, rows)
+res$gap <- res$est - bench_est
 
-# ---- Reference rows (benchmark + naive) -------------------------------------
-ref_bench <- data.frame(
-  spec_id = "BENCH", label = "Experimental benchmark (NSW randomized)",
-  covariate_set = "experimental", estimator_detail = "diff-in-means (HC2 robust SE)",
-  estimate = benchmark_est, se = benchmark_se,
-  ci_low = benchmark_low, ci_high = benchmark_high,
-  n_treated = sum(nsw$treat == 1), n_ctrl = sum(nsw$treat == 0), max_smd = NA,
-  gap_to_benchmark = 0
-)
-ref_naive <- data.frame(
-  spec_id = "NAIVE", label = "Naive observational (raw diff)",
-  covariate_set = "none (composite)", estimator_detail = "diff-in-means (HC2 robust SE)",
-  estimate = naive_est, se = naive_se,
-  ci_low = naive_low, ci_high = naive_high,
-  n_treated = sum(obs$treat == 1), n_ctrl = sum(obs$treat == 0), max_smd = NA,
-  gap_to_benchmark = naive_est - benchmark_est
-)
-
-full_table <- rbind(ref_bench, ref_naive, spec_df)
-
-# =============================================================================
-# 5. WRITE spec-table.md
-# =============================================================================
+## =======================================================================
+## 3. SPECIFICATION TABLE  (spec-table.md)
+## =======================================================================
 fmt <- function(x) formatC(x, format = "f", digits = 0, big.mark = ",")
-md <- c(
-  "# LaLonde specification curve: observational PSM vs experimental benchmark",
+lines <- c(
+  "# Specification table -- does PS matching recover the LaLonde benchmark?",
   "",
-  sprintf("Experimental benchmark (ATT on re78): **$%s** [95%% CI %s, %s].",
-          fmt(benchmark_est), fmt(benchmark_low), fmt(benchmark_high)),
-  sprintf("Naive observational estimate: **$%s** [95%% CI %s, %s].",
-          fmt(naive_est), fmt(naive_low), fmt(naive_high)),
+  sprintf("**Experimental benchmark** (NSW treated - control on `re78`): **%s** (95%% CI [%s, %s]).",
+          fmt(bench_est), fmt(bench_lo), fmt(bench_hi)),
   "",
-  "All dollar figures are 1978 real earnings (re78). `gap` = estimate - benchmark.",
-  "`N trt` = treated units retained (justifies the ATT label); `max|SMD|` = worst",
-  "post-adjustment standardized mean difference across covariates (balance; <0.1 good).",
+  sprintf("**Naive observational** (NSW treated - CPS controls, no adjustment): **%s** (95%% CI [%s, %s]).",
+          fmt(naive_est), fmt(naive_lo), fmt(naive_hi)),
   "",
-  "| Spec | Covariate set | Estimator / SE method | Estimate | SE | 95% CI low | 95% CI high | Gap to benchmark | N trt | max\\|SMD\\| |",
-  "|------|---------------|-----------------------|---------:|---:|-----------:|------------:|-----------------:|------:|--------:|"
+  "Composite = 185 NSW treated + 15,992 CPS controls. ATT estimand throughout.",
+  "Gap = estimate - benchmark; \"recovers\" means the 95% CI covers the benchmark point.",
+  "",
+  "| Covariate set | Estimator | Estimate | 95% CI | Gap vs. benchmark | Benchmark | Covers? |",
+  "|---|---|---:|---|---:|---:|:---:|"
 )
-smdfmt <- function(x) if (is.na(x)) "--" else formatC(x, format = "f", digits = 2)
-for (i in seq_len(nrow(full_table))) {
-  r <- full_table[i, ]
-  md <- c(md, sprintf("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |",
-                      r$spec_id, r$covariate_set, r$estimator_detail,
-                      fmt(r$estimate), fmt(r$se), fmt(r$ci_low),
-                      fmt(r$ci_high), fmt(r$gap_to_benchmark),
-                      r$n_treated, smdfmt(r$max_smd)))
+for (i in seq_len(nrow(res))) {
+  covers <- if (res$lo[i] <= bench_est && bench_est <= res$hi[i]) "yes" else "no"
+  lines <- c(lines, sprintf("| %s | %s | %s | [%s, %s] | %s | %s | %s |",
+    res$covset[i], res$estimator[i], fmt(res$est[i]),
+    fmt(res$lo[i]), fmt(res$hi[i]), fmt(res$gap[i]), fmt(bench_est), covers))
 }
-md <- c(md, "",
-        "SE note: BENCH and NAIVE use HC2 (Neyman) robust SEs. The 1-NN specs avoid",
-        "the ordinary nonparametric bootstrap, which Abadie & Imbens (2008) prove is",
-        "invalid for nearest-neighbor matching; they use cluster-robust SEs clustered",
-        "on the reused control-unit id -- the handling MatchIt recommends for matching",
-        "WITH replacement. This is a pragmatic sandwich, not the Abadie-Imbens (2006)",
-        "score-adjusted matching variance (the `Matching` package is not installed),",
-        "so uncertainty from estimating the propensity score is not fully propagated;",
-        "the NN intervals are, if anything, mildly optimistic. Subclassification specs",
-        "use HC3 robust SEs on the subclass-weighted fit (not 6-cluster clustering,",
-        "which would be too few clusters for cluster asymptotics).",
-        "",
-        "Gap note: each `Gap to benchmark` compares a spec's CI to the benchmark by",
-        "overlap; it is not a formal paired test. Because BENCH and every spec share",
-        "the same 185 NSW treated outcomes, a proper test of the gap would account for",
-        "that shared component -- so read the gaps as descriptive, not as a hypothesis",
-        "test that the recovered estimate equals the experimental truth.",
-        "",
-        "Trim note: on the demographics-only propensity score the common-support",
-        "restriction is non-binding -- all 185 treated units are retained (see N trt)",
-        "and the discarded off-support controls were never nearest neighbors under",
-        "matching-with-replacement -- so S1 and S3 are identical by construction. The",
-        "restriction binds once re74/re75 enter (S2 vs S4); check N trt for S4 to see",
-        "whether any treated units fall off support (if so its estimand is the ATT on",
-        "the overlap sample, not the full-NSW ATT).")
-writeLines(md, "spec-table.md")
+lines <- c(lines, "",
+  "**Standard errors.** Benchmark and naive: HC2 heteroskedasticity-robust.",
+  "1-NN matching (with replacement): cluster-robust on matched pair and reused",
+  "unit id -- a design-based *approximation* to the Abadie-Imbens (2006) analytic",
+  "matching variance (the exact estimator lives in `Matching`, not installed);",
+  "the nonparametric bootstrap is ruled out, being invalid for nearest-neighbour",
+  "matching variances (Abadie & Imbens 2008). Stratification: analytic delta-method",
+  "variance from within-stratum sampling variances, conditional on the estimated strata.")
+writeLines(lines, "spec-table.md")
 
-# =============================================================================
-# 6. FIGURE: spec-curve.png
-# =============================================================================
-if (!dir.exists("figures")) dir.create("figures")
+## =======================================================================
+## 4. FIGURE  (figures/spec-curve.png) -- ONE figure, no in-plot title
+## =======================================================================
+res$label <- factor(paste(res$estimator),
+                    levels = c("1-NN", "1-NN + trim", "Stratify (5)"))
+res$covset <- factor(res$covset, levels = c("Demographics", "+ re74/re75"))
 
-plot_df <- rbind(
-  spec_df,
-  data.frame(spec_id = "NAIVE", label = "Naive (raw diff)",
-             covariate_set = "none (composite)",
-             estimator_detail = "diff-in-means",
-             estimate = naive_est, se = naive_se,
-             ci_low = naive_low, ci_high = naive_high,
-             n_treated = sum(obs$treat == 1), n_ctrl = sum(obs$treat == 0),
-             max_smd = NA,
-             gap_to_benchmark = naive_est - benchmark_est)
-)
-plot_df <- plot_df[order(plot_df$estimate), ]
-plot_df$label <- factor(plot_df$label, levels = plot_df$label)
+p <- ggplot(res, aes(x = label, y = est, color = covset)) +
+  annotate("rect", xmin = -Inf, xmax = Inf, ymin = bench_lo, ymax = bench_hi,
+           fill = okabe_ito[3], alpha = 0.12) +
+  geom_hline(yintercept = bench_est, color = okabe_ito[3], linewidth = 0.7) +
+  geom_hline(yintercept = 0, color = "grey70", linetype = "dashed", linewidth = 0.4) +
+  annotate("text", x = -Inf, y = bench_est, vjust = -0.7, hjust = -0.03,
+           label = sprintf("experimental benchmark = %s", fmt(bench_est)),
+           color = okabe_ito[3], size = 3.1) +
+  geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.18,
+                position = position_dodge(width = 0.5), linewidth = 0.6) +
+  geom_point(size = 2.6, position = position_dodge(width = 0.5)) +
+  scale_color_manual(values = c("Demographics" = okabe_ito[6],
+                                "+ re74/re75"   = okabe_ito[5]),
+                     name = "Covariate set") +
+  scale_y_continuous(labels = function(x) formatC(x, format = "f", digits = 0, big.mark = ",")) +
+  labs(x = NULL, y = "Estimated ATT on 1978 earnings (US$)") +
+  coord_cartesian(clip = "off")
 
-pal <- c("demographics"          = okabe_ito[["vermil"]],
-         "demographics+re74+re75" = okabe_ito[["blue"]],
-         "none (composite)"       = okabe_ito[["black"]])
+ggsave("figures/spec-curve.png", p, width = 8, height = 5.2, dpi = 320)
 
-p <- ggplot(plot_df, aes(x = label, y = estimate, colour = covariate_set)) +
-  annotate("rect", xmin = -Inf, xmax = Inf,
-           ymin = benchmark_low, ymax = benchmark_high,
-           fill = okabe_ito[["green"]], alpha = 0.15) +
-  geom_hline(yintercept = benchmark_est, linetype = "dashed",
-             colour = okabe_ito[["green"]], linewidth = 0.6) +
-  geom_hline(yintercept = 0, colour = "grey70", linewidth = 0.3) +
-  geom_errorbar(aes(ymin = ci_low, ymax = ci_high), width = 0.18, linewidth = 0.6) +
-  geom_point(size = 2.6) +
-  annotate("text", x = nrow(plot_df) - 0.35, y = benchmark_est,
-           label = sprintf("Experimental benchmark $%s ", fmt(benchmark_est)),
-           hjust = 1, vjust = 0.5, size = 3.1, colour = okabe_ito[["green"]]) +
-  scale_colour_manual(values = pal, name = "Propensity-score covariates") +
-  scale_y_continuous(labels = function(x) paste0("$", formatC(x, format = "f", digits = 0, big.mark = ","))) +
-  coord_flip() +
-  labs(x = NULL, y = "Estimated ATT on 1978 earnings (re78), 95% CI",
-       caption = paste0(
-         "NSW treated + CPS controls. Green dashed line / band = randomized NSW benchmark (HC2 SE, 95% CI).\n",
-         "Naive raw difference shown for reference. 1-NN specs: cluster-robust SE on reused control id\n",
-         "(bootstrap invalid for NN matching, Abadie-Imbens 2008; PS-estimation uncertainty not propagated).\n",
-         "Strata specs: HC3 robust SE on subclass-weighted fit. Gaps read by CI overlap, not a paired test.")) +
-  theme_clean
-
-ggsave("figures/spec-curve.png", p, width = 10, height = 5.8, dpi = 320)
-
-# =============================================================================
-# 7. Console summary (for memo authoring)
-# =============================================================================
-cat("\n===== SUMMARY =====\n")
-cat(sprintf("Experimental benchmark: %.1f  [%.1f, %.1f]\n",
-            benchmark_est, benchmark_low, benchmark_high))
-cat(sprintf("Naive observational:    %.1f  [%.1f, %.1f]\n",
-            naive_est, naive_low, naive_high))
-cat("\nSpec | estimate | SE | CI | gap | N-trt | max|SMD|\n")
-for (i in seq_len(nrow(spec_df))) {
-  r <- spec_df[i, ]
-  cat(sprintf("%s %-28s est=%8.1f se=%7.1f CI=[%8.1f,%8.1f] gap=%9.1f  Ntrt=%3d  maxSMD=%.3f\n",
-              r$spec_id, r$label, r$estimate, r$se, r$ci_low, r$ci_high,
-              r$gap_to_benchmark, r$n_treated, r$max_smd))
-}
-cat("\nDone.\n")
+## ---- Console summary (for the run log / verification) -----------------
+cat(sprintf("\nBenchmark: %.1f  [%.1f, %.1f]\n", bench_est, bench_lo, bench_hi))
+cat(sprintf("Naive    : %.1f  [%.1f, %.1f]\n", naive_est, naive_lo, naive_hi))
+print(res[, c("covset", "estimator", "est", "lo", "hi", "gap", "n_treat")], row.names = FALSE)

@@ -4,8 +4,11 @@
 # Outputs copied to both analysis/figures/ and docs/assets/orchestration-lab/
 #
 # Sources: cost (USD), minutes, and tokens from the claude -p JSON envelopes
-# (fable + opus RE-RUN 2026-07-13 on the recalibrated v2.17.0 skill; advisor
-# and Codex unchanged from 2026-07-12; advisor rows sum the solve + revise
+# (opus RE-RUN 2026-07-13 on the recalibrated v2.17.0 skill; fable is the
+# 2026-07-13 v2.18.1 re-run (reason-in-place + rigor-bar recalibration) —
+# T1/T2/T3 are the fresh v2.18.1 capture, H and VH are carried from the
+# v2.18.0 draw (already Distinction, not re-run); advisor and Codex unchanged
+# from 2026-07-12; advisor rows sum the solve + revise
 # envelopes and their minutes include the unmetered consult) and from
 # SCORING.md (items met of 6; bands are categorical, the fraction is their
 # chart representation). The token column is "tokens processed, excluding
@@ -50,11 +53,11 @@ theme_demo <- theme_minimal(base_size = 15) +
 
 # ---- data (captured-run numbers) ----
 df <- rbind(
-  data.frame(mode = "Fable lead",    brief = "T1", cost_usd = 0.91, minutes = 3.7,  out_tokens = 37000,  items = 4),
-  data.frame(mode = "Fable lead",    brief = "T2", cost_usd = 0.50, minutes = 1.6,  out_tokens = 34700,  items = 5),
-  data.frame(mode = "Fable lead",    brief = "T3", cost_usd = 1.18, minutes = 3.8,  out_tokens = 64700,  items = 5),
-  data.frame(mode = "Fable lead",    brief = "H",  cost_usd = 1.93, minutes = 6.4,  out_tokens = 73300,  items = 6),
-  data.frame(mode = "Fable lead",    brief = "VH", cost_usd = 3.46, minutes = 19.0, out_tokens = 126000, items = 6),
+  data.frame(mode = "Fable lead",    brief = "T1", cost_usd = 0.72, minutes = 2.6,  out_tokens = 33000,  items = 4),
+  data.frame(mode = "Fable lead",    brief = "T2", cost_usd = 1.55, minutes = 2.3,  out_tokens = 26000,  items = 5),
+  data.frame(mode = "Fable lead",    brief = "T3", cost_usd = 2.64, minutes = 9.6,  out_tokens = 87000,  items = 4),
+  data.frame(mode = "Fable lead",    brief = "H",  cost_usd = 1.25, minutes = 0.6,  out_tokens = 12000,  items = 6),
+  data.frame(mode = "Fable lead",    brief = "VH", cost_usd = 2.28, minutes = 17.6, out_tokens = 99000,  items = 6),
   data.frame(mode = "Opus lead",     brief = "T1", cost_usd = 1.08, minutes = 4.8,  out_tokens = 55100,  items = 6),
   data.frame(mode = "Opus lead",     brief = "T2", cost_usd = 1.23, minutes = 5.0,  out_tokens = 71200,  items = 6),
   data.frame(mode = "Opus lead",     brief = "T3", cost_usd = 5.19, minutes = 33.7, out_tokens = 224700, items = 5),

@@ -1,381 +1,307 @@
-#!/usr/bin/env Rscript
-###############################################################################
-# script.R
-#
-# Purpose
-# -------
-# Conjoint AMCE baseline-sensitivity analysis for the projoint::exampleData1
-# community-choice experiment. A reviewer argues that the headline claim
-# ("Violent Crime Rate drives community choice") could be an artifact of the
-# arbitrary reference categories used for AMCEs. This script tests that
-# empirically by:
-#   A. Estimating profile-level AMCEs (corrected) under the DEFAULT baselines
-#      for all seven attributes.
-#   B. Re-baselining the binary crime attribute (att7) -> shows the AMCE sign
-#      flips exactly while |AMCE| and CI width are unchanged.
-#   C. Re-baselining a MULTI-LEVEL attribute (att6, "Type of Place", 6 levels)
-#      to the level whose MM is closest to 0.5 (the sample-average MM), which
-#      maximally shrinks its apparent max-|AMCE| -> shows the importance
-#      ordering among multi-level attributes is baseline-dependent.
-#   D. Estimating profile-level MMs (corrected) for every level of every
-#      attribute and computing per-attribute MM spread (max MM - min MM), a
-#      baseline-INVARIANT importance measure. Crime's rank is reported.
-#
-# Estimation choice
-# -----------------
-# ALL estimates are the IRR measurement-error-CORRECTED quantities
-# (amce_corrected / mm_corrected), enabled by the choice1_repeated_flipped
-# task. The uncorrected estimates are never used for reporting.
-#
-# Re-baselining mechanism
-# -----------------------
-# projoint() has no .baselines argument; the AMCE baseline is always the
-# level whose level_id is "<att>:level1". To move a whole-attribute baseline
-# we swap the target level's level_id with level1 in BOTH out$data and
-# out$labels (rebaseline() below), then re-estimate. This is exact.
-#
-# Outputs
-# -------
-#   figures/sensitivity.png   one figure, dpi=300, no in-plot title
-#   sensitivity-table.md      crime AMCEs per baseline, att6 re-baselining,
-#                             MMs with 95% CIs, MM-spread ranking, table note
-#
-# Run: Rscript script.R   (projoint, ggplot2, dplyr must be installed)
-###############################################################################
+## Conjoint reference-category sensitivity analysis
+## Demonstrates that MMs are baseline-free while AMCEs shift with the
+## chosen reference category, for two attributes:
+##   att7 - Violent Crime Rate (binary)
+##   att6 - Type of Place (6 levels)
+##
+## projoint set_qoi() gotcha: .lev_choose / .lev_choose_b must be the BARE
+## level id ("level1"), NOT the full id ("att7:level1") -- set_qoi() does
+## paste0(.att_choose, ":", .lev_choose) internally.
 
-set.seed(20260711)
+library(projoint)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
 
-suppressPackageStartupMessages({
-  library(projoint)
-  library(ggplot2)
-  library(dplyr)
-})
+set.seed(1234)
 
-## ---- Presentation constants (declared up top) ------------------------------
-# Okabe-Ito colour-blind-safe palette
-okabe_ito <- c(
-  black   = "#000000", orange = "#E69F00", skyblue = "#56B4E9",
-  green   = "#009E73", yellow = "#F0E442", blue    = "#0072B2",
-  vermil  = "#D55E00", purple = "#CC79A7", grey    = "#999999"
-)
+okabe_ito <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
+               "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-theme_sensitivity <- theme_minimal(base_size = 11) +
-  theme(
-    panel.grid.minor = element_blank(),
-    panel.grid.major.y = element_blank(),
-    strip.text       = element_text(face = "bold", hjust = 0),
-    axis.title       = element_text(face = "bold"),
-    plot.margin      = margin(10, 14, 10, 10),
-    legend.position  = "none"
-  )
-
-## ---- Human-readable attribute names ----------------------------------------
-att_names <- c(
-  att1 = "Housing Cost",
-  att2 = "Presidential Vote (2020)",
-  att3 = "Racial Composition",
-  att4 = "School Quality",
-  att5 = "Daily Driving Time",
-  att6 = "Type of Place",
-  att7 = "Violent Crime Rate"
-)
-
-## ---- Data ------------------------------------------------------------------
 data(exampleData1)
-out <- reshape_projoint(
-  exampleData1,
-  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
-)
-
-# Sanity check: att7 (crime) is binary
-stopifnot(sum(out$labels$attribute_id == "att7") == 2L)
-
-## ---- Helpers ---------------------------------------------------------------
-# Corrected profile-level AMCE table for a projoint_data object
-amce_corr <- function(o) {
-  invisible(capture.output(
-    s <- summary(projoint(o, .structure = "profile_level", .estimand = "amce"))
-  ))
-  s[s$estimand == "amce_corrected", ]
-}
-# Corrected profile-level MM table
-mm_corr <- function(o) {
-  invisible(capture.output(
-    s <- summary(projoint(o, .structure = "profile_level", .estimand = "mm"))
-  ))
-  s[s$estimand == "mm_corrected", ]
-}
-
-# Re-baseline attribute `att` by making its level `k` the new baseline:
-# swap level_id "<att>:levelk" with "<att>:level1" in data AND labels.
-rebaseline <- function(o, att, k) {
-  a <- paste0(att, ":level1")
-  b <- paste0(att, ":level", k)
-  col <- o$data[[att]]
-  new <- col
-  new[col == a] <- b
-  new[col == b] <- a
-  o$data[[att]] <- new
-  li <- o$labels$level_id
-  ni <- li
-  ni[li == a] <- b
-  ni[li == b] <- a
-  o$labels$level_id <- ni
-  o$labels <- o$labels[order(o$labels$level_id), ]
-  o
-}
-
-# Attach human attribute + level labels to a projoint summary table,
-# using the (possibly re-mapped) label tibble `lab`.
-label_join <- function(tab, lab, key = "att_level_choose") {
-  lab2 <- lab[, c("level_id", "attribute", "level")]
-  m <- match(tab[[key]], lab2$level_id)
-  tab$attribute_id <- sub(":level.*$", "", tab[[key]])
-  tab$attribute    <- lab2$attribute[m]
-  tab$level        <- lab2$level[m]
-  tab
-}
-
-## ===========================================================================
-## A. Default-baseline profile-level AMCEs (corrected), all attributes
-## ===========================================================================
-amce_default <- label_join(amce_corr(out), out$labels)
-mm_default   <- label_join(mm_corr(out),  out$labels)
-
-# per-attribute max-|AMCE| under default baselines
-maxabs_default <- amce_default %>%
-  mutate(attid = sub(":level.*$", "", att_level_choose)) %>%
-  group_by(attid) %>%
-  summarise(max_abs_amce = max(abs(estimate)), .groups = "drop") %>%
-  mutate(attribute = att_names[attid]) %>%
-  arrange(desc(max_abs_amce))
-
-## ===========================================================================
-## B. Re-baseline crime (att7): swap its two levels, re-estimate.
-##    Binary attribute => exact sign flip, identical |AMCE| and CI width.
-## ===========================================================================
-out_c2   <- rebaseline(out, "att7", 2)
-amce_c2  <- label_join(amce_corr(out_c2), out_c2$labels)
-
-crime_b1 <- amce_default[amce_default$attribute_id == "att7", ]
-crime_b2 <- amce_c2[grepl("att7", amce_c2$att_level_choose), ]
-# human labels for the BASELINE (reference) level under each regime
-crime_b1_base <- out$labels$level[out$labels$level_id == "att7:level1"]
-crime_b2_base <- out_c2$labels$level[out_c2$labels$level_id == "att7:level1"]
-
-## ===========================================================================
-## C. Re-baseline att6 (Type of Place) to the level whose MM is closest to 0.5
-##    (the sample-average MM) -> maximally shrinks its max-|AMCE|.
-## ===========================================================================
-mm6 <- mm_default[mm_default$attribute_id == "att6", ]
-mm6$levnum <- as.integer(sub(".*level", "", mm6$att_level_choose))
-alt_lev <- mm6$levnum[which.min(abs(mm6$estimate - 0.5))]      # nearest 0.5
-alt_lev_label <- mm6$level[mm6$levnum == alt_lev]
-
-out_6alt  <- rebaseline(out, "att6", alt_lev)
-amce_6alt <- label_join(amce_corr(out_6alt), out_6alt$labels)
-
-att6_maxabs_default <- max(abs(amce_default$estimate[amce_default$attribute_id == "att6"]))
-att6_maxabs_alt     <- max(abs(amce_6alt$estimate[grepl("att6", amce_6alt$att_level_choose)]))
-
-# Importance ordering (max-|AMCE|) under the ALTERNATIVE regime:
-# att6 re-baselined, all other attributes at default baselines.
-maxabs_alt <- maxabs_default %>%
-  mutate(max_abs_amce = ifelse(attid == "att6", att6_maxabs_alt, max_abs_amce)) %>%
-  arrange(desc(max_abs_amce))
-
-## ===========================================================================
-## D. Baseline-INVARIANT importance: per-attribute MM spread (max MM - min MM)
-## ===========================================================================
-mm_spread <- mm_default %>%
-  mutate(attid = sub(":level.*$", "", att_level_choose)) %>%
-  group_by(attid) %>%
-  summarise(spread = max(estimate) - min(estimate), .groups = "drop") %>%
-  mutate(attribute = att_names[attid]) %>%
-  arrange(desc(spread))
-mm_spread$rank <- seq_len(nrow(mm_spread))
-crime_spread_rank <- mm_spread$rank[mm_spread$attid == "att7"]
-
-## ---- Consistency check: AMCE(L vs baseline) == MM(L) - MM(baseline) --------
-mm_lookup <- setNames(mm_default$estimate, mm_default$att_level_choose)
-chk <- amce_default
-chk$mm_diff <- mm_lookup[chk$att_level_choose] -
-               mm_lookup[chk$att_level_choose_baseline]
-chk$discrepancy <- abs(chk$estimate - chk$mm_diff)
-max_discrepancy <- max(chk$discrepancy)
-
-## ===========================================================================
-## FIGURE  (one png, two facets, no in-plot title)
-##   Left  : crime AMCE under the two baselines -> mirror-image sign flip
-##   Right : per-attribute MM spread (baseline-invariant) -> crime ranks #1
-## ===========================================================================
-panelA <- data.frame(
-  panel = "A. Crime AMCE flips sign under re-baselining",
-  ylab  = c(sprintf("Baseline = “%s”", crime_b1_base),
-            sprintf("Baseline = “%s”", crime_b2_base)),
-  est   = c(crime_b1$estimate[1], crime_b2$estimate[1]),
-  lo    = c(crime_b1$conf.low[1], crime_b2$conf.low[1]),
-  hi    = c(crime_b1$conf.high[1], crime_b2$conf.high[1]),
-  hl    = TRUE,
-  stringsAsFactors = FALSE
-)
-# order so the two baselines sit as a mirror pair
-panelA$ylab <- factor(panelA$ylab, levels = rev(panelA$ylab))
-
-panelB <- data.frame(
-  panel = "B. MM spread (baseline-invariant importance)",
-  ylab  = mm_spread$attribute,
-  est   = mm_spread$spread,
-  lo    = NA_real_, hi = NA_real_,
-  hl    = mm_spread$attid == "att7",
-  stringsAsFactors = FALSE
-)
-panelB$ylab <- factor(panelB$ylab, levels = rev(mm_spread$attribute))
-
-fig_df <- rbind(panelA, panelB)
-
-p <- ggplot(fig_df, aes(x = est, y = ylab, colour = hl)) +
-  geom_vline(xintercept = 0, colour = okabe_ito[["grey"]], linewidth = 0.4) +
-  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.18,
-                 linewidth = 0.7, na.rm = TRUE) +
-  geom_point(size = 3) +
-  facet_wrap(~panel, scales = "free", ncol = 2) +
-  scale_colour_manual(values = c("TRUE"  = okabe_ito[["vermil"]],
-                                 "FALSE" = okabe_ito[["blue"]])) +
-  labs(
-    x = "Corrected estimate (AMCE in panel A, MM spread in panel B), probability units",
-    y = NULL
-  ) +
-  theme_sensitivity
+out <- reshape_projoint(exampleData1,
+  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
+labs <- out$labels   # attribute, level, attribute_id, level_id
 
 dir.create("figures", showWarnings = FALSE)
-ggsave("figures/sensitivity.png", p, width = 11, height = 5.2,
-       dpi = 300, bg = "white")
 
-## ===========================================================================
-## MARKDOWN TABLE
-## ===========================================================================
-r3 <- function(x) formatC(round(x, 3), format = "f", digits = 3)
-ci <- function(lo, hi) sprintf("[%s, %s]", r3(lo), r3(hi))
+## ---------------------------------------------------------------
+## 1. All marginal means (baseline-free)
+## ---------------------------------------------------------------
+fit_mm <- projoint(out, .estimand = "mm", .structure = "profile_level")
+mm_all <- fit_mm$estimates %>%
+  filter(estimand == "mm_corrected") %>%
+  left_join(labs, by = c("att_level_choose" = "level_id")) %>%
+  select(attribute, level, attribute_id, att_level_choose,
+         mm_estimate = estimate, mm_se = se,
+         mm_conf.low = conf.low, mm_conf.high = conf.high)
 
-lines <- c(
-  "# Baseline-Sensitivity of the Violent-Crime Conjoint Finding",
-  "",
-  "All estimates are IRR measurement-error-**corrected** profile-level",
-  "quantities (projoint `amce_corrected` / `mm_corrected`), using the",
-  "`choice1_repeated_flipped` task. Estimates in probability units; 95% CIs.",
-  "",
-  "## (i) Crime attribute (att7) AMCE under each baseline choice",
-  "",
-  "| Baseline (reference level) | Contrast level | AMCE (corrected) | 95% CI |",
+## ---------------------------------------------------------------
+## 2. Default AMCEs (baseline = level1 of each attribute)
+## ---------------------------------------------------------------
+fit_amce_default <- projoint(out, .estimand = "amce", .structure = "profile_level")
+amce_default <- fit_amce_default$estimates %>%
+  filter(estimand == "amce_corrected") %>%
+  left_join(labs, by = c("att_level_choose" = "level_id")) %>%
+  select(attribute, level, attribute_id, att_level_choose,
+         estimate, se, conf.low, conf.high)
+
+## ---------------------------------------------------------------
+## 3. Crime AMCE under alternate baseline (baseline = level2, "more crime")
+## ---------------------------------------------------------------
+q_crime_alt <- set_qoi(.structure = "profile_level", .estimand = "amce",
+  .att_choose = "att7", .lev_choose = "level1",
+  .att_choose_b = "att7", .lev_choose_b = "level2")
+fit_crime_alt <- projoint(out, .qoi = q_crime_alt,
+  .estimand = "amce", .structure = "profile_level")
+crime_alt <- fit_crime_alt$estimates %>%
+  filter(estimand == "amce_corrected") %>%
+  mutate(att_level_choose = "att7:level1", baseline_label = "More crime (level2)") %>%
+  select(att_level_choose, baseline_label, estimate, se, conf.low, conf.high)
+
+## Default crime AMCE (baseline = level1, "less crime") -> row for level2
+crime_default <- amce_default %>%
+  filter(attribute_id == "att7") %>%
+  transmute(att_level_choose, baseline_label = "Less crime (level1)",
+            estimate, se, conf.low, conf.high)
+
+crime_amce <- bind_rows(crime_default, crime_alt)
+
+## ---------------------------------------------------------------
+## 4. Type of Place (att6) AMCEs under 3 baselines
+##    baseline = level1 (default, from step 2)
+##    baseline = level4 (Small town, highest MM)
+##    baseline = level3 (Rural)
+## ---------------------------------------------------------------
+att6_levels <- labs %>% filter(attribute_id == "att6") %>% pull(level_id)
+att6_bare   <- sub("^att6:", "", att6_levels)
+
+get_att6_amce <- function(baseline_bare, baseline_label) {
+  other_levels <- setdiff(att6_bare, baseline_bare)
+  res <- lapply(other_levels, function(lev) {
+    q <- set_qoi(.structure = "profile_level", .estimand = "amce",
+      .att_choose = "att6", .lev_choose = lev,
+      .att_choose_b = "att6", .lev_choose_b = baseline_bare)
+    f <- projoint(out, .qoi = q, .estimand = "amce", .structure = "profile_level")
+    f$estimates %>%
+      filter(estimand == "amce_corrected") %>%
+      mutate(att_level_choose = paste0("att6:", lev))
+  })
+  bind_rows(res) %>%
+    mutate(baseline_label = baseline_label,
+           baseline_id = paste0("att6:", baseline_bare)) %>%
+    select(att_level_choose, baseline_label, baseline_id, estimate, se, conf.low, conf.high)
+}
+
+att6_base_level1 <- amce_default %>%
+  filter(attribute_id == "att6") %>%
+  transmute(att_level_choose, baseline_label = "City downtown (level1)",
+            baseline_id = "att6:level1", estimate, se, conf.low, conf.high)
+
+att6_base_level4 <- get_att6_amce("level4", "Small town (level4)")
+att6_base_level3 <- get_att6_amce("level3", "Rural (level3)")
+
+## reference rows (estimate = 0) for each baseline's own level
+att6_ref_rows <- tibble(
+  att_level_choose = c("att6:level1", "att6:level4", "att6:level3"),
+  baseline_label = c("City downtown (level1)", "Small town (level4)", "Rural (level3)"),
+  baseline_id = c("att6:level1", "att6:level4", "att6:level3"),
+  estimate = 0, se = NA_real_, conf.low = 0, conf.high = 0
+)
+
+att6_amce <- bind_rows(att6_base_level1, att6_base_level4, att6_base_level3, att6_ref_rows)
+
+## ---------------------------------------------------------------
+## 5. Attribute-importance ranking (MM range = max - min per attribute)
+## ---------------------------------------------------------------
+mm_range <- mm_all %>%
+  group_by(attribute_id, attribute) %>%
+  summarise(n_levels = n(),
+            mm_range = max(mm_estimate) - min(mm_estimate),
+            .groups = "drop") %>%
+  arrange(desc(mm_range)) %>%
+  mutate(rank = row_number()) %>%
+  select(rank, attribute, n_levels, mm_range)
+
+## ---------------------------------------------------------------
+## Acceptance checks (stop if they disagree materially)
+## ---------------------------------------------------------------
+stopifnot(
+  abs(mm_all$mm_estimate[mm_all$att_level_choose == "att7:level1"] - 0.626) < 0.01,
+  abs(mm_all$mm_estimate[mm_all$att_level_choose == "att7:level2"] - 0.374) < 0.01,
+  abs(crime_amce$estimate[crime_amce$baseline_label == "Less crime (level1)"] - (-0.251)) < 0.01,
+  abs(crime_amce$estimate[crime_amce$baseline_label == "More crime (level2)"] - 0.251) < 0.01
+)
+message("Acceptance checks passed.")
+
+## =================================================================
+## FIGURE: figures/sensitivity.png
+## Two facet rows: (A) MMs baseline-free, (B) AMCEs depend on baseline
+## =================================================================
+wrap_lab <- function(x) sapply(x, function(s) paste(strwrap(s, width = 20), collapse = "\n"))
+
+## --- Panel A data: MMs for Crime + Type of Place ---
+mmA <- mm_all %>%
+  filter(attribute_id %in% c("att6", "att7")) %>%
+  transmute(attribute, level, att_level_choose,
+            estimate = mm_estimate, conf.low = mm_conf.low, conf.high = mm_conf.high,
+            baseline_label = "Marginal mean", panel = "A. Marginal means (baseline-free)")
+
+## --- Panel B data: AMCEs for Crime (2 baselines) + Type of Place (3 baselines) ---
+crimeB <- crime_amce %>%
+  left_join(labs, by = c("att_level_choose" = "level_id")) %>%
+  select(attribute, level, att_level_choose, baseline_label, estimate, conf.low, conf.high) %>%
+  mutate(panel = "B. AMCEs (depend on baseline)")
+
+att6B <- att6_amce %>%
+  left_join(labs, by = c("att_level_choose" = "level_id")) %>%
+  select(attribute, level, att_level_choose, baseline_label, estimate, conf.low, conf.high) %>%
+  mutate(panel = "B. AMCEs (depend on baseline)")
+
+panelB <- bind_rows(crimeB, att6B)
+
+## human-readable level labels for y axis, wrapped
+level_lookup <- labs %>% select(level_id, level) %>% distinct()
+
+plot_df <- bind_rows(
+  mmA %>% select(attribute, level, att_level_choose, baseline_label, estimate, conf.low, conf.high, panel),
+  panelB %>% select(attribute, level, att_level_choose, baseline_label, estimate, conf.low, conf.high, panel)
+) %>%
+  mutate(
+    level_wrapped = wrap_lab(level),
+    attribute = factor(attribute, levels = c("Violent Crime Rate (Vs National Rate)", "Type of Place")),
+    panel = factor(panel, levels = c("A. Marginal means (baseline-free)", "B. AMCEs (depend on baseline)"))
+  )
+
+## order levels within attribute for readability (att6 level order, att7 level order)
+level_order <- labs %>%
+  filter(attribute_id %in% c("att6", "att7")) %>%
+  arrange(attribute_id, level_id) %>%
+  mutate(level_wrapped = wrap_lab(level)) %>%
+  pull(level_wrapped) %>%
+  unique()
+
+plot_df <- plot_df %>%
+  mutate(level_wrapped = factor(level_wrapped, levels = rev(level_order)))
+
+baseline_colors <- setNames(
+  okabe_ito[1:5],
+  c("Marginal mean", "Less crime (level1)", "More crime (level2)",
+    "City downtown (level1)", "Small town (level4)")
+)
+baseline_colors["Rural (level3)"] <- okabe_ito[6]
+
+p <- ggplot(plot_df, aes(x = estimate, xmin = conf.low, xmax = conf.high,
+                          y = level_wrapped, color = baseline_label, shape = baseline_label)) +
+  geom_vline(data = data.frame(panel = factor("A. Marginal means (baseline-free)",
+                                                levels = levels(plot_df$panel)), xint = 0.5),
+             aes(xintercept = xint), linetype = "dashed", color = "grey50", inherit.aes = FALSE) +
+  geom_vline(data = data.frame(panel = factor("B. AMCEs (depend on baseline)",
+                                                levels = levels(plot_df$panel)), xint = 0),
+             aes(xintercept = xint), linetype = "dashed", color = "grey50", inherit.aes = FALSE) +
+  geom_pointrange(position = position_dodge(width = 0.5)) +
+  scale_color_manual(values = baseline_colors, name = "Series / baseline") +
+  scale_shape_manual(values = c(16, 15, 17, 15, 17, 18), name = "Series / baseline") +
+  facet_grid(attribute ~ panel, scales = "free", space = "free_y",
+             labeller = labeller(attribute = label_wrap_gen(width = 14))) +
+  labs(x = "Estimate", y = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(face = "bold"),
+    strip.text.y = element_text(angle = 0, size = 8.5),
+    plot.title = element_blank(),
+    legend.position = "bottom",
+    plot.margin = margin(t = 5, r = 25, b = 5, l = 5)
+  )
+
+ggsave("figures/sensitivity.png", plot = p, width = 10, height = 8.5, dpi = 300, bg = "white")
+
+## =================================================================
+## TABLE: sensitivity-table.md
+## =================================================================
+r3 <- function(x) sprintf("%.3f", x)
+
+## --- Table 1: Violent Crime Rate ---
+crime_mm <- mm_all %>% filter(attribute_id == "att7")
+
+t1_rows <- crime_mm %>%
+  left_join(crime_amce %>% filter(baseline_label == "Less crime (level1)") %>%
+              select(att_level_choose, amce_less = estimate,
+                     lo_less = conf.low, hi_less = conf.high),
+            by = "att_level_choose") %>%
+  left_join(crime_amce %>% filter(baseline_label == "More crime (level2)") %>%
+              select(att_level_choose, amce_more = estimate,
+                     lo_more = conf.low, hi_more = conf.high),
+            by = "att_level_choose") %>%
+  mutate(
+    amce_less_txt = ifelse(att_level_choose == "att7:level1", "0 (ref)",
+      paste0(r3(amce_less), " [", r3(lo_less), ", ", r3(hi_less), "]")),
+    amce_more_txt = ifelse(att_level_choose == "att7:level2", "0 (ref)",
+      paste0(r3(amce_more), " [", r3(lo_more), ", ", r3(hi_more), "]")),
+    mm_txt = paste0(r3(mm_estimate), " [", r3(mm_conf.low), ", ", r3(mm_conf.high), "]")
+  ) %>%
+  select(level, amce_less_txt, amce_more_txt, mm_txt)
+
+table1_md <- c(
+  "| Level | AMCE (baseline = Less crime) | AMCE (baseline = More crime) | Marginal mean [95% CI] |",
   "|---|---|---|---|",
-  sprintf("| %s | %s | %s | %s |",
-          crime_b1_base, crime_b1$level[1],
-          r3(crime_b1$estimate[1]), ci(crime_b1$conf.low[1], crime_b1$conf.high[1])),
-  sprintf("| %s | %s | %s | %s |",
-          crime_b2_base, crime_b2$level[1],
-          r3(crime_b2$estimate[1]), ci(crime_b2$conf.low[1], crime_b2$conf.high[1])),
-  "",
-  sprintf("Binary attribute: re-baselining flips the sign exactly (%s vs %s); |AMCE| = %s and CI width are identical.",
-          r3(crime_b1$estimate[1]), r3(crime_b2$estimate[1]), r3(abs(crime_b1$estimate[1]))),
-  "",
-  "## (ii) att6 (Type of Place) re-baselining: max-|AMCE| under each baseline",
-  "",
-  sprintf("Alternative baseline chosen = level %d (“%s”), the level whose MM is closest to the sample-average MM of 0.5.",
-          alt_lev, alt_lev_label),
-  "",
-  "| Baseline for att6 | max-\\|AMCE\\| (corrected) |",
-  "|---|---|",
-  sprintf("| Default (level1, “%s”) | %s |",
-          out$labels$level[out$labels$level_id == "att6:level1"], r3(att6_maxabs_default)),
-  sprintf("| Alternative (level%d, “%s”) | %s |",
-          alt_lev, alt_lev_label, r3(att6_maxabs_alt)),
-  "",
-  "## (iii) Attribute-importance ordering by max-|AMCE|",
-  "",
-  "| Rank | Default baselines | max-\\|AMCE\\| | Alternative regime (att6 re-baselined) | max-\\|AMCE\\| |",
-  "|---|---|---|---|---|"
-)
-for (i in seq_len(nrow(maxabs_default))) {
-  lines <- c(lines, sprintf("| %d | %s | %s | %s | %s |",
-    i,
-    maxabs_default$attribute[i], r3(maxabs_default$max_abs_amce[i]),
-    maxabs_alt$attribute[i],     r3(maxabs_alt$max_abs_amce[i])))
-}
-
-lines <- c(lines,
-  "",
-  "## (iv) Baseline-INVARIANT importance: per-attribute MM spread",
-  "",
-  "| Rank | Attribute | MM spread (max MM − min MM) |",
-  "|---|---|---|"
-)
-for (i in seq_len(nrow(mm_spread))) {
-  lines <- c(lines, sprintf("| %d | %s | %s |",
-    mm_spread$rank[i], mm_spread$attribute[i], r3(mm_spread$spread[i])))
-}
-
-# MM tables for crime and att6 (full), plus compact all-attribute MMs
-mm_tab <- function(attid) {
-  d <- mm_default[mm_default$attribute_id == attid, ]
-  d <- d[order(d$att_level_choose), ]
-  c(sprintf("### MMs — %s (%s)", att_names[attid], attid), "",
-    "| Level | MM (corrected) | 95% CI |", "|---|---|---|",
-    sprintf("| %s | %s | %s |", d$level, r3(d$estimate), ci(d$conf.low, d$conf.high)),
-    "")
-}
-lines <- c(lines,
-  "",
-  "## (v) Marginal Means with 95% CIs",
-  "",
-  mm_tab("att7"),
-  mm_tab("att6")
+  sprintf("| %s | %s | %s | %s |", t1_rows$level, t1_rows$amce_less_txt, t1_rows$amce_more_txt, t1_rows$mm_txt)
 )
 
-# compact all-attribute MM table
-lines <- c(lines,
-  "### MMs — all attributes (compact)",
-  "",
-  "| Attribute | Level | MM (corrected) | 95% CI |",
-  "|---|---|---|---|"
+## --- Table 2: Type of Place ---
+att6_mm <- mm_all %>% filter(attribute_id == "att6")
+
+wide2 <- att6_amce %>%
+  left_join(labs, by = c("att_level_choose" = "level_id")) %>%
+  select(level, att_level_choose, baseline_id, estimate, conf.low, conf.high) %>%
+  mutate(
+    cell = ifelse(att_level_choose == baseline_id, "0 (ref)",
+      paste0(r3(estimate), " [", r3(conf.low), ", ", r3(conf.high), "]"))
+  ) %>%
+  select(level, att_level_choose, baseline_id, cell) %>%
+  pivot_wider(names_from = baseline_id, values_from = cell) %>%
+  left_join(att6_mm %>% select(att_level_choose, mm_estimate, mm_conf.low, mm_conf.high),
+            by = "att_level_choose") %>%
+  mutate(mm_txt = paste0(r3(mm_estimate), " [", r3(mm_conf.low), ", ", r3(mm_conf.high), "]")) %>%
+  arrange(att_level_choose)
+
+table2_md <- c(
+  "| Level | AMCE (base = City downtown / level1) | AMCE (base = Small town / level4) | AMCE (base = Rural / level3) | Marginal mean [95% CI] |",
+  "|---|---|---|---|---|",
+  sprintf("| %s | %s | %s | %s | %s |",
+    wide2$level, wide2[["att6:level1"]], wide2[["att6:level4"]], wide2[["att6:level3"]], wide2$mm_txt)
 )
-mm_all <- mm_default[order(mm_default$att_level_choose), ]
-for (i in seq_len(nrow(mm_all))) {
-  lines <- c(lines, sprintf("| %s | %s | %s | %s |",
-    att_names[mm_all$attribute_id[i]], mm_all$level[i],
-    r3(mm_all$estimate[i]), ci(mm_all$conf.low[i], mm_all$conf.high[i])))
-}
 
-lines <- c(lines,
-  "",
-  "## Table note",
-  "",
-  sprintf("All quantities are IRR measurement-error-**corrected** profile-level estimates (projoint `amce_corrected` / `mm_corrected`; tau estimated from `choice1_repeated_flipped`). In (i), each column names its reference (baseline) level; the AMCE is the listed contrast level vs that reference. In (iii), the default column uses each attribute's level1 as baseline, and the alternative column re-baselines att6 to level%d (“%s”) while all other attributes stay at their default baseline. MM spread (iv) and marginal means (v) do not depend on any baseline. AMCE≡MM-difference consistency check: max discrepancy = %.2e across all default contrasts. Estimates in probability units, rounded to 3 decimals.",
-    alt_lev, alt_lev_label, max_discrepancy)
+## --- Table 3: attribute importance ---
+table3_md <- c(
+  "| Rank | Attribute | # levels | MM range (max−min) |",
+  "|---|---|---|---|",
+  sprintf("| %d | %s | %d | %s |", mm_range$rank, mm_range$attribute, mm_range$n_levels, r3(mm_range$mm_range))
 )
 
-writeLines(lines, "sensitivity-table.md")
+md <- c(
+  "# Conjoint reference-category sensitivity analysis",
+  "",
+  "Violent Crime Rate is a **binary** attribute (two levels); its AMCE under one baseline is",
+  "an exact sign-flip of its AMCE under the other, while its marginal means are fixed",
+  "regardless of baseline choice. Type of Place has six levels, so per-level AMCEs shift",
+  "in magnitude (not just sign) depending on which level is used as the reference category.",
+  "",
+  "## Table 1 -- Violent Crime Rate: AMCE under each baseline vs. marginal means",
+  "",
+  table1_md,
+  "",
+  "## Table 2 -- Type of Place: AMCEs shift with baseline",
+  "",
+  table2_md,
+  "",
+  "## Table 3 -- Baseline-free attribute importance (MM range)",
+  "",
+  table3_md,
+  ""
+)
 
-## ---- Console summary (for the orchestrator) --------------------------------
-cat("\n===== RESULTS =====\n")
-cat(sprintf("Crime AMCE (corrected): baseline='%s', contrast='%s' -> %.3f [%.3f, %.3f]\n",
-            crime_b1_base, crime_b1$level[1], crime_b1$estimate[1], crime_b1$conf.low[1], crime_b1$conf.high[1]))
-cat(sprintf("Crime AMCE (corrected): baseline='%s', contrast='%s' -> %.3f [%.3f, %.3f]\n",
-            crime_b2_base, crime_b2$level[1], crime_b2$estimate[1], crime_b2$conf.low[1], crime_b2$conf.high[1]))
-cat(sprintf("att6 max-|AMCE|: default=%.3f  alt(level%d,'%s')=%.3f\n",
-            att6_maxabs_default, alt_lev, alt_lev_label, att6_maxabs_alt))
-cat("\nmax-|AMCE| ranking (default):\n"); print(maxabs_default[, c("attribute","max_abs_amce")])
-cat("\nmax-|AMCE| ranking (alt regime):\n"); print(maxabs_alt[, c("attribute","max_abs_amce")])
-cat("\nMM-spread ranking (invariant):\n"); print(mm_spread[, c("rank","attribute","spread")])
-cat(sprintf("\nCrime rank by MM spread: %d\n", crime_spread_rank))
-cat(sprintf("Crime MMs: level1='%s' %.3f [%.3f,%.3f]; level2='%s' %.3f [%.3f,%.3f]\n",
-            mm_default$level[mm_default$att_level_choose=="att7:level1"],
-            mm_default$estimate[mm_default$att_level_choose=="att7:level1"],
-            mm_default$conf.low[mm_default$att_level_choose=="att7:level1"],
-            mm_default$conf.high[mm_default$att_level_choose=="att7:level1"],
-            mm_default$level[mm_default$att_level_choose=="att7:level2"],
-            mm_default$estimate[mm_default$att_level_choose=="att7:level2"],
-            mm_default$conf.low[mm_default$att_level_choose=="att7:level2"],
-            mm_default$conf.high[mm_default$att_level_choose=="att7:level2"]))
-cat(sprintf("Max AMCE=MM-diff discrepancy: %.3e\n", max_discrepancy))
-cat("Artifacts: figures/sensitivity.png, sensitivity-table.md\n")
+writeLines(md, "sensitivity-table.md")
+
+message("Done: figures/sensitivity.png and sensitivity-table.md written.")

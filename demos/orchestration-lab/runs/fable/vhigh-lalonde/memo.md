@@ -1,43 +1,52 @@
-# Adjudicating Dehejia–Wahba vs Smith–Todd on the NSW/CPS benchmark
+# Does propensity-score matching recover the LaLonde benchmark?
 
-The randomized NSW experiment puts the effect of the program on 1978 earnings at
-**+$1,794** (95% CI 479 to 3,109). The question is whether propensity-score
-methods recover that number once the experimental controls are discarded and
-15,992 CPS respondents stand in for them. The raw observational contrast says
-**−$8,498**: the CPS pool earns far more than the disadvantaged NSW enrollees, so
-the naive comparison is off by more than ten thousand dollars and wrong-signed.
+**The benchmark and the problem.** The NSW experiment puts the effect of the
+program on 1978 earnings at **+$1,794** (95% CI [479, 3,109]) — a clean
+treated-minus-control contrast that randomization makes unbiased. Discard the
+experimental controls, splice the 185 treated units onto 15,992 CPS
+respondents, and the raw contrast collapses to **-$8,498**: the CPS men are
+older, better educated, and far higher-earning, so selection swamps the effect
+more than fivefold and reverses its sign. The question Dehejia-Wahba and
+Smith-Todd fight over is whether conditioning on observed covariates repairs
+this.
 
-**What conditioning does.** The covariate set, not the estimator, carries the
-result. With demographics alone (age, education, race, marital status, degree)
-every estimator stays badly negative: −$2,798 for 1-NN, −$3,622 for
-subclassification. Balancing age and schooling to max|SMD| below 0.16 does almost
-nothing, because the confounding that matters here is the earnings trajectory
-that selected men into NSW, not their demographics. Adding the two pre-treatment
-earnings histories (re74, re75) is the whole story: 1-NN then returns +$1,712 and
-+$1,759, within about $80 of the benchmark and with intervals that cover it.
+**What conditioning does, and does not, do.** It does a great deal — but
+unevenly. Adding the six demographics alone moves the estimate from -$8,498 to
+roughly -$2,800 (1-NN) or -$4,200 (stratification): most of the raw gap closes,
+yet every demographics-only estimate is still wrong-signed and its interval
+excludes the benchmark. The lever that matters is the pair of pre-program
+earnings, re74 and re75. With them in the score, 1-NN matching returns **+$1,712**
+and **+$1,759** (with common-support trimming), both statistically
+indistinguishable from +$1,794. What conditioning is doing is not magic; it is
+balancing the one dimension — earnings history — on which the CPS pool differs
+from the trainees in a way that predicts re78. What it is not doing is
+certifying that all confounding is observed; it cannot, and demographics-only
+balance is not enough.
 
-**What conditioning is not doing.** It is not achieving balance on the variables
-that produce the recovery. The two NN specifications still carry max|SMD| near
-0.40 on the earnings histories. Recovery comes from adjusting the outcome through
-the propensity score, not from constructing genuinely comparable groups, and it
-does not survive a change of estimator. Coarse subclassification with the same
-rich covariate set gives +$61 (95% CI −1,209 to 1,330). Its interval, once the
-standard error is computed honestly (HC3 on the weighted fit rather than
-clustering on six strata), excludes the benchmark. The same information, matched
-one to one, hits the target; blocked into strata, it misses.
+**Verdict: recovery only under favorable specifications.** Two independent
+reviews (Opus and a different-vendor GPT-5.6 peer), run blind, reached the same
+reading, and the specification curve makes it plain. Holding the covariate set
+at its best case, the estimator still decides the answer: 1-NN lands on the
+benchmark, but simple five-stratum subclassification on the *same* rich score
+gives **-$144** [-1,406, 1,119] — a null. So a benchmark-consistent number
+exists, but it requires jointly choosing the earnings covariates *and*
+nearest-neighbor matching. That joint dependence is precisely Smith-Todd's
+fragility, not Dehejia-Wahba's robust replication.
 
-**The verdict is favorable-specification-only.** Recovery is real but conditional
-on two choices made together: including lagged earnings and matching one-to-one.
-Drop either and it goes away. This is Smith and Todd's fragility, not Dehejia and
-Wahba's robustness, though it confirms Dehejia and Wahba's mechanism, that the
-earnings histories are the load-bearing covariates.
+**What a paper may and may not claim.** It may claim that lagged earnings are
+*necessary* to approach the experimental target — demographics-only matching
+fails decisively — and that under a rich score a nearest-neighbor PS estimate is
+statistically indistinguishable from the experimental +$1,794, a qualified,
+conditional replication. It may **not** claim that PS methods robustly recover
+the benchmark, that the CPS is a validated control pool, or that matching
+delivers experimental credibility independent of specification: the same
+favorable covariates, run through a coarser estimator, return zero. "Matching
+works" and "matching fails" are both wrong. Matching recovers the benchmark
+under one defensible specification and misses it under others equally
+defensible; the honest claim is conditional, and the conditions must be stated.
 
-**What a paper may claim.** That in this case, propensity-score matching on
-demographics plus two years of pre-treatment earnings reproduces the experimental
-estimate closely under 1-NN. **What it may not claim.** That matching "recovers
-the experimental benchmark" without naming the covariate set and the estimator;
-that the observational and experimental numbers are statistically equal (the gaps
-are read from overlapping intervals, not a paired test, and every spec shares the
-same 185 treated outcomes with the benchmark); or that good demographic balance
-licenses the design. The honest sentence is narrow: recovery here is a property of
-a specification, not of the method.
+*Standard errors are HC2 (naive/benchmark), a cluster-robust approximation to
+the Abadie-Imbens (2006) matching variance for 1-NN — the nonparametric
+bootstrap being invalid here (Abadie-Imbens 2008) and the exact estimator
+unavailable without `Matching` — and analytic within-stratum variances for
+stratification.*

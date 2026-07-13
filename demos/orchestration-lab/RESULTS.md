@@ -2,9 +2,31 @@
 
 Single aggregation point: the walkthrough page copies numbers only from this file. Filled after each captured run from its `run-log.md`; scored against the reference answer keys and rubrics, with bands per `SCORING.md` (every brief is graded on six binary items — four core, one judgment, one completeness — so Pass = all core, Pass+ = core plus judgment, Distinction = all six).
 
+## 2026-07-13 recalibration — fable reason-in-place (v2.18.0) + rigor bar (v2.18.1)
+
+The earlier captures put the fable arm behind opus (26 vs 29 of 30), and the question was whether that reflected a real quality gap or a mis-calibrated skill. Two changes tested it; five independent Opus deep-reasoners re-graded each fable brief blind, quoting evidence from disk.
+
+**v2.18.0 — reason in place.** `fable-orchestrate` was rebuilt on the premise that Fable 5 is the strongest model on the team: the lead now reasons the hard parts itself and delegates only mechanical execution (Sonnet) and wide/parallel reasoning (Opus), instead of offloading all reasoning to the Opus deep-reasoner. Re-graded blind: t1 Pass, t2 Pass+, t3 Pass+, high-ajr Distinction, vhigh Distinction = **26/30**. The AJR IV replication reproduced every answer-key number to the digit (independently re-run by the grader) in 3 turns / $1.25 — the same Distinction opus reaches for ~8× the tokens.
+
+**v2.18.1 — the rigor bar.** A second change made the lead own the *rigor* of a delegated deliverable, not just its correctness (report the exact quantity, explain the mechanism, give the comparison a reviewer needs) — kept general, not tuned to the rubric's specific items. Re-graded blind on the three sub-Distinction briefs; high/vhigh carried at Distinction:
+
+| Brief | v2.18.1 band | items met | cost | tokens (excl. cache) | min |
+|---|---|---|---:|---:|---:|
+| fable / t1 | Pass (4/6) | design counts, attribute set, level counts, repeated task | $0.72 | 33k | 2.6 |
+| fable / t2 | Pass+ (5/6) | + estimand disclosed | $1.55 | 26k | 2.3 |
+| fable / t3 | Pass (4/6) | A, B, C, E | $2.64 | 87k | 9.6 |
+| fable / high-ajr | Distinction (6/6) | all six (carried; AJR numbers exact) | $1.25 | 12k | 0.6 |
+| fable / vhigh | Distinction (6/6) | all six (carried) | $2.28 | 99k | 17.6 |
+
+Total **25/30** (vs opus 29/30, unchanged — opus routing was not altered).
+
+**Findings.** (1) **Reasoning parity.** On every reasoning-heavy brief fable equals opus — both Distinction on the two hardest rungs, both clearing all four core items on the reviewer reply. No evidence opus out-reasons fable. (2) **The gap is thoroughness on the two mechanical briefs, not reasoning.** fable trails opus only on t1 and t2, and only on beyond-the-brief completeness/judgment bonuses (the exact deviation-from-uniform; the quantified IRR mechanism). The rigor bar raised thoroughness qualitatively — t2 now names the profile-level estimand it omitted before — but did not cross those completeness bars, because forcing the specific quantity would mean writing the answer key into the skill (teaching-to-test), which was declined. That the gap survives an honest change is the tell that it is a write-up-style difference, not a capability one. (3) **t3 moved Pass+ → Pass on n=1 noise**, not the rigor bar (which targets completeness, not the judgment item t3 dropped). Across four captures of the fable skill the reviewer reply has been Pass, Pass+, Pass+, Pass — the "specimens not benchmarks" thesis, live. (4) **These briefs top out where both models ace them** (both Distinction on the two hardest), so the scoreboard cannot discriminate reasoning quality at the top; it shows competence and thoroughness, not a reasoning ranking. To rank reasoning you would need briefs hard enough that a strong model fails; these are not those.
+
+The page's fable figures are now this v2.18.1 capture. The 2026-07-13 v2.17.0 re-run and the original captures are below and in git history.
+
 ## 2026-07-13 re-run — fable + opus on the recalibrated v2.17.0 skills
 
-After the fast-worker `low → medium` recalibration (v2.17.0), the fable and opus arms were re-run headless on all five briefs. The page's fable/opus figures are now this re-run; the original 2026-07-12 captures are in git history. Advisor and 46 were **not** re-run (unaffected: advisor uses no fast-worker; 46 headless is the Terra-lead fallback either way).
+After the fast-worker `low → medium` recalibration (v2.17.0), the fable and opus arms were re-run headless on all five briefs. The page's opus figures are this re-run (fable's were superseded by the v2.18.1 capture above); the original 2026-07-12 captures are in git history. Advisor and 46 were **not** re-run (unaffected: advisor uses no fast-worker; 46 headless is the Terra-lead fallback either way).
 
 Token unit note: the page now reports **tokens processed excluding cached reads** (input + cache_creation + output) for the Claude arms and the Codex CLI's single total for 46 — one unit shared by all four arms, since Claude Code's cache_read counts run into the millions and would dwarf the comparison.
 

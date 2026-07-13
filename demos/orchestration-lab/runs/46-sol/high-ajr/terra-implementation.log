@@ -1,0 +1,1470 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.1
+--------
+workdir: ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f5b0a-f161-71c2-b22f-61dc0843413c
+--------
+user
+Objective:
+Create the deterministic R estimation artifact and the Markdown robustness table required by BRIEF.md.
+
+Inputs and authoritative paths:
+- Read ./BRIEF.md completely.
+- Data are loaded only with library(ivdoctr); data(colonial, package = "ivdoctr").
+- AER is confirmed available.
+
+In scope:
+- Write only ./script.R and ./robustness-table.md.
+- Implement exactly five specifications: Base (no controls); Latitude (lat_abst); Continent controls (africa + asia); Drop neo-Europes (exclude AUS, CAN, NZL, USA by shortnam, no added controls); Africa only (africa == 1, no added controls).
+- For each specification, build one estimation data frame by applying the restriction and complete.cases to the outcome, endogenous regressor, excluded instrument, and that specification’s controls. Fit OLS and IV on this identical sample.
+- OLS: lm(logpgp95 ~ avexpr + controls).
+- IV: AER::ivreg(logpgp95 ~ avexpr + controls | logem4 + controls).
+- First stage: lm(avexpr ~ logem4 + controls) on that same data. Record the logem4 coefficient.
+- Compute the conventional partial F for the excluded instrument by anova(restricted first stage without logem4, unrestricted first stage with logem4), extracting the F statistic. With one excluded instrument this is the standard first-stage excluded-instrument F.
+- Mark F < 10 as weak. Preserve the numerical IV estimate in the table for transparency but label weak cases explicitly and ensure the note says weak-spec IV point estimates are not reliable causal estimates.
+- Table must have one row/specification and columns sufficient to show N, OLS avexpr estimate, 2SLS avexpr estimate, first-stage logem4 coefficient, first-stage F, identification status. Use sensible precision and one Markdown table only.
+- script.R must be self-contained, declare libraries at top, include set.seed() before estimation even though deterministic, generate robustness-table.md when run, and state/use the AER::ivreg path. No figure.
+
+Out of scope:
+- Do not write memo.md, routing-log.md, logs, figures, or any other file.
+- Do not interpret manuscript claims beyond concise table notes.
+- No web, no package installation, no commits.
+
+Constraints and invariants:
+- Current leaf only. Preserve unrelated files.
+- Follow BRIEF.md exactly.
+- Do not use robust/clustered standard errors; no SEs are requested.
+- Do not substitute ivreg diagnostic output for the explicitly computed first-stage partial F.
+
+Write ownership:
+Exclusive ownership of script.R and robustness-table.md. The shared workspace may change; reread inputs immediately before editing. Use apply_patch for edits.
+
+Expected artifact:
+A clean self-contained script.R and its generated robustness-table.md.
+
+Acceptance checks:
+Run Rscript script.R successfully. Verify exactly five rows, each OLS/IV pair uses identical N, restrictions are correct, Africa-only has 27 observations before any missingness, and rerunning produces identical table bytes. Report relevant numerical results and file paths.
+
+Return format:
+Conclusion, evidence/check output, changed files, residual risk.
+codex
+I’ll follow the brief literally, first inspecting it and the available repository context, then create only the requested R script and generated Markdown table and run the specified checks.
+exec
+/bin/zsh -lc "pwd && rg --files -g 'BRIEF.md' -g 'AGENTS.md' -g '"'!script.R'"' -g '"'!robustness-table.md'"' && sed -n '1,240p' BRIEF.md && if [ -f AGENTS.md ]; then sed -n '1,240p' AGENTS.md; fi && git status --short" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+ succeeded in 0ms:
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+BRIEF.md
+# Task H — Replicate and stress a famous IV result (high-complexity tier)
+
+You are working in a project directory. Use R (`Rscript`); the `ivdoctr`, `AER`, and `car` packages are installed.
+
+**Data.** Acemoglu, Johnson & Robinson (2001), *The Colonial Origins of Comparative Development*. The base sample ships with `ivdoctr`:
+
+```r
+library(ivdoctr)
+data(colonial, package = "ivdoctr")   # 64 countries, AJR base sample
+```
+
+Key columns: `logpgp95` (log PPP GDP per capita, 1995 — the outcome); `avexpr` (average protection against expropriation risk — the institutions measure, endogenous); `logem4` (log settler mortality — the excluded instrument); `lat_abst` (absolute latitude / 90); `africa`, `asia` (continent dummies); `shortnam` (three-letter country code); `rich4` (= 1 for the four "neo-Europes").
+
+**Background.** A manuscript uses these data to replicate AJR's headline: settler mortality instruments expropriation-risk institutions, which in turn predict long-run income. Structurally, `logpgp95 ~ avexpr`, with `avexpr` instrumented by `logem4`. The paper reports a 2SLS coefficient far above its OLS counterpart and treats the finding as established. Your job is to reproduce that headline and then find out how much weight it will bear.
+
+**Task.**
+
+1. **Replicate the headline.** Estimate the bivariate 2SLS coefficient of `logpgp95` on `avexpr` instrumented by `logem4`, and its OLS counterpart on the same sample. Report the first stage (the coefficient of `avexpr` on `logem4`).
+2. **Stress the result** with four perturbations, each re-estimating OLS and 2SLS on the same sample/controls: (a) add latitude (`lat_abst`); (b) add continent controls (`africa`, `asia`); (c) drop the neo-Europes (`AUS`, `CAN`, `NZL`, `USA`, by `shortnam`); (d) restrict to Africa only (`africa == 1`).
+3. **Report first-stage strength per specification** — the first-stage F on the excluded instrument — and **flag any specification where the instrument is weak** (rule of thumb: F below ~10). Do not report a 2SLS point estimate as if it were reliable when its first stage is weak.
+4. **Deliverables** (see below): a script, a robustness table, and a short memo stating what survives the stress tests and what the paper is entitled to claim.
+
+**Produce, in the current working directory:**
+
+1. `script.R` — one self-contained script; conventions as in the other briefs (packages and any palette/theme declared at the top; `set.seed()` before anything stochastic — note that OLS/2SLS here are deterministic). If you produce a figure it is optional; follow house figure conventions if you do (Okabe-Ito palette, 300+ dpi, no in-plot title).
+2. `robustness-table.md` — **one** table reporting, for every specification, the OLS estimate, the 2SLS estimate, and the first-stage F (with the first-stage coefficient), so all specs are comparable at a glance. Note which specs are weakly identified.
+3. `memo.md` — roughly 400 words: state what survives the stress tests and what does not, and say precisely what the manuscript may and may not claim on this evidence. Do not overclaim in either direction — a specification whose instrument has collapsed does not confirm the result, and it does not overturn it either.
+
+**Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. No web access. Do not install packages. For 2SLS use `AER::ivreg` if it is available; otherwise estimate explicit two-stage least squares via two `lm` stages and note that the second-stage standard errors are approximate (uncorrected for the generated regressor). Say which path you took.
+ M ../t1/sol-session.log
+ M ../t1/terra-implementation.log
+ D ../../fable/high-ajr/SHA256SUMS
+ M ../../fable/high-ajr/claude-envelope.json
+ M ../../fable/high-ajr/memo.md
+ M ../../fable/high-ajr/robustness-table.md
+ D ../../fable/high-ajr/run-log.md
+ M ../../fable/high-ajr/script.R
+ D ../../fable/t1/SHA256SUMS
+ M ../../fable/t1/claude-envelope.json
+ M ../../fable/t1/figures/level-frequencies.png
+ D ../../fable/t1/run-log.md
+ M ../../fable/t1/script.R
+ M ../../fable/t1/summary.md
+ D ../../fable/t2/SHA256SUMS
+ M ../../fable/t2/claude-envelope.json
+ D ../../fable/t2/estimates.csv
+ M ../../fable/t2/figures/amce-dotwhisker.png
+ M ../../fable/t2/report.md
+ D ../../fable/t2/run-log.md
+ M ../../fable/t2/script.R
+ D ../../fable/t3/SHA256SUMS
+ M ../../fable/t3/claude-envelope.json
+ M ../../fable/t3/figures/sensitivity.png
+ M ../../fable/t3/memo.md
+ D ../../fable/t3/run-log.md
+ M ../../fable/t3/script.R
+ M ../../fable/t3/sensitivity-table.md
+ D ../../fable/vhigh-lalonde/SHA256SUMS
+ M ../../fable/vhigh-lalonde/claude-envelope.json
+ M ../../fable/vhigh-lalonde/figures/spec-curve.png
+ D ../../fable/vhigh-lalonde/memo.md
+ D ../../fable/vhigh-lalonde/run-log.md
+ M ../../fable/vhigh-lalonde/script.R
+ M ../../fable/vhigh-lalonde/spec-table.md
+?? sol-session.log
+?? terra-implementation.log
+?? ../t1/figures/
+?? ../t1/routing-log.md
+?? ../t1/script.R
+?? ../t1/summary.md
+?? ../t1/terra-implementation-retry.log
+?? ../t2/sol-session.log
+?? ../t3/sol-session.log
+?? ../t3/terra-inventory.log
+?? ../vhigh-lalonde/sol-session.log
+?? ../../fable/high-ajr/figures/
+?? ../../fable/high-ajr/run-err.log
+?? ../../fable/t1/run-err.log
+?? ../../fable/t3/err.log
+?? ../../fable/t3/run-err.log
+?? ../../fable/vhigh-lalonde/run-err.log
+
+codex
+The brief confirms the five requested specifications and the `AER::ivreg` route. I’ll encode identical-sample construction explicitly for OLS, IV, and both first-stage models, including a guard that the raw Africa subset has 27 countries.
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/script.R b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..00c62775baf0fdcac18da53d7e1ba2ebde037d37
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+@@ -0,0 +1,83 @@
++#!/usr/bin/env Rscript
++
++# Deterministic replication and robustness checks for the AJR colonial sample.
++library(ivdoctr)
++library(AER)
++
++set.seed(2001)
++
++data(colonial, package = "ivdoctr")
++
++# The raw AJR base sample contains 27 African countries before missing-data removal.
++stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
++
++specifications <- list(
++  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
++)
++
++make_formula <- function(lhs, rhs_terms) {
++  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
++  stats::as.formula(paste(lhs, "~", rhs))
++}
++
++estimate_specification <- function(spec, data) {
++  # Apply this specification's restriction, then complete cases for all model variables.
++  restricted <- data[spec$keep(data), , drop = FALSE]
++  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
++  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
++
++  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
++  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
++  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
++  iv_formula <- stats::as.formula(paste(
++    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
++    "|", paste(c("logem4", spec$controls), collapse = " + ")
++  ))
++
++  ols <- stats::lm(ols_formula, data = estimation_data)
++  # Use the required AER::ivreg path for two-stage least squares.
++  iv <- AER::ivreg(iv_formula, data = estimation_data)
++  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
++  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
++  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
++  partial_f <- first_stage_comparison$F[2L]
++
++  data.frame(
++    specification = spec$name,
++    n = nrow(estimation_data),
++    ols = unname(stats::coef(ols)["avexpr"]),
++    iv = unname(stats::coef(iv)["avexpr"]),
++    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
++    first_stage_f = partial_f,
++    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
++    stringsAsFactors = FALSE
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
++stopifnot(nrow(results) == 5L)
++
++table_lines <- c(
++  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
++  "|---|---:|---:|---:|---:|---:|---|",
++  vapply(seq_len(nrow(results)), function(i) {
++    row <- results[i, ]
++    paste0(
++      "| ", row$specification,
++      " | ", row$n,
++      " | ", sprintf("%.3f", row$ols),
++      " | ", sprintf("%.3f", row$iv),
++      " | ", sprintf("%.3f", row$first_stage_logem4),
++      " | ", sprintf("%.2f", row$first_stage_f),
++      " | ", row$identification, " |"
++    )
++  }, character(1)),
++  "",
++  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
++)
++
++writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/script.R b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..00c62775baf0fdcac18da53d7e1ba2ebde037d37
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+@@ -0,0 +1,83 @@
++#!/usr/bin/env Rscript
++
++# Deterministic replication and robustness checks for the AJR colonial sample.
++library(ivdoctr)
++library(AER)
++
++set.seed(2001)
++
++data(colonial, package = "ivdoctr")
++
++# The raw AJR base sample contains 27 African countries before missing-data removal.
++stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
++
++specifications <- list(
++  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
++)
++
++make_formula <- function(lhs, rhs_terms) {
++  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
++  stats::as.formula(paste(lhs, "~", rhs))
++}
++
++estimate_specification <- function(spec, data) {
++  # Apply this specification's restriction, then complete cases for all model variables.
++  restricted <- data[spec$keep(data), , drop = FALSE]
++  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
++  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
++
++  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
++  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
++  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
++  iv_formula <- stats::as.formula(paste(
++    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
++    "|", paste(c("logem4", spec$controls), collapse = " + ")
++  ))
++
++  ols <- stats::lm(ols_formula, data = estimation_data)
++  # Use the required AER::ivreg path for two-stage least squares.
++  iv <- AER::ivreg(iv_formula, data = estimation_data)
++  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
++  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
++  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
++  partial_f <- first_stage_comparison$F[2L]
++
++  data.frame(
++    specification = spec$name,
++    n = nrow(estimation_data),
++    ols = unname(stats::coef(ols)["avexpr"]),
++    iv = unname(stats::coef(iv)["avexpr"]),
++    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
++    first_stage_f = partial_f,
++    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
++    stringsAsFactors = FALSE
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
++stopifnot(nrow(results) == 5L)
++
++table_lines <- c(
++  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
++  "|---|---:|---:|---:|---:|---:|---|",
++  vapply(seq_len(nrow(results)), function(i) {
++    row <- results[i, ]
++    paste0(
++      "| ", row$specification,
++      " | ", row$n,
++      " | ", sprintf("%.3f", row$ols),
++      " | ", sprintf("%.3f", row$iv),
++      " | ", sprintf("%.3f", row$first_stage_logem4),
++      " | ", sprintf("%.2f", row$first_stage_f),
++      " | ", row$identification, " |"
++    )
++  }, character(1)),
++  "",
++  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
++)
++
++writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+exec
+/bin/zsh -lc "Rscript script.R && cp robustness-table.md /tmp/robustness-table.first.md && Rscript script.R && cmp -s /tmp/robustness-table.first.md robustness-table.md && printf 'rerun_byte_identical=%s\\n' \""'$?" && sed -n '"'1,160p' robustness-table.md && git status --short -- script.R robustness-table.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/script.R b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..00c62775baf0fdcac18da53d7e1ba2ebde037d37
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+@@ -0,0 +1,83 @@
++#!/usr/bin/env Rscript
++
++# Deterministic replication and robustness checks for the AJR colonial sample.
++library(ivdoctr)
++library(AER)
++
++set.seed(2001)
++
++data(colonial, package = "ivdoctr")
++
++# The raw AJR base sample contains 27 African countries before missing-data removal.
++stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
++
++specifications <- list(
++  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
++)
++
++make_formula <- function(lhs, rhs_terms) {
++  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
++  stats::as.formula(paste(lhs, "~", rhs))
++}
++
++estimate_specification <- function(spec, data) {
++  # Apply this specification's restriction, then complete cases for all model variables.
++  restricted <- data[spec$keep(data), , drop = FALSE]
++  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
++  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
++
++  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
++  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
++  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
++  iv_formula <- stats::as.formula(paste(
++    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
++    "|", paste(c("logem4", spec$controls), collapse = " + ")
++  ))
++
++  ols <- stats::lm(ols_formula, data = estimation_data)
++  # Use the required AER::ivreg path for two-stage least squares.
++  iv <- AER::ivreg(iv_formula, data = estimation_data)
++  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
++  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
++  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
++  partial_f <- first_stage_comparison$F[2L]
++
++  data.frame(
++    specification = spec$name,
++    n = nrow(estimation_data),
++    ols = unname(stats::coef(ols)["avexpr"]),
++    iv = unname(stats::coef(iv)["avexpr"]),
++    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
++    first_stage_f = partial_f,
++    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
++    stringsAsFactors = FALSE
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
++stopifnot(nrow(results) == 5L)
++
++table_lines <- c(
++  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
++  "|---|---:|---:|---:|---:|---:|---|",
++  vapply(seq_len(nrow(results)), function(i) {
++    row <- results[i, ]
++    paste0(
++      "| ", row$specification,
++      " | ", row$n,
++      " | ", sprintf("%.3f", row$ols),
++      " | ", sprintf("%.3f", row$iv),
++      " | ", sprintf("%.3f", row$first_stage_logem4),
++      " | ", sprintf("%.2f", row$first_stage_f),
++      " | ", row$identification, " |"
++    )
++  }, character(1)),
++  "",
++  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
++)
++
++writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+ exited 1 in 565ms:
+Loading required package: car
+Loading required package: carData
+Loading required package: lmtest
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Loading required package: sandwich
+Loading required package: survival
+Error in .checkTypos(e, names_x) : 
+  j (the 2nd argument inside [...]) is a single symbol but column name 'required' is not found. If you intended to select columns using a variable in calling scope, please try DT[, ..required]. The .. prefix conveys one-level-up similar to a file system path.
+Calls: do.call ... <Anonymous> -> .checkTypos -> stopf -> raise_condition -> signal
+Execution halted
+
+codex
+The first run exposed a package-class edge case: `colonial` is a `data.table`, whose column-selection syntax differs from a base data frame. I’ll normalize it to a plain data frame immediately after loading, preserving the data and making the complete-case logic unambiguous.
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/script.R b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5b4b91345cc86cd352f9cc552852a97649597a9e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+@@ -0,0 +1,84 @@
++#!/usr/bin/env Rscript
++
++# Deterministic replication and robustness checks for the AJR colonial sample.
++library(ivdoctr)
++library(AER)
++
++set.seed(2001)
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial)
++
++# The raw AJR base sample contains 27 African countries before missing-data removal.
++stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
++
++specifications <- list(
++  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
++)
++
++make_formula <- function(lhs, rhs_terms) {
++  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
++  stats::as.formula(paste(lhs, "~", rhs))
++}
++
++estimate_specification <- function(spec, data) {
++  # Apply this specification's restriction, then complete cases for all model variables.
++  restricted <- data[spec$keep(data), , drop = FALSE]
++  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
++  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
++
++  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
++  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
++  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
++  iv_formula <- stats::as.formula(paste(
++    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
++    "|", paste(c("logem4", spec$controls), collapse = " + ")
++  ))
++
++  ols <- stats::lm(ols_formula, data = estimation_data)
++  # Use the required AER::ivreg path for two-stage least squares.
++  iv <- AER::ivreg(iv_formula, data = estimation_data)
++  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
++  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
++  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
++  partial_f <- first_stage_comparison$F[2L]
++
++  data.frame(
++    specification = spec$name,
++    n = nrow(estimation_data),
++    ols = unname(stats::coef(ols)["avexpr"]),
++    iv = unname(stats::coef(iv)["avexpr"]),
++    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
++    first_stage_f = partial_f,
++    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
++    stringsAsFactors = FALSE
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
++stopifnot(nrow(results) == 5L)
++
++table_lines <- c(
++  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
++  "|---|---:|---:|---:|---:|---:|---|",
++  vapply(seq_len(nrow(results)), function(i) {
++    row <- results[i, ]
++    paste0(
++      "| ", row$specification,
++      " | ", row$n,
++      " | ", sprintf("%.3f", row$ols),
++      " | ", sprintf("%.3f", row$iv),
++      " | ", sprintf("%.3f", row$first_stage_logem4),
++      " | ", sprintf("%.2f", row$first_stage_f),
++      " | ", row$identification, " |"
++    )
++  }, character(1)),
++  "",
++  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
++)
++
++writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/script.R b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5b4b91345cc86cd352f9cc552852a97649597a9e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+@@ -0,0 +1,84 @@
++#!/usr/bin/env Rscript
++
++# Deterministic replication and robustness checks for the AJR colonial sample.
++library(ivdoctr)
++library(AER)
++
++set.seed(2001)
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial)
++
++# The raw AJR base sample contains 27 African countries before missing-data removal.
++stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
++
++specifications <- list(
++  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
++)
++
++make_formula <- function(lhs, rhs_terms) {
++  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
++  stats::as.formula(paste(lhs, "~", rhs))
++}
++
++estimate_specification <- function(spec, data) {
++  # Apply this specification's restriction, then complete cases for all model variables.
++  restricted <- data[spec$keep(data), , drop = FALSE]
++  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
++  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
++
++  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
++  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
++  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
++  iv_formula <- stats::as.formula(paste(
++    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
++    "|", paste(c("logem4", spec$controls), collapse = " + ")
++  ))
++
++  ols <- stats::lm(ols_formula, data = estimation_data)
++  # Use the required AER::ivreg path for two-stage least squares.
++  iv <- AER::ivreg(iv_formula, data = estimation_data)
++  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
++  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
++  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
++  partial_f <- first_stage_comparison$F[2L]
++
++  data.frame(
++    specification = spec$name,
++    n = nrow(estimation_data),
++    ols = unname(stats::coef(ols)["avexpr"]),
++    iv = unname(stats::coef(iv)["avexpr"]),
++    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
++    first_stage_f = partial_f,
++    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
++    stringsAsFactors = FALSE
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
++stopifnot(nrow(results) == 5L)
++
++table_lines <- c(
++  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
++  "|---|---:|---:|---:|---:|---:|---|",
++  vapply(seq_len(nrow(results)), function(i) {
++    row <- results[i, ]
++    paste0(
++      "| ", row$specification,
++      " | ", row$n,
++      " | ", sprintf("%.3f", row$ols),
++      " | ", sprintf("%.3f", row$iv),
++      " | ", sprintf("%.3f", row$first_stage_logem4),
++      " | ", sprintf("%.2f", row$first_stage_f),
++      " | ", row$identification, " |"
++    )
++  }, character(1)),
++  "",
++  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
++)
++
++writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+exec
+/bin/zsh -lc "Rscript script.R && cp robustness-table.md /tmp/robustness-table.first.md && Rscript script.R && cmp -s /tmp/robustness-table.first.md robustness-table.md && printf 'rerun_byte_identical=%s\\n' \""'$?" && sed -n '"'1,160p' robustness-table.md && git status --short -- script.R robustness-table.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/script.R b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5b4b91345cc86cd352f9cc552852a97649597a9e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+@@ -0,0 +1,84 @@
++#!/usr/bin/env Rscript
++
++# Deterministic replication and robustness checks for the AJR colonial sample.
++library(ivdoctr)
++library(AER)
++
++set.seed(2001)
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial)
++
++# The raw AJR base sample contains 27 African countries before missing-data removal.
++stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
++
++specifications <- list(
++  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
++)
++
++make_formula <- function(lhs, rhs_terms) {
++  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
++  stats::as.formula(paste(lhs, "~", rhs))
++}
++
++estimate_specification <- function(spec, data) {
++  # Apply this specification's restriction, then complete cases for all model variables.
++  restricted <- data[spec$keep(data), , drop = FALSE]
++  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
++  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
++
++  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
++  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
++  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
++  iv_formula <- stats::as.formula(paste(
++    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
++    "|", paste(c("logem4", spec$controls), collapse = " + ")
++  ))
++
++  ols <- stats::lm(ols_formula, data = estimation_data)
++  # Use the required AER::ivreg path for two-stage least squares.
++  iv <- AER::ivreg(iv_formula, data = estimation_data)
++  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
++  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
++  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
++  partial_f <- first_stage_comparison$F[2L]
++
++  data.frame(
++    specification = spec$name,
++    n = nrow(estimation_data),
++    ols = unname(stats::coef(ols)["avexpr"]),
++    iv = unname(stats::coef(iv)["avexpr"]),
++    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
++    first_stage_f = partial_f,
++    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
++    stringsAsFactors = FALSE
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
++stopifnot(nrow(results) == 5L)
++
++table_lines <- c(
++  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
++  "|---|---:|---:|---:|---:|---:|---|",
++  vapply(seq_len(nrow(results)), function(i) {
++    row <- results[i, ]
++    paste0(
++      "| ", row$specification,
++      " | ", row$n,
++      " | ", sprintf("%.3f", row$ols),
++      " | ", sprintf("%.3f", row$iv),
++      " | ", sprintf("%.3f", row$first_stage_logem4),
++      " | ", sprintf("%.2f", row$first_stage_f),
++      " | ", row$identification, " |"
++    )
++  }, character(1)),
++  "",
++  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
++)
++
++writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+ succeeded in 1046ms:
+Loading required package: car
+Loading required package: carData
+Loading required package: lmtest
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Loading required package: sandwich
+Loading required package: survival
+Loading required package: car
+Loading required package: carData
+Loading required package: lmtest
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Loading required package: sandwich
+Loading required package: survival
+rerun_byte_identical=0
+| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |
+|---|---:|---:|---:|---:|---:|---|
+| Base | 64 | 0.522 | 0.944 | -0.607 | 22.95 | Not weak (F >= 10) |
+| Latitude | 64 | 0.468 | 0.996 | -0.510 | 13.09 | Not weak (F >= 10) |
+| Continent controls | 64 | 0.434 | 0.839 | -0.533 | 11.01 | Not weak (F >= 10) |
+| Drop neo-Europes | 60 | 0.487 | 1.281 | -0.391 | 8.65 | Weak (F < 10) |
+| Africa only | 27 | 0.302 | 2.400 | -0.108 | 0.30 | Weak (F < 10) |
+
+Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`.
+?? robustness-table.md
+?? script.R
+
+codex
+The artifact now runs cleanly twice with byte-identical output. I’m doing a final read-only review of the requested files and checks before handing it off.
+exec
+/bin/zsh -lc "sed -n '1,260p' BRIEF.md && sed -n '1,300p' script.R && Rscript -e 'source(\"script.R\"); print(results[, c(\"specification\", \"n\", \"first_stage_f\", \"identification\")], row.names = FALSE); stopifnot(results"'$n[results$specification == "Africa only"] == 27L, results$n[results$specification == "Drop neo-Europes"] == 60L)'"' && sha256sum robustness-table.md && git diff --no-index /dev/null script.R; test -f robustness-table.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/script.R b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5b4b91345cc86cd352f9cc552852a97649597a9e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+@@ -0,0 +1,84 @@
++#!/usr/bin/env Rscript
++
++# Deterministic replication and robustness checks for the AJR colonial sample.
++library(ivdoctr)
++library(AER)
++
++set.seed(2001)
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial)
++
++# The raw AJR base sample contains 27 African countries before missing-data removal.
++stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
++
++specifications <- list(
++  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
++)
++
++make_formula <- function(lhs, rhs_terms) {
++  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
++  stats::as.formula(paste(lhs, "~", rhs))
++}
++
++estimate_specification <- function(spec, data) {
++  # Apply this specification's restriction, then complete cases for all model variables.
++  restricted <- data[spec$keep(data), , drop = FALSE]
++  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
++  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
++
++  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
++  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
++  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
++  iv_formula <- stats::as.formula(paste(
++    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
++    "|", paste(c("logem4", spec$controls), collapse = " + ")
++  ))
++
++  ols <- stats::lm(ols_formula, data = estimation_data)
++  # Use the required AER::ivreg path for two-stage least squares.
++  iv <- AER::ivreg(iv_formula, data = estimation_data)
++  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
++  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
++  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
++  partial_f <- first_stage_comparison$F[2L]
++
++  data.frame(
++    specification = spec$name,
++    n = nrow(estimation_data),
++    ols = unname(stats::coef(ols)["avexpr"]),
++    iv = unname(stats::coef(iv)["avexpr"]),
++    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
++    first_stage_f = partial_f,
++    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
++    stringsAsFactors = FALSE
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
++stopifnot(nrow(results) == 5L)
++
++table_lines <- c(
++  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
++  "|---|---:|---:|---:|---:|---:|---|",
++  vapply(seq_len(nrow(results)), function(i) {
++    row <- results[i, ]
++    paste0(
++      "| ", row$specification,
++      " | ", row$n,
++      " | ", sprintf("%.3f", row$ols),
++      " | ", sprintf("%.3f", row$iv),
++      " | ", sprintf("%.3f", row$first_stage_logem4),
++      " | ", sprintf("%.2f", row$first_stage_f),
++      " | ", row$identification, " |"
++    )
++  }, character(1)),
++  "",
++  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
++)
++
++writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+ succeeded in 552ms:
+Loading required package: car
+Loading required package: carData
+Loading required package: lmtest
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Loading required package: sandwich
+Loading required package: survival
+      specification  n first_stage_f     identification
+               Base 64    22.9467966 Not weak (F >= 10)
+           Latitude 64    13.0931511 Not weak (F >= 10)
+ Continent controls 64    11.0055320 Not weak (F >= 10)
+   Drop neo-Europes 60     8.6460719      Weak (F < 10)
+        Africa only 27     0.2983841      Weak (F < 10)
+e66ebb9703e0ff2000b2eb2cd969e847430a1d5e1fc92c1807e048b134aac9cc  robustness-table.md
+diff --git a/script.R b/script.R
+new file mode 100644
+index 0000000..5b4b913
+--- /dev/null
++++ b/script.R
+@@ -0,0 +1,84 @@
++#!/usr/bin/env Rscript
++
++# Deterministic replication and robustness checks for the AJR colonial sample.
++library(ivdoctr)
++library(AER)
++
++set.seed(2001)
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial)
++
++# The raw AJR base sample contains 27 African countries before missing-data removal.
++stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
++
++specifications <- list(
++  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
++)
++
++make_formula <- function(lhs, rhs_terms) {
++  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
++  stats::as.formula(paste(lhs, "~", rhs))
++}
++
++estimate_specification <- function(spec, data) {
++  # Apply this specification's restriction, then complete cases for all model variables.
++  restricted <- data[spec$keep(data), , drop = FALSE]
++  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
++  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
++
++  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
++  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
++  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
++  iv_formula <- stats::as.formula(paste(
++    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
++    "|", paste(c("logem4", spec$controls), collapse = " + ")
++  ))
++
++  ols <- stats::lm(ols_formula, data = estimation_data)
++  # Use the required AER::ivreg path for two-stage least squares.
++  iv <- AER::ivreg(iv_formula, data = estimation_data)
++  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
++  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
++  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
++  partial_f <- first_stage_comparison$F[2L]
++
++  data.frame(
++    specification = spec$name,
++    n = nrow(estimation_data),
++    ols = unname(stats::coef(ols)["avexpr"]),
++    iv = unname(stats::coef(iv)["avexpr"]),
++    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
++    first_stage_f = partial_f,
++    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
++    stringsAsFactors = FALSE
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
++stopifnot(nrow(results) == 5L)
++
++table_lines <- c(
++  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
++  "|---|---:|---:|---:|---:|---:|---|",
++  vapply(seq_len(nrow(results)), function(i) {
++    row <- results[i, ]
++    paste0(
++      "| ", row$specification,
++      " | ", row$n,
++      " | ", sprintf("%.3f", row$ols),
++      " | ", sprintf("%.3f", row$iv),
++      " | ", sprintf("%.3f", row$first_stage_logem4),
++      " | ", sprintf("%.2f", row$first_stage_f),
++      " | ", row$identification, " |"
++    )
++  }, character(1)),
++  "",
++  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
++)
++
++writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+codex
+I’m using the independent reviewer skill for a read-only final compliance check, since the estimates and deliverables are complete and the remaining question is whether they match every stated invariant.
+exec
+/bin/zsh -lc "sed -n '1,260p' ~/Documents/github/resources/open-science-skills/codex/advisor/SKILL.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+ succeeded in 0ms:
+---
+name: advisor
+description: Consult an independent GPT-5.6 reviewer (Terra by default; Sol on request, for a stronger but costlier review), matched to your current reasoning-effort level. Use before committing to an interpretation or a substantial piece of writing/analysis, when stuck (recurring errors, a non-converging approach, results that do not fit), when considering a change of approach, or when you believe a task is complete and want a check before finalizing. Not a co-implementer — read-only advisory only, does not edit files.
+---
+
+# Advisor (GPT-5.6 consulted)
+
+Consult an independent **GPT-5.6** reviewer for one specific decision point, at the same reasoning effort you are currently running at. This is the Codex-side counterpart of the Claude-side `advisor` skill (`plugin/skills/advisor/` in `open-science-skills`), built the same session for the same reason: a single-turn advisory consult, not a delegated implementation.
+
+**Which 5.6 tier, and why it matters.** There are three distinct GPT-5.6 tiers, not one model: `gpt-5.6-sol` (flagship, "most capable"), `gpt-5.6-terra` (balanced, "everyday work"), `gpt-5.6-luna` (fast/cheap). This skill defaults to **`gpt-5.6-terra`** for routine consults — it is cheaper and confirmed reliable. `gpt-5.6-sol` is confirmed working on both hosts this repo runs on (July 2026, both authenticated via ChatGPT login) — an earlier "rejected outright under ChatGPT-account auth" finding no longer reproduces; whether that was a temporary rollout gate or a stale/outdated-CLI artifact is unclear, so re-verify with a smoke test if `sol` ever errors on your account rather than assuming it's gated. Pass `--model gpt-5.6-sol` explicitly for a stronger, costlier consult — see *Effort calibration* below.
+
+Read [`scripts/sol-advisor.sh`](scripts/sol-advisor.sh) before the first run — the flags and the effort-handling note there are load-bearing.
+
+## Sandbox constraint — read this before your first run
+
+`sol-advisor.sh` shells out to a nested `codex exec` process. Confirmed by direct reproduction (July 2026, both hosts this repo runs on): a `codex exec` process running under **any** sandbox mode (`read-only` or `workspace-write`) cannot spawn a working nested `codex exec` child — it fails immediately with `Error: failed to initialize in-process app-server client: Operation not permitted` (macOS) or `Read-only file system` (Linux). This is structural — the OS sandbox applies transitively to the whole process tree — and is **not** fixed by passing `--dangerously-bypass-approvals-and-sandbox` to the nested call itself; only an unsandboxed top-level session avoids it entirely.
+
+- If you are interactive (not `codex exec` invoked non-interactively) and this failure surfaces, request escalation for that one shell command (`sandbox_permissions: require_escalated`, with a short justification) so it runs outside the sandbox — this is exactly the case the built-in escalation path exists for.
+- If you are running non-interactively (`codex exec` at the top level shows `approval: never` in its own banner — no human is available to approve an escalation), this call cannot succeed. Report the failure honestly; do not silently produce the review yourself in place of the consult (that defeats the point of an independent second opinion) and do not retry indefinitely.
+
+## When to use
+
+- **Before substantive work** — before writing, before committing to an interpretation, before building on an assumption. Orientation (finding files, reading a source) is not substantive; writing, editing, and declaring an answer are.
+- **When you believe a task is complete.** Make the deliverable durable first (write the file, save the result, commit the change) — the consult takes real time.
+- **When stuck** — errors recurring, an approach not converging, results that do not fit.
+- **When considering a change of approach.**
+
+On tasks longer than a few steps, consult at least once before committing to an approach and once before declaring done. Give the advice serious weight: if a step you followed on the consult's advice fails empirically, or you have primary-source evidence contradicting a specific claim, adapt. If your own evidence and the consult's advice point different directions, surface the conflict in one more consult rather than silently picking a side.
+
+## Effort calibration — read this before running
+
+The consulted model should run at the **same reasoning effort you are currently running at**, not a hardcoded default. Codex does not expose its own live reasoning-effort setting as an environment variable inheritable by subprocesses (confirmed empirically: dumping `env` inside a running `codex exec` call shows no `CODEX_REASONING_EFFORT` or equivalent — only Claude Code's own `$CLAUDE_EFFORT` leaked through from an enclosing Claude Code process, which is not your effort level when you are the one running as Codex).
+
+What Codex *does* expose: the "reasoning effort: `<level>`" line shown in your own session banner at startup, visible in your own context. Before running the consult, **read that value from your own session context** and pass it explicitly:
+
+```bash
+scripts/sol-advisor.sh --prompt-file <briefing-path> --out <output-path> -C "$PWD" --effort <your-own-level>
+```
+
+Do not omit `--effort` and let it silently default to the script's fallback (`high`) unless `high` genuinely is your own current level — the fallback exists so the script never errors on a missing flag, not as a substitute for checking your own level.
+
+## Steps
+
+1. **Compose the briefing.** A self-contained document: the task, what you have done so far (key steps, findings, decisions), your current approach or the specific claim to check, and the precise question. Concrete — file paths, line numbers, the actual claim. Save to a scratch file. The consulted model has no access to your conversation beyond this file.
+
+2. **If declaring a task complete, make the deliverable durable first.**
+
+3. **Read your own current reasoning-effort level from your session context**, then run:
+
+   ```bash
+   scripts/sol-advisor.sh --prompt-file <briefing-path> --out <output-path> -C "$PWD" --effort <your-level>
+   ```
+
+4. **Read the output file** and weigh the advice. Integrate it; if you diverge from it, be able to say why.
+
+## Notes
+
+- `scripts/sol-advisor.sh --check` verifies the `codex` CLI is on PATH.
+- The spawned session runs `--sandbox read-only` and `--ephemeral` — advisory only, no edits, not saved as a resumable session.
+- **Default model is `gpt-5.6-terra`, not `gpt-5.6-sol`** — cost, not reliability. There are three distinct GPT-5.6 tiers (`sol` flagship / `terra` balanced / `luna` fast) — not one model with a shorthand. An earlier finding claimed `gpt-5.6-sol` was rejected outright on a Codex CLI authenticated via `codex login` with a ChatGPT account (as opposed to an API key) — `"The 'gpt-5.6' model is not supported when using Codex with a ChatGPT account."` This has since been re-tested (July 2026) and no longer reproduces: `sol` now works on hosts authenticated the identical way (`codex login status` → `Logged in using ChatGPT`). Whether the original block was a temporary rollout gate or an artifact of an outdated CLI on that host is unclear — if `sol` ever errors on your account, check `codex --version` first (an outdated CLI rejects even `terra`/`luna` with a *different*, version-specific error) before concluding it's an account gate. Pass `--model gpt-5.6-sol` explicitly for a stronger reviewer at higher cost. If the model you asked for is unreachable for any reason, report it and ask whether to stop or use a named replacement — do not silently fall back further (e.g. to `gpt-5.5`) for what is supposed to be a genuinely independent second opinion (a reviewer identical to the executor defeats the point of this specific skill; if a same-model consult is actually fine for the task at hand, the calling agent should use its own judgment directly rather than spend a consult on it).
+- Effort enum: `none, minimal, low, medium, high, xhigh` (Codex's scale — no `max`; Claude Code's `max` has no Codex equivalent).
+- Companion skill: `plugin/skills/advisor/` (Claude-side) — same pattern, consulting Fable 5, effort read from `$CLAUDE_EFFORT` instead of the session banner.
+
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/script.R b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5b4b91345cc86cd352f9cc552852a97649597a9e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+@@ -0,0 +1,84 @@
++#!/usr/bin/env Rscript
++
++# Deterministic replication and robustness checks for the AJR colonial sample.
++library(ivdoctr)
++library(AER)
++
++set.seed(2001)
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial)
++
++# The raw AJR base sample contains 27 African countries before missing-data removal.
++stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
++
++specifications <- list(
++  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
++)
++
++make_formula <- function(lhs, rhs_terms) {
++  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
++  stats::as.formula(paste(lhs, "~", rhs))
++}
++
++estimate_specification <- function(spec, data) {
++  # Apply this specification's restriction, then complete cases for all model variables.
++  restricted <- data[spec$keep(data), , drop = FALSE]
++  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
++  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
++
++  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
++  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
++  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
++  iv_formula <- stats::as.formula(paste(
++    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
++    "|", paste(c("logem4", spec$controls), collapse = " + ")
++  ))
++
++  ols <- stats::lm(ols_formula, data = estimation_data)
++  # Use the required AER::ivreg path for two-stage least squares.
++  iv <- AER::ivreg(iv_formula, data = estimation_data)
++  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
++  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
++  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
++  partial_f <- first_stage_comparison$F[2L]
++
++  data.frame(
++    specification = spec$name,
++    n = nrow(estimation_data),
++    ols = unname(stats::coef(ols)["avexpr"]),
++    iv = unname(stats::coef(iv)["avexpr"]),
++    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
++    first_stage_f = partial_f,
++    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
++    stringsAsFactors = FALSE
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
++stopifnot(nrow(results) == 5L)
++
++table_lines <- c(
++  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
++  "|---|---:|---:|---:|---:|---:|---|",
++  vapply(seq_len(nrow(results)), function(i) {
++    row <- results[i, ]
++    paste0(
++      "| ", row$specification,
++      " | ", row$n,
++      " | ", sprintf("%.3f", row$ols),
++      " | ", sprintf("%.3f", row$iv),
++      " | ", sprintf("%.3f", row$first_stage_logem4),
++      " | ", sprintf("%.2f", row$first_stage_f),
++      " | ", row$identification, " |"
++    )
++  }, character(1)),
++  "",
++  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
++)
++
++writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+exec
+/bin/zsh -lc "sed -n '1,260p' ~/Documents/github/resources/open-science-skills/codex/advisor/scripts/sol-advisor.sh" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+ succeeded in 0ms:
+#!/usr/bin/env bash
+# sol-advisor.sh — consult GPT-5.6 "Sol" as an independent second reviewer.
+#
+# Read-only advisory consult, not implementation. Spawns a fresh, ephemeral
+# `codex exec` session (--sandbox read-only: no edits) at an explicit
+# reasoning effort level, since (unlike Claude Code's $CLAUDE_EFFORT) Codex
+# does not expose its own live effort as an inheritable environment variable
+# to subprocesses — confirmed empirically by dumping env inside a running
+# codex exec call. The caller must therefore READ its own effort level from
+# its own visible session context (the "reasoning effort: <level>" line
+# shown at session start) and pass it explicitly via --effort. See SKILL.md.
+#
+# This spawns an ISOLATED session with no automatic access to the calling
+# conversation, so the caller must compose a self-contained briefing and
+# pass it as --prompt-file.
+#
+# SANDBOX WARNING (confirmed by direct reproduction, July 2026): this script
+# nests a `codex exec` process inside whatever process runs it. If the
+# CALLER is itself a sandboxed `codex exec`/Codex session, this nested call
+# fails immediately with "failed to initialize in-process app-server
+# client: Operation not permitted" (macOS) or "Read-only file system"
+# (Linux) -- an OS-level sandbox applies transitively to the whole process
+# tree, and passing --dangerously-bypass-approvals-and-sandbox to THIS
+# script does not help, since the restriction is imposed on the parent, not
+# requested by the child. Only an unsandboxed caller, or an interactive
+# caller that requests escalation (sandbox_permissions: require_escalated)
+# for this specific call, can succeed. See SKILL.md's "Sandbox constraint"
+# section before assuming this "just works."
+#
+# Usage:
+#   sol-advisor.sh --prompt-file FILE --out FILE [-C DIR] [--model ID]
+#                   [--effort LEVEL] [--timeout SEC]
+#   sol-advisor.sh --check
+#
+#   --prompt-file FILE  the self-contained briefing (task, progress, question)
+#   --out FILE          where Sol's advice is written
+#   -C DIR              working dir Sol sees (default: $PWD)
+#   --model ID          Codex model to pin (default: gpt-5.6-terra — the
+#                        balanced 5.6 tier, cheaper for routine consults;
+#                        sol/terra/luna are three distinct tiers, not one
+#                        gpt-5.6 model. gpt-5.6-sol is the flagship tier and
+#                        is confirmed WORKING as of July 2026 on ChatGPT-
+#                        account Codex auth (an earlier "rejected outright"
+#                        finding no longer reproduces — re-check `codex
+#                        --version` before assuming a gate if it ever errors,
+#                        since an outdated CLI rejects terra/luna too, with a
+#                        different error). Pass --model gpt-5.6-sol explicitly
+#                        for a stronger reviewer at higher cost.)
+#   --effort LEVEL      none|minimal|low|medium|high|xhigh (default: high —
+#                        the caller should pass its own actual level; this
+#                        default is a fallback only, not a substitute for it)
+#   --timeout SEC        hard kill after SEC seconds (default: 900)
+set -euo pipefail
+
+MODEL="gpt-5.6-terra"
+WORKDIR="$PWD"
+PROMPT_FILE=""
+OUT=""
+EFFORT="high"
+TIMEOUT_SECONDS=900
+
+usage() {
+  printf '%s\n' \
+    'Usage: sol-advisor.sh --prompt-file FILE --out FILE [-C DIR] [--model ID] [--effort LEVEL] [--timeout SEC]' \
+    '       sol-advisor.sh --check'
+}
+
+die() { printf 'sol-advisor: %s\n' "$*" >&2; exit 2; }
+
+if [[ "${1:-}" == "--check" ]]; then
+  command -v codex >/dev/null || die 'codex CLI not found'
+  codex --version
+  exit 0
+fi
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --prompt-file) PROMPT_FILE="${2:-}"; shift 2 ;;
+    --out) OUT="${2:-}"; shift 2 ;;
+    -C) WORKDIR="${2:-}"; shift 2 ;;
+    --model) MODEL="${2:-}"; shift 2 ;;
+    --effort) EFFORT="${2:-}"; shift 2 ;;
+    --timeout) TIMEOUT_SECONDS="${2:-}"; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
+    *) die "unknown argument: $1" ;;
+  esac
+done
+
+command -v codex >/dev/null || die 'codex CLI not found'
+[[ -n "$PROMPT_FILE" && -r "$PROMPT_FILE" ]] || die 'readable --prompt-file is required (the self-contained briefing)'
+[[ -n "$OUT" ]] || die '--out is required'
+[[ -d "$WORKDIR" ]] || die "working directory not found: $WORKDIR"
+[[ "$TIMEOUT_SECONDS" =~ ^[1-9][0-9]*$ ]] || die '--timeout must be a positive integer'
+case "$EFFORT" in none|minimal|low|medium|high|xhigh) ;; *) die "bad --effort: $EFFORT (none|minimal|low|medium|high|xhigh)" ;; esac
+case "$PROMPT_FILE" in /*) ;; *) PROMPT_FILE="$PWD/$PROMPT_FILE" ;; esac
+case "$OUT" in /*) ;; *) OUT="$PWD/$OUT" ;; esac
+WORKDIR="$(cd "$WORKDIR" && pwd -P)"
+mkdir -p "$(dirname "$OUT")"
+
+cmd=(codex exec --ephemeral --model "$MODEL" -c model_reasoning_effort="$EFFORT" --sandbox read-only --skip-git-repo-check -C "$WORKDIR" --output-last-message "$OUT" \
+  'You are consulted as an independent, stronger second reviewer for one specific decision point — not a co-implementer. Read the self-contained briefing supplied on stdin (the task, what has been done so far, the current approach or findings, and the specific question). You have no access to the original conversation beyond this briefing, so if it seems to be missing something you need, say what is missing rather than guessing. Give direct, decisive advice on the specific question asked. If you disagree with the stated approach, say so plainly and explain the specific failure mode, do not hedge into a survey of options. Do not edit any files — you are read-only advisory only. Return only your advice, no preamble.')
+
+if command -v timeout >/dev/null; then
+  timeout "${TIMEOUT_SECONDS}s" "${cmd[@]}" < "$PROMPT_FILE" >/dev/null
+else
+  "${cmd[@]}" < "$PROMPT_FILE" >/dev/null
+fi
+
+[[ -s "$OUT" ]] || die 'Sol returned no output'
+
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/script.R b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5b4b91345cc86cd352f9cc552852a97649597a9e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+@@ -0,0 +1,84 @@
++#!/usr/bin/env Rscript
++
++# Deterministic replication and robustness checks for the AJR colonial sample.
++library(ivdoctr)
++library(AER)
++
++set.seed(2001)
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial)
++
++# The raw AJR base sample contains 27 African countries before missing-data removal.
++stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
++
++specifications <- list(
++  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
++)
++
++make_formula <- function(lhs, rhs_terms) {
++  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
++  stats::as.formula(paste(lhs, "~", rhs))
++}
++
++estimate_specification <- function(spec, data) {
++  # Apply this specification's restriction, then complete cases for all model variables.
++  restricted <- data[spec$keep(data), , drop = FALSE]
++  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
++  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
++
++  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
++  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
++  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
++  iv_formula <- stats::as.formula(paste(
++    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
++    "|", paste(c("logem4", spec$controls), collapse = " + ")
++  ))
++
++  ols <- stats::lm(ols_formula, data = estimation_data)
++  # Use the required AER::ivreg path for two-stage least squares.
++  iv <- AER::ivreg(iv_formula, data = estimation_data)
++  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
++  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
++  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
++  partial_f <- first_stage_comparison$F[2L]
++
++  data.frame(
++    specification = spec$name,
++    n = nrow(estimation_data),
++    ols = unname(stats::coef(ols)["avexpr"]),
++    iv = unname(stats::coef(iv)["avexpr"]),
++    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
++    first_stage_f = partial_f,
++    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
++    stringsAsFactors = FALSE
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
++stopifnot(nrow(results) == 5L)
++
++table_lines <- c(
++  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
++  "|---|---:|---:|---:|---:|---:|---|",
++  vapply(seq_len(nrow(results)), function(i) {
++    row <- results[i, ]
++    paste0(
++      "| ", row$specification,
++      " | ", row$n,
++      " | ", sprintf("%.3f", row$ols),
++      " | ", sprintf("%.3f", row$iv),
++      " | ", sprintf("%.3f", row$first_stage_logem4),
++      " | ", sprintf("%.2f", row$first_stage_f),
++      " | ", row$identification, " |"
++    )
++  }, character(1)),
++  "",
++  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
++)
++
++writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+codex
+Conclusion: Completed the deterministic AJR estimation artifact and generated robustness table.
+
+Evidence/check output:
+
+- `Rscript script.R` succeeds.
+- Re-run output is byte-identical (`cmp` exit status 0).
+- Five specifications produced; Africa-only raw and estimation N = 27.
+- Results (OLS / 2SLS / first-stage F):
+
+  - Base: 0.522 / 0.944 / 22.95
+  - Latitude: 0.468 / 0.996 / 13.09
+  - Continent controls: 0.434 / 0.839 / 11.01
+  - Drop neo-Europes: 0.487 / 1.281 / 8.65 — weak
+  - Africa only: 0.302 / 2.400 / 0.30 — weak
+
+- The script uses `AER::ivreg`, applies restriction then complete cases per specification, and fits OLS/IV/first stage on that identical sample. It computes the excluded-instrument partial F via nested first-stage `anova()`.
+
+Changed files:
+
+- [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R)
+- [robustness-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/robustness-table.md)
+
+Residual risk: none identified; weak specifications are explicitly labeled and the table notes that their IV estimates are not reliable causal estimates.
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/script.R b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5b4b91345cc86cd352f9cc552852a97649597a9e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/script.R
+@@ -0,0 +1,84 @@
++#!/usr/bin/env Rscript
++
++# Deterministic replication and robustness checks for the AJR colonial sample.
++library(ivdoctr)
++library(AER)
++
++set.seed(2001)
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial)
++
++# The raw AJR base sample contains 27 African countries before missing-data removal.
++stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
++
++specifications <- list(
++  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
++  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
++)
++
++make_formula <- function(lhs, rhs_terms) {
++  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
++  stats::as.formula(paste(lhs, "~", rhs))
++}
++
++estimate_specification <- function(spec, data) {
++  # Apply this specification's restriction, then complete cases for all model variables.
++  restricted <- data[spec$keep(data), , drop = FALSE]
++  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
++  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
++
++  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
++  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
++  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
++  iv_formula <- stats::as.formula(paste(
++    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
++    "|", paste(c("logem4", spec$controls), collapse = " + ")
++  ))
++
++  ols <- stats::lm(ols_formula, data = estimation_data)
++  # Use the required AER::ivreg path for two-stage least squares.
++  iv <- AER::ivreg(iv_formula, data = estimation_data)
++  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
++  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
++  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
++  partial_f <- first_stage_comparison$F[2L]
++
++  data.frame(
++    specification = spec$name,
++    n = nrow(estimation_data),
++    ols = unname(stats::coef(ols)["avexpr"]),
++    iv = unname(stats::coef(iv)["avexpr"]),
++    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
++    first_stage_f = partial_f,
++    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
++    stringsAsFactors = FALSE
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
++stopifnot(nrow(results) == 5L)
++
++table_lines <- c(
++  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
++  "|---|---:|---:|---:|---:|---:|---|",
++  vapply(seq_len(nrow(results)), function(i) {
++    row <- results[i, ]
++    paste0(
++      "| ", row$specification,
++      " | ", row$n,
++      " | ", sprintf("%.3f", row$ols),
++      " | ", sprintf("%.3f", row$iv),
++      " | ", sprintf("%.3f", row$first_stage_logem4),
++      " | ", sprintf("%.2f", row$first_stage_f),
++      " | ", row$identification, " |"
++    )
++  }, character(1)),
++  "",
++  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
++)
++
++writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+tokens used
+33,484
+Conclusion: Completed the deterministic AJR estimation artifact and generated robustness table.
+
+Evidence/check output:
+
+- `Rscript script.R` succeeds.
+- Re-run output is byte-identical (`cmp` exit status 0).
+- Five specifications produced; Africa-only raw and estimation N = 27.
+- Results (OLS / 2SLS / first-stage F):
+
+  - Base: 0.522 / 0.944 / 22.95
+  - Latitude: 0.468 / 0.996 / 13.09
+  - Continent controls: 0.434 / 0.839 / 11.01
+  - Drop neo-Europes: 0.487 / 1.281 / 8.65 — weak
+  - Africa only: 0.302 / 2.400 / 0.30 — weak
+
+- The script uses `AER::ivreg`, applies restriction then complete cases per specification, and fits OLS/IV/first stage on that identical sample. It computes the excluded-instrument partial F via nested first-stage `anova()`.
+
+Changed files:
+
+- [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R)
+- [robustness-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/robustness-table.md)
+
+Residual risk: none identified; weak specifications are explicitly labeled and the table notes that their IV estimates are not reliable causal estimates.

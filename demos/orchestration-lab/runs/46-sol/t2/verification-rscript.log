@@ -1,0 +1,7 @@
+Warning messages:
+1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+2: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).

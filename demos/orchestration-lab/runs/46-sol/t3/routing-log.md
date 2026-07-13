@@ -1,0 +1,46 @@
+# Routing log
+
+## Route table
+
+| Workstream | Owner | Why this owner | Acceptance check |
+|---|---|---|---|
+| Data and package inventory | Terra out-of-band | Bounded, mechanical inspection of the installed data schema and `projoint` API | Observed attribute levels, identifiers, binary/multi-level status, and executable AMCE/MM calls documented in `terra-inventory.md` |
+| Statistical design and judgment | Sol (lead, direct) | The estimand choice, baseline logic, attribute-importance standard, and warranted manuscript claim required lead-level interpretation | Directed crime contrasts must be exact sign reversals; all-level MMs must support only the stated, qualified ranking |
+| Reproducible implementation | Terra out-of-band | The analysis specification was fixed and the remaining work was a bounded script/figure/table/memo build with objective checks | `Rscript script.R` exits 0 and creates the four requested artifacts with the specified numerical identities |
+| Integration, revision, and final verification | Sol (lead, direct) | Final accountability, visual QA, constraint compliance, and correction of worker output remain with the lead | Clean rerun; one 2800×2100 PNG with 320-dpi metadata; memo/table values match output; no overclaim; exactly one revision cycle |
+
+No Sol child was spawned. The two delegations were cheaper, out-of-band Terra one-shots with disjoint write scopes.
+
+## Out-of-band calls
+
+### 1. Data/package inventory
+
+Exact command:
+
+```bash
+codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" "Objective: Inspect the installed R environment and the projoint exampleData1 reshaped exactly as specified in BRIEF.md; produce a compact factual inventory that will let a lead specify a baseline-sensitivity analysis. Inputs and authoritative paths: ./BRIEF.md and the installed projoint package/data; current directory only. In scope: run read-only R diagnostics; identify attribute column names and all factor levels after reshape_projoint; identify outcome/choice and respondent/cluster identifiers; determine the exact installed projoint functions and argument syntax for AMCEs and marginal means; note which attributes are binary versus multi-level; identify which reference-category changes are possible for Violent Crime Rate and at least one multi-level attribute; give a concise recommended computational pattern. Out of scope: substantive adjudication of the reviewer, final prose, web access, package installation, editing requested final deliverables. Constraints and invariants: do not fetch anything from the web; do not install packages; do not write outside this leaf; preserve all existing files. Write ownership: only ./terra-inventory.md. Expected artifact: terra-inventory.md containing commands/checks, observed names/levels, package API details, and risks. Acceptance checks: every reported name/level is backed by executed R output; proposed calls match the installed package; explicitly distinguish binary and multi-level attributes. Return format in stdout: conclusion, evidence, changed files, residual risk, and a final line exactly 'tokens used: N' if the CLI does not already print a token count." < /dev/null > terra-inventory.log 2>&1
+```
+
+CLI report: **tokens used: 93,619**.
+
+### 2. Reproducible implementation
+
+Exact command:
+
+```bash
+codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" "Objective: Implement the complete BRIEF.md deliverables from the lead's fixed statistical specification. Inputs and authoritative paths: ./BRIEF.md and ./terra-inventory.md; installed projoint/exampleData1; current directory only. In scope: create ./script.R, ./sensitivity-table.md, ./memo.md, and ./figures/sensitivity.png; run Rscript script.R from scratch. Out of scope: routing-log.md, terra-inventory.md, web access, package installation, extra figures, extra final-data artifacts, or changing the lead's substantive judgment. Constraints and invariants: self-contained script loads projoint and exampleData1 and reshapes with exactly the outcomes in BRIEF.md; use profile-level analytical estimates and corrected estimand rows; estimate explicit directed AMCE contrasts with set_qoi for both crime baselines; estimate Housing Cost under each of its three possible baselines, one contrast at a time; estimate corrected marginal means for all 24 levels; preserve respondent clustering/default IRR correction; set a seed; create figures directory; exactly one figure at figures/sensitivity.png, at least 300 dpi, no in-plot title, Okabe-Ito palette, no legend depending on color alone. The figure should be one accessible horizontal baseline-invariant MM range plot: seven attributes on y, corrected MM on x, a thin segment from min to max MM for every attribute, all level MMs shown as points with slight deterministic vertical offsets, crime highlighted with Okabe-Ito vermillion (#D55E00), other attributes in blue (#0072B2) and dark gray/black, a vertical dashed reference at 0.5, readable abbreviated attribute labels, and no title; do not add a second panel or file. sensitivity-table.md must place crime levels in rows and columns 'Less crime baseline', 'More crime baseline', and 'Marginal mean', showing corrected estimates in percentage points/probabilities with 95% CIs; references shown as 'Reference'; include a concise note that baseline reversal changes +/−0.251 only, and define corrected estimates. memo.md should be roughly 400 words and directly reply to the reviewer: concede AMCE coefficients are reference-dependent; explain that crime and School Quality are binary so crime baseline reversal only flips sign; give the crime AMCE and MM values/CIs; demonstrate multi-level dependence using Housing Cost with concrete corrected contrasts under alternative baselines; state all-level MM comparison and that crime's 25.1-point range is the largest point estimate but close to commuting's 23.7, so no uniquely dominant ranking is established; promise revised claim: moving from 20% less to 20% more crime causes/substantially reduces choice probability in this randomized conjoint and crime is among the strongest attributes / has the largest observed MM spread, not that it uniquely drives choice. Embed the one figure with a caption below it, not a title. Avoid saying reference categories are arbitrary in the sense of meaningless; they parameterize comparisons. script.R must generate the table and memo as well as the figure so rerunning reproduces all requested outputs; use only locally installed packages and preferably base R plotting/writing to minimize dependencies. Add stopifnot acceptance checks for 24 corrected MMs, exact crime sign reversal/magnitude equality within tolerance, crime MMs matching AMCE difference within tolerance, 3 Housing Cost baselines represented, figure existence, resolution/dimensions sufficient, and exactly one PNG in figures. Expected artifacts: those four requested paths only. Acceptance checks: Rscript script.R exits 0; figure is valid PNG at 300+ dpi with no in-plot title; table contains both baselines and MMs; memo 340-470 words and matches computed numbers; no overclaim. Return format in stdout: conclusion, executed checks, changed files, residual risk; rely on the CLI's own token report." < /dev/null > terra-implementation.log 2>&1
+```
+
+CLI report: **tokens used: 77,022**.
+
+## What the lead reasoned directly
+
+The lead fixed the interpretation before implementation. For a binary attribute, changing the reference reverses the direction and sign of the only available contrast but cannot change its magnitude; this makes the reviewer's baseline-artifact concern mechanically true about presentation but not about the substantive crime contrast. For multi-level Housing Cost, the lead required all three baselines because the displayed coefficient set genuinely changes with the chosen comparisons. The lead selected all-level corrected marginal means as the baseline-invariant comparison and judged that crime's 25.1-point spread is the largest point estimate but too close to commuting's 23.7-point spread to establish unique dominance. The final claim was therefore narrowed to a substantial randomized crime contrast and “among the strongest attributes,” while explicitly rejecting “uniquely drives choice.”
+
+## Friction
+
+The inventory worker initially produced a malformed `apply_patch` hunk but recovered and wrote the assigned artifact without lead intervention. Its prompt requested a fallback `tokens used: N` line, which it generated separately; the accounting above uses the Codex CLI's own token report (`tokens used` followed by 93,619), not the worker-authored fallback. Both one-shots used the required `< /dev/null`; neither hung on stdin, accessed the web, installed packages, or wrote an assigned deliverable outside its scope.
+
+Lead verification found that Cairo created the correct 2800×2100 raster but left PNG density metadata at 72 dpi despite `res = 320`. The single permitted revision cycle added a local `png`-package rewrite and an explicit 320-dpi assertion to `script.R`. The clean rerun now reports 320×320 dpi. No statistical estimates or prose changed.
+
+[SOL LEAD TOKENS: 174,305]  + Terra one-shots: 170,641  = 344,946

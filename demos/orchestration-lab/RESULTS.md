@@ -24,6 +24,20 @@ Total **25/30** (vs opus 29/30, unchanged — opus routing was not altered).
 
 The page's fable figures are now this v2.18.1 capture. The 2026-07-13 v2.17.0 re-run and the original captures are below and in git history.
 
+## 2026-07-13 — Codex Sol-lead 46-orchestrate arm (interactive, captured)
+
+The interactive **Sol-lead** headline of `46-orchestrate` — `gpt-5.6-sol` at medium, reasoning in place and delegating bulk to `gpt-5.6-terra` via out-of-band `codex exec` one-shots — was hand-run on all five briefs (five separate full-access interactive Codex sessions; it cannot run headless, so it is absent from the automated matrix). Blind-graded like the rest:
+
+| Sol-lead brief | Band | items met | tokens (Sol lead + Terra) |
+|---|---|---|---:|
+| t1 | Pass (4/6) | 4 core; no interpretive prose | 176,606 |
+| t2 | Pass+ (5/6) | + estimand disclosed (tau = 0.172) | 202,549 |
+| t3 | Pass (4/6) | A, B, C, E | 344,946 |
+| high-ajr | **Distinction (6/6)** | all six; numbers reproduced byte-identically | 148,788 |
+| vhigh | Distinction (6/6) | all six | 366,619 |
+
+Total **25/30** — the same as the reason-in-place fable and opus leads, and one rung above its own Terra-lead headless fallback on the IV replication (`46 / high-ajr` = Pass): the Sol lead reasons the calibrated-ceiling judgment (item D) that the single-tier Terra-lead drops. **Operational caveat (why it stays off the main matrix):** interactive-only, full-access required, and cross-tier delegation is fragile — the t1 run's first Terra one-shot self-invoked the advisor skill, was blocked by the worker sandbox, and needed a retry (the `46-sol-run.md` prompt was hardened afterward to forbid it). The page's verdict treats this arm as capable-but-hard-to-run. Token totals were read from each session's Codex `/status` and recorded in each leaf's `routing-log.md`.
+
 ## 2026-07-13 re-run — fable + opus on the recalibrated v2.17.0 skills
 
 After the fast-worker `low → medium` recalibration (v2.17.0), the fable and opus arms were re-run headless on all five briefs. The page's opus figures are this re-run (fable's were superseded by the v2.18.1 capture above); the original 2026-07-12 captures are in git history. Advisor and 46 were **not** re-run (unaffected: advisor uses no fast-worker; 46 headless is the Terra-lead fallback either way).

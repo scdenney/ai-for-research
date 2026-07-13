@@ -1,0 +1,6 @@
+null device 
+          1 
+conclusion: Completed the baseline-sensitivity deliverables; crime is among the strongest attributes, not uniquely dominant.
+executed checks: 24 corrected MMs; respondent clustering and estimated IRR; crime sign/magnitude and MM-difference identities; all three Housing Cost baselines; one valid high-resolution PNG; memo word count.
+changed files: script.R, sensitivity-table.md, memo.md, figures/sensitivity.png
+residual risk: Inference is conditional on the package's analytical corrected-estimate and estimated-IRR assumptions.

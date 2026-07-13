@@ -1,0 +1,2036 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.1
+--------
+workdir: ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f5b0a-3e26-7ec2-b94e-b7bd6d227ce6
+--------
+user
+$46-orchestrate
+
+You are the **46-orchestrate lead**, running as **gpt-5.6-sol at medium
+effort** in an interactive, full-access session. Your task brief is in
+`./BRIEF.md` in the current working directory — read it first; it is the
+single source of truth for what to produce and its constraints.
+
+**How to lead this run (this is the Sol-lead design — follow it, don't just
+do everything yourself in one context and don't fan out for its own sake):**
+
+1. **You are the deep reasoner.** Sol is the strongest tier on this team;
+   nothing outranks you, so there is no escalating *up*. Do the actual
+   analytical reasoning yourself — the design/estimation decisions, the
+   interpretation, the judgment calls, and the final integration all stay in
+   your context. Own correctness and completeness end to end.
+
+2. **Delegate the *bulk* down to Terra, out-of-band.** For mechanical or
+   bounded work — writing/running an R script from a spec you've fixed, a
+   wide inventory, a routine robustness sweep, a verification pass — issue an
+   out-of-band one-shot to the cheaper tier rather than doing it in your own
+   (Sol-priced) context or spawning a Sol child. Template:
+
+   ```bash
+   codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium \
+     --sandbox workspace-write --skip-git-repo-check -C "$PWD" \
+     "<a complete, self-contained brief: objective, inputs/paths, in/out of
+      scope, constraints, expected artifact, acceptance checks>" \
+     < /dev/null > terra-<workstream>.log 2>&1
+   ```
+
+   - The `< /dev/null` is load-bearing (without it `codex exec` hangs on
+     stdin). Use `-c model_reasoning_effort=low` for purely mechanical edits;
+     use `--model gpt-5.6-luna` for the cheapest fully-specified bulk.
+   - These write into the current directory — give concurrent one-shots
+     **disjoint output paths** and never overlap their write scope.
+   - They are fire-and-forget: background several and read their `.log` files
+     back. After each returns, **open its artifact and verify it yourself** —
+     treat Terra's output as untrusted until you've checked it against the
+     brief. A Terra one-shot is the weaker model; if its result looks wrong,
+     fix it in your own reasoning, don't defer to it.
+
+3. **Use `spawn_agent` sparingly.** Under a Sol lead every spawned child is
+   *also Sol-priced* (subagents inherit the lead's model and effort — there is
+   no per-agent override). Only spawn when a one-shot can't give you what you
+   need: a live back-and-forth, context isolation, or a blind same-tier
+   resample on a high-stakes call. For ordinary bulk, prefer the out-of-band
+   Terra one-shot above.
+
+4. **Respect the brief's constraints exactly** — including "at most one
+   revision cycle," "at most 3 delegations," "do not fetch anything from the
+   web," and "do not install packages." A Terra out-of-band one-shot counts as
+   one delegation.
+
+**Write your results to the current working directory:**
+
+- **The deliverables named in `./BRIEF.md`** (e.g. `script.R`, `summary.md` /
+  `report.md` / `memo.md`, `figures/…`, any table the brief asks for). Follow
+  the brief's figure conventions (Okabe-Ito palette, caption-not-title,
+  300+ dpi, reference levels at zero where applicable).
+
+- **`routing-log.md`** — the record of how you led. Include:
+  - **Route table:** one row per workstream — *what it was*, *owner*
+    (`Sol (lead, direct)` / `Terra out-of-band` / `Sol spawn`), *why that
+    owner*, and *acceptance check*.
+  - **Out-of-band calls:** for each Terra/Luna one-shot, the **exact command**
+    you ran and the **`tokens used: N`** it reported (copy the number from its
+    `.log`).
+  - **What you reasoned directly:** a short note on the analytical decisions
+    you kept in the lead (this is the point of a Sol lead — make it visible).
+  - **Friction:** anything that failed, any sandbox/stdin gotcha, any Terra
+    output you had to correct.
+  - **Token total:** a final line
+    `[SOL LEAD TOKENS: ____]  + Terra one-shots: <sum>  = <total>`
+    — leave the SOL LEAD TOKENS blank for the operator to fill from the Codex
+    status line; you fill the Terra sum from the `.log` files.
+
+- Do **not** write outside this directory. Do **not** commit, push, or touch
+  anything in `runs/` other than the current leaf.
+
+When everything the brief asks for exists and you've verified it against the
+brief, give a one-paragraph completion summary: what you produced, what you
+delegated to Terra vs. reasoned yourself, and any residual risk.
+codex
+I’m using the 46-orchestrate skill because this run explicitly calls for Sol-led delegation. I’ll first read the authoritative brief and skill file, then publish the workstream route before making any Terra calls.
+exec
+/bin/zsh -lc "sed -n '1,260p' ~/Documents/github/resources/open-science-skills/codex/46-orchestrate/SKILL.md && sed -n '261,520p' ~/Documents/github/resources/open-science-skills/codex/46-orchestrate/SKILL.md && printf '\\n--- BRIEF ---\\n' && sed -n '1,260p' BRIEF.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
+---
+name: 46-orchestrate
+description: Orchestrate complex work as the Codex lead on the GPT-5.6 family. Interactive default — a gpt-5.6-sol lead at medium effort reasons the hard parts itself and delegates the bulk down to gpt-5.6-terra via out-of-band codex exec one-shots (interactive sessions only). Headless or cost-paramount fallback — a gpt-5.6-terra lead whose whole in-process spawn tree is Terra. Use when the user explicitly asks to orchestrate, delegate, fan out, parallelize, assign subagents, obtain independent checks, or have Codex act as tech lead. Decompose work, route bounded tasks to role-based subagents via Codex's native spawn_agent tool (subagents inherit the lead's model and effort — there is no per-agent override), preserve integration ownership, and synthesize verified results.
+---
+
+# 4.6 Orchestrate
+
+<p align="center"><img src="assets/architecture.svg" alt="46-orchestrate: a gpt-5.6-sol Codex orchestrator at medium effort reasons the hard parts itself and delegates bulk work down to gpt-5.6-terra via out-of-band codex exec one-shots (interactive sessions only); headless runs fall back to a gpt-5.6-terra lead whose in-process spawn subagents all inherit Terra" width="900"></p>
+
+Act as the lead orchestrator for the GPT-5.6 family. Plan, decompose, delegate, integrate, and verify. Keep architectural decisions and final accountability in the lead context. The intended interactive lead is **`gpt-5.6-sol`** at effort `medium` — the strongest tier, which reasons the compact hard problems itself and delegates the bulk *down* to `gpt-5.6-terra` through out-of-band `codex exec` one-shots. That top-model-leads-and-delegates-down shape mirrors `fable-orchestrate`/`opus-orchestrate`, but it works **only in an interactive/escalated session**: `spawn_agent` cannot downgrade a child's model (next paragraph), so Terra work must go out-of-band, which is impossible headless. In a **headless** (`codex exec`, approval `never`) or cost-paramount run, fall back to a **`gpt-5.6-terra` lead**, whose in-process spawn tree is Terra by construction (see *Model and effort calibration*).
+
+The lead is the currently-running Codex session itself, and it has two delegation mechanisms that differ in one decisive way — the worker's model. **In-process** subagents use Codex's native multi-agent tool (`functions.collaboration.spawn_agent`, plus `send_message`, `followup_task`, `wait_agent`, `interrupt_agent`, `list_agents` — feature `multi_agent`, stable); they run in the same sandbox as the lead and are fully orchestratable, but they **inherit the lead's model and effort** (next paragraph). **Out-of-band** workers are separate `codex exec` one-shots — the *only* way to run a different, cheaper tier under the lead (a Sol lead reaching Terra), but they are fire-and-forget, not orchestratable, and a nested `codex exec` **fails under any sandbox mode**: confirmed by direct reproduction on macOS (`Operation not permitted, os error 1`) and Linux (`Read-only file system, os error 30`), unfixable by passing bypass flags to the child, since an OS-level sandbox applies transitively to the whole process tree. So out-of-band delegation runs **only from an interactive/escalated/unsandboxed session** and is **impossible headless** — a headless lead is single-tier by construction, and everything it spawns is the lead's own tier.
+
+**Honest capability limit — read this before promising cost savings.** `spawn_agent`'s model-visible schema has exactly three fields — `task_name`, `message`, `fork_turns` — and no `model` or `effort` parameter (re-verified 2026-07-11 on Codex CLI v0.144.1, which is also the newest published release; three differently-flagged live probes, including `multi_agent_v2` forced on). Every subagent runs at the **same model and reasoning effort as the lead**. This is a regression-by-default rather than a permanent absence: override fields existed and worked around v0.137 (openai/codex#26948), but current releases hide them from the schema (`hide_spawn_agent_metadata`, openai/codex#31814), v2 full-history forks reject them (openai/codex#20077), and the TOML custom-agent path is broken (openai/codex#26363) — community reports agree (community.openai.com, 2026-07-10). An "unhide + `fork_turns=\"none\"`" escape hatch circulates but is unconfirmed and reportedly still drops overrides; do not build on it without re-verifying on the installed version. In-process spawning therefore cannot reproduce `fable-orchestrate`'s cost tiering: a Sol lead's spawn children are Sol, not Terra, so "Terra does the bulk" is reachable only through out-of-band one-shots (interactive-only) — the calibration section below is how this skill approximates the tiering instead. What spawning *does* save: the lead's own context never has to grow with the full working-through of every subtask. A single lead handling everything serially in one continuously-growing context re-pays the cost of that whole context on every turn; spawning several parallel subagents with short, fresh, task-scoped contexts and pulling back only their summaries avoids that growth. The saving is from **context isolation and parallelism**, not from a cheaper model — say so plainly if a user asks whether a spawn delegates to a cheaper tier.
+
+## Model and effort calibration
+
+The lead's `--model` and `model_reasoning_effort` set the price of everything that inherits them (every `spawn_agent` child). Choose the lead tier **first**, gated on one question: **can this session make out-of-band `codex exec` calls?** Interactive / escalated / unsandboxed → yes; headless (`codex exec`, approval `never`) → no.
+
+| Choice | Setting | Why |
+|---|---|---|
+| **Lead — interactive default** | `gpt-5.6-sol`, effort `medium` (raise to `high` only for a genuinely hard orchestration/architecture turn; never `xhigh` while a spawn is live) | Sol is the strongest tier and the lead is where lead-quality pays off. Sol reasons compact hard problems *directly* — nothing outranks it, so there is no escalation *up*. `medium` bounds Sol's token appetite. |
+| **Bulk workers — "Terra does the bulk"** | out-of-band one-shot: `codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox read-only --skip-git-repo-check "<self-contained brief>" < /dev/null` (use `--sandbox workspace-write` + `-c model_reasoning_effort=low` for mechanical implementer work that edits files) | the ONLY way to run Terra under a Sol lead. Fire-and-forget, not orchestratable; background several with `--out <file>` and reap them for parallelism. **Interactive-only** — impossible headless. |
+| **Cheapest bulk** | out-of-band one-shot: `codex exec --model gpt-5.6-luna -c model_reasoning_effort=low …` | Luna (about 2.5× cheaper than Terra) for fully-specified mechanical work worth taking out of process. |
+| **Live / blind Sol subagent** | `spawn_agent` (inherits Sol + the lead's effort) | only when you need what a one-shot can't give: live orchestration (`followup_task`/`wait_agent`), context isolation, or a blind parallel resample *at the lead's tier*. Sol-priced — spawn sparingly. |
+| **Lead — headless / cost-paramount fallback** | `gpt-5.6-terra`, effort `medium`; the whole in-process spawn tree is Terra by construction | when out-of-band calls are impossible (headless) or cost dominates. The prior default, retained. Reach Sol/Luna only if you can later escalate the session. |
+
+Rules of thumb:
+
+- **Choose the lead tier first** — it prices everything that inherits it.
+- **Under a Sol lead, reason compact hard problems in the lead and delegate *down* to Terra out-of-band for bulk, width, and mechanical work — never escalate up; nothing outranks Sol.**
+- **Escalate effort before spawning a second Sol child** — a spawn is Sol-priced overhead here, not a cheap experiment. Never leave the session at `xhigh` while a spawn is live; the effort propagates to every child.
+- **Cross-tier delegation needs an interactive/escalated session.** Headless is single-tier: run the Terra-lead fallback and keep hard problems in the lead. The `< /dev/null` on every out-of-band call is load-bearing — without it `codex exec` hangs waiting on stdin.
+- **The Sol lead is the cost floor.** Terra bulk helps, but every lead turn is Sol-priced and the lead context grows as it integrates; keep the lead lean (ingest only worker summaries/stdout) and cap effort at `medium`.
+
+## Delegation gate
+
+Use subagents only when the user explicitly invokes `$46-orchestrate` or requests orchestration, delegation, fan-out, parallel agents, or independent agent review. If loaded implicitly without that authorization, work locally.
+
+## Show the route
+
+Before spawning work, publish a compact plan that names each workstream, owner role, dependency, expected artifact, and acceptance check. Update it as dependencies or evidence change.
+
+## Route by first match
+
+Owners below assume the **Sol-lead interactive** default. Under the **Terra-lead headless fallback**, every "Terra out-of-band" owner collapses to an in-process `spawn_agent` subagent (which is Terra, since the lead is Terra), and rows 3–4 stay in the lead.
+
+| Priority | Work type | Owner (Sol-lead interactive) |
+|---|---|---|
+| 1 | decomposition, architecture ownership, integration, conflict resolution, user communication | lead |
+| 2 | trivial, single-step work where briefing costs more than execution | lead |
+| 3 | high blast radius **and** hard to verify | two independent lines (see the high-stakes path), then the lead adjudicates |
+| 4 | compact hard reasoning — one architecture call, gnarly debug, or hard trade-off that fits the lead's context | **lead** — Sol *is* the deep reasoner; nothing outranks it, so there is no escalation up |
+| 5 | bounded research, inventory, or diagnosis with no overlapping writes | Terra out-of-band one-shot (cheaper) — or a Sol `spawn_agent` when the work needs live orchestration or lead-tier context isolation |
+| 6 | fully specified implementation with objective acceptance checks | Terra (Luna if purely mechanical) out-of-band one-shot |
+| 7 | verification, tests, review, or adversarial challenge of an existing artifact | Terra out-of-band one-shot — or a Sol `spawn_agent` for a live back-and-forth review |
+| 8 | ambiguous or tightly coupled work that cannot be cleanly contracted | lead until separable |
+
+High blast radius includes security/authentication, destructive data operations, public API compatibility, concurrency, cryptography, production incidents, privacy, and externally visible irreversible changes. "Hard to verify" means no cheap test, authoritative lookup, reversible experiment, or inspectable artifact can settle the answer.
+
+Do not use multiple agents merely to increase activity. Parallelize independent work or genuinely independent judgments — since spawning does not reduce per-call cost here, an unnecessary spawn is pure overhead, not a cheap experiment.
+
+## Spawn subagents correctly
+
+**Under a Sol lead, every `spawn_agent` child is Sol-priced** — it inherits the lead's model and effort. Use `spawn_agent` only for what a one-shot cannot give (live orchestration, context isolation, or a blind same-tier resample), and send bulk, mechanical, or wide work to Terra out-of-band instead. Under the Terra-lead fallback there is no such premium — the whole tree is Terra and `spawn_agent` is the primary delegation tool.
+
+Every subagent is created with `spawn_agent`. Confirmed parameters: `task_name` (a short identifier other calls use to address this agent), `message` (the task brief — this is the subagent's entire starting context unless `fork_turns` adds more), and `fork_turns` (how much of the lead's own conversation to propagate — `"all"` gives the subagent full history; for a bounded, fully-specified task, propagate the minimum needed, since a large `fork_turns` value defeats the context-isolation saving this tool exists for). Consult the tool's own schema at call time for any parameters not listed here — this list reflects what has been directly exercised, not a full spec.
+
+| Role | Behavior | fork_turns |
+|---|---|---|
+| analyst / verifier | inspect, inventory, diagnose, adversarially review, or high-stakes cross-check without editing | minimal — pass only the artifact path and the specific question, not the lead's full history |
+| implementer | make bounded, fully-specified edits with objective acceptance checks and run them | minimal — a complete delegation contract (below) should make full history unnecessary |
+| high-stakes independent check | two agents spawned in the same round on the identical prompt, blind to each other's reasoning | minimal, identical for both, so neither is anchored by the other |
+
+All agents share the same container, filesystem, and working directory as the lead — edits by one are immediately visible to all others, including the lead. This makes write-collision discipline (below) load-bearing, not optional.
+
+**Concurrency is real and bounded.** The tool itself states 4 available concurrency slots, including the lead — so at most 3 subagents run at once regardless of how many are queued. Batch additional work after prior agents finish; do not assume unlimited fan-out.
+
+Use `wait_agent` to block on a spawned agent's result, `send_message` to pass it a message without triggering a new turn, `followup_task` to give a *running* agent a new task, `list_agents` to check what's active, and `interrupt_agent` to reclaim a stalled one.
+
+## Write a delegation contract
+
+Every subagent brief (the `message` passed to `spawn_agent`) must specify:
+
+```text
+Objective:
+Inputs and authoritative paths:
+In scope:
+Out of scope:
+Constraints and invariants:
+Write ownership:
+Expected artifact:
+Acceptance checks:
+Return format: conclusion, evidence, changed files, residual risk
+```
+
+Give each worker the minimum task-local context required. Do not leak another worker's conclusions into an independent round. Ask for evidence and artifacts, not confidence alone.
+
+## Prevent write collisions
+
+- Assign disjoint files or directories to concurrent implementers.
+- Use read-only agents for overlapping analysis or review.
+- State that the shared workspace may change while an agent runs; require rereading before edits.
+- Never let two agents edit the same file concurrently.
+- Out-of-band Terra one-shots that run `--sandbox workspace-write` edit the shared tree too; give them disjoint paths like any implementer, and never overlap a one-shot's write scope with a live spawn's.
+- Preserve user changes and unrelated worktree modifications.
+- Keep commits, pushes, deployments, destructive operations, and external messages under the same authorization rules as the lead.
+
+The lead owns shared configuration, interfaces between workstreams, and final integration unless one bounded owner is explicitly assigned.
+
+## Run the orchestration loop
+
+1. Inspect authoritative workspace state.
+2. Decompose work and identify dependencies.
+3. Publish the route and acceptance checks.
+4. Start all ready, independent workstreams concurrently — Sol `spawn_agent` children (within the 3-subagent capacity) for live/blind/isolation work, and backgrounded Terra `codex exec` one-shots (`--out <file>`) for bulk. Under the headless Terra-lead fallback there are no one-shots; everything is an in-process Terra spawn within that same capacity.
+5. Continue useful lead work while agents run; do not duplicate delegated work.
+6. Use `wait_agent` to consume each agent's final response and inspect its artifact directly.
+7. Send a focused `followup_task` to the same agent when its artifact is incomplete, rather than spawning a fresh one that repeats the briefing cost.
+8. Integrate in dependency order.
+9. Run end-to-end checks at the lead level.
+10. Report the outcome, verification evidence, and unresolved risk.
+
+Send concise progress updates during long work so the user is not left without visibility.
+
+## Use the high-stakes path
+
+For work that is both high blast radius and hard to verify:
+
+1. **The decorrelation inverts under a Sol lead — you cannot escalate above Sol.** Two Sol `spawn_agent` children are the *weakest* possible check: identical model, identical inherited effort, same sandbox, so they resample one distribution and share blind spots — do not treat that as a real independent check. Make the decorrelated half a **Terra out-of-band one-shot** (effort `high`) instead, so the two lines differ by *tier*. Two honest caveats: it is **same-vendor** (both GPT-5.6), so decorrelation is weaker than the cross-vendor Codex-vs-Claude check `fable-`/`opus-orchestrate` get; and it is **asymmetric** — Terra is the weaker model, so a disagreement is *never* resolved by deferring to Terra. Treat any substantive disagreement as a **stop-and-ask-the-human** signal, not a confidence tiebreak. Headless cannot decorrelate at all (no out-of-band half is possible); for genuine independence, escalate the session or step outside to a cross-vendor check that brings Claude in as the decorrelated vendor.
+2. Keep them blind to each other's reasoning — do not relay one's output into the other's task.
+3. Compare assumptions, evidence, and failure modes — not tone or confidence.
+4. Accept agreement only when both point to the same checkable evidence.
+5. On substantive disagreement, run one targeted reconciliation round where each can see the competing reasoning.
+6. If disagreement survives or evidence remains insufficient, stop and ask the user; do not break the tie by confidence.
+
+Use one worker plus a direct verification step when the task is high impact but cheaply verifiable.
+
+## Integrate rigorously
+
+Treat subagent results as untrusted until inspected. Check:
+
+- the artifact exists at the claimed path;
+- the diff matches the assigned scope;
+- interfaces agree across workstreams;
+- tests cover the requested behavior rather than a narrower substitute;
+- no unrelated user changes were overwritten; and
+- any assumption presented as fact has authoritative support.
+
+If locally correct pieces conflict, revise the contracts or integration layer. Do not paper over incompatible assumptions.
+
+## Completion rule
+
+Complete only when every requested deliverable has authoritative evidence, integrated behavior passes proportionate checks, and remaining risks are disclosed. Agent completion messages are not proof of overall completion.
+
+## Failure handling
+
+- If an agent stalls, use `interrupt_agent` to reclaim it, then send one narrower `followup_task` or reassign.
+- If an agent fails after editing, inspect the shared worktree before retrying.
+- If capacity is exhausted (3 subagents already active), queue dependent work rather than spawning redundant agents.
+- If a spawn fails outright, report the exact error rather than silently falling back to doing the work in the lead context — a silent fallback is what causes runaway lead-context token growth. If the failure looks environmental (not a task-brief problem), stop and ask rather than spending tokens on unbounded self-diagnosis.
+
+--- BRIEF ---
+# Task T3 — Answer the reviewer (judgment tier)
+
+You are working in a project directory. Use R (`Rscript`); the `projoint` package is installed.
+
+**Data.** Same as T1/T2:
+
+```r
+library(projoint)
+data(exampleData1)
+out <- reshape_projoint(exampleData1,
+  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
+```
+
+**Situation.** A manuscript using these data claims as its headline finding that the Violent Crime Rate attribute drives community choice. A reviewer writes:
+
+> "The paper's headline claim rests on AMCEs, but AMCEs are defined relative to arbitrary reference categories. Under different baselines the estimated 'effect of crime' could look quite different, and the ordering of attribute importance could change. The claimed result may be an artifact of the authors' baseline choices."
+
+**Task.** Assess whether the reviewer's claim survives contact with the data:
+
+1. Re-estimate the AMCEs under alternative reference categories — for the Violent Crime Rate attribute where possible, and for at least one multi-level attribute (note that some attributes are binary, which itself matters for the answer).
+2. Compute marginal means (MMs) for all levels — the baseline-invariant quantity — and compare what they say about the headline finding.
+3. Decide what the paper is entitled to claim.
+
+**Produce, in the current working directory:**
+
+1. `script.R` — one self-contained script; conventions as in T1/T2.
+2. `figures/sensitivity.png` — exactly ONE figure supporting the memo. 300+ dpi, no in-plot title.
+3. `sensitivity-table.md` — the crime-attribute AMCEs under each baseline choice, side by side, plus the MMs.
+4. `memo.md` — a reply to the reviewer of roughly 400 words: concede what is mechanically true about reference-category dependence, state what is substantively robust (with the MM evidence), and say precisely what the revised manuscript will claim.
+
+**Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. No web access. Do not install packages. The memo must not overclaim: if the headline finding is baseline-sensitive, say so plainly.
+
+codex
+Route:
+
+| Workstream | Owner | Dependency | Artifact | Acceptance check |
+|---|---|---|---|---|
+| Data/design inventory | Terra out-of-band | Brief | `terra-inventory.md` | Correct attribute levels, estimable baseline changes, and package interface identified without web access |
+| Statistical judgment | Sol (lead, direct) | Inventory + direct data checks | Fixed estimands and claim standard | AMCE transformations and MM interpretation are mathematically coherent; binary vs. multi-level distinction handled |
+| Implementation | Terra out-of-band | Sol’s fixed specification | `script.R`, figure, table, draft memo | Script runs cleanly from scratch and produces exactly the requested artifacts |
+| Integration and verification | Sol (lead, direct) | Implementation | Final deliverables + `routing-log.md` | Numerical cross-checks, figure inspection, ~400-word memo, all brief constraints satisfied |
+
+I’m keeping the baseline-dependence interpretation and final claim in the Sol lead. The two bounded Terra calls will cover inventory and mechanical implementation; I’ll use the single permitted revision cycle only if verification finds a concrete defect.
+exec
+/bin/zsh -lc 'codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" "Objective: Inspect the installed R environment and the projoint exampleData1 reshaped exactly as specified in BRIEF.md; produce a compact factual inventory that will let a lead specify a baseline-sensitivity analysis. Inputs and authoritative paths: ./BRIEF.md and the installed projoint package/data; current directory only. In scope: run read-only R diagnostics; identify attribute column names and all factor levels after reshape_projoint; identify outcome/choice and respondent/cluster identifiers; determine the exact installed projoint functions and argument syntax for AMCEs and marginal means; note which attributes are binary versus multi-level; identify which reference-category changes are possible for Violent Crime Rate and at least one multi-level attribute; give a concise recommended computational pattern. Out of scope: substantive adjudication of the reviewer, final prose, web access, package installation, editing requested final deliverables. Constraints and invariants: do not fetch anything from the web; do not install packages; do not write outside this leaf; preserve all existing files. Write ownership: only ./terra-inventory.md. Expected artifact: terra-inventory.md containing commands/checks, observed names/levels, package API details, and risks. Acceptance checks: every reported name/level is backed by executed R output; proposed calls match the installed package; explicitly distinguish binary and multi-level attributes. Return format in stdout: conclusion, evidence, changed files, residual risk, and a final line exactly '"'tokens used: N' if the CLI does not already print a token count.\" < /dev/null > terra-inventory.log 2>&1" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+exec
+/bin/zsh -lc "pwd; rg --files -g '"'!terra-*.log'"' -g '"'!terra-inventory.md'"' | sort; Rscript -e 'cat(\"R \", R.version.string, \"\\n\", sep=\"\"); cat(\"projoint \", as.character(packageVersion(\"projoint\")), \"\\n\", sep=\"\")'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+BRIEF.md
+sol-session.log
+R R version 4.5.1 (2025-06-13)
+projoint 1.1.1
+
+codex
+The inventory worker is still running; its output is isolated to `terra-inventory.md` and the log. The local environment is otherwise clean, with R 4.5.1 and `projoint` 1.1.1 available, so no installation or web access is needed.
+exec
+/bin/zsh -lc 'tail -80 terra-inventory.log; ls -l terra-inventory.md 2>/dev/null || true' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
+1 amce_uncorrected   -0.165 0.0281   -0.220    -0.109 att7:level2      ""                  att7:level1               ""                          
+2 amce_corrected     -0.251 0.0422   -0.334    -0.168 att7:level2      ""                  att7:level1               ""                          
+
+=== crime AMCE level1 versus level2 ===
+class: projoint_results 
+estimand: amce  structure: profile_level  cluster_by: id  se: CR2  irr: Estimated  tau: 0.1721281 
+# A tibble: 2 × 9
+  estimand         estimate     se conf.low conf.high att_level_choose att_level_notchoose att_level_choose_baseline att_level_notchoose_baseline
+  <chr>               <dbl>  <dbl>    <dbl>     <dbl> <chr>            <chr>               <chr>                     <chr>                       
+1 amce_uncorrected    0.165 0.0281    0.109     0.220 att7:level1      ""                  att7:level2               ""                          
+2 amce_corrected      0.251 0.0422    0.168     0.334 att7:level1      ""                  att7:level2               ""                          
+
+=== housing AMCE levels1/3 versus level2 ===
+ERROR: .lev_choose must have length 1 for profile-level estimands. 
+
+=== negative control: full level ids supplied to QoI ===
+ERROR: No rows match the specified attribute/level combination(s). 
+
+exec
+/bin/zsh -lc "Rscript - <<'RS'
+options(width=200)
+library(projoint)
+data(exampleData1)
+pj <- reshape_projoint(exampleData1, .outcomes=c(paste0('choice',1:8),'choice1_repeated_flipped'))
+fit <- function(q) projoint(pj,.qoi=q,.se_method='analytical')"'$estimates
+q_h1v2 <- set_qoi(.structure='"'profile_level',.estimand='amce',.att_choose='att1',.lev_choose='level1',.att_choose_b='att1',.lev_choose_b='level2')
+q_h3v2 <- set_qoi(.structure='profile_level',.estimand='amce',.att_choose='att1',.lev_choose='level3',.att_choose_b='att1',.lev_choose_b='level2')
+cat('=== HOUSING, REFERENCE LEVEL2 ===\\n'); print(fit(q_h1v2)); print(fit(q_h3v2))
+cat('\\n=== RELEVEL NEGATIVE CONTROL ===\\n')
+pj_relevel <- pj
+pj_relevel"'$data$att7 <- relevel(pj_relevel$data$att7, ref='"'att7:level2')
+cat('factor level order after relevel:',paste(levels(pj_relevel"'$data$att7),collapse='"', '),'\\n')
+default_original <- projoint(pj,.structure='profile_level',.estimand='amce',.se_method='analytical')"'$estimates
+default_relevel <- projoint(pj_relevel,.structure='"'profile_level',.estimand='amce',.se_method='analytical')"'$estimates
+x <- subset(default_original, att_level_choose=='"'att7:level2' & estimand=='amce_corrected')
+y <- subset(default_relevel, att_level_choose=='att7:level2' & estimand=='amce_corrected')
+print(x); print(y)
+cat('identical crime corrected default estimate:',identical(x"'$estimate,y$estimate),'"' baseline original/relevel:',x"'$att_level_choose_baseline,y$att_level_choose_baseline,'"'\\n')
+RS" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 2513ms:
+=== HOUSING, REFERENCE LEVEL2 ===
+# A tibble: 2 × 9
+  estimand         estimate     se conf.low conf.high att_level_choose att_level_notchoose att_level_choose_baseline att_level_notchoose_baseline
+  <chr>               <dbl>  <dbl>    <dbl>     <dbl> <chr>            <chr>               <chr>                     <chr>                       
+1 amce_uncorrected   0.0899 0.0236   0.0435     0.136 att1:level1      ""                  att1:level2               ""                          
+2 amce_corrected     0.137  0.0360   0.0662     0.208 att1:level1      ""                  att1:level2               ""                          
+# A tibble: 2 × 9
+  estimand         estimate     se conf.low conf.high att_level_choose att_level_notchoose att_level_choose_baseline att_level_notchoose_baseline
+  <chr>               <dbl>  <dbl>    <dbl>     <dbl> <chr>            <chr>               <chr>                     <chr>                       
+1 amce_uncorrected  -0.0400 0.0240  -0.0873   0.00728 att1:level3      ""                  att1:level2               ""                          
+2 amce_corrected    -0.0610 0.0368  -0.133    0.0114  att1:level3      ""                  att1:level2               ""                          
+
+=== RELEVEL NEGATIVE CONTROL ===
+factor level order after relevel: att7:level2, att7:level1 
+Warning messages:
+1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+2: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+Warning messages:
+1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+2: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+# A tibble: 1 × 7
+  estimand       estimate     se conf.low conf.high att_level_choose att_level_choose_baseline
+  <chr>             <dbl>  <dbl>    <dbl>     <dbl> <chr>            <chr>                    
+1 amce_corrected   -0.251 0.0422   -0.334    -0.168 att7:level2      att7:level1              
+# A tibble: 1 × 7
+  estimand       estimate     se conf.low conf.high att_level_choose att_level_choose_baseline
+  <chr>             <dbl>  <dbl>    <dbl>     <dbl> <chr>            <chr>                    
+1 amce_corrected   -0.251 0.0422   -0.334    -0.168 att7:level2      att7:level1              
+identical crime corrected default estimate: TRUE  baseline original/relevel: att7:level1 att7:level1 
+
+codex
+The intended calls run under the installed API. A key implementation detail emerged: profile-level AMCEs must use an explicit `set_qoi()` baseline for each contrast; merely reordering a factor with `relevel()` does not change `projoint`’s default `level1` baseline.
+
+exec
+/bin/zsh -lc 'tail -40 terra-inventory.log; test -f terra-inventory.md && wc -l terra-inventory.md || true' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
+# A tibble: 2 × 9
+  estimand         estimate     se conf.low conf.high att_level_choose att_level_notchoose att_level_choose_baseline att_level_notchoose_baseline
+  <chr>               <dbl>  <dbl>    <dbl>     <dbl> <chr>            <chr>               <chr>                     <chr>                       
+1 amce_uncorrected   0.0899 0.0236   0.0435     0.136 att1:level1      ""                  att1:level2               ""                          
+2 amce_corrected     0.137  0.0360   0.0662     0.208 att1:level1      ""                  att1:level2               ""                          
+# A tibble: 2 × 9
+  estimand         estimate     se conf.low conf.high att_level_choose att_level_notchoose att_level_choose_baseline att_level_notchoose_baseline
+  <chr>               <dbl>  <dbl>    <dbl>     <dbl> <chr>            <chr>               <chr>                     <chr>                       
+1 amce_uncorrected  -0.0400 0.0240  -0.0873   0.00728 att1:level3      ""                  att1:level2               ""                          
+2 amce_corrected    -0.0610 0.0368  -0.133    0.0114  att1:level3      ""                  att1:level2               ""                          
+
+=== RELEVEL NEGATIVE CONTROL ===
+factor level order after relevel: att7:level2, att7:level1 
+Warning messages:
+1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+2: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+Warning messages:
+1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+2: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+# A tibble: 1 × 7
+  estimand       estimate     se conf.low conf.high att_level_choose att_level_choose_baseline
+  <chr>             <dbl>  <dbl>    <dbl>     <dbl> <chr>            <chr>                    
+1 amce_corrected   -0.251 0.0422   -0.334    -0.168 att7:level2      att7:level1              
+# A tibble: 1 × 7
+  estimand       estimate     se conf.low conf.high att_level_choose att_level_choose_baseline
+  <chr>             <dbl>  <dbl>    <dbl>     <dbl> <chr>            <chr>                    
+1 amce_corrected   -0.251 0.0422   -0.334    -0.168 att7:level2      att7:level1              
+identical crime corrected default estimate: TRUE  baseline original/relevel: att7:level1 att7:level1 
+
+codex
+The intended calls run under the installed API. A key implementation detail emerged: profile-level AMCEs must use an explicit `set_qoi()` baseline for each contrast; merely reordering a factor with `relevel()` does not change `projoint`’s default `level1` baseline.
+2026-07-13T10:36:53.158638Z ERROR codex_core::tools::router: error=apply_patch verification failed: invalid hunk at line 137, 'to School Quality (`att4`).' is not a valid hunk header. Valid hunk headers: '*** Add File: {path}', '*** Delete File: {path}', '*** Update File: {path}'
+
+exec
+/bin/zsh -lc "tail -30 terra-inventory.log; test -f terra-inventory.md && { wc -l terra-inventory.md; sed -n '1,20p' terra-inventory.md; } || true" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
++   directed contrast. Combine \`fit$estimates\` with the selected baseline and
++   human-readable labels. Keep corrected and uncorrected rows explicitly
++   distinguished.
++3. Specify \`.structure = "profile_level"\` and leave \`.auto_cluster = TRUE\`
++   (or explicitly set \`.clusters_2 = id\` with a compatible \`.se_type_2\`) so
++   repeated profiles remain clustered by respondent. Record \`tau\`,
++   \`se_type_used\`, and warnings alongside results.
++4. Do not treat a factor releveling as a baseline change. An executed negative
++   control relevelled \`pj$data$att7\` to put \`att7:level2\` first, yet the
++   default AMCE remained \`att7:level2\` versus \`att7:level1\` with an identical
++   corrected estimate (-0.251). The package's default all-attribute AMCE path
++   explicitly sets baseline suffix \`"level1"\`; use an explicit QoI instead.
++
++## Risks / implementation cautions
++
++* Choice-level estimation requires a non-NULL \`.qoi\`; profile-level estimation
++  can enumerate all levels with \`.qoi = NULL\`. Do not copy the profile-level
++  pattern into choice-level code unchanged.
++* Package help describes \`set_qoi()\` level inputs as “level id(s),” but the
++  executed implementation expects suffixes (\`"level1"\`), not full factor IDs
++  (\`"att7:level1"\`). Construct and test a minimal QoI before a bulk run.
++* \`projoint()\` estimates IRR by default here using the repeated task. The
++  output reported \`tau = 0.1721281\`; using \`.irr\` changes that assumption and
++  should be documented rather than silently changed.
++* Default all-level analytical AMCEs emitted a variance fallback warning
++  (CR2 → \`stata\`). Explicit single-contrast fits above used CR2. Preserve the
++  returned \`se_type_used\` and assess SE-method sensitivity if inference—not
++  only point-estimate reparameterization—is to be reported.
++
+
+     194 terra-inventory.md
+# \`projoint\` inventory for baseline sensitivity
+
+## Scope and executed checks
+
+All findings below come from local, read-only \`Rscript\` runs on 2026-07-13:
+
+\`\`\`r
+library(projoint)
+data(exampleData1)
+pj <- reshape_projoint(
+  exampleData1,
+  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
+)
+\`\`\`
+
+Installed environment: R 4.5.1; \`projoint\` 1.1.1 at
+\`/opt/homebrew/lib/R/4.5/site-library\`.
+
+Executed schema checks: \`str(pj)\`, \`print(pj$labels, n = Inf)\`,
+\`names(pj$data)\`, \`levels()\` for every factor, tables of the outcome
+
+exec
+/bin/zsh -lc "tail -80 terra-inventory.log | sed -n '/tokens used/,"'$p'"'; ps -p "'$(pgrep -f '"'gpt-5.6-terra.*terra-inventory' | head -1) -o pid,etime,command 2>/dev/null || true" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
+  PID ELAPSED COMMAND
+  152   04:12 node /opt/homebrew/bin/codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3 Objective: Inspect the installed R environment and the projoint exampleData1 reshaped exactly as specified in BRIEF.md; produce a compact factual inventory that will let a lead specify a baseline-sensitivity analysis. Inputs and authoritative paths: ./BRIEF.md and the installed projoint package/data; current directory only. In scope: run read-only R diagnostics; identify attribute column names and all factor levels after reshape_projoint; identify outcome/choice and respondent/cluster identifiers; determine the exact installed projoint functions and argument syntax for AMCEs and marginal means; note which attributes are binary versus multi-level; identify which reference-category changes are possible for Violent Crime Rate and at least one multi-level attribute; give a concise recommended computational pattern. Out of scope: substantive adjudication of the reviewer, final prose, web access, package installation, editing requested final deliverables. Constraints and invariants: do not fetch anything from the web; do not install packages; do not write outside this leaf; preserve all existing files. Write ownership: only ./terra-inventory.md. Expected artifact: terra-inventory.md containing commands/checks, observed names/levels, package API details, and risks. Acceptance checks: every reported name/level is backed by executed R output; proposed calls match the installed package; explicitly distinguish binary and multi-level attributes. Return format in stdout: conclusion, evidence, changed files, residual risk, and a final line exactly 'tokens used: N' if the CLI does not already print a token count.
+
+codex
+The inventory artifact now exists and contains executed evidence, including a crucial package-specific finding: `projoint` requires explicit `set_qoi()` contrasts; simply releveling a factor does not alter its default `level1` baseline. I’m waiting for the worker’s final token/accounting line before closing that delegation, then I’ll lock the statistical specification.
+exec
+/bin/zsh -lc 'tail -60 terra-inventory.log' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
++to School Quality (\`att4\`).
++
++### Example multi-level attribute: Housing Cost (\`att1\`, three levels)
++
++Any one of \`level1\`, \`level2\`, or \`level3\` can be set as the baseline, with a
++separate profile-level QoI/fit for each non-baseline level. The installed API
++requires \`.lev_choose\` to have length one at profile level; a vector caused
++the executed error “\`.lev_choose\` must have length 1 for profile-level
++estimands.” For example, the following two successful fits use \`level2\` as
++the reference:
++
++\`\`\`r
++q_l1_vs_l2 <- set_qoi("profile_level", "amce",
++  .att_choose = "att1", .lev_choose = "level1",
++  .att_choose_b = "att1", .lev_choose_b = "level2")
++q_l3_vs_l2 <- set_qoi("profile_level", "amce",
++  .att_choose = "att1", .lev_choose = "level3",
++  .att_choose_b = "att1", .lev_choose_b = "level2")
++
++fit_l1_vs_l2 <- projoint(pj, .qoi = q_l1_vs_l2, .se_method = "analytical")
++fit_l3_vs_l2 <- projoint(pj, .qoi = q_l3_vs_l2, .se_method = "analytical")
++\`\`\`
++
++## Recommended computational pattern
++
++1. Estimate and retain \`mm_all\` once. Map \`att_level_choose\` back through
++   \`pj$labels\`; compare the corrected MMs for every level. These estimates do
++   not require choosing an AMCE reference.
++2. For each desired AMCE baseline, loop over the other level suffixes and make
++   one \`set_qoi(..., .estimand = "amce")\` plus one \`projoint()\` call per
++   directed contrast. Combine \`fit$estimates\` with the selected baseline and
++   human-readable labels. Keep corrected and uncorrected rows explicitly
++   distinguished.
++3. Specify \`.structure = "profile_level"\` and leave \`.auto_cluster = TRUE\`
++   (or explicitly set \`.clusters_2 = id\` with a compatible \`.se_type_2\`) so
++   repeated profiles remain clustered by respondent. Record \`tau\`,
++   \`se_type_used\`, and warnings alongside results.
++4. Do not treat a factor releveling as a baseline change. An executed negative
++   control relevelled \`pj$data$att7\` to put \`att7:level2\` first, yet the
++   default AMCE remained \`att7:level2\` versus \`att7:level1\` with an identical
++   corrected estimate (-0.251). The package's default all-attribute AMCE path
++   explicitly sets baseline suffix \`"level1"\`; use an explicit QoI instead.
++
++## Risks / implementation cautions
++
++* Choice-level estimation requires a non-NULL \`.qoi\`; profile-level estimation
++  can enumerate all levels with \`.qoi = NULL\`. Do not copy the profile-level
++  pattern into choice-level code unchanged.
++* Package help describes \`set_qoi()\` level inputs as “level id(s),” but the
++  executed implementation expects suffixes (\`"level1"\`), not full factor IDs
++  (\`"att7:level1"\`). Construct and test a minimal QoI before a bulk run.
++* \`projoint()\` estimates IRR by default here using the repeated task. The
++  output reported \`tau = 0.1721281\`; using \`.irr\` changes that assumption and
++  should be documented rather than silently changed.
++* Default all-level analytical AMCEs emitted a variance fallback warning
++  (CR2 → \`stata\`). Explicit single-contrast fits above used CR2. Preserve the
++  returned \`se_type_used\` and assess SE-method sensitivity if inference—not
++  only point-estimate reparameterization—is to be reported.
++
+
+
+ succeeded in 317517ms:
+exec
+/bin/zsh -lc "tail -30 terra-inventory.log; rg -n \"tokens used\" terra-inventory.log terra-inventory.md || true; sed -n '1,240p' terra-inventory.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
++   corrected estimate (-0.251). The package's default all-attribute AMCE path
++   explicitly sets baseline suffix `"level1"`; use an explicit QoI instead.
++
++## Risks / implementation cautions
++
++* Choice-level estimation requires a non-NULL `.qoi`; profile-level estimation
++  can enumerate all levels with `.qoi = NULL`. Do not copy the profile-level
++  pattern into choice-level code unchanged.
++* Package help describes `set_qoi()` level inputs as “level id(s),” but the
++  executed implementation expects suffixes (`"level1"`), not full factor IDs
++  (`"att7:level1"`). Construct and test a minimal QoI before a bulk run.
++* `projoint()` estimates IRR by default here using the repeated task. The
++  output reported `tau = 0.1721281`; using `.irr` changes that assumption and
++  should be documented rather than silently changed.
++* Default all-level analytical AMCEs emitted a variance fallback warning
++  (CR2 → `stata`). Explicit single-contrast fits above used CR2. Preserve the
++  returned `se_type_used` and assess SE-method sensitivity if inference—not
++  only point-estimate reparameterization—is to be reported.
+
+tokens used
+93,619
+Conclusion: Inventory completed. It identifies exact reshape fields/levels, binary vs multi-level attributes, working AMCE/MM API calls, viable baseline changes, and the factor-relevel pitfall.
+
+Evidence: All reported details were obtained from executed local R diagnostics using `projoint` 1.1.1; proposed calls executed successfully.
+
+Changed files: [terra-inventory.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/terra-inventory.md)
+
+Residual risk: Default all-level AMCEs triggered a CR2-to-`stata` SE fallback; retain `se_type_used` and assess inference sensitivity.
+
+tokens used: 5230
+terra-inventory.log:14:Objective: Inspect the installed R environment and the projoint exampleData1 reshaped exactly as specified in BRIEF.md; produce a compact factual inventory that will let a lead specify a baseline-sensitivity analysis. Inputs and authoritative paths: ./BRIEF.md and the installed projoint package/data; current directory only. In scope: run read-only R diagnostics; identify attribute column names and all factor levels after reshape_projoint; identify outcome/choice and respondent/cluster identifiers; determine the exact installed projoint functions and argument syntax for AMCEs and marginal means; note which attributes are binary versus multi-level; identify which reference-category changes are possible for Violent Crime Rate and at least one multi-level attribute; give a concise recommended computational pattern. Out of scope: substantive adjudication of the reviewer, final prose, web access, package installation, editing requested final deliverables. Constraints and invariants: do not fetch anything from the web; do not install packages; do not write outside this leaf; preserve all existing files. Write ownership: only ./terra-inventory.md. Expected artifact: terra-inventory.md containing commands/checks, observed names/levels, package API details, and risks. Acceptance checks: every reported name/level is backed by executed R output; proposed calls match the installed package; explicitly distinguish binary and multi-level attributes. Return format in stdout: conclusion, evidence, changed files, residual risk, and a final line exactly 'tokens used: N' if the CLI does not already print a token count.
+terra-inventory.log:4097:tokens used: 5230
+terra-inventory.log:4298:tokens used
+terra-inventory.log:4308:tokens used: 5230
+# `projoint` inventory for baseline sensitivity
+
+## Scope and executed checks
+
+All findings below come from local, read-only `Rscript` runs on 2026-07-13:
+
+```r
+library(projoint)
+data(exampleData1)
+pj <- reshape_projoint(
+  exampleData1,
+  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
+)
+```
+
+Installed environment: R 4.5.1; `projoint` 1.1.1 at
+`/opt/homebrew/lib/R/4.5/site-library`.
+
+Executed schema checks: `str(pj)`, `print(pj$labels, n = Inf)`,
+`names(pj$data)`, `levels()` for every factor, tables of the outcome
+columns, and `length(unique(pj$data$id))`. Executed API checks:
+`formals(projoint)`, `formals(set_qoi)`, package help converted with
+`tools::Rd2txt()`, and successful estimation calls shown below.
+
+## Reshaped object and identifiers
+
+`reshape_projoint()` returns a `projoint_data` list, not a bare data frame:
+
+* `pj$labels`: 24-row attribute/level lookup table.
+* `pj$data`: 6,400 rows × 13 columns. One row is one respondent–task–profile.
+
+Columns in `pj$data` are `id`, `task`, `profile`, `att4`, `att7`,
+`att3`, `att1`, `att2`, `att5`, `att6`, `selected`,
+`selected_repeated`, and `agree`.
+
+* Respondent/cluster ID: `id` (character; 400 unique respondents). Each has
+  16 rows: 8 tasks × 2 profiles. `projoint()` with defaults actually reported
+  `cluster_by: id`.
+* Task and profile IDs: `task` (1–8) and `profile` (1–2).
+* Main choice outcome: `selected` (numeric; 3,200 zeroes, 3,200 ones).
+* Repeated-task choice: `selected_repeated` (400 zeroes, 400 ones, 5,600 NA).
+* Repeated-task agreement indicator: `agree` (228 zeroes, 572 ones, 5,600 NA).
+
+## Attribute columns and observed levels
+
+The factor values in `pj$data` are stable IDs; the corresponding display text
+is from `pj$labels`.
+
+| Attribute column | Display attribute | Levels (ID → label) | Type |
+|---|---|---|---|
+| `att1` | Housing Cost | `level1` → 15% of pre-tax income; `level2` → 30%; `level3` → 40% | Multi-level (3) |
+| `att2` | Presidential Vote (2020) | `level1` → 30% Democrat, 70% Republican; `level2` → 50% Democrat, 50% Republican; `level3` → 70% Democrat, 30% Republican | Multi-level (3) |
+| `att3` | Racial Composition | `level1` → 50% White, 50% Nonwhite; `level2` → 75% White, 25% Nonwhite; `level3` → 90% White, 10% Nonwhite; `level4` → 96% White, 4% Nonwhite | Multi-level (4) |
+| `att4` | School Quality | `level1` → 5 out of 10; `level2` → 9 out of 10 | **Binary (2)** |
+| `att5` | Total Daily Driving Time for Commuting and Errands | `level1` → 10 min; `level2` → 25 min; `level3` → 45 min; `level4` → 75 min | Multi-level (4) |
+| `att6` | Type of Place | `level1` → City – downtown, with a mix of offices, apartments, and shops; `level2` → City, more residential area; `level3` → Rural area; `level4` → Small town; `level5` → Suburban neighborhood with houses only; `level6` → Suburban neighborhood with mix of shops, houses, businesses | Multi-level (6) |
+| `att7` | Violent Crime Rate (Vs National Rate) | `level1` → 20% Less Crime Than National Average; `level2` → 20% More Crime Than National Average | **Binary (2)** |
+
+The actual factor levels include the column prefix, e.g., `levels(pj$data$att7)`
+is `c("att7:level1", "att7:level2")`. In `set_qoi()` calls, however, the
+installed estimator successfully accepted the suffixes `"level1"` and
+`"level2"`; passing full IDs such as `"att7:level2"` produced “No rows match
+the specified attribute/level combination(s).”
+
+## Installed AMCE/MM API
+
+There are no exported `amce()`, `AMCE()`, `mm()`, `MM()`, or
+`marginal_means()` functions. The relevant exported functions are:
+
+```r
+projoint(
+  .data, .qoi = NULL, .by_var = NULL,
+  .structure = "choice_level", .estimand = "mm",
+  .se_method = "analytical", .irr = NULL, .remove_ties = TRUE,
+  .ignore_position = NULL, .n_sims = NULL, .n_boot = NULL,
+  .weights_1 = NULL, .clusters_1 = NULL, .se_type_1 = NULL,
+  .weights_2 = NULL, .clusters_2 = NULL, .se_type_2 = NULL,
+  .auto_cluster = TRUE, .seed = NULL
+)
+
+set_qoi(
+  .structure = "choice_level", .estimand = "mm",
+  .att_choose, .lev_choose,
+  .att_notchoose = NULL, .lev_notchoose = NULL,
+  .att_choose_b = NULL, .lev_choose_b = NULL,
+  .att_notchoose_b = NULL, .lev_notchoose_b = NULL
+)
+```
+
+For an all-attribute baseline-sensitivity inventory, the working public calls
+are profile-level:
+
+```r
+# All 24 level MMs (baseline invariant)
+mm_all <- projoint(pj, .structure = "profile_level", .estimand = "mm",
+                   .se_method = "analytical")
+
+# Default all-attribute AMCEs: hard-coded against each attribute's level1
+amce_default <- projoint(pj, .structure = "profile_level", .estimand = "amce",
+                         .se_method = "analytical")
+
+# One explicit AMCE contrast
+q <- set_qoi(.structure = "profile_level", .estimand = "amce",
+             .att_choose = "att7", .lev_choose = "level2",
+             .att_choose_b = "att7", .lev_choose_b = "level1")
+crime_l2_vs_l1 <- projoint(pj, .qoi = q, .se_method = "analytical")
+```
+
+Those calls executed successfully. The MM result had 48 rows (uncorrected and
+corrected estimates for all 24 levels), `cluster_by = "id"`, `se_type_used =
+"CR2"`, and estimated `tau = 0.1721281`. The default AMCE result had 34 rows
+(17 non-reference contrasts × uncorrected/corrected) and warned that its
+analytical CR2 variances were non-PSD/NA, then fell back to `se_type = "stata"`.
+
+## Feasible reference changes
+
+### Violent Crime Rate (`att7`, binary)
+
+Exactly two directed contrasts are possible; they contain the same comparison
+with reversed sign (the executed corrected estimates were -0.251 and +0.251):
+
+```r
+# More crime relative to less crime
+q_more_vs_less <- set_qoi("profile_level", "amce",
+  .att_choose = "att7", .lev_choose = "level2",
+  .att_choose_b = "att7", .lev_choose_b = "level1")
+
+# Less crime relative to more crime
+q_less_vs_more <- set_qoi("profile_level", "amce",
+  .att_choose = "att7", .lev_choose = "level1",
+  .att_choose_b = "att7", .lev_choose_b = "level2")
+```
+
+Thus binary attributes do not offer multiple substantively distinct comparison
+sets: switching the reference only reverses direction/sign. This also applies
+to School Quality (`att4`).
+
+### Example multi-level attribute: Housing Cost (`att1`, three levels)
+
+Any one of `level1`, `level2`, or `level3` can be set as the baseline, with a
+separate profile-level QoI/fit for each non-baseline level. The installed API
+requires `.lev_choose` to have length one at profile level; a vector caused
+the executed error “`.lev_choose` must have length 1 for profile-level
+estimands.” For example, the following two successful fits use `level2` as
+the reference:
+
+```r
+q_l1_vs_l2 <- set_qoi("profile_level", "amce",
+  .att_choose = "att1", .lev_choose = "level1",
+  .att_choose_b = "att1", .lev_choose_b = "level2")
+q_l3_vs_l2 <- set_qoi("profile_level", "amce",
+  .att_choose = "att1", .lev_choose = "level3",
+  .att_choose_b = "att1", .lev_choose_b = "level2")
+
+fit_l1_vs_l2 <- projoint(pj, .qoi = q_l1_vs_l2, .se_method = "analytical")
+fit_l3_vs_l2 <- projoint(pj, .qoi = q_l3_vs_l2, .se_method = "analytical")
+```
+
+## Recommended computational pattern
+
+1. Estimate and retain `mm_all` once. Map `att_level_choose` back through
+   `pj$labels`; compare the corrected MMs for every level. These estimates do
+   not require choosing an AMCE reference.
+2. For each desired AMCE baseline, loop over the other level suffixes and make
+   one `set_qoi(..., .estimand = "amce")` plus one `projoint()` call per
+   directed contrast. Combine `fit$estimates` with the selected baseline and
+   human-readable labels. Keep corrected and uncorrected rows explicitly
+   distinguished.
+3. Specify `.structure = "profile_level"` and leave `.auto_cluster = TRUE`
+   (or explicitly set `.clusters_2 = id` with a compatible `.se_type_2`) so
+   repeated profiles remain clustered by respondent. Record `tau`,
+   `se_type_used`, and warnings alongside results.
+4. Do not treat a factor releveling as a baseline change. An executed negative
+   control relevelled `pj$data$att7` to put `att7:level2` first, yet the
+   default AMCE remained `att7:level2` versus `att7:level1` with an identical
+   corrected estimate (-0.251). The package's default all-attribute AMCE path
+   explicitly sets baseline suffix `"level1"`; use an explicit QoI instead.
+
+## Risks / implementation cautions
+
+* Choice-level estimation requires a non-NULL `.qoi`; profile-level estimation
+  can enumerate all levels with `.qoi = NULL`. Do not copy the profile-level
+  pattern into choice-level code unchanged.
+* Package help describes `set_qoi()` level inputs as “level id(s),” but the
+  executed implementation expects suffixes (`"level1"`), not full factor IDs
+  (`"att7:level1"`). Construct and test a minimal QoI before a bulk run.
+* `projoint()` estimates IRR by default here using the repeated task. The
+  output reported `tau = 0.1721281`; using `.irr` changes that assumption and
+  should be documented rather than silently changed.
+* Default all-level analytical AMCEs emitted a variance fallback warning
+  (CR2 → `stata`). Explicit single-contrast fits above used CR2. Preserve the
+  returned `se_type_used` and assess SE-method sensitivity if inference—not
+  only point-estimate reparameterization—is to be reported.
+
+exec
+/bin/zsh -lc "Rscript - <<'RS'
+library(projoint)
+data(exampleData1)
+out <- reshape_projoint(exampleData1, .outcomes = c(paste0('choice', 1:8), 'choice1_repeated_flipped'))
+mm <- projoint(out, .structure='profile_level', .estimand='mm', .se_method='analytical')"'$estimates
+print(names(mm)); print(out$labels, n=Inf)
+mc <- subset(mm, estimand == '"'mm_corrected')
+print(mc, n=Inf)
+# merge label map and summarize within-attribute corrected MM range
+x <- merge(mc, out"'$labels, by.x='"'att_level_choose', by.y='level_id', all.x=TRUE, sort=FALSE)
+print(x[, intersect(c('attribute','level','att_label','level_label','att_level_choose','estimate','se','conf.low','conf.high'), names(x))], row.names=FALSE)
+attcol <- intersect(c('attribute','att_label','attribute_label'), names(x))[1]
+if ("'!is.na(attcol)) print(aggregate(x$estimate, list(attribute=x[[attcol]]), function(z) c(min=min(z), max=max(z), range=diff(range(z)))))
+RS' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 1283ms:
+[1] "estimand"         "estimate"         "se"               "conf.low"        
+[5] "conf.high"        "att_level_choose"
+# A tibble: 24 × 4
+   attribute                                         level attribute_id level_id
+   <chr>                                             <chr> <chr>        <chr>   
+ 1 Housing Cost                                      15% … att1         att1:le…
+ 2 Housing Cost                                      30% … att1         att1:le…
+ 3 Housing Cost                                      40% … att1         att1:le…
+ 4 Presidential Vote (2020)                          30% … att2         att2:le…
+ 5 Presidential Vote (2020)                          50% … att2         att2:le…
+ 6 Presidential Vote (2020)                          70% … att2         att2:le…
+ 7 Racial Composition                                50% … att3         att3:le…
+ 8 Racial Composition                                75% … att3         att3:le…
+ 9 Racial Composition                                90% … att3         att3:le…
+10 Racial Composition                                96% … att3         att3:le…
+11 School Quality                                    5 ou… att4         att4:le…
+12 School Quality                                    9 ou… att4         att4:le…
+13 Total Daily Driving Time for Commuting and Erran… 10 m… att5         att5:le…
+14 Total Daily Driving Time for Commuting and Erran… 25 m… att5         att5:le…
+15 Total Daily Driving Time for Commuting and Erran… 45 m… att5         att5:le…
+16 Total Daily Driving Time for Commuting and Erran… 75 m… att5         att5:le…
+17 Type of Place                                     City… att6         att6:le…
+18 Type of Place                                     City… att6         att6:le…
+19 Type of Place                                     Rura… att6         att6:le…
+20 Type of Place                                     Smal… att6         att6:le…
+21 Type of Place                                     Subu… att6         att6:le…
+22 Type of Place                                     Subu… att6         att6:le…
+23 Violent Crime Rate (Vs National Rate)             20% … att7         att7:le…
+24 Violent Crime Rate (Vs National Rate)             20% … att7         att7:le…
+# A tibble: 24 × 6
+   estimand     estimate     se conf.low conf.high att_level_choose
+   <chr>           <dbl>  <dbl>    <dbl>     <dbl> <chr>           
+ 1 mm_corrected    0.614 0.0219    0.571     0.657 att1:level1     
+ 2 mm_corrected    0.477 0.0207    0.436     0.517 att1:level2     
+ 3 mm_corrected    0.416 0.0219    0.372     0.459 att1:level3     
+ 4 mm_corrected    0.483 0.0229    0.438     0.528 att2:level1     
+ 5 mm_corrected    0.536 0.0203    0.496     0.576 att2:level2     
+ 6 mm_corrected    0.480 0.0224    0.436     0.524 att2:level3     
+ 7 mm_corrected    0.500 0.0225    0.456     0.544 att3:level1     
+ 8 mm_corrected    0.537 0.0226    0.492     0.581 att3:level2     
+ 9 mm_corrected    0.477 0.0204    0.437     0.518 att3:level3     
+10 mm_corrected    0.488 0.0232    0.442     0.534 att3:level4     
+11 mm_corrected    0.442 0.0210    0.401     0.484 att4:level1     
+12 mm_corrected    0.558 0.0210    0.516     0.599 att4:level2     
+13 mm_corrected    0.610 0.0221    0.567     0.654 att5:level1     
+14 mm_corrected    0.541 0.0218    0.498     0.584 att5:level2     
+15 mm_corrected    0.470 0.0226    0.425     0.514 att5:level3     
+16 mm_corrected    0.373 0.0225    0.329     0.417 att5:level4     
+17 mm_corrected    0.394 0.0265    0.342     0.446 att6:level1     
+18 mm_corrected    0.509 0.0279    0.454     0.564 att6:level2     
+19 mm_corrected    0.529 0.0276    0.474     0.583 att6:level3     
+20 mm_corrected    0.552 0.0268    0.499     0.605 att6:level4     
+21 mm_corrected    0.473 0.0268    0.420     0.526 att6:level5     
+22 mm_corrected    0.540 0.0259    0.489     0.591 att6:level6     
+23 mm_corrected    0.626 0.0211    0.584     0.667 att7:level1     
+24 mm_corrected    0.374 0.0211    0.333     0.416 att7:level2     
+                                          attribute
+                                       Housing Cost
+                                       Housing Cost
+                                       Housing Cost
+                           Presidential Vote (2020)
+                           Presidential Vote (2020)
+                           Presidential Vote (2020)
+                                 Racial Composition
+                                 Racial Composition
+                                 Racial Composition
+                                 Racial Composition
+                                     School Quality
+                                     School Quality
+ Total Daily Driving Time for Commuting and Errands
+ Total Daily Driving Time for Commuting and Errands
+ Total Daily Driving Time for Commuting and Errands
+ Total Daily Driving Time for Commuting and Errands
+                                      Type of Place
+                                      Type of Place
+                                      Type of Place
+                                      Type of Place
+                                      Type of Place
+                                      Type of Place
+              Violent Crime Rate (Vs National Rate)
+              Violent Crime Rate (Vs National Rate)
+                                                         level att_level_choose
+                                         15% of pre-tax income      att1:level1
+                                         30% of pre-tax income      att1:level2
+                                         40% of pre-tax income      att1:level3
+                                  30% Democrat, 70% Republican      att2:level1
+                                  50% Democrat, 50% Republican      att2:level2
+                                  70% Democrat, 30% Republican      att2:level3
+                                       50% White, 50% Nonwhite      att3:level1
+                                       75% White, 25% Nonwhite      att3:level2
+                                       90% White, 10% Nonwhite      att3:level3
+                                        96% White, 4% Nonwhite      att3:level4
+                                                   5 out of 10      att4:level1
+                                                   9 out of 10      att4:level2
+                                                        10 min      att5:level1
+                                                        25 min      att5:level2
+                                                        45 min      att5:level3
+                                                        75 min      att5:level4
+ City – downtown, with a mix of offices, apartments, and shops      att6:level1
+                                   City, more residential area      att6:level2
+                                                    Rural area      att6:level3
+                                                    Small town      att6:level4
+                        Suburban neighborhood with houses only      att6:level5
+   Suburban neighborhood with mix of shops, houses, businesses      att6:level6
+                          20% Less Crime Than National Average      att7:level1
+                          20% More Crime Than National Average      att7:level2
+  estimate         se  conf.low conf.high
+ 0.6135867 0.02188591 0.5705365 0.6566369
+ 0.4765303 0.02065667 0.4358997 0.5171609
+ 0.4155147 0.02187070 0.3724993 0.4585302
+ 0.4828171 0.02291538 0.4377455 0.5278886
+ 0.5358637 0.02030654 0.4959255 0.5758019
+ 0.4801182 0.02244264 0.4359766 0.5242598
+ 0.5000000 0.02252256 0.4556954 0.5443046
+ 0.5366206 0.02259087 0.4921788 0.5810624
+ 0.4773396 0.02041632 0.4371766 0.5175026
+ 0.4879573 0.02323473 0.4422514 0.5336632
+ 0.4421624 0.02101869 0.4008239 0.4835008
+ 0.5578376 0.02101869 0.5164992 0.5991761
+ 0.6104033 0.02211493 0.5668987 0.6539079
+ 0.5408264 0.02177068 0.4980004 0.5836524
+ 0.4697690 0.02255530 0.4253947 0.5141433
+ 0.3731358 0.02249633 0.3288837 0.4173879
+ 0.3940264 0.02650988 0.3418588 0.4461941
+ 0.5089917 0.02793138 0.4540244 0.5639589
+ 0.5286651 0.02757307 0.4744059 0.5829244
+ 0.5518361 0.02679091 0.4991177 0.6045545
+ 0.4726737 0.02684924 0.4198301 0.5255172
+ 0.5403118 0.02591279 0.4893166 0.5913070
+ 0.6255815 0.02112276 0.5840389 0.6671241
+ 0.3744185 0.02112276 0.3328759 0.4159611
+                                           attribute      x.min      x.max
+1                                       Housing Cost 0.41551473 0.61358669
+2                           Presidential Vote (2020) 0.48011823 0.53586367
+3                                 Racial Composition 0.47733957 0.53662058
+4                                     School Quality 0.44216236 0.55783764
+5 Total Daily Driving Time for Commuting and Errands 0.37313584 0.61040328
+6                                      Type of Place 0.39402642 0.55183614
+7              Violent Crime Rate (Vs National Rate) 0.37441852 0.62558148
+     x.range
+1 0.19807196
+2 0.05574544
+3 0.05928101
+4 0.11567527
+5 0.23726745
+6 0.15780972
+7 0.25116297
+
+codex
+I’ve fixed the substantive standard before implementation: the binary crime attribute has only one comparison, so changing its baseline must reverse the sign but cannot change the magnitude. The baseline-invariant corrected MMs are 0.626 for less crime and 0.374 for more crime (25.1-point spread), the largest point-estimated within-attribute spread, but only slightly above commuting time (23.7 points). The defensible claim is therefore a large, robust crime contrast—not proven unique dominance. Housing Cost will demonstrate genuine multi-level reparameterization.
+exec
+/bin/zsh -lc 'codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" "Objective: Implement the complete BRIEF.md deliverables from the lead'"'s fixed statistical specification. Inputs and authoritative paths: ./BRIEF.md and ./terra-inventory.md; installed projoint/exampleData1; current directory only. In scope: create ./script.R, ./sensitivity-table.md, ./memo.md, and ./figures/sensitivity.png; run Rscript script.R from scratch. Out of scope: routing-log.md, terra-inventory.md, web access, package installation, extra figures, extra final-data artifacts, or changing the lead's substantive judgment. Constraints and invariants: self-contained script loads projoint and exampleData1 and reshapes with exactly the outcomes in BRIEF.md; use profile-level analytical estimates and corrected estimand rows; estimate explicit directed AMCE contrasts with set_qoi for both crime baselines; estimate Housing Cost under each of its three possible baselines, one contrast at a time; estimate corrected marginal means for all 24 levels; preserve respondent clustering/default IRR correction; set a seed; create figures directory; exactly one figure at figures/sensitivity.png, at least 300 dpi, no in-plot title, Okabe-Ito palette, no legend depending on color alone. The figure should be one accessible horizontal baseline-invariant MM range plot: seven attributes on y, corrected MM on x, a thin segment from min to max MM for every attribute, all level MMs shown as points with slight deterministic vertical offsets, crime highlighted with Okabe-Ito vermillion (#D55E00), other attributes in blue (#0072B2) and dark gray/black, a vertical dashed reference at 0.5, readable abbreviated attribute labels, and no title; do not add a second panel or file. sensitivity-table.md must place crime levels in rows and columns 'Less crime baseline', 'More crime baseline', and 'Marginal mean', showing corrected estimates in percentage points/probabilities with 95% CIs; references shown as 'Reference'; include a concise note that baseline reversal changes +/−0.251 only, and define corrected estimates. memo.md should be roughly 400 words and directly reply to the reviewer: concede AMCE coefficients are reference-dependent; explain that crime and School Quality are binary so crime baseline reversal only flips sign; give the crime AMCE and MM values/CIs; demonstrate multi-level dependence using Housing Cost with concrete corrected contrasts under alternative baselines; state all-level MM comparison and that crime's 25.1-point range is the largest point estimate but close to commuting's 23.7, so no uniquely dominant ranking is established; promise revised claim: moving from 20% less to 20% more crime causes/substantially reduces choice probability in this randomized conjoint and crime is among the strongest attributes / has the largest observed MM spread, not that it uniquely drives choice. Embed the one figure with a caption below it, not a title. Avoid saying reference categories are arbitrary in the sense of meaningless; they parameterize comparisons. script.R must generate the table and memo as well as the figure so rerunning reproduces all requested outputs; use only locally installed packages and preferably base R plotting/writing to minimize dependencies. Add stopifnot acceptance checks for 24 corrected MMs, exact crime sign reversal/magnitude equality within tolerance, crime MMs matching AMCE difference within tolerance, 3 Housing Cost baselines represented, figure existence, resolution/dimensions sufficient, and exactly one PNG in figures. Expected artifacts: those four requested paths only. Acceptance checks: Rscript script.R exits 0; figure is valid PNG at 300+ dpi with no in-plot title; table contains both baselines and MMs; memo 340-470 words and matches computed numbers; no overclaim. Return format in stdout: conclusion, executed checks, changed files, residual risk; rely on the CLI's own token report.\" < /dev/null > terra-implementation.log 2>&1" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+exec
+/bin/zsh -lc 'tail -80 terra-implementation.log; rg --files | sort' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
+exec
+/bin/zsh -lc "rg --files -g '*' && find figures -maxdepth 1 -type f 2>/dev/null || true && git status --short" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
+terra-inventory.log
+BRIEF.md
+terra-implementation.log
+sol-session.log
+terra-inventory.md
+ M ../t1/sol-session.log
+ M ../t1/terra-implementation.log
+ D ../../fable/high-ajr/SHA256SUMS
+ M ../../fable/high-ajr/claude-envelope.json
+ M ../../fable/high-ajr/memo.md
+ M ../../fable/high-ajr/robustness-table.md
+ D ../../fable/high-ajr/run-log.md
+ M ../../fable/high-ajr/script.R
+ D ../../fable/t1/SHA256SUMS
+ M ../../fable/t1/claude-envelope.json
+ M ../../fable/t1/figures/level-frequencies.png
+ D ../../fable/t1/run-log.md
+ M ../../fable/t1/script.R
+ M ../../fable/t1/summary.md
+ D ../../fable/t2/SHA256SUMS
+ M ../../fable/t2/claude-envelope.json
+ D ../../fable/t2/estimates.csv
+ M ../../fable/t2/figures/amce-dotwhisker.png
+ M ../../fable/t2/report.md
+ D ../../fable/t2/run-log.md
+ M ../../fable/t2/script.R
+ D ../../fable/t3/SHA256SUMS
+ M ../../fable/t3/claude-envelope.json
+ M ../../fable/t3/figures/sensitivity.png
+ M ../../fable/t3/memo.md
+ D ../../fable/t3/run-log.md
+ M ../../fable/t3/script.R
+ M ../../fable/t3/sensitivity-table.md
+ D ../../fable/vhigh-lalonde/SHA256SUMS
+ M ../../fable/vhigh-lalonde/claude-envelope.json
+ M ../../fable/vhigh-lalonde/figures/spec-curve.png
+ M ../../fable/vhigh-lalonde/memo.md
+ D ../../fable/vhigh-lalonde/run-log.md
+ M ../../fable/vhigh-lalonde/script.R
+ M ../../fable/vhigh-lalonde/spec-table.md
+?? ../high-ajr/memo.md
+?? ../high-ajr/robustness-table.md
+?? ../high-ajr/routing-log.md
+?? ../high-ajr/script.R
+?? ../high-ajr/sol-session.log
+?? ../high-ajr/terra-implementation.log
+?? ../high-ajr/terra-verification.log
+?? ../t1/figures/
+?? ../t1/routing-log.md
+?? ../t1/script.R
+?? ../t1/summary.md
+?? ../t1/terra-implementation-retry.log
+?? ../t2/figures/
+?? ../t2/report.md
+?? ../t2/routing-log.md
+?? ../t2/script.R
+?? ../t2/sol-session.log
+?? ../t2/terra-implementation.log
+?? ../t2/verification-rscript.log
+?? ../t2/verification-values.log
+?? sol-session.log
+?? terra-implementation.log
+?? terra-inventory.log
+?? terra-inventory.md
+?? ../vhigh-lalonde/figures/
+?? ../vhigh-lalonde/memo.md
+?? ../vhigh-lalonde/script.R
+?? ../vhigh-lalonde/sol-session.log
+?? ../vhigh-lalonde/spec-table.md
+?? ../vhigh-lalonde/terra-implementation.log
+?? ../../fable/high-ajr/figures/
+?? ../../fable/high-ajr/run-err.log
+?? ../../fable/t1/run-err.log
+?? ../../fable/t3/err.log
+?? ../../fable/t3/run-err.log
+?? ../../fable/vhigh-lalonde/run-err.log
+
+BRIEF.md
+sol-session.log
+terra-implementation.log
+terra-inventory.log
+terra-inventory.md
+
+codex
+The implementation worker is now building only the four requested deliverables. I’ve constrained the figure to a single MM-range plot so it directly answers the reviewer’s baseline objection, while the script still estimates every Housing Cost baseline to document how multi-level AMCE coefficients genuinely reparameterize.
+exec
+/bin/zsh -lc "tail -100 terra-implementation.log; find . -maxdepth 2 -type f -not -name 'sol-session.log' -print | sort" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
++                crime_more_less$estimate) < tol)
++
++fmt_pp <- function(x) sprintf("%.1f", 100 * x)
++fmt_ci_pp <- function(x) sprintf("%s pp (95%% CI %s, %s)",
++                                 fmt_pp(x$estimate), fmt_pp(x$conf.low), fmt_pp(x$conf.high))
++fmt_mm <- function(x) sprintf("%.3f (95%% CI %.3f, %.3f)",
++                              x$estimate, x$conf.low, x$conf.high)
++level_name <- function(attribute, suffix) {
++  labels$level[match(paste0(attribute, ":", suffix), labels$level_id)]
++}
++
++crime_rows <- data.frame(
++  level = c(level_name("att7", "level1"), level_name("att7", "level2")),
++  less_baseline = c("Reference", fmt_ci_pp(crime_more_less)),
++  more_baseline = c(fmt_ci_pp(crime_less_more), "Reference"),
++  mm = c(fmt_mm(crime_mm[1, ]), fmt_mm(crime_mm[2, ])),
++  check.names = FALSE
++)
++table_lines <- c(
++  "# Violent Crime Rate baseline sensitivity",
++  "",
++  "| Crime level | Less crime baseline | More crime baseline | Marginal mean |",
++  "|---|---:|---:|---:|",
++  sprintf("| %s | %s | %s | %s |", crime_rows$level, crime_rows$less_baseline,
++          crime_rows$more_baseline, crime_rows$mm),
++  "",
++  "*Note.* AMCE entries are corrected profile-level estimates (with 95% confidence intervals) using the package's estimated IRR correction and respondent-clustered analytical standard errors. Marginal means are corrected predicted choice probabilities. Reversing the crime baseline changes only the sign of the same 0.251 (25.1 percentage-point) contrast."
++)
++writeLines(table_lines, "sensitivity-table.md")
++
++# One accessible horizontal range plot of baseline-invariant corrected MMs.
++attribute_order <- unique(labels$attribute)
++plot_mm <- mm[match(labels$level_id, mm$level_id), ]
++plot_mm$y <- match(plot_mm$attribute, attribute_order)
++offsets <- ave(plot_mm$y, plot_mm$attribute, FUN = function(z) {
++  seq(-0.22, 0.22, length.out = length(z))
++})
++plot_mm$y_offset <- plot_mm$y + offsets
++range_by_attribute <- lapply(attribute_order, function(a) {
++  x <- plot_mm[plot_mm$attribute == a, , drop = FALSE]
++  c(min(x$estimate), max(x$estimate))
++})
++names(range_by_attribute) <- attribute_order
++short_labels <- c("Housing cost", "Presidential vote", "Racial composition",
++                  "School quality", "Driving / errands", "Type of place", "Violent crime")
++point_colours <- ifelse(grepl("^Violent Crime Rate", plot_mm$attribute), "#D55E00",
++                        ifelse(plot_mm$y %% 2L == 0L, "#333333", "#0072B2"))
++png("figures/sensitivity.png", width = 2800, height = 2100, res = 320,
++    type = "cairo-png")
++par(mar = c(4.5, 12, 1.2, 1.5), las = 1, family = "sans")
++plot(NA, xlim = c(0.25, 0.75), ylim = c(7.6, 0.4), yaxt = "n", xlab = "Corrected marginal mean (choice probability)", ylab = "")
++abline(v = 0.5, lty = 2, col = "#666666", lwd = 1.2)
++for (i in seq_along(attribute_order)) {
++  segments(range_by_attribute[[i]][1], i, range_by_attribute[[i]][2], i,
++           col = "#777777", lwd = 1.2)
++}
++points(plot_mm$estimate, plot_mm$y_offset, pch = 21, bg = point_colours,
++       col = "#1A1A1A", cex = 1.35, lwd = 0.8)
++axis(2, at = seq_along(attribute_order), labels = short_labels, tick = FALSE)
++box(bty = "l")
++dev.off()
++
++# Validate that the requested sole figure is a usable PNG with ample dimensions.
++png_files <- list.files("figures", pattern = "\\.png$", full.names = TRUE)
++png_header <- readBin("figures/sensitivity.png", "raw", n = 24)
++be32 <- function(r) sum(as.integer(r) * 256^(3:0))
++width_px <- be32(png_header[17:20]); height_px <- be32(png_header[21:24])
++stopifnot(length(png_files) == 1L,
++          identical(as.integer(png_header[1:8]), c(137L, 80L, 78L, 71L, 13L, 10L, 26L, 10L)),
++          width_px >= 1800L, height_px >= 1800L, file.info(png_files)$size > 0L)
++
++housing_l2_l1 <- housing_contrasts[housing_contrasts$chosen == "level2" & housing_contrasts$baseline == "level1", ]
++housing_l1_l3 <- housing_contrasts[housing_contrasts$chosen == "level1" & housing_contrasts$baseline == "level3", ]
++crime_range <- diff(range(crime_mm$estimate))
++commute_mm <- mm[mm$attribute_id == "att5", , drop = FALSE]
++commute_range <- diff(range(commute_mm$estimate))
++memo <- sprintf(paste(
++  "# Response to reviewer\n\n",
++  "Thank you for identifying a real limitation in how we described the AMCE results. AMCE coefficients are parameterized comparisons: changing a reference category changes the displayed coefficient, so a headline framed as a single baseline-specific coefficient is too strong. That mechanical dependence does not make reference categories meaningless, but it does require that the comparison and its direction be explicit.\n\n",
++  "For Violent Crime Rate, the data give a particularly simple sensitivity result because the attribute is binary (as is School Quality). With 20%% less crime as the baseline, moving to 20%% more crime has a corrected AMCE of %s. Reversing the baseline gives %s. These are the same randomized comparison with the direction reversed; there is no third crime contrast whose magnitude could alter the result. The associated corrected marginal means are %s for 20%% less crime and %s for 20%% more crime. Their difference is the same %.1f percentage points.\n\n",
++  "The reviewer is nevertheless right that multi-level attributes have more baseline-dependent AMCE displays. For Housing Cost, 30%% rather than 15%% of pre-tax income has a corrected contrast of %s when 15%% is the baseline. Expressing the comparison with 40%% as the baseline, 15%% rather than 40%% has a corrected contrast of %s. Those are useful, different parameterizations of different level comparisons, not a basis for ranking a single coefficient across arbitrary baselines.\n\n",
++  "We therefore also compare corrected marginal means for all 24 attribute levels, which do not require a reference category. Crime spans %.1f percentage points across its two levels, the largest observed point-estimate spread, but it is close to commuting's %.1f points. This evidence does not establish a uniquely dominant attribute ranking. In revision, we will say that moving from 20%% less to 20%% more crime causes a substantial reduction in choice probability in this randomized conjoint, and that crime is among the strongest attributes (and has the largest observed marginal-mean spread). We will not say that it uniquely drives choice.\n",
++  sep = ""),
++  fmt_ci_pp(crime_more_less), fmt_ci_pp(crime_less_more), fmt_mm(crime_mm[1, ]),
++  fmt_mm(crime_mm[2, ]), 100 * crime_range, fmt_ci_pp(housing_l2_l1),
++  fmt_ci_pp(housing_l1_l3), 100 * crime_range, 100 * commute_range)
++word_count <- length(strsplit(gsub("[#%(),.;:-]", "", memo), "\\s+")[[1]])
++stopifnot(word_count >= 340L, word_count <= 470L)
++memo <- paste0(memo,
++  "\n\n![Corrected marginal means by attribute; thin segments show each attribute's level range, orange marks crime, and blue/gray mark other attributes.](figures/sensitivity.png)\n\n",
++  "*Figure 1. Corrected marginal means are baseline-invariant; each point is a level and each thin segment is that attribute's minimum-to-maximum range. Color supplements the labeled attribute position rather than serving as the sole identifier.*\n")
++writeLines(memo, "memo.md")
++
++cat("conclusion: Completed the baseline-sensitivity deliverables; crime is among the strongest attributes, not uniquely dominant.\n")
++cat("executed checks: 24 corrected MMs; respondent clustering and estimated IRR; crime sign/magnitude and MM-difference identities; all three Housing Cost baselines; one valid high-resolution PNG; memo word count.\n")
++cat("changed files: script.R, sensitivity-table.md, memo.md, figures/sensitivity.png\n")
++cat("residual risk: Inference is conditional on the package's analytical corrected-estimate and estimated-IRR assumptions.\n")
+
+exec
+/bin/zsh -lc "Rscript script.R && file figures/sensitivity.png && find figures -maxdepth 1 -type f -name '*.png' | wc -l" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+./BRIEF.md
+./memo.md
+./script.R
+./sensitivity-table.md
+./terra-implementation.log
+./terra-inventory.log
+./terra-inventory.md
+
+ succeeded in 152930ms:
+exec
+/bin/zsh -lc "tail -80 terra-implementation.log; rg -n \"tokens used\" terra-implementation.log; wc -w memo.md; sed -n '1,260p' script.R; printf '\\n--- TABLE ---\\n'; sed -n '1,160p' sensitivity-table.md; printf '\\n--- MEMO ---\\n'; sed -n '1,220p' memo.md; printf '\\n--- FILES ---\\n'; find . -maxdepth 2 -type f -print | sort" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
++writeLines(table_lines, "sensitivity-table.md")
++
++# One accessible horizontal range plot of baseline-invariant corrected MMs.
++attribute_order <- unique(labels$attribute)
++plot_mm <- mm[match(labels$level_id, mm$level_id), ]
++plot_mm$y <- match(plot_mm$attribute, attribute_order)
++offsets <- ave(plot_mm$y, plot_mm$attribute, FUN = function(z) {
++  seq(-0.22, 0.22, length.out = length(z))
++})
++plot_mm$y_offset <- plot_mm$y + offsets
++range_by_attribute <- lapply(attribute_order, function(a) {
++  x <- plot_mm[plot_mm$attribute == a, , drop = FALSE]
++  c(min(x$estimate), max(x$estimate))
++})
++names(range_by_attribute) <- attribute_order
++short_labels <- c("Housing cost", "Presidential vote", "Racial composition",
++                  "School quality", "Driving / errands", "Type of place", "Violent crime")
++point_colours <- ifelse(grepl("^Violent Crime Rate", plot_mm$attribute), "#D55E00",
++                        ifelse(plot_mm$y %% 2L == 0L, "#333333", "#0072B2"))
++png("figures/sensitivity.png", width = 2800, height = 2100, res = 320,
++    type = "cairo-png")
++par(mar = c(4.5, 12, 1.2, 1.5), las = 1, family = "sans")
++plot(NA, xlim = c(0.25, 0.75), ylim = c(7.6, 0.4), yaxt = "n", xlab = "Corrected marginal mean (choice probability)", ylab = "")
++abline(v = 0.5, lty = 2, col = "#666666", lwd = 1.2)
++for (i in seq_along(attribute_order)) {
++  segments(range_by_attribute[[i]][1], i, range_by_attribute[[i]][2], i,
++           col = "#777777", lwd = 1.2)
++}
++points(plot_mm$estimate, plot_mm$y_offset, pch = 21, bg = point_colours,
++       col = "#1A1A1A", cex = 1.35, lwd = 0.8)
++axis(2, at = seq_along(attribute_order), labels = short_labels, tick = FALSE)
++box(bty = "l")
++dev.off()
++
++# Validate that the requested sole figure is a usable PNG with ample dimensions.
++png_files <- list.files("figures", pattern = "\\.png$", full.names = TRUE)
++png_header <- readBin("figures/sensitivity.png", "raw", n = 24)
++be32 <- function(r) sum(as.integer(r) * 256^(3:0))
++width_px <- be32(png_header[17:20]); height_px <- be32(png_header[21:24])
++stopifnot(length(png_files) == 1L,
++          identical(as.integer(png_header[1:8]), c(137L, 80L, 78L, 71L, 13L, 10L, 26L, 10L)),
++          width_px >= 1800L, height_px >= 1800L, file.info(png_files)$size > 0L)
++
++housing_l2_l1 <- housing_contrasts[housing_contrasts$chosen == "level2" & housing_contrasts$baseline == "level1", ]
++housing_l1_l3 <- housing_contrasts[housing_contrasts$chosen == "level1" & housing_contrasts$baseline == "level3", ]
++crime_range <- diff(range(crime_mm$estimate))
++commute_mm <- mm[mm$attribute_id == "att5", , drop = FALSE]
++commute_range <- diff(range(commute_mm$estimate))
++memo <- sprintf(paste(
++  "# Response to reviewer\n\n",
++  "Thank you for identifying a real limitation in how we described the AMCE results. AMCE coefficients are parameterized comparisons: changing a reference category changes the displayed coefficient, so a headline framed as a single baseline-specific coefficient is too strong. That mechanical dependence does not make reference categories meaningless, but it does require that the comparison and its direction be explicit.\n\n",
++  "For Violent Crime Rate, the data give a particularly simple sensitivity result because the attribute is binary (as is School Quality). With 20%% less crime as the baseline, moving to 20%% more crime has a corrected AMCE of %s. Reversing the baseline gives %s. These are the same randomized comparison with the direction reversed; there is no third crime contrast whose magnitude could alter the result. The associated corrected marginal means are %s for 20%% less crime and %s for 20%% more crime. Their difference is the same %.1f percentage points.\n\n",
++  "The reviewer is nevertheless right that multi-level attributes have more baseline-dependent AMCE displays. For Housing Cost, 30%% rather than 15%% of pre-tax income has a corrected contrast of %s when 15%% is the baseline. Expressing the comparison with 40%% as the baseline, 15%% rather than 40%% has a corrected contrast of %s. Those are useful, different parameterizations of different level comparisons, not a basis for ranking a single coefficient across arbitrary baselines.\n\n",
++  "We therefore also compare corrected marginal means for all 24 attribute levels, which do not require a reference category. Crime spans %.1f percentage points across its two levels, the largest observed point-estimate spread, but it is close to commuting's %.1f points. This evidence does not establish a uniquely dominant attribute ranking. In revision, we will say that moving from 20%% less to 20%% more crime causes a substantial reduction in choice probability in this randomized conjoint, and that crime is among the strongest attributes (and has the largest observed marginal-mean spread). We will not say that it uniquely drives choice.\n",
++  sep = ""),
++  fmt_ci_pp(crime_more_less), fmt_ci_pp(crime_less_more), fmt_mm(crime_mm[1, ]),
++  fmt_mm(crime_mm[2, ]), 100 * crime_range, fmt_ci_pp(housing_l2_l1),
++  fmt_ci_pp(housing_l1_l3), 100 * crime_range, 100 * commute_range)
++word_count <- length(strsplit(gsub("[#%(),.;:-]", "", memo), "\\s+")[[1]])
++stopifnot(word_count >= 340L, word_count <= 470L)
++memo <- paste0(memo,
++  "\n\n![Corrected marginal means by attribute; thin segments show each attribute's level range, orange marks crime, and blue/gray mark other attributes.](figures/sensitivity.png)\n\n",
++  "*Figure 1. Corrected marginal means are baseline-invariant; each point is a level and each thin segment is that attribute's minimum-to-maximum range. Color supplements the labeled attribute position rather than serving as the sole identifier.*\n")
++writeLines(memo, "memo.md")
++
++cat("conclusion: Completed the baseline-sensitivity deliverables; crime is among the strongest attributes, not uniquely dominant.\n")
++cat("executed checks: 24 corrected MMs; respondent clustering and estimated IRR; crime sign/magnitude and MM-difference identities; all three Housing Cost baselines; one valid high-resolution PNG; memo word count.\n")
++cat("changed files: script.R, sensitivity-table.md, memo.md, figures/sensitivity.png\n")
++cat("residual risk: Inference is conditional on the package's analytical corrected-estimate and estimated-IRR assumptions.\n")
+
+tokens used
+77,022
+Completed and verified with `Rscript script.R` (exit 0).
+
+- [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/script.R)
+- [sensitivity-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/sensitivity-table.md)
+- [memo.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/memo.md)
+- [sensitivity.png](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/figures/sensitivity.png)
+
+The script validates 24 corrected MMs, crime reversal identities, all Housing Cost baselines, and the sole 2800×2100 PNG output.
+2129:tokens used
+     409 memo.md
+#!/usr/bin/env Rscript
+# Reproducible baseline-sensitivity analysis for BRIEF.md.
+
+set.seed(20260713)
+suppressPackageStartupMessages(library(projoint))
+data(exampleData1)
+
+out <- reshape_projoint(
+  exampleData1,
+  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
+)
+
+dir.create("figures", showWarnings = FALSE, recursive = TRUE)
+unlink(list.files("figures", pattern = "\\.png$", full.names = TRUE))
+
+mm_fit <- projoint(
+  out, .structure = "profile_level", .estimand = "mm",
+  .se_method = "analytical", .seed = 20260713
+)
+mm <- as.data.frame(mm_fit$estimates)
+mm <- mm[mm$estimand == "mm_corrected", , drop = FALSE]
+labels <- as.data.frame(out$labels)
+mm$attribute_id <- sub(":.*", "", mm$att_level_choose)
+mm$level_id <- mm$att_level_choose
+mm$attribute <- labels$attribute[match(mm$level_id, labels$level_id)]
+mm$level <- labels$level[match(mm$level_id, labels$level_id)]
+stopifnot(nrow(mm) == 24L, !anyNA(mm$attribute),
+          identical(mm_fit$cluster_by, "id"), mm_fit$irr == "Estimated")
+
+contrast_fit <- function(attribute, chosen, baseline) {
+  qoi <- set_qoi(
+    .structure = "profile_level", .estimand = "amce",
+    .att_choose = attribute, .lev_choose = chosen,
+    .att_choose_b = attribute, .lev_choose_b = baseline
+  )
+  fit <- projoint(out, .qoi = qoi, .se_method = "analytical", .seed = 20260713)
+  ans <- as.data.frame(fit$estimates)
+  ans <- ans[ans$estimand == "amce_corrected", , drop = FALSE]
+  stopifnot(nrow(ans) == 1L, identical(fit$cluster_by, "id"),
+            identical(attr(fit$estimates, "se_type_used"), "CR2"))
+  ans$attribute_id <- attribute
+  ans$chosen <- chosen
+  ans$baseline <- baseline
+  ans
+}
+
+# Explicit directed crime contrasts; their signs depend only on direction.
+crime_more_less <- contrast_fit("att7", "level2", "level1")
+crime_less_more <- contrast_fit("att7", "level1", "level2")
+crime_contrasts <- rbind(crime_more_less, crime_less_more)
+
+# Each Housing Cost baseline is represented, with one directed contrast per fit.
+housing_levels <- c("level1", "level2", "level3")
+housing_contrasts <- do.call(rbind, lapply(housing_levels, function(base) {
+  do.call(rbind, lapply(setdiff(housing_levels, base), function(chosen) {
+    contrast_fit("att1", chosen, base)
+  }))
+}))
+stopifnot(identical(sort(unique(housing_contrasts$baseline)), housing_levels))
+
+tol <- 1e-8
+stopifnot(abs(crime_more_less$estimate + crime_less_more$estimate) < tol,
+          abs(abs(crime_more_less$estimate) - abs(crime_less_more$estimate)) < tol)
+crime_mm <- mm[mm$attribute_id == "att7", , drop = FALSE]
+crime_mm <- crime_mm[match(c("att7:level1", "att7:level2"), crime_mm$level_id), ]
+stopifnot(abs((crime_mm$estimate[2] - crime_mm$estimate[1]) -
+                crime_more_less$estimate) < tol)
+
+fmt_pp <- function(x) sprintf("%.1f", 100 * x)
+fmt_ci_pp <- function(x) sprintf("%s pp (95%% CI %s, %s)",
+                                 fmt_pp(x$estimate), fmt_pp(x$conf.low), fmt_pp(x$conf.high))
+fmt_mm <- function(x) sprintf("%.3f (95%% CI %.3f, %.3f)",
+                              x$estimate, x$conf.low, x$conf.high)
+level_name <- function(attribute, suffix) {
+  labels$level[match(paste0(attribute, ":", suffix), labels$level_id)]
+}
+
+crime_rows <- data.frame(
+  level = c(level_name("att7", "level1"), level_name("att7", "level2")),
+  less_baseline = c("Reference", fmt_ci_pp(crime_more_less)),
+  more_baseline = c(fmt_ci_pp(crime_less_more), "Reference"),
+  mm = c(fmt_mm(crime_mm[1, ]), fmt_mm(crime_mm[2, ])),
+  check.names = FALSE
+)
+table_lines <- c(
+  "# Violent Crime Rate baseline sensitivity",
+  "",
+  "| Crime level | Less crime baseline | More crime baseline | Marginal mean |",
+  "|---|---:|---:|---:|",
+  sprintf("| %s | %s | %s | %s |", crime_rows$level, crime_rows$less_baseline,
+          crime_rows$more_baseline, crime_rows$mm),
+  "",
+  "*Note.* AMCE entries are corrected profile-level estimates (with 95% confidence intervals) using the package's estimated IRR correction and respondent-clustered analytical standard errors. Marginal means are corrected predicted choice probabilities. Reversing the crime baseline changes only the sign of the same 0.251 (25.1 percentage-point) contrast."
+)
+writeLines(table_lines, "sensitivity-table.md")
+
+# One accessible horizontal range plot of baseline-invariant corrected MMs.
+attribute_order <- unique(labels$attribute)
+plot_mm <- mm[match(labels$level_id, mm$level_id), ]
+plot_mm$y <- match(plot_mm$attribute, attribute_order)
+offsets <- ave(plot_mm$y, plot_mm$attribute, FUN = function(z) {
+  seq(-0.22, 0.22, length.out = length(z))
+})
+plot_mm$y_offset <- plot_mm$y + offsets
+range_by_attribute <- lapply(attribute_order, function(a) {
+  x <- plot_mm[plot_mm$attribute == a, , drop = FALSE]
+  c(min(x$estimate), max(x$estimate))
+})
+names(range_by_attribute) <- attribute_order
+short_labels <- c("Housing cost", "Presidential vote", "Racial composition",
+                  "School quality", "Driving / errands", "Type of place", "Violent crime")
+point_colours <- ifelse(grepl("^Violent Crime Rate", plot_mm$attribute), "#D55E00",
+                        ifelse(plot_mm$y %% 2L == 0L, "#333333", "#0072B2"))
+png("figures/sensitivity.png", width = 2800, height = 2100, res = 320,
+    type = "cairo-png")
+par(mar = c(4.5, 12, 1.2, 1.5), las = 1, family = "sans")
+plot(NA, xlim = c(0.25, 0.75), ylim = c(7.6, 0.4), yaxt = "n", xlab = "Corrected marginal mean (choice probability)", ylab = "")
+abline(v = 0.5, lty = 2, col = "#666666", lwd = 1.2)
+for (i in seq_along(attribute_order)) {
+  segments(range_by_attribute[[i]][1], i, range_by_attribute[[i]][2], i,
+           col = "#777777", lwd = 1.2)
+}
+points(plot_mm$estimate, plot_mm$y_offset, pch = 21, bg = point_colours,
+       col = "#1A1A1A", cex = 1.35, lwd = 0.8)
+axis(2, at = seq_along(attribute_order), labels = short_labels, tick = FALSE)
+box(bty = "l")
+dev.off()
+
+# Validate that the requested sole figure is a usable PNG with ample dimensions.
+png_files <- list.files("figures", pattern = "\\.png$", full.names = TRUE)
+png_header <- readBin("figures/sensitivity.png", "raw", n = 24)
+be32 <- function(r) sum(as.integer(r) * 256^(3:0))
+width_px <- be32(png_header[17:20]); height_px <- be32(png_header[21:24])
+stopifnot(length(png_files) == 1L,
+          identical(as.integer(png_header[1:8]), c(137L, 80L, 78L, 71L, 13L, 10L, 26L, 10L)),
+          width_px >= 1800L, height_px >= 1800L, file.info(png_files)$size > 0L)
+
+housing_l2_l1 <- housing_contrasts[housing_contrasts$chosen == "level2" & housing_contrasts$baseline == "level1", ]
+housing_l1_l3 <- housing_contrasts[housing_contrasts$chosen == "level1" & housing_contrasts$baseline == "level3", ]
+crime_range <- diff(range(crime_mm$estimate))
+commute_mm <- mm[mm$attribute_id == "att5", , drop = FALSE]
+commute_range <- diff(range(commute_mm$estimate))
+memo <- sprintf(paste(
+  "# Response to reviewer\n\n",
+  "Thank you for identifying a real limitation in how we described the AMCE results. AMCE coefficients are parameterized comparisons: changing a reference category changes the displayed coefficient, so a headline framed as a single baseline-specific coefficient is too strong. That mechanical dependence does not make reference categories meaningless, but it does require that the comparison and its direction be explicit.\n\n",
+  "For Violent Crime Rate, the data give a particularly simple sensitivity result because the attribute is binary (as is School Quality). With 20%% less crime as the baseline, moving to 20%% more crime has a corrected AMCE of %s. Reversing the baseline gives %s. These are the same randomized comparison with the direction reversed; there is no third crime contrast whose magnitude could alter the result. The associated corrected marginal means are %s for 20%% less crime and %s for 20%% more crime. Their difference is the same %.1f percentage points.\n\n",
+  "The reviewer is nevertheless right that multi-level attributes have more baseline-dependent AMCE displays. For Housing Cost, 30%% rather than 15%% of pre-tax income has a corrected contrast of %s when 15%% is the baseline. Expressing the comparison with 40%% as the baseline, 15%% rather than 40%% has a corrected contrast of %s. Those are useful, different parameterizations of different level comparisons, not a basis for ranking a single coefficient across arbitrary baselines.\n\n",
+  "We therefore also compare corrected marginal means for all 24 attribute levels, which do not require a reference category. Crime spans %.1f percentage points across its two levels, the largest observed point-estimate spread, but it is close to commuting's %.1f points. This evidence does not establish a uniquely dominant attribute ranking. In revision, we will say that moving from 20%% less to 20%% more crime causes a substantial reduction in choice probability in this randomized conjoint, and that crime is among the strongest attributes (and has the largest observed marginal-mean spread). We will not say that it uniquely drives choice.\n",
+  sep = ""),
+  fmt_ci_pp(crime_more_less), fmt_ci_pp(crime_less_more), fmt_mm(crime_mm[1, ]),
+  fmt_mm(crime_mm[2, ]), 100 * crime_range, fmt_ci_pp(housing_l2_l1),
+  fmt_ci_pp(housing_l1_l3), 100 * crime_range, 100 * commute_range)
+word_count <- length(strsplit(gsub("[#%(),.;:-]", "", memo), "\\s+")[[1]])
+stopifnot(word_count >= 340L, word_count <= 470L)
+memo <- paste0(memo,
+  "\n\n![Corrected marginal means by attribute; thin segments show each attribute's level range, orange marks crime, and blue/gray mark other attributes.](figures/sensitivity.png)\n\n",
+  "*Figure 1. Corrected marginal means are baseline-invariant; each point is a level and each thin segment is that attribute's minimum-to-maximum range. Color supplements the labeled attribute position rather than serving as the sole identifier.*\n")
+writeLines(memo, "memo.md")
+
+cat("conclusion: Completed the baseline-sensitivity deliverables; crime is among the strongest attributes, not uniquely dominant.\n")
+cat("executed checks: 24 corrected MMs; respondent clustering and estimated IRR; crime sign/magnitude and MM-difference identities; all three Housing Cost baselines; one valid high-resolution PNG; memo word count.\n")
+cat("changed files: script.R, sensitivity-table.md, memo.md, figures/sensitivity.png\n")
+cat("residual risk: Inference is conditional on the package's analytical corrected-estimate and estimated-IRR assumptions.\n")
+
+--- TABLE ---
+# Violent Crime Rate baseline sensitivity
+
+| Crime level | Less crime baseline | More crime baseline | Marginal mean |
+|---|---:|---:|---:|
+| 20% Less Crime Than National Average | Reference | 25.1 pp (95% CI 16.8, 33.4) | 0.626 (95% CI 0.584, 0.667) |
+| 20% More Crime Than National Average | -25.1 pp (95% CI -33.4, -16.8) | Reference | 0.374 (95% CI 0.333, 0.416) |
+
+*Note.* AMCE entries are corrected profile-level estimates (with 95% confidence intervals) using the package's estimated IRR correction and respondent-clustered analytical standard errors. Marginal means are corrected predicted choice probabilities. Reversing the crime baseline changes only the sign of the same 0.251 (25.1 percentage-point) contrast.
+
+--- MEMO ---
+# Response to reviewer
+
+Thank you for identifying a real limitation in how we described the AMCE results. AMCE coefficients are parameterized comparisons: changing a reference category changes the displayed coefficient, so a headline framed as a single baseline-specific coefficient is too strong. That mechanical dependence does not make reference categories meaningless, but it does require that the comparison and its direction be explicit.
+
+For Violent Crime Rate, the data give a particularly simple sensitivity result because the attribute is binary (as is School Quality). With 20% less crime as the baseline, moving to 20% more crime has a corrected AMCE of -25.1 pp (95% CI -33.4, -16.8). Reversing the baseline gives 25.1 pp (95% CI 16.8, 33.4). These are the same randomized comparison with the direction reversed; there is no third crime contrast whose magnitude could alter the result. The associated corrected marginal means are 0.626 (95% CI 0.584, 0.667) for 20% less crime and 0.374 (95% CI 0.333, 0.416) for 20% more crime. Their difference is the same 25.1 percentage points.
+
+The reviewer is nevertheless right that multi-level attributes have more baseline-dependent AMCE displays. For Housing Cost, 30% rather than 15% of pre-tax income has a corrected contrast of -13.7 pp (95% CI -20.8, -6.6) when 15% is the baseline. Expressing the comparison with 40% as the baseline, 15% rather than 40% has a corrected contrast of 19.8 pp (95% CI 12.2, 27.4). Those are useful, different parameterizations of different level comparisons, not a basis for ranking a single coefficient across arbitrary baselines.
+
+We therefore also compare corrected marginal means for all 24 attribute levels, which do not require a reference category. Crime spans 25.1 percentage points across its two levels, the largest observed point-estimate spread, but it is close to commuting's 23.7 points. This evidence does not establish a uniquely dominant attribute ranking. In revision, we will say that moving from 20% less to 20% more crime causes a substantial reduction in choice probability in this randomized conjoint, and that crime is among the strongest attributes (and has the largest observed marginal-mean spread). We will not say that it uniquely drives choice.
+
+
+![Corrected marginal means by attribute; thin segments show each attribute's level range, orange marks crime, and blue/gray mark other attributes.](figures/sensitivity.png)
+
+*Figure 1. Corrected marginal means are baseline-invariant; each point is a level and each thin segment is that attribute's minimum-to-maximum range. Color supplements the labeled attribute position rather than serving as the sole identifier.*
+
+
+--- FILES ---
+./BRIEF.md
+./figures/sensitivity.png
+./memo.md
+./script.R
+./sensitivity-table.md
+./sol-session.log
+./terra-implementation.log
+./terra-inventory.log
+./terra-inventory.md
+
+codex
+The first implementation passed its own run. I’ve visually inspected the sole figure: it is legible, title-free, and shows all 24 level MMs with a labeled 0.5 reference; crime’s range is visibly largest but nearly tied with commuting. I’m now doing the lead-level clean rerun and numerical/content checks before writing the routing record.
+exec
+/bin/zsh -lc 'Rscript script.R > verification-rscript.log 2>&1 && file figures/sensitivity.png && sips -g pixelWidth -g pixelHeight -g dpiWidth -g dpiHeight figures/sensitivity.png && test "$(find figures -maxdepth 1 -type f -name '"'*.png' | wc -l | tr -d ' ')\" = 1 && rg -n \"0\\.626|0\\.374|25\\.1|23\\.7|uniquely\" memo.md sensitivity-table.md && awk 'BEGIN{body=0} /"'^# Response/{body=1; next} /''^!'"\\[/{body=0} body{print}' memo.md | wc -w && tail -20 verification-rscript.log" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 1676ms:
+figures/sensitivity.png: PNG image data, 2800 x 2100, 8-bit/color RGB, non-interlaced
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/figures/sensitivity.png
+  pixelWidth: 2800
+  pixelHeight: 2100
+  dpiWidth: 72.000
+  dpiHeight: 72.000
+memo.md:5:For Violent Crime Rate, the data give a particularly simple sensitivity result because the attribute is binary (as is School Quality). With 20% less crime as the baseline, moving to 20% more crime has a corrected AMCE of -25.1 pp (95% CI -33.4, -16.8). Reversing the baseline gives 25.1 pp (95% CI 16.8, 33.4). These are the same randomized comparison with the direction reversed; there is no third crime contrast whose magnitude could alter the result. The associated corrected marginal means are 0.626 (95% CI 0.584, 0.667) for 20% less crime and 0.374 (95% CI 0.333, 0.416) for 20% more crime. Their difference is the same 25.1 percentage points.
+memo.md:9:We therefore also compare corrected marginal means for all 24 attribute levels, which do not require a reference category. Crime spans 25.1 percentage points across its two levels, the largest observed point-estimate spread, but it is close to commuting's 23.7 points. This evidence does not establish a uniquely dominant attribute ranking. In revision, we will say that moving from 20% less to 20% more crime causes a substantial reduction in choice probability in this randomized conjoint, and that crime is among the strongest attributes (and has the largest observed marginal-mean spread). We will not say that it uniquely drives choice.
+sensitivity-table.md:5:| 20% Less Crime Than National Average | Reference | 25.1 pp (95% CI 16.8, 33.4) | 0.626 (95% CI 0.584, 0.667) |
+sensitivity-table.md:6:| 20% More Crime Than National Average | -25.1 pp (95% CI -33.4, -16.8) | Reference | 0.374 (95% CI 0.333, 0.416) |
+sensitivity-table.md:8:*Note.* AMCE entries are corrected profile-level estimates (with 95% confidence intervals) using the package's estimated IRR correction and respondent-clustered analytical standard errors. Marginal means are corrected predicted choice probabilities. Reversing the crime baseline changes only the sign of the same 0.251 (25.1 percentage-point) contrast.
+     351
+null device 
+          1 
+conclusion: Completed the baseline-sensitivity deliverables; crime is among the strongest attributes, not uniquely dominant.
+executed checks: 24 corrected MMs; respondent clustering and estimated IRR; crime sign/magnitude and MM-difference identities; all three Housing Cost baselines; one valid high-resolution PNG; memo word count.
+changed files: script.R, sensitivity-table.md, memo.md, figures/sensitivity.png
+residual risk: Inference is conditional on the package's analytical corrected-estimate and estimated-IRR assumptions.
+
+exec
+/bin/zsh -lc "Rscript -e 'png(\"dpi-test.png\", width=8.75, height=6.5625, units=\"in\", res=320, type=\"cairo-png\"); plot(1); dev.off()' && sips -g dpiWidth -g dpiHeight -g pixelWidth -g pixelHeight dpi-test.png && rm dpi-test.png" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 159ms:
+null device 
+          1 
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/dpi-test.png
+  dpiWidth: 72.000
+  dpiHeight: 72.000
+  pixelWidth: 2800
+  pixelHeight: 2100
+
+exec
+/bin/zsh -lc "Rscript -e 'cat(\"magick\", requireNamespace(\"magick\", quietly=TRUE), \"\\npng\", requireNamespace(\"png\", quietly=TRUE), \"\\n\")' && command -v magick || true && command -v exiftool || true" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
+magick FALSE 
+png TRUE 
+/opt/homebrew/bin/magick
+
+exec
+/bin/zsh -lc 'cp figures/sensitivity.png dpi-test.png && magick mogrify -units PixelsPerInch -density 320 dpi-test.png && sips -g dpiWidth -g dpiHeight -g pixelWidth -g pixelHeight dpi-test.png && rm dpi-test.png' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 147ms:
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/dpi-test.png
+  dpiWidth: 320.000
+  dpiHeight: 320.000
+  pixelWidth: 2800
+  pixelHeight: 2100
+
+exec
+/bin/zsh -lc "cp figures/sensitivity.png dpi-test.png && magick mogrify -units PixelsPerInch -density 320 dpi-test.png && magick identify -format '%x %y %[units]\\n' dpi-test.png && rm dpi-test.png" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 172ms:
+125.98000000000000398 125.98000000000000398 PixelsPerCentimeter
+
+exec
+/bin/zsh -lc "Rscript -e 'print(args(png::writePNG))'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 0ms:
+function (image, target = raw(), dpi = NULL, asp = NULL, text = NULL, 
+    metadata = NULL) 
+NULL
+
+exec
+/bin/zsh -lc "cp figures/sensitivity.png dpi-test.png && Rscript -e 'x <- png::readPNG(\"dpi-test.png\"); png::writePNG(x, \"dpi-test.png\", dpi=320)' && sips -g dpiWidth -g dpiHeight -g pixelWidth -g pixelHeight dpi-test.png && rm dpi-test.png" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 267ms:
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/dpi-test.png
+  dpiWidth: 320.000
+  dpiHeight: 320.000
+  pixelWidth: 2800
+  pixelHeight: 2100
+
+exec
+/bin/zsh -lc "cp figures/sensitivity.png dpi-test.png && Rscript - <<'RS'
+x <- png::readPNG('dpi-test.png')
+png::writePNG(x, 'dpi-test.png', dpi=320)
+y <- png::readPNG('dpi-test.png', info=TRUE)
+str(attributes(y))
+RS
+rm dpi-test.png" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+ succeeded in 318ms:
+List of 2
+ $ dim : int [1:3] 2100 2800 3
+ $ info:Dotted pair list of 4
+  ..$ dim       : int [1:2] 2800 2100
+  ..$ bit.depth : int 8
+  ..$ color.type: chr "RGB"
+  ..$ dpi       : num [1:2] 320 320
+
+codex
+Lead verification found one concrete defect: although the raster was 2800×2100 and created with `res=320`, its PNG metadata reported 72 dpi. I’m using the single allowed revision cycle to make `script.R` rewrite the same raster with explicit 320-dpi metadata and assert that metadata on every run; no statistical results or prose need revision.
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/script.R
+diff --git a/demos/orchestration-lab/runs/46-sol/t3/script.R b/demos/orchestration-lab/runs/46-sol/t3/script.R
+index 70a2f8682f8c86b63a4ec23f2c3bed4478de4f03..f08fb1c3866bf94dbbcfcc2b9c02f1fdaa6d3a7a
+--- a/demos/orchestration-lab/runs/46-sol/t3/script.R
++++ b/demos/orchestration-lab/runs/46-sol/t3/script.R
+@@ -126,14 +126,23 @@
+ box(bty = "l")
+ dev.off()
+ 
++# Cairo produces the requested pixel dimensions but does not reliably retain
++# density metadata. Rewrite the same raster with an explicit 320-dpi pHYs chunk.
++stopifnot(requireNamespace("png", quietly = TRUE))
++figure_raster <- png::readPNG("figures/sensitivity.png")
++png::writePNG(figure_raster, "figures/sensitivity.png", dpi = 320)
++
+ # Validate that the requested sole figure is a usable PNG with ample dimensions.
+ png_files <- list.files("figures", pattern = "\\.png$", full.names = TRUE)
+ png_header <- readBin("figures/sensitivity.png", "raw", n = 24)
++png_info <- attr(png::readPNG("figures/sensitivity.png", info = TRUE), "info")
+ be32 <- function(r) sum(as.integer(r) * 256^(3:0))
+ width_px <- be32(png_header[17:20]); height_px <- be32(png_header[21:24])
+ stopifnot(length(png_files) == 1L,
+           identical(as.integer(png_header[1:8]), c(137L, 80L, 78L, 71L, 13L, 10L, 26L, 10L)),
+-          width_px >= 1800L, height_px >= 1800L, file.info(png_files)$size > 0L)
++          width_px >= 1800L, height_px >= 1800L,
++          all(abs(png_info$dpi - 320) < 0.1),
++          file.info(png_files)$size > 0L)
+ 
+ housing_l2_l1 <- housing_contrasts[housing_contrasts$chosen == "level2" & housing_contrasts$baseline == "level1", ]
+ housing_l1_l3 <- housing_contrasts[housing_contrasts$chosen == "level1" & housing_contrasts$baseline == "level3", ]
+
+diff --git a/demos/orchestration-lab/runs/46-sol/t3/script.R b/demos/orchestration-lab/runs/46-sol/t3/script.R
+index 70a2f8682f8c86b63a4ec23f2c3bed4478de4f03..f08fb1c3866bf94dbbcfcc2b9c02f1fdaa6d3a7a
+--- a/demos/orchestration-lab/runs/46-sol/t3/script.R
++++ b/demos/orchestration-lab/runs/46-sol/t3/script.R
+@@ -126,14 +126,23 @@
+ box(bty = "l")
+ dev.off()
+ 
++# Cairo produces the requested pixel dimensions but does not reliably retain
++# density metadata. Rewrite the same raster with an explicit 320-dpi pHYs chunk.
++stopifnot(requireNamespace("png", quietly = TRUE))
++figure_raster <- png::readPNG("figures/sensitivity.png")
++png::writePNG(figure_raster, "figures/sensitivity.png", dpi = 320)
++
+ # Validate that the requested sole figure is a usable PNG with ample dimensions.
+ png_files <- list.files("figures", pattern = "\\.png$", full.names = TRUE)
+ png_header <- readBin("figures/sensitivity.png", "raw", n = 24)
++png_info <- attr(png::readPNG("figures/sensitivity.png", info = TRUE), "info")
+ be32 <- function(r) sum(as.integer(r) * 256^(3:0))
+ width_px <- be32(png_header[17:20]); height_px <- be32(png_header[21:24])
+ stopifnot(length(png_files) == 1L,
+           identical(as.integer(png_header[1:8]), c(137L, 80L, 78L, 71L, 13L, 10L, 26L, 10L)),
+-          width_px >= 1800L, height_px >= 1800L, file.info(png_files)$size > 0L)
++          width_px >= 1800L, height_px >= 1800L,
++          all(abs(png_info$dpi - 320) < 0.1),
++          file.info(png_files)$size > 0L)
+ 
+ housing_l2_l1 <- housing_contrasts[housing_contrasts$chosen == "level2" & housing_contrasts$baseline == "level1", ]
+ housing_l1_l3 <- housing_contrasts[housing_contrasts$chosen == "level1" & housing_contrasts$baseline == "level3", ]
+
+exec
+/bin/zsh -lc "Rscript script.R > verification-rscript.log 2>&1 && sips -g pixelWidth -g pixelHeight -g dpiWidth -g dpiHeight figures/sensitivity.png && Rscript -e 'x <- png::readPNG(\"figures/sensitivity.png\", info=TRUE); print(attr(x, \"info\")"'$dpi)'"' && test \""'$(find figures -maxdepth 1 -type f -name '"'*.png' | wc -l | tr -d ' ')\" = 1 && tail -20 verification-rscript.log" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+diff --git a/demos/orchestration-lab/runs/46-sol/t3/script.R b/demos/orchestration-lab/runs/46-sol/t3/script.R
+index 70a2f8682f8c86b63a4ec23f2c3bed4478de4f03..f08fb1c3866bf94dbbcfcc2b9c02f1fdaa6d3a7a
+--- a/demos/orchestration-lab/runs/46-sol/t3/script.R
++++ b/demos/orchestration-lab/runs/46-sol/t3/script.R
+@@ -126,14 +126,23 @@
+ box(bty = "l")
+ dev.off()
+ 
++# Cairo produces the requested pixel dimensions but does not reliably retain
++# density metadata. Rewrite the same raster with an explicit 320-dpi pHYs chunk.
++stopifnot(requireNamespace("png", quietly = TRUE))
++figure_raster <- png::readPNG("figures/sensitivity.png")
++png::writePNG(figure_raster, "figures/sensitivity.png", dpi = 320)
++
+ # Validate that the requested sole figure is a usable PNG with ample dimensions.
+ png_files <- list.files("figures", pattern = "\\.png$", full.names = TRUE)
+ png_header <- readBin("figures/sensitivity.png", "raw", n = 24)
++png_info <- attr(png::readPNG("figures/sensitivity.png", info = TRUE), "info")
+ be32 <- function(r) sum(as.integer(r) * 256^(3:0))
+ width_px <- be32(png_header[17:20]); height_px <- be32(png_header[21:24])
+ stopifnot(length(png_files) == 1L,
+           identical(as.integer(png_header[1:8]), c(137L, 80L, 78L, 71L, 13L, 10L, 26L, 10L)),
+-          width_px >= 1800L, height_px >= 1800L, file.info(png_files)$size > 0L)
++          width_px >= 1800L, height_px >= 1800L,
++          all(abs(png_info$dpi - 320) < 0.1),
++          file.info(png_files)$size > 0L)
+ 
+ housing_l2_l1 <- housing_contrasts[housing_contrasts$chosen == "level2" & housing_contrasts$baseline == "level1", ]
+ housing_l1_l3 <- housing_contrasts[housing_contrasts$chosen == "level1" & housing_contrasts$baseline == "level3", ]
+
+ succeeded in 2117ms:
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/figures/sensitivity.png
+  pixelWidth: 2800
+  pixelHeight: 2100
+  dpiWidth: 320.000
+  dpiHeight: 320.000
+[1] 319.9892 319.9892
+null device 
+          1 
+conclusion: Completed the baseline-sensitivity deliverables; crime is among the strongest attributes, not uniquely dominant.
+executed checks: 24 corrected MMs; respondent clustering and estimated IRR; crime sign/magnitude and MM-difference identities; all three Housing Cost baselines; one valid high-resolution PNG; memo word count.
+changed files: script.R, sensitivity-table.md, memo.md, figures/sensitivity.png
+residual risk: Inference is conditional on the package's analytical corrected-estimate and estimated-IRR assumptions.
+
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/routing-log.md
+diff --git a/demos/orchestration-lab/runs/46-sol/t3/routing-log.md b/demos/orchestration-lab/runs/46-sol/t3/routing-log.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..e85ce4ef5e3471ad5a79866c3ea3619786ef7cd7
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t3/routing-log.md
+@@ -0,0 +1,46 @@
++# Routing log
++
++## Route table
++
++| Workstream | Owner | Why this owner | Acceptance check |
++|---|---|---|---|
++| Data and package inventory | Terra out-of-band | Bounded, mechanical inspection of the installed data schema and `projoint` API | Observed attribute levels, identifiers, binary/multi-level status, and executable AMCE/MM calls documented in `terra-inventory.md` |
++| Statistical design and judgment | Sol (lead, direct) | The estimand choice, baseline logic, attribute-importance standard, and warranted manuscript claim required lead-level interpretation | Directed crime contrasts must be exact sign reversals; all-level MMs must support only the stated, qualified ranking |
++| Reproducible implementation | Terra out-of-band | The analysis specification was fixed and the remaining work was a bounded script/figure/table/memo build with objective checks | `Rscript script.R` exits 0 and creates the four requested artifacts with the specified numerical identities |
++| Integration, revision, and final verification | Sol (lead, direct) | Final accountability, visual QA, constraint compliance, and correction of worker output remain with the lead | Clean rerun; one 2800×2100 PNG with 320-dpi metadata; memo/table values match output; no overclaim; exactly one revision cycle |
++
++No Sol child was spawned. The two delegations were cheaper, out-of-band Terra one-shots with disjoint write scopes.
++
++## Out-of-band calls
++
++### 1. Data/package inventory
++
++Exact command:
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" "Objective: Inspect the installed R environment and the projoint exampleData1 reshaped exactly as specified in BRIEF.md; produce a compact factual inventory that will let a lead specify a baseline-sensitivity analysis. Inputs and authoritative paths: ./BRIEF.md and the installed projoint package/data; current directory only. In scope: run read-only R diagnostics; identify attribute column names and all factor levels after reshape_projoint; identify outcome/choice and respondent/cluster identifiers; determine the exact installed projoint functions and argument syntax for AMCEs and marginal means; note which attributes are binary versus multi-level; identify which reference-category changes are possible for Violent Crime Rate and at least one multi-level attribute; give a concise recommended computational pattern. Out of scope: substantive adjudication of the reviewer, final prose, web access, package installation, editing requested final deliverables. Constraints and invariants: do not fetch anything from the web; do not install packages; do not write outside this leaf; preserve all existing files. Write ownership: only ./terra-inventory.md. Expected artifact: terra-inventory.md containing commands/checks, observed names/levels, package API details, and risks. Acceptance checks: every reported name/level is backed by executed R output; proposed calls match the installed package; explicitly distinguish binary and multi-level attributes. Return format in stdout: conclusion, evidence, changed files, residual risk, and a final line exactly 'tokens used: N' if the CLI does not already print a token count." < /dev/null > terra-inventory.log 2>&1
++```
++
++CLI report: **tokens used: 93,619**.
++
++### 2. Reproducible implementation
++
++Exact command:
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" "Objective: Implement the complete BRIEF.md deliverables from the lead's fixed statistical specification. Inputs and authoritative paths: ./BRIEF.md and ./terra-inventory.md; installed projoint/exampleData1; current directory only. In scope: create ./script.R, ./sensitivity-table.md, ./memo.md, and ./figures/sensitivity.png; run Rscript script.R from scratch. Out of scope: routing-log.md, terra-inventory.md, web access, package installation, extra figures, extra final-data artifacts, or changing the lead's substantive judgment. Constraints and invariants: self-contained script loads projoint and exampleData1 and reshapes with exactly the outcomes in BRIEF.md; use profile-level analytical estimates and corrected estimand rows; estimate explicit directed AMCE contrasts with set_qoi for both crime baselines; estimate Housing Cost under each of its three possible baselines, one contrast at a time; estimate corrected marginal means for all 24 levels; preserve respondent clustering/default IRR correction; set a seed; create figures directory; exactly one figure at figures/sensitivity.png, at least 300 dpi, no in-plot title, Okabe-Ito palette, no legend depending on color alone. The figure should be one accessible horizontal baseline-invariant MM range plot: seven attributes on y, corrected MM on x, a thin segment from min to max MM for every attribute, all level MMs shown as points with slight deterministic vertical offsets, crime highlighted with Okabe-Ito vermillion (#D55E00), other attributes in blue (#0072B2) and dark gray/black, a vertical dashed reference at 0.5, readable abbreviated attribute labels, and no title; do not add a second panel or file. sensitivity-table.md must place crime levels in rows and columns 'Less crime baseline', 'More crime baseline', and 'Marginal mean', showing corrected estimates in percentage points/probabilities with 95% CIs; references shown as 'Reference'; include a concise note that baseline reversal changes +/−0.251 only, and define corrected estimates. memo.md should be roughly 400 words and directly reply to the reviewer: concede AMCE coefficients are reference-dependent; explain that crime and School Quality are binary so crime baseline reversal only flips sign; give the crime AMCE and MM values/CIs; demonstrate multi-level dependence using Housing Cost with concrete corrected contrasts under alternative baselines; state all-level MM comparison and that crime's 25.1-point range is the largest point estimate but close to commuting's 23.7, so no uniquely dominant ranking is established; promise revised claim: moving from 20% less to 20% more crime causes/substantially reduces choice probability in this randomized conjoint and crime is among the strongest attributes / has the largest observed MM spread, not that it uniquely drives choice. Embed the one figure with a caption below it, not a title. Avoid saying reference categories are arbitrary in the sense of meaningless; they parameterize comparisons. script.R must generate the table and memo as well as the figure so rerunning reproduces all requested outputs; use only locally installed packages and preferably base R plotting/writing to minimize dependencies. Add stopifnot acceptance checks for 24 corrected MMs, exact crime sign reversal/magnitude equality within tolerance, crime MMs matching AMCE difference within tolerance, 3 Housing Cost baselines represented, figure existence, resolution/dimensions sufficient, and exactly one PNG in figures. Expected artifacts: those four requested paths only. Acceptance checks: Rscript script.R exits 0; figure is valid PNG at 300+ dpi with no in-plot title; table contains both baselines and MMs; memo 340-470 words and matches computed numbers; no overclaim. Return format in stdout: conclusion, executed checks, changed files, residual risk; rely on the CLI's own token report." < /dev/null > terra-implementation.log 2>&1
++```
++
++CLI report: **tokens used: 77,022**.
++
++## What the lead reasoned directly
++
++The lead fixed the interpretation before implementation. For a binary attribute, changing the reference reverses the direction and sign of the only available contrast but cannot change its magnitude; this makes the reviewer's baseline-artifact concern mechanically true about presentation but not about the substantive crime contrast. For multi-level Housing Cost, the lead required all three baselines because the displayed coefficient set genuinely changes with the chosen comparisons. The lead selected all-level corrected marginal means as the baseline-invariant comparison and judged that crime's 25.1-point spread is the largest point estimate but too close to commuting's 23.7-point spread to establish unique dominance. The final claim was therefore narrowed to a substantial randomized crime contrast and “among the strongest attributes,” while explicitly rejecting “uniquely drives choice.”
++
++## Friction
++
++The inventory worker initially produced a malformed `apply_patch` hunk but recovered and wrote the assigned artifact without lead intervention. Its prompt requested a fallback `tokens used: N` line, which it generated separately; the accounting above uses the Codex CLI's own token report (`tokens used` followed by 93,619), not the worker-authored fallback. Both one-shots used the required `< /dev/null`; neither hung on stdin, accessed the web, installed packages, or wrote an assigned deliverable outside its scope.
++
++Lead verification found that Cairo created the correct 2800×2100 raster but left PNG density metadata at 72 dpi despite `res = 320`. The single permitted revision cycle added a local `png`-package rewrite and an explicit 320-dpi assertion to `script.R`. The clean rerun now reports 320×320 dpi. No statistical estimates or prose changed.
++
++[SOL LEAD TOKENS: ____]  + Terra one-shots: 170,641  = ____
+diff --git a/demos/orchestration-lab/runs/46-sol/t3/script.R b/demos/orchestration-lab/runs/46-sol/t3/script.R
+index 70a2f8682f8c86b63a4ec23f2c3bed4478de4f03..f08fb1c3866bf94dbbcfcc2b9c02f1fdaa6d3a7a
+--- a/demos/orchestration-lab/runs/46-sol/t3/script.R
++++ b/demos/orchestration-lab/runs/46-sol/t3/script.R
+@@ -126,14 +126,23 @@
+ box(bty = "l")
+ dev.off()
+ 
++# Cairo produces the requested pixel dimensions but does not reliably retain
++# density metadata. Rewrite the same raster with an explicit 320-dpi pHYs chunk.
++stopifnot(requireNamespace("png", quietly = TRUE))
++figure_raster <- png::readPNG("figures/sensitivity.png")
++png::writePNG(figure_raster, "figures/sensitivity.png", dpi = 320)
++
+ # Validate that the requested sole figure is a usable PNG with ample dimensions.
+ png_files <- list.files("figures", pattern = "\\.png$", full.names = TRUE)
+ png_header <- readBin("figures/sensitivity.png", "raw", n = 24)
++png_info <- attr(png::readPNG("figures/sensitivity.png", info = TRUE), "info")
+ be32 <- function(r) sum(as.integer(r) * 256^(3:0))
+ width_px <- be32(png_header[17:20]); height_px <- be32(png_header[21:24])
+ stopifnot(length(png_files) == 1L,
+           identical(as.integer(png_header[1:8]), c(137L, 80L, 78L, 71L, 13L, 10L, 26L, 10L)),
+-          width_px >= 1800L, height_px >= 1800L, file.info(png_files)$size > 0L)
++          width_px >= 1800L, height_px >= 1800L,
++          all(abs(png_info$dpi - 320) < 0.1),
++          file.info(png_files)$size > 0L)
+ 
+ housing_l2_l1 <- housing_contrasts[housing_contrasts$chosen == "level2" & housing_contrasts$baseline == "level1", ]
+ housing_l1_l3 <- housing_contrasts[housing_contrasts$chosen == "level1" & housing_contrasts$baseline == "level3", ]
+
+diff --git a/demos/orchestration-lab/runs/46-sol/t3/routing-log.md b/demos/orchestration-lab/runs/46-sol/t3/routing-log.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..e85ce4ef5e3471ad5a79866c3ea3619786ef7cd7
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t3/routing-log.md
+@@ -0,0 +1,46 @@
++# Routing log
++
++## Route table
++
++| Workstream | Owner | Why this owner | Acceptance check |
++|---|---|---|---|
++| Data and package inventory | Terra out-of-band | Bounded, mechanical inspection of the installed data schema and `projoint` API | Observed attribute levels, identifiers, binary/multi-level status, and executable AMCE/MM calls documented in `terra-inventory.md` |
++| Statistical design and judgment | Sol (lead, direct) | The estimand choice, baseline logic, attribute-importance standard, and warranted manuscript claim required lead-level interpretation | Directed crime contrasts must be exact sign reversals; all-level MMs must support only the stated, qualified ranking |
++| Reproducible implementation | Terra out-of-band | The analysis specification was fixed and the remaining work was a bounded script/figure/table/memo build with objective checks | `Rscript script.R` exits 0 and creates the four requested artifacts with the specified numerical identities |
++| Integration, revision, and final verification | Sol (lead, direct) | Final accountability, visual QA, constraint compliance, and correction of worker output remain with the lead | Clean rerun; one 2800×2100 PNG with 320-dpi metadata; memo/table values match output; no overclaim; exactly one revision cycle |
++
++No Sol child was spawned. The two delegations were cheaper, out-of-band Terra one-shots with disjoint write scopes.
++
++## Out-of-band calls
++
++### 1. Data/package inventory
++
++Exact command:
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" "Objective: Inspect the installed R environment and the projoint exampleData1 reshaped exactly as specified in BRIEF.md; produce a compact factual inventory that will let a lead specify a baseline-sensitivity analysis. Inputs and authoritative paths: ./BRIEF.md and the installed projoint package/data; current directory only. In scope: run read-only R diagnostics; identify attribute column names and all factor levels after reshape_projoint; identify outcome/choice and respondent/cluster identifiers; determine the exact installed projoint functions and argument syntax for AMCEs and marginal means; note which attributes are binary versus multi-level; identify which reference-category changes are possible for Violent Crime Rate and at least one multi-level attribute; give a concise recommended computational pattern. Out of scope: substantive adjudication of the reviewer, final prose, web access, package installation, editing requested final deliverables. Constraints and invariants: do not fetch anything from the web; do not install packages; do not write outside this leaf; preserve all existing files. Write ownership: only ./terra-inventory.md. Expected artifact: terra-inventory.md containing commands/checks, observed names/levels, package API details, and risks. Acceptance checks: every reported name/level is backed by executed R output; proposed calls match the installed package; explicitly distinguish binary and multi-level attributes. Return format in stdout: conclusion, evidence, changed files, residual risk, and a final line exactly 'tokens used: N' if the CLI does not already print a token count." < /dev/null > terra-inventory.log 2>&1
++```
++
++CLI report: **tokens used: 93,619**.
++
++### 2. Reproducible implementation
++
++Exact command:
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" "Objective: Implement the complete BRIEF.md deliverables from the lead's fixed statistical specification. Inputs and authoritative paths: ./BRIEF.md and ./terra-inventory.md; installed projoint/exampleData1; current directory only. In scope: create ./script.R, ./sensitivity-table.md, ./memo.md, and ./figures/sensitivity.png; run Rscript script.R from scratch. Out of scope: routing-log.md, terra-inventory.md, web access, package installation, extra figures, extra final-data artifacts, or changing the lead's substantive judgment. Constraints and invariants: self-contained script loads projoint and exampleData1 and reshapes with exactly the outcomes in BRIEF.md; use profile-level analytical estimates and corrected estimand rows; estimate explicit directed AMCE contrasts with set_qoi for both crime baselines; estimate Housing Cost under each of its three possible baselines, one contrast at a time; estimate corrected marginal means for all 24 levels; preserve respondent clustering/default IRR correction; set a seed; create figures directory; exactly one figure at figures/sensitivity.png, at least 300 dpi, no in-plot title, Okabe-Ito palette, no legend depending on color alone. The figure should be one accessible horizontal baseline-invariant MM range plot: seven attributes on y, corrected MM on x, a thin segment from min to max MM for every attribute, all level MMs shown as points with slight deterministic vertical offsets, crime highlighted with Okabe-Ito vermillion (#D55E00), other attributes in blue (#0072B2) and dark gray/black, a vertical dashed reference at 0.5, readable abbreviated attribute labels, and no title; do not add a second panel or file. sensitivity-table.md must place crime levels in rows and columns 'Less crime baseline', 'More crime baseline', and 'Marginal mean', showing corrected estimates in percentage points/probabilities with 95% CIs; references shown as 'Reference'; include a concise note that baseline reversal changes +/−0.251 only, and define corrected estimates. memo.md should be roughly 400 words and directly reply to the reviewer: concede AMCE coefficients are reference-dependent; explain that crime and School Quality are binary so crime baseline reversal only flips sign; give the crime AMCE and MM values/CIs; demonstrate multi-level dependence using Housing Cost with concrete corrected contrasts under alternative baselines; state all-level MM comparison and that crime's 25.1-point range is the largest point estimate but close to commuting's 23.7, so no uniquely dominant ranking is established; promise revised claim: moving from 20% less to 20% more crime causes/substantially reduces choice probability in this randomized conjoint and crime is among the strongest attributes / has the largest observed MM spread, not that it uniquely drives choice. Embed the one figure with a caption below it, not a title. Avoid saying reference categories are arbitrary in the sense of meaningless; they parameterize comparisons. script.R must generate the table and memo as well as the figure so rerunning reproduces all requested outputs; use only locally installed packages and preferably base R plotting/writing to minimize dependencies. Add stopifnot acceptance checks for 24 corrected MMs, exact crime sign reversal/magnitude equality within tolerance, crime MMs matching AMCE difference within tolerance, 3 Housing Cost baselines represented, figure existence, resolution/dimensions sufficient, and exactly one PNG in figures. Expected artifacts: those four requested paths only. Acceptance checks: Rscript script.R exits 0; figure is valid PNG at 300+ dpi with no in-plot title; table contains both baselines and MMs; memo 340-470 words and matches computed numbers; no overclaim. Return format in stdout: conclusion, executed checks, changed files, residual risk; rely on the CLI's own token report." < /dev/null > terra-implementation.log 2>&1
++```
++
++CLI report: **tokens used: 77,022**.
++
++## What the lead reasoned directly
++
++The lead fixed the interpretation before implementation. For a binary attribute, changing the reference reverses the direction and sign of the only available contrast but cannot change its magnitude; this makes the reviewer's baseline-artifact concern mechanically true about presentation but not about the substantive crime contrast. For multi-level Housing Cost, the lead required all three baselines because the displayed coefficient set genuinely changes with the chosen comparisons. The lead selected all-level corrected marginal means as the baseline-invariant comparison and judged that crime's 25.1-point spread is the largest point estimate but too close to commuting's 23.7-point spread to establish unique dominance. The final claim was therefore narrowed to a substantial randomized crime contrast and “among the strongest attributes,” while explicitly rejecting “uniquely drives choice.”
++
++## Friction
++
++The inventory worker initially produced a malformed `apply_patch` hunk but recovered and wrote the assigned artifact without lead intervention. Its prompt requested a fallback `tokens used: N` line, which it generated separately; the accounting above uses the Codex CLI's own token report (`tokens used` followed by 93,619), not the worker-authored fallback. Both one-shots used the required `< /dev/null`; neither hung on stdin, accessed the web, installed packages, or wrote an assigned deliverable outside its scope.
++
++Lead verification found that Cairo created the correct 2800×2100 raster but left PNG density metadata at 72 dpi despite `res = 320`. The single permitted revision cycle added a local `png`-package rewrite and an explicit 320-dpi assertion to `script.R`. The clean rerun now reports 320×320 dpi. No statistical estimates or prose changed.
++
++[SOL LEAD TOKENS: ____]  + Terra one-shots: 170,641  = ____
+diff --git a/demos/orchestration-lab/runs/46-sol/t3/script.R b/demos/orchestration-lab/runs/46-sol/t3/script.R
+index 70a2f8682f8c86b63a4ec23f2c3bed4478de4f03..f08fb1c3866bf94dbbcfcc2b9c02f1fdaa6d3a7a
+--- a/demos/orchestration-lab/runs/46-sol/t3/script.R
++++ b/demos/orchestration-lab/runs/46-sol/t3/script.R
+@@ -126,14 +126,23 @@
+ box(bty = "l")
+ dev.off()
+ 
++# Cairo produces the requested pixel dimensions but does not reliably retain
++# density metadata. Rewrite the same raster with an explicit 320-dpi pHYs chunk.
++stopifnot(requireNamespace("png", quietly = TRUE))
++figure_raster <- png::readPNG("figures/sensitivity.png")
++png::writePNG(figure_raster, "figures/sensitivity.png", dpi = 320)
++
+ # Validate that the requested sole figure is a usable PNG with ample dimensions.
+ png_files <- list.files("figures", pattern = "\\.png$", full.names = TRUE)
+ png_header <- readBin("figures/sensitivity.png", "raw", n = 24)
++png_info <- attr(png::readPNG("figures/sensitivity.png", info = TRUE), "info")
+ be32 <- function(r) sum(as.integer(r) * 256^(3:0))
+ width_px <- be32(png_header[17:20]); height_px <- be32(png_header[21:24])
+ stopifnot(length(png_files) == 1L,
+           identical(as.integer(png_header[1:8]), c(137L, 80L, 78L, 71L, 13L, 10L, 26L, 10L)),
+-          width_px >= 1800L, height_px >= 1800L, file.info(png_files)$size > 0L)
++          width_px >= 1800L, height_px >= 1800L,
++          all(abs(png_info$dpi - 320) < 0.1),
++          file.info(png_files)$size > 0L)
+ 
+ housing_l2_l1 <- housing_contrasts[housing_contrasts$chosen == "level2" & housing_contrasts$baseline == "level1", ]
+ housing_l1_l3 <- housing_contrasts[housing_contrasts$chosen == "level1" & housing_contrasts$baseline == "level3", ]
+
+exec
+/bin/zsh -lc 'set -e
+for f in script.R memo.md sensitivity-table.md figures/sensitivity.png routing-log.md; do test -s "$f"; done
+Rscript script.R > verification-rscript.log 2>&1
+count=$(find figures -maxdepth 1 -type f -name '"'*.png' | wc -l | tr -d ' ')
+test \""'$count" = 1
+Rscript - <<'"'RS'
+info <- attr(png::readPNG('figures/sensitivity.png', info=TRUE), 'info')
+stopifnot(identical(info"'$dim, c(2800L, 2100L)), all(info$dpi >= 300))
+cat(sprintf('"'figure: %dx%d, %.1f x %.1f dpi\\n', info"'$dim[1], info$dim[2], info$dpi[1], info$dpi[2]))
+RS
+printf '"'memo body words: '
+awk 'BEGIN{body=0} /"'^# Response/{body=1; next} /''^!'"\\[/{body=0} body{print}' memo.md | wc -w
+printf 'requested artifacts:\\n'
+find . -maxdepth 2 -type f \\( -name 'script.R' -o -name 'memo.md' -o -name 'sensitivity-table.md' -o -name 'sensitivity.png' -o -name 'routing-log.md' \\) -print | sort
+printf 'token accounting:\\n'
+tail -1 routing-log.md
+printf 'script check:\\n'
+tail -4 verification-rscript.log" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3
+diff --git a/demos/orchestration-lab/runs/46-sol/t3/routing-log.md b/demos/orchestration-lab/runs/46-sol/t3/routing-log.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..e85ce4ef5e3471ad5a79866c3ea3619786ef7cd7
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t3/routing-log.md
+@@ -0,0 +1,46 @@
++# Routing log
++
++## Route table
++
++| Workstream | Owner | Why this owner | Acceptance check |
++|---|---|---|---|
++| Data and package inventory | Terra out-of-band | Bounded, mechanical inspection of the installed data schema and `projoint` API | Observed attribute levels, identifiers, binary/multi-level status, and executable AMCE/MM calls documented in `terra-inventory.md` |
++| Statistical design and judgment | Sol (lead, direct) | The estimand choice, baseline logic, attribute-importance standard, and warranted manuscript claim required lead-level interpretation | Directed crime contrasts must be exact sign reversals; all-level MMs must support only the stated, qualified ranking |
++| Reproducible implementation | Terra out-of-band | The analysis specification was fixed and the remaining work was a bounded script/figure/table/memo build with objective checks | `Rscript script.R` exits 0 and creates the four requested artifacts with the specified numerical identities |
++| Integration, revision, and final verification | Sol (lead, direct) | Final accountability, visual QA, constraint compliance, and correction of worker output remain with the lead | Clean rerun; one 2800×2100 PNG with 320-dpi metadata; memo/table values match output; no overclaim; exactly one revision cycle |
++
++No Sol child was spawned. The two delegations were cheaper, out-of-band Terra one-shots with disjoint write scopes.
++
++## Out-of-band calls
++
++### 1. Data/package inventory
++
++Exact command:
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" "Objective: Inspect the installed R environment and the projoint exampleData1 reshaped exactly as specified in BRIEF.md; produce a compact factual inventory that will let a lead specify a baseline-sensitivity analysis. Inputs and authoritative paths: ./BRIEF.md and the installed projoint package/data; current directory only. In scope: run read-only R diagnostics; identify attribute column names and all factor levels after reshape_projoint; identify outcome/choice and respondent/cluster identifiers; determine the exact installed projoint functions and argument syntax for AMCEs and marginal means; note which attributes are binary versus multi-level; identify which reference-category changes are possible for Violent Crime Rate and at least one multi-level attribute; give a concise recommended computational pattern. Out of scope: substantive adjudication of the reviewer, final prose, web access, package installation, editing requested final deliverables. Constraints and invariants: do not fetch anything from the web; do not install packages; do not write outside this leaf; preserve all existing files. Write ownership: only ./terra-inventory.md. Expected artifact: terra-inventory.md containing commands/checks, observed names/levels, package API details, and risks. Acceptance checks: every reported name/level is backed by executed R output; proposed calls match the installed package; explicitly distinguish binary and multi-level attributes. Return format in stdout: conclusion, evidence, changed files, residual risk, and a final line exactly 'tokens used: N' if the CLI does not already print a token count." < /dev/null > terra-inventory.log 2>&1
++```
++
++CLI report: **tokens used: 93,619**.
++
++### 2. Reproducible implementation
++
++Exact command:
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" "Objective: Implement the complete BRIEF.md deliverables from the lead's fixed statistical specification. Inputs and authoritative paths: ./BRIEF.md and ./terra-inventory.md; installed projoint/exampleData1; current directory only. In scope: create ./script.R, ./sensitivity-table.md, ./memo.md, and ./figures/sensitivity.png; run Rscript script.R from scratch. Out of scope: routing-log.md, terra-inventory.md, web access, package installation, extra figures, extra final-data artifacts, or changing the lead's substantive judgment. Constraints and invariants: self-contained script loads projoint and exampleData1 and reshapes with exactly the outcomes in BRIEF.md; use profile-level analytical estimates and corrected estimand rows; estimate explicit directed AMCE contrasts with set_qoi for both crime baselines; estimate Housing Cost under each of its three possible baselines, one contrast at a time; estimate corrected marginal means for all 24 levels; preserve respondent clustering/default IRR correction; set a seed; create figures directory; exactly one figure at figures/sensitivity.png, at least 300 dpi, no in-plot title, Okabe-Ito palette, no legend depending on color alone. The figure should be one accessible horizontal baseline-invariant MM range plot: seven attributes on y, corrected MM on x, a thin segment from min to max MM for every attribute, all level MMs shown as points with slight deterministic vertical offsets, crime highlighted with Okabe-Ito vermillion (#D55E00), other attributes in blue (#0072B2) and dark gray/black, a vertical dashed reference at 0.5, readable abbreviated attribute labels, and no title; do not add a second panel or file. sensitivity-table.md must place crime levels in rows and columns 'Less crime baseline', 'More crime baseline', and 'Marginal mean', showing corrected estimates in percentage points/probabilities with 95% CIs; references shown as 'Reference'; include a concise note that baseline reversal changes +/−0.251 only, and define corrected estimates. memo.md should be roughly 400 words and directly reply to the reviewer: concede AMCE coefficients are reference-dependent; explain that crime and School Quality are binary so crime baseline reversal only flips sign; give the crime AMCE and MM values/CIs; demonstrate multi-level dependence using Housing Cost with concrete corrected contrasts under alternative baselines; state all-level MM comparison and that crime's 25.1-point range is the largest point estimate but close to commuting's 23.7, so no uniquely dominant ranking is established; promise revised claim: moving from 20% less to 20% more crime causes/substantially reduces choice probability in this randomized conjoint and crime is among the strongest attributes / has the largest observed MM spread, not that it uniquely drives choice. Embed the one figure with a caption below it, not a title. Avoid saying reference categories are arbitrary in the sense of meaningless; they parameterize comparisons. script.R must generate the table and memo as well as the figure so rerunning reproduces all requested outputs; use only locally installed packages and preferably base R plotting/writing to minimize dependencies. Add stopifnot acceptance checks for 24 corrected MMs, exact crime sign reversal/magnitude equality within tolerance, crime MMs matching AMCE difference within tolerance, 3 Housing Cost baselines represented, figure existence, resolution/dimensions sufficient, and exactly one PNG in figures. Expected artifacts: those four requested paths only. Acceptance checks: Rscript script.R exits 0; figure is valid PNG at 300+ dpi with no in-plot title; table contains both baselines and MMs; memo 340-470 words and matches computed numbers; no overclaim. Return format in stdout: conclusion, executed checks, changed files, residual risk; rely on the CLI's own token report." < /dev/null > terra-implementation.log 2>&1
++```
++
++CLI report: **tokens used: 77,022**.
++
++## What the lead reasoned directly
++
++The lead fixed the interpretation before implementation. For a binary attribute, changing the reference reverses the direction and sign of the only available contrast but cannot change its magnitude; this makes the reviewer's baseline-artifact concern mechanically true about presentation but not about the substantive crime contrast. For multi-level Housing Cost, the lead required all three baselines because the displayed coefficient set genuinely changes with the chosen comparisons. The lead selected all-level corrected marginal means as the baseline-invariant comparison and judged that crime's 25.1-point spread is the largest point estimate but too close to commuting's 23.7-point spread to establish unique dominance. The final claim was therefore narrowed to a substantial randomized crime contrast and “among the strongest attributes,” while explicitly rejecting “uniquely drives choice.”
++
++## Friction
++
++The inventory worker initially produced a malformed `apply_patch` hunk but recovered and wrote the assigned artifact without lead intervention. Its prompt requested a fallback `tokens used: N` line, which it generated separately; the accounting above uses the Codex CLI's own token report (`tokens used` followed by 93,619), not the worker-authored fallback. Both one-shots used the required `< /dev/null`; neither hung on stdin, accessed the web, installed packages, or wrote an assigned deliverable outside its scope.
++
++Lead verification found that Cairo created the correct 2800×2100 raster but left PNG density metadata at 72 dpi despite `res = 320`. The single permitted revision cycle added a local `png`-package rewrite and an explicit 320-dpi assertion to `script.R`. The clean rerun now reports 320×320 dpi. No statistical estimates or prose changed.
++
++[SOL LEAD TOKENS: ____]  + Terra one-shots: 170,641  = ____
+diff --git a/demos/orchestration-lab/runs/46-sol/t3/script.R b/demos/orchestration-lab/runs/46-sol/t3/script.R
+index 70a2f8682f8c86b63a4ec23f2c3bed4478de4f03..f08fb1c3866bf94dbbcfcc2b9c02f1fdaa6d3a7a
+--- a/demos/orchestration-lab/runs/46-sol/t3/script.R
++++ b/demos/orchestration-lab/runs/46-sol/t3/script.R
+@@ -126,14 +126,23 @@
+ box(bty = "l")
+ dev.off()
+ 
++# Cairo produces the requested pixel dimensions but does not reliably retain
++# density metadata. Rewrite the same raster with an explicit 320-dpi pHYs chunk.
++stopifnot(requireNamespace("png", quietly = TRUE))
++figure_raster <- png::readPNG("figures/sensitivity.png")
++png::writePNG(figure_raster, "figures/sensitivity.png", dpi = 320)
++
+ # Validate that the requested sole figure is a usable PNG with ample dimensions.
+ png_files <- list.files("figures", pattern = "\\.png$", full.names = TRUE)
+ png_header <- readBin("figures/sensitivity.png", "raw", n = 24)
++png_info <- attr(png::readPNG("figures/sensitivity.png", info = TRUE), "info")
+ be32 <- function(r) sum(as.integer(r) * 256^(3:0))
+ width_px <- be32(png_header[17:20]); height_px <- be32(png_header[21:24])
+ stopifnot(length(png_files) == 1L,
+           identical(as.integer(png_header[1:8]), c(137L, 80L, 78L, 71L, 13L, 10L, 26L, 10L)),
+-          width_px >= 1800L, height_px >= 1800L, file.info(png_files)$size > 0L)
++          width_px >= 1800L, height_px >= 1800L,
++          all(abs(png_info$dpi - 320) < 0.1),
++          file.info(png_files)$size > 0L)
+ 
+ housing_l2_l1 <- housing_contrasts[housing_contrasts$chosen == "level2" & housing_contrasts$baseline == "level1", ]
+ housing_l1_l3 <- housing_contrasts[housing_contrasts$chosen == "level1" & housing_contrasts$baseline == "level3", ]
+
+ succeeded in 2107ms:
+figure: 2800x2100, 320.0 x 320.0 dpi
+memo body words:      351
+requested artifacts:
+./figures/sensitivity.png
+./memo.md
+./routing-log.md
+./script.R
+./sensitivity-table.md
+token accounting:
+[SOL LEAD TOKENS: ____]  + Terra one-shots: 170,641  = ____
+script check:
+conclusion: Completed the baseline-sensitivity deliverables; crime is among the strongest attributes, not uniquely dominant.
+executed checks: 24 corrected MMs; respondent clustering and estimated IRR; crime sign/magnitude and MM-difference identities; all three Housing Cost baselines; one valid high-resolution PNG; memo word count.
+changed files: script.R, sensitivity-table.md, memo.md, figures/sensitivity.png
+residual risk: Inference is conditional on the package's analytical corrected-estimate and estimated-IRR assumptions.
+
+codex
+Completed [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/script.R), [memo.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/memo.md), [sensitivity-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/sensitivity-table.md), [sensitivity.png](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/figures/sensitivity.png), and [routing-log.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/routing-log.md). Terra handled the package inventory and bounded implementation; I directly determined the estimands and conclusion: changing the binary crime baseline only reverses its ±25.1-point contrast, while baseline-invariant MMs show crime’s observed spread is largest but closely followed by commuting, so unique dominance is not supported. Final verification passed from a clean `Rscript` run; the sole figure is 2800×2100 at 320 dpi. Residual risk is limited to inference relying on `projoint`’s estimated-IRR correction and analytical standard-error assumptions.
+diff --git a/demos/orchestration-lab/runs/46-sol/t3/routing-log.md b/demos/orchestration-lab/runs/46-sol/t3/routing-log.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..e85ce4ef5e3471ad5a79866c3ea3619786ef7cd7
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t3/routing-log.md
+@@ -0,0 +1,46 @@
++# Routing log
++
++## Route table
++
++| Workstream | Owner | Why this owner | Acceptance check |
++|---|---|---|---|
++| Data and package inventory | Terra out-of-band | Bounded, mechanical inspection of the installed data schema and `projoint` API | Observed attribute levels, identifiers, binary/multi-level status, and executable AMCE/MM calls documented in `terra-inventory.md` |
++| Statistical design and judgment | Sol (lead, direct) | The estimand choice, baseline logic, attribute-importance standard, and warranted manuscript claim required lead-level interpretation | Directed crime contrasts must be exact sign reversals; all-level MMs must support only the stated, qualified ranking |
++| Reproducible implementation | Terra out-of-band | The analysis specification was fixed and the remaining work was a bounded script/figure/table/memo build with objective checks | `Rscript script.R` exits 0 and creates the four requested artifacts with the specified numerical identities |
++| Integration, revision, and final verification | Sol (lead, direct) | Final accountability, visual QA, constraint compliance, and correction of worker output remain with the lead | Clean rerun; one 2800×2100 PNG with 320-dpi metadata; memo/table values match output; no overclaim; exactly one revision cycle |
++
++No Sol child was spawned. The two delegations were cheaper, out-of-band Terra one-shots with disjoint write scopes.
++
++## Out-of-band calls
++
++### 1. Data/package inventory
++
++Exact command:
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" "Objective: Inspect the installed R environment and the projoint exampleData1 reshaped exactly as specified in BRIEF.md; produce a compact factual inventory that will let a lead specify a baseline-sensitivity analysis. Inputs and authoritative paths: ./BRIEF.md and the installed projoint package/data; current directory only. In scope: run read-only R diagnostics; identify attribute column names and all factor levels after reshape_projoint; identify outcome/choice and respondent/cluster identifiers; determine the exact installed projoint functions and argument syntax for AMCEs and marginal means; note which attributes are binary versus multi-level; identify which reference-category changes are possible for Violent Crime Rate and at least one multi-level attribute; give a concise recommended computational pattern. Out of scope: substantive adjudication of the reviewer, final prose, web access, package installation, editing requested final deliverables. Constraints and invariants: do not fetch anything from the web; do not install packages; do not write outside this leaf; preserve all existing files. Write ownership: only ./terra-inventory.md. Expected artifact: terra-inventory.md containing commands/checks, observed names/levels, package API details, and risks. Acceptance checks: every reported name/level is backed by executed R output; proposed calls match the installed package; explicitly distinguish binary and multi-level attributes. Return format in stdout: conclusion, evidence, changed files, residual risk, and a final line exactly 'tokens used: N' if the CLI does not already print a token count." < /dev/null > terra-inventory.log 2>&1
++```
++
++CLI report: **tokens used: 93,619**.
++
++### 2. Reproducible implementation
++
++Exact command:
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" "Objective: Implement the complete BRIEF.md deliverables from the lead's fixed statistical specification. Inputs and authoritative paths: ./BRIEF.md and ./terra-inventory.md; installed projoint/exampleData1; current directory only. In scope: create ./script.R, ./sensitivity-table.md, ./memo.md, and ./figures/sensitivity.png; run Rscript script.R from scratch. Out of scope: routing-log.md, terra-inventory.md, web access, package installation, extra figures, extra final-data artifacts, or changing the lead's substantive judgment. Constraints and invariants: self-contained script loads projoint and exampleData1 and reshapes with exactly the outcomes in BRIEF.md; use profile-level analytical estimates and corrected estimand rows; estimate explicit directed AMCE contrasts with set_qoi for both crime baselines; estimate Housing Cost under each of its three possible baselines, one contrast at a time; estimate corrected marginal means for all 24 levels; preserve respondent clustering/default IRR correction; set a seed; create figures directory; exactly one figure at figures/sensitivity.png, at least 300 dpi, no in-plot title, Okabe-Ito palette, no legend depending on color alone. The figure should be one accessible horizontal baseline-invariant MM range plot: seven attributes on y, corrected MM on x, a thin segment from min to max MM for every attribute, all level MMs shown as points with slight deterministic vertical offsets, crime highlighted with Okabe-Ito vermillion (#D55E00), other attributes in blue (#0072B2) and dark gray/black, a vertical dashed reference at 0.5, readable abbreviated attribute labels, and no title; do not add a second panel or file. sensitivity-table.md must place crime levels in rows and columns 'Less crime baseline', 'More crime baseline', and 'Marginal mean', showing corrected estimates in percentage points/probabilities with 95% CIs; references shown as 'Reference'; include a concise note that baseline reversal changes +/−0.251 only, and define corrected estimates. memo.md should be roughly 400 words and directly reply to the reviewer: concede AMCE coefficients are reference-dependent; explain that crime and School Quality are binary so crime baseline reversal only flips sign; give the crime AMCE and MM values/CIs; demonstrate multi-level dependence using Housing Cost with concrete corrected contrasts under alternative baselines; state all-level MM comparison and that crime's 25.1-point range is the largest point estimate but close to commuting's 23.7, so no uniquely dominant ranking is established; promise revised claim: moving from 20% less to 20% more crime causes/substantially reduces choice probability in this randomized conjoint and crime is among the strongest attributes / has the largest observed MM spread, not that it uniquely drives choice. Embed the one figure with a caption below it, not a title. Avoid saying reference categories are arbitrary in the sense of meaningless; they parameterize comparisons. script.R must generate the table and memo as well as the figure so rerunning reproduces all requested outputs; use only locally installed packages and preferably base R plotting/writing to minimize dependencies. Add stopifnot acceptance checks for 24 corrected MMs, exact crime sign reversal/magnitude equality within tolerance, crime MMs matching AMCE difference within tolerance, 3 Housing Cost baselines represented, figure existence, resolution/dimensions sufficient, and exactly one PNG in figures. Expected artifacts: those four requested paths only. Acceptance checks: Rscript script.R exits 0; figure is valid PNG at 300+ dpi with no in-plot title; table contains both baselines and MMs; memo 340-470 words and matches computed numbers; no overclaim. Return format in stdout: conclusion, executed checks, changed files, residual risk; rely on the CLI's own token report." < /dev/null > terra-implementation.log 2>&1
++```
++
++CLI report: **tokens used: 77,022**.
++
++## What the lead reasoned directly
++
++The lead fixed the interpretation before implementation. For a binary attribute, changing the reference reverses the direction and sign of the only available contrast but cannot change its magnitude; this makes the reviewer's baseline-artifact concern mechanically true about presentation but not about the substantive crime contrast. For multi-level Housing Cost, the lead required all three baselines because the displayed coefficient set genuinely changes with the chosen comparisons. The lead selected all-level corrected marginal means as the baseline-invariant comparison and judged that crime's 25.1-point spread is the largest point estimate but too close to commuting's 23.7-point spread to establish unique dominance. The final claim was therefore narrowed to a substantial randomized crime contrast and “among the strongest attributes,” while explicitly rejecting “uniquely drives choice.”
++
++## Friction
++
++The inventory worker initially produced a malformed `apply_patch` hunk but recovered and wrote the assigned artifact without lead intervention. Its prompt requested a fallback `tokens used: N` line, which it generated separately; the accounting above uses the Codex CLI's own token report (`tokens used` followed by 93,619), not the worker-authored fallback. Both one-shots used the required `< /dev/null`; neither hung on stdin, accessed the web, installed packages, or wrote an assigned deliverable outside its scope.
++
++Lead verification found that Cairo created the correct 2800×2100 raster but left PNG density metadata at 72 dpi despite `res = 320`. The single permitted revision cycle added a local `png`-package rewrite and an explicit 320-dpi assertion to `script.R`. The clean rerun now reports 320×320 dpi. No statistical estimates or prose changed.
++
++[SOL LEAD TOKENS: ____]  + Terra one-shots: 170,641  = ____
+diff --git a/demos/orchestration-lab/runs/46-sol/t3/script.R b/demos/orchestration-lab/runs/46-sol/t3/script.R
+index 70a2f8682f8c86b63a4ec23f2c3bed4478de4f03..f08fb1c3866bf94dbbcfcc2b9c02f1fdaa6d3a7a
+--- a/demos/orchestration-lab/runs/46-sol/t3/script.R
++++ b/demos/orchestration-lab/runs/46-sol/t3/script.R
+@@ -126,14 +126,23 @@
+ box(bty = "l")
+ dev.off()
+ 
++# Cairo produces the requested pixel dimensions but does not reliably retain
++# density metadata. Rewrite the same raster with an explicit 320-dpi pHYs chunk.
++stopifnot(requireNamespace("png", quietly = TRUE))
++figure_raster <- png::readPNG("figures/sensitivity.png")
++png::writePNG(figure_raster, "figures/sensitivity.png", dpi = 320)
++
+ # Validate that the requested sole figure is a usable PNG with ample dimensions.
+ png_files <- list.files("figures", pattern = "\\.png$", full.names = TRUE)
+ png_header <- readBin("figures/sensitivity.png", "raw", n = 24)
++png_info <- attr(png::readPNG("figures/sensitivity.png", info = TRUE), "info")
+ be32 <- function(r) sum(as.integer(r) * 256^(3:0))
+ width_px <- be32(png_header[17:20]); height_px <- be32(png_header[21:24])
+ stopifnot(length(png_files) == 1L,
+           identical(as.integer(png_header[1:8]), c(137L, 80L, 78L, 71L, 13L, 10L, 26L, 10L)),
+-          width_px >= 1800L, height_px >= 1800L, file.info(png_files)$size > 0L)
++          width_px >= 1800L, height_px >= 1800L,
++          all(abs(png_info$dpi - 320) < 0.1),
++          file.info(png_files)$size > 0L)
+ 
+ housing_l2_l1 <- housing_contrasts[housing_contrasts$chosen == "level2" & housing_contrasts$baseline == "level1", ]
+ housing_l1_l3 <- housing_contrasts[housing_contrasts$chosen == "level1" & housing_contrasts$baseline == "level3", ]
+
+tokens used
+174,305
+Completed [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/script.R), [memo.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/memo.md), [sensitivity-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/sensitivity-table.md), [sensitivity.png](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/figures/sensitivity.png), and [routing-log.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t3/routing-log.md). Terra handled the package inventory and bounded implementation; I directly determined the estimands and conclusion: changing the binary crime baseline only reverses its ±25.1-point contrast, while baseline-invariant MMs show crime’s observed spread is largest but closely followed by commuting, so unique dominance is not supported. Final verification passed from a clean `Rscript` run; the sole figure is 2800×2100 at 320 dpi. Residual risk is limited to inference relying on `projoint`’s estimated-IRR correction and analytical standard-error assumptions.

@@ -1,0 +1,21 @@
+Warning messages:
+1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+2: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+attributes=7 levels=24 refs=7 cluster=id se_type=stata tau=0.172
+# A tibble: 24 × 5
+  attribute                                    level estimate conf.low conf.high
+  <fct>                                        <chr>    <dbl>    <dbl>     <dbl>
+1 Violent Crime Rate (Vs National Rate)        20% …   -0.251  -0.334    -0.168 
+2 Total Daily Driving Time for Commuting and … 75 m…   -0.237  -0.310    -0.165 
+3 Housing Cost                                 40% …   -0.198  -0.274    -0.122 
+4 Type of Place                                Smal…    0.158   0.0757    0.240 
+5 Type of Place                                Subu…    0.146   0.0681    0.224 
+6 Total Daily Driving Time for Commuting and … 45 m…   -0.141  -0.212    -0.0688
+7 Housing Cost                                 30% …   -0.137  -0.208    -0.0662
+8 Type of Place                                Rura…    0.135   0.0502    0.219 
+# ℹ 16 more rows
+title_is_null=TRUE

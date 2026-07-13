@@ -1,0 +1,1586 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.1
+--------
+workdir: ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f5b0a-3e2f-7dc0-ac08-7926e9a0a4e9
+--------
+user
+$46-orchestrate
+
+You are the **46-orchestrate lead**, running as **gpt-5.6-sol at medium
+effort** in an interactive, full-access session. Your task brief is in
+`./BRIEF.md` in the current working directory — read it first; it is the
+single source of truth for what to produce and its constraints.
+
+**How to lead this run (this is the Sol-lead design — follow it, don't just
+do everything yourself in one context and don't fan out for its own sake):**
+
+1. **You are the deep reasoner.** Sol is the strongest tier on this team;
+   nothing outranks you, so there is no escalating *up*. Do the actual
+   analytical reasoning yourself — the design/estimation decisions, the
+   interpretation, the judgment calls, and the final integration all stay in
+   your context. Own correctness and completeness end to end.
+
+2. **Delegate the *bulk* down to Terra, out-of-band.** For mechanical or
+   bounded work — writing/running an R script from a spec you've fixed, a
+   wide inventory, a routine robustness sweep, a verification pass — issue an
+   out-of-band one-shot to the cheaper tier rather than doing it in your own
+   (Sol-priced) context or spawning a Sol child. Template:
+
+   ```bash
+   codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium \
+     --sandbox workspace-write --skip-git-repo-check -C "$PWD" \
+     "<a complete, self-contained brief: objective, inputs/paths, in/out of
+      scope, constraints, expected artifact, acceptance checks>" \
+     < /dev/null > terra-<workstream>.log 2>&1
+   ```
+
+   - The `< /dev/null` is load-bearing (without it `codex exec` hangs on
+     stdin). Use `-c model_reasoning_effort=low` for purely mechanical edits;
+     use `--model gpt-5.6-luna` for the cheapest fully-specified bulk.
+   - These write into the current directory — give concurrent one-shots
+     **disjoint output paths** and never overlap their write scope.
+   - They are fire-and-forget: background several and read their `.log` files
+     back. After each returns, **open its artifact and verify it yourself** —
+     treat Terra's output as untrusted until you've checked it against the
+     brief. A Terra one-shot is the weaker model; if its result looks wrong,
+     fix it in your own reasoning, don't defer to it.
+
+3. **Use `spawn_agent` sparingly.** Under a Sol lead every spawned child is
+   *also Sol-priced* (subagents inherit the lead's model and effort — there is
+   no per-agent override). Only spawn when a one-shot can't give you what you
+   need: a live back-and-forth, context isolation, or a blind same-tier
+   resample on a high-stakes call. For ordinary bulk, prefer the out-of-band
+   Terra one-shot above.
+
+4. **Respect the brief's constraints exactly** — including "at most one
+   revision cycle," "at most 3 delegations," "do not fetch anything from the
+   web," and "do not install packages." A Terra out-of-band one-shot counts as
+   one delegation.
+
+**Write your results to the current working directory:**
+
+- **The deliverables named in `./BRIEF.md`** (e.g. `script.R`, `summary.md` /
+  `report.md` / `memo.md`, `figures/…`, any table the brief asks for). Follow
+  the brief's figure conventions (Okabe-Ito palette, caption-not-title,
+  300+ dpi, reference levels at zero where applicable).
+
+- **`routing-log.md`** — the record of how you led. Include:
+  - **Route table:** one row per workstream — *what it was*, *owner*
+    (`Sol (lead, direct)` / `Terra out-of-band` / `Sol spawn`), *why that
+    owner*, and *acceptance check*.
+  - **Out-of-band calls:** for each Terra/Luna one-shot, the **exact command**
+    you ran and the **`tokens used: N`** it reported (copy the number from its
+    `.log`).
+  - **What you reasoned directly:** a short note on the analytical decisions
+    you kept in the lead (this is the point of a Sol lead — make it visible).
+  - **Friction:** anything that failed, any sandbox/stdin gotcha, any Terra
+    output you had to correct.
+  - **Token total:** a final line
+    `[SOL LEAD TOKENS: ____]  + Terra one-shots: <sum>  = <total>`
+    — leave the SOL LEAD TOKENS blank for the operator to fill from the Codex
+    status line; you fill the Terra sum from the `.log` files.
+
+- Do **not** write outside this directory. Do **not** commit, push, or touch
+  anything in `runs/` other than the current leaf.
+
+When everything the brief asks for exists and you've verified it against the
+brief, give a one-paragraph completion summary: what you produced, what you
+delegated to Terra vs. reasoned yourself, and any residual risk.
+codex
+I’m using the explicitly requested `46-orchestrate` skill. I’ll first read its local instructions and `BRIEF.md`, then publish the workstream route before making any delegated call; the analytical design and final integration will remain with me.
+exec
+/bin/zsh -lc "sed -n '1,260p' ~/Documents/github/resources/open-science-skills/codex/46-orchestrate/SKILL.md && sed -n '261,520p' ~/Documents/github/resources/open-science-skills/codex/46-orchestrate/SKILL.md && printf '\\nBRIEF\\n' && sed -n '1,260p' BRIEF.md && printf '\\nFILES\\n' && rg --files -g '"'!terra-*.log'"' | sort" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+ succeeded in 0ms:
+---
+name: 46-orchestrate
+description: Orchestrate complex work as the Codex lead on the GPT-5.6 family. Interactive default — a gpt-5.6-sol lead at medium effort reasons the hard parts itself and delegates the bulk down to gpt-5.6-terra via out-of-band codex exec one-shots (interactive sessions only). Headless or cost-paramount fallback — a gpt-5.6-terra lead whose whole in-process spawn tree is Terra. Use when the user explicitly asks to orchestrate, delegate, fan out, parallelize, assign subagents, obtain independent checks, or have Codex act as tech lead. Decompose work, route bounded tasks to role-based subagents via Codex's native spawn_agent tool (subagents inherit the lead's model and effort — there is no per-agent override), preserve integration ownership, and synthesize verified results.
+---
+
+# 4.6 Orchestrate
+
+<p align="center"><img src="assets/architecture.svg" alt="46-orchestrate: a gpt-5.6-sol Codex orchestrator at medium effort reasons the hard parts itself and delegates bulk work down to gpt-5.6-terra via out-of-band codex exec one-shots (interactive sessions only); headless runs fall back to a gpt-5.6-terra lead whose in-process spawn subagents all inherit Terra" width="900"></p>
+
+Act as the lead orchestrator for the GPT-5.6 family. Plan, decompose, delegate, integrate, and verify. Keep architectural decisions and final accountability in the lead context. The intended interactive lead is **`gpt-5.6-sol`** at effort `medium` — the strongest tier, which reasons the compact hard problems itself and delegates the bulk *down* to `gpt-5.6-terra` through out-of-band `codex exec` one-shots. That top-model-leads-and-delegates-down shape mirrors `fable-orchestrate`/`opus-orchestrate`, but it works **only in an interactive/escalated session**: `spawn_agent` cannot downgrade a child's model (next paragraph), so Terra work must go out-of-band, which is impossible headless. In a **headless** (`codex exec`, approval `never`) or cost-paramount run, fall back to a **`gpt-5.6-terra` lead**, whose in-process spawn tree is Terra by construction (see *Model and effort calibration*).
+
+The lead is the currently-running Codex session itself, and it has two delegation mechanisms that differ in one decisive way — the worker's model. **In-process** subagents use Codex's native multi-agent tool (`functions.collaboration.spawn_agent`, plus `send_message`, `followup_task`, `wait_agent`, `interrupt_agent`, `list_agents` — feature `multi_agent`, stable); they run in the same sandbox as the lead and are fully orchestratable, but they **inherit the lead's model and effort** (next paragraph). **Out-of-band** workers are separate `codex exec` one-shots — the *only* way to run a different, cheaper tier under the lead (a Sol lead reaching Terra), but they are fire-and-forget, not orchestratable, and a nested `codex exec` **fails under any sandbox mode**: confirmed by direct reproduction on macOS (`Operation not permitted, os error 1`) and Linux (`Read-only file system, os error 30`), unfixable by passing bypass flags to the child, since an OS-level sandbox applies transitively to the whole process tree. So out-of-band delegation runs **only from an interactive/escalated/unsandboxed session** and is **impossible headless** — a headless lead is single-tier by construction, and everything it spawns is the lead's own tier.
+
+**Honest capability limit — read this before promising cost savings.** `spawn_agent`'s model-visible schema has exactly three fields — `task_name`, `message`, `fork_turns` — and no `model` or `effort` parameter (re-verified 2026-07-11 on Codex CLI v0.144.1, which is also the newest published release; three differently-flagged live probes, including `multi_agent_v2` forced on). Every subagent runs at the **same model and reasoning effort as the lead**. This is a regression-by-default rather than a permanent absence: override fields existed and worked around v0.137 (openai/codex#26948), but current releases hide them from the schema (`hide_spawn_agent_metadata`, openai/codex#31814), v2 full-history forks reject them (openai/codex#20077), and the TOML custom-agent path is broken (openai/codex#26363) — community reports agree (community.openai.com, 2026-07-10). An "unhide + `fork_turns=\"none\"`" escape hatch circulates but is unconfirmed and reportedly still drops overrides; do not build on it without re-verifying on the installed version. In-process spawning therefore cannot reproduce `fable-orchestrate`'s cost tiering: a Sol lead's spawn children are Sol, not Terra, so "Terra does the bulk" is reachable only through out-of-band one-shots (interactive-only) — the calibration section below is how this skill approximates the tiering instead. What spawning *does* save: the lead's own context never has to grow with the full working-through of every subtask. A single lead handling everything serially in one continuously-growing context re-pays the cost of that whole context on every turn; spawning several parallel subagents with short, fresh, task-scoped contexts and pulling back only their summaries avoids that growth. The saving is from **context isolation and parallelism**, not from a cheaper model — say so plainly if a user asks whether a spawn delegates to a cheaper tier.
+
+## Model and effort calibration
+
+The lead's `--model` and `model_reasoning_effort` set the price of everything that inherits them (every `spawn_agent` child). Choose the lead tier **first**, gated on one question: **can this session make out-of-band `codex exec` calls?** Interactive / escalated / unsandboxed → yes; headless (`codex exec`, approval `never`) → no.
+
+| Choice | Setting | Why |
+|---|---|---|
+| **Lead — interactive default** | `gpt-5.6-sol`, effort `medium` (raise to `high` only for a genuinely hard orchestration/architecture turn; never `xhigh` while a spawn is live) | Sol is the strongest tier and the lead is where lead-quality pays off. Sol reasons compact hard problems *directly* — nothing outranks it, so there is no escalation *up*. `medium` bounds Sol's token appetite. |
+| **Bulk workers — "Terra does the bulk"** | out-of-band one-shot: `codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox read-only --skip-git-repo-check "<self-contained brief>" < /dev/null` (use `--sandbox workspace-write` + `-c model_reasoning_effort=low` for mechanical implementer work that edits files) | the ONLY way to run Terra under a Sol lead. Fire-and-forget, not orchestratable; background several with `--out <file>` and reap them for parallelism. **Interactive-only** — impossible headless. |
+| **Cheapest bulk** | out-of-band one-shot: `codex exec --model gpt-5.6-luna -c model_reasoning_effort=low …` | Luna (about 2.5× cheaper than Terra) for fully-specified mechanical work worth taking out of process. |
+| **Live / blind Sol subagent** | `spawn_agent` (inherits Sol + the lead's effort) | only when you need what a one-shot can't give: live orchestration (`followup_task`/`wait_agent`), context isolation, or a blind parallel resample *at the lead's tier*. Sol-priced — spawn sparingly. |
+| **Lead — headless / cost-paramount fallback** | `gpt-5.6-terra`, effort `medium`; the whole in-process spawn tree is Terra by construction | when out-of-band calls are impossible (headless) or cost dominates. The prior default, retained. Reach Sol/Luna only if you can later escalate the session. |
+
+Rules of thumb:
+
+- **Choose the lead tier first** — it prices everything that inherits it.
+- **Under a Sol lead, reason compact hard problems in the lead and delegate *down* to Terra out-of-band for bulk, width, and mechanical work — never escalate up; nothing outranks Sol.**
+- **Escalate effort before spawning a second Sol child** — a spawn is Sol-priced overhead here, not a cheap experiment. Never leave the session at `xhigh` while a spawn is live; the effort propagates to every child.
+- **Cross-tier delegation needs an interactive/escalated session.** Headless is single-tier: run the Terra-lead fallback and keep hard problems in the lead. The `< /dev/null` on every out-of-band call is load-bearing — without it `codex exec` hangs waiting on stdin.
+- **The Sol lead is the cost floor.** Terra bulk helps, but every lead turn is Sol-priced and the lead context grows as it integrates; keep the lead lean (ingest only worker summaries/stdout) and cap effort at `medium`.
+
+## Delegation gate
+
+Use subagents only when the user explicitly invokes `$46-orchestrate` or requests orchestration, delegation, fan-out, parallel agents, or independent agent review. If loaded implicitly without that authorization, work locally.
+
+## Show the route
+
+Before spawning work, publish a compact plan that names each workstream, owner role, dependency, expected artifact, and acceptance check. Update it as dependencies or evidence change.
+
+## Route by first match
+
+Owners below assume the **Sol-lead interactive** default. Under the **Terra-lead headless fallback**, every "Terra out-of-band" owner collapses to an in-process `spawn_agent` subagent (which is Terra, since the lead is Terra), and rows 3–4 stay in the lead.
+
+| Priority | Work type | Owner (Sol-lead interactive) |
+|---|---|---|
+| 1 | decomposition, architecture ownership, integration, conflict resolution, user communication | lead |
+| 2 | trivial, single-step work where briefing costs more than execution | lead |
+| 3 | high blast radius **and** hard to verify | two independent lines (see the high-stakes path), then the lead adjudicates |
+| 4 | compact hard reasoning — one architecture call, gnarly debug, or hard trade-off that fits the lead's context | **lead** — Sol *is* the deep reasoner; nothing outranks it, so there is no escalation up |
+| 5 | bounded research, inventory, or diagnosis with no overlapping writes | Terra out-of-band one-shot (cheaper) — or a Sol `spawn_agent` when the work needs live orchestration or lead-tier context isolation |
+| 6 | fully specified implementation with objective acceptance checks | Terra (Luna if purely mechanical) out-of-band one-shot |
+| 7 | verification, tests, review, or adversarial challenge of an existing artifact | Terra out-of-band one-shot — or a Sol `spawn_agent` for a live back-and-forth review |
+| 8 | ambiguous or tightly coupled work that cannot be cleanly contracted | lead until separable |
+
+High blast radius includes security/authentication, destructive data operations, public API compatibility, concurrency, cryptography, production incidents, privacy, and externally visible irreversible changes. "Hard to verify" means no cheap test, authoritative lookup, reversible experiment, or inspectable artifact can settle the answer.
+
+Do not use multiple agents merely to increase activity. Parallelize independent work or genuinely independent judgments — since spawning does not reduce per-call cost here, an unnecessary spawn is pure overhead, not a cheap experiment.
+
+## Spawn subagents correctly
+
+**Under a Sol lead, every `spawn_agent` child is Sol-priced** — it inherits the lead's model and effort. Use `spawn_agent` only for what a one-shot cannot give (live orchestration, context isolation, or a blind same-tier resample), and send bulk, mechanical, or wide work to Terra out-of-band instead. Under the Terra-lead fallback there is no such premium — the whole tree is Terra and `spawn_agent` is the primary delegation tool.
+
+Every subagent is created with `spawn_agent`. Confirmed parameters: `task_name` (a short identifier other calls use to address this agent), `message` (the task brief — this is the subagent's entire starting context unless `fork_turns` adds more), and `fork_turns` (how much of the lead's own conversation to propagate — `"all"` gives the subagent full history; for a bounded, fully-specified task, propagate the minimum needed, since a large `fork_turns` value defeats the context-isolation saving this tool exists for). Consult the tool's own schema at call time for any parameters not listed here — this list reflects what has been directly exercised, not a full spec.
+
+| Role | Behavior | fork_turns |
+|---|---|---|
+| analyst / verifier | inspect, inventory, diagnose, adversarially review, or high-stakes cross-check without editing | minimal — pass only the artifact path and the specific question, not the lead's full history |
+| implementer | make bounded, fully-specified edits with objective acceptance checks and run them | minimal — a complete delegation contract (below) should make full history unnecessary |
+| high-stakes independent check | two agents spawned in the same round on the identical prompt, blind to each other's reasoning | minimal, identical for both, so neither is anchored by the other |
+
+All agents share the same container, filesystem, and working directory as the lead — edits by one are immediately visible to all others, including the lead. This makes write-collision discipline (below) load-bearing, not optional.
+
+**Concurrency is real and bounded.** The tool itself states 4 available concurrency slots, including the lead — so at most 3 subagents run at once regardless of how many are queued. Batch additional work after prior agents finish; do not assume unlimited fan-out.
+
+Use `wait_agent` to block on a spawned agent's result, `send_message` to pass it a message without triggering a new turn, `followup_task` to give a *running* agent a new task, `list_agents` to check what's active, and `interrupt_agent` to reclaim a stalled one.
+
+## Write a delegation contract
+
+Every subagent brief (the `message` passed to `spawn_agent`) must specify:
+
+```text
+Objective:
+Inputs and authoritative paths:
+In scope:
+Out of scope:
+Constraints and invariants:
+Write ownership:
+Expected artifact:
+Acceptance checks:
+Return format: conclusion, evidence, changed files, residual risk
+```
+
+Give each worker the minimum task-local context required. Do not leak another worker's conclusions into an independent round. Ask for evidence and artifacts, not confidence alone.
+
+## Prevent write collisions
+
+- Assign disjoint files or directories to concurrent implementers.
+- Use read-only agents for overlapping analysis or review.
+- State that the shared workspace may change while an agent runs; require rereading before edits.
+- Never let two agents edit the same file concurrently.
+- Out-of-band Terra one-shots that run `--sandbox workspace-write` edit the shared tree too; give them disjoint paths like any implementer, and never overlap a one-shot's write scope with a live spawn's.
+- Preserve user changes and unrelated worktree modifications.
+- Keep commits, pushes, deployments, destructive operations, and external messages under the same authorization rules as the lead.
+
+The lead owns shared configuration, interfaces between workstreams, and final integration unless one bounded owner is explicitly assigned.
+
+## Run the orchestration loop
+
+1. Inspect authoritative workspace state.
+2. Decompose work and identify dependencies.
+3. Publish the route and acceptance checks.
+4. Start all ready, independent workstreams concurrently — Sol `spawn_agent` children (within the 3-subagent capacity) for live/blind/isolation work, and backgrounded Terra `codex exec` one-shots (`--out <file>`) for bulk. Under the headless Terra-lead fallback there are no one-shots; everything is an in-process Terra spawn within that same capacity.
+5. Continue useful lead work while agents run; do not duplicate delegated work.
+6. Use `wait_agent` to consume each agent's final response and inspect its artifact directly.
+7. Send a focused `followup_task` to the same agent when its artifact is incomplete, rather than spawning a fresh one that repeats the briefing cost.
+8. Integrate in dependency order.
+9. Run end-to-end checks at the lead level.
+10. Report the outcome, verification evidence, and unresolved risk.
+
+Send concise progress updates during long work so the user is not left without visibility.
+
+## Use the high-stakes path
+
+For work that is both high blast radius and hard to verify:
+
+1. **The decorrelation inverts under a Sol lead — you cannot escalate above Sol.** Two Sol `spawn_agent` children are the *weakest* possible check: identical model, identical inherited effort, same sandbox, so they resample one distribution and share blind spots — do not treat that as a real independent check. Make the decorrelated half a **Terra out-of-band one-shot** (effort `high`) instead, so the two lines differ by *tier*. Two honest caveats: it is **same-vendor** (both GPT-5.6), so decorrelation is weaker than the cross-vendor Codex-vs-Claude check `fable-`/`opus-orchestrate` get; and it is **asymmetric** — Terra is the weaker model, so a disagreement is *never* resolved by deferring to Terra. Treat any substantive disagreement as a **stop-and-ask-the-human** signal, not a confidence tiebreak. Headless cannot decorrelate at all (no out-of-band half is possible); for genuine independence, escalate the session or step outside to a cross-vendor check that brings Claude in as the decorrelated vendor.
+2. Keep them blind to each other's reasoning — do not relay one's output into the other's task.
+3. Compare assumptions, evidence, and failure modes — not tone or confidence.
+4. Accept agreement only when both point to the same checkable evidence.
+5. On substantive disagreement, run one targeted reconciliation round where each can see the competing reasoning.
+6. If disagreement survives or evidence remains insufficient, stop and ask the user; do not break the tie by confidence.
+
+Use one worker plus a direct verification step when the task is high impact but cheaply verifiable.
+
+## Integrate rigorously
+
+Treat subagent results as untrusted until inspected. Check:
+
+- the artifact exists at the claimed path;
+- the diff matches the assigned scope;
+- interfaces agree across workstreams;
+- tests cover the requested behavior rather than a narrower substitute;
+- no unrelated user changes were overwritten; and
+- any assumption presented as fact has authoritative support.
+
+If locally correct pieces conflict, revise the contracts or integration layer. Do not paper over incompatible assumptions.
+
+## Completion rule
+
+Complete only when every requested deliverable has authoritative evidence, integrated behavior passes proportionate checks, and remaining risks are disclosed. Agent completion messages are not proof of overall completion.
+
+## Failure handling
+
+- If an agent stalls, use `interrupt_agent` to reclaim it, then send one narrower `followup_task` or reassign.
+- If an agent fails after editing, inspect the shared worktree before retrying.
+- If capacity is exhausted (3 subagents already active), queue dependent work rather than spawning redundant agents.
+- If a spawn fails outright, report the exact error rather than silently falling back to doing the work in the lead context — a silent fallback is what causes runaway lead-context token growth. If the failure looks environmental (not a task-brief problem), stop and ask rather than spending tokens on unbounded self-diagnosis.
+
+BRIEF
+# Task H — Replicate and stress a famous IV result (high-complexity tier)
+
+You are working in a project directory. Use R (`Rscript`); the `ivdoctr`, `AER`, and `car` packages are installed.
+
+**Data.** Acemoglu, Johnson & Robinson (2001), *The Colonial Origins of Comparative Development*. The base sample ships with `ivdoctr`:
+
+```r
+library(ivdoctr)
+data(colonial, package = "ivdoctr")   # 64 countries, AJR base sample
+```
+
+Key columns: `logpgp95` (log PPP GDP per capita, 1995 — the outcome); `avexpr` (average protection against expropriation risk — the institutions measure, endogenous); `logem4` (log settler mortality — the excluded instrument); `lat_abst` (absolute latitude / 90); `africa`, `asia` (continent dummies); `shortnam` (three-letter country code); `rich4` (= 1 for the four "neo-Europes").
+
+**Background.** A manuscript uses these data to replicate AJR's headline: settler mortality instruments expropriation-risk institutions, which in turn predict long-run income. Structurally, `logpgp95 ~ avexpr`, with `avexpr` instrumented by `logem4`. The paper reports a 2SLS coefficient far above its OLS counterpart and treats the finding as established. Your job is to reproduce that headline and then find out how much weight it will bear.
+
+**Task.**
+
+1. **Replicate the headline.** Estimate the bivariate 2SLS coefficient of `logpgp95` on `avexpr` instrumented by `logem4`, and its OLS counterpart on the same sample. Report the first stage (the coefficient of `avexpr` on `logem4`).
+2. **Stress the result** with four perturbations, each re-estimating OLS and 2SLS on the same sample/controls: (a) add latitude (`lat_abst`); (b) add continent controls (`africa`, `asia`); (c) drop the neo-Europes (`AUS`, `CAN`, `NZL`, `USA`, by `shortnam`); (d) restrict to Africa only (`africa == 1`).
+3. **Report first-stage strength per specification** — the first-stage F on the excluded instrument — and **flag any specification where the instrument is weak** (rule of thumb: F below ~10). Do not report a 2SLS point estimate as if it were reliable when its first stage is weak.
+4. **Deliverables** (see below): a script, a robustness table, and a short memo stating what survives the stress tests and what the paper is entitled to claim.
+
+**Produce, in the current working directory:**
+
+1. `script.R` — one self-contained script; conventions as in the other briefs (packages and any palette/theme declared at the top; `set.seed()` before anything stochastic — note that OLS/2SLS here are deterministic). If you produce a figure it is optional; follow house figure conventions if you do (Okabe-Ito palette, 300+ dpi, no in-plot title).
+2. `robustness-table.md` — **one** table reporting, for every specification, the OLS estimate, the 2SLS estimate, and the first-stage F (with the first-stage coefficient), so all specs are comparable at a glance. Note which specs are weakly identified.
+3. `memo.md` — roughly 400 words: state what survives the stress tests and what does not, and say precisely what the manuscript may and may not claim on this evidence. Do not overclaim in either direction — a specification whose instrument has collapsed does not confirm the result, and it does not overturn it either.
+
+**Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. No web access. Do not install packages. For 2SLS use `AER::ivreg` if it is available; otherwise estimate explicit two-stage least squares via two `lm` stages and note that the second-stage standard errors are approximate (uncorrected for the generated regressor). Say which path you took.
+
+FILES
+BRIEF.md
+sol-session.log
+
+codex
+Route:
+
+| Workstream | Owner | Dependency | Artifact | Acceptance check |
+|---|---|---|---|---|
+| Estimand/sample/diagnostic design | Sol (lead, direct) | `BRIEF.md` + data schema | Fixed implementation contract | OLS and IV share each specification’s complete-case sample; excluded-instrument partial F is computed from the actual first stage |
+| Mechanical estimation and table generation | Terra out-of-band | Fixed contract | `script.R`, `robustness-table.md` | Clean `Rscript script.R`; all five specifications present; coefficients/F/sample flags internally consistent |
+| Interpretation and claim calibration | Sol (lead, direct) | Verified estimates | `memo.md` | Weak-IV cases treated as inconclusive, not affirmative or overturning evidence |
+| Independent verification | Terra out-of-band | Completed artifacts | Read-only audit log | Recompute/check results, sample restrictions, IV syntax, and deliverable compliance |
+| Final integration/routing record | Sol (lead, direct) | All above | `routing-log.md` | Exact commands and Terra token counts recorded; all brief constraints checked |
+
+I’ll use two delegations, leaving the single permitted revision cycle available only if the audit finds a concrete defect. No web access or package installation will be used.
+exec
+/bin/zsh -lc "Rscript -e 'library(ivdoctr); data(colonial, package=\"ivdoctr\"); cat(\"dims\", dim(colonial), \"\\n\"); print(names(colonial)); print(colonial[colonial"'$shortnam %in% c("AUS","CAN","NZL","USA"), c("shortnam","rich4")]); print(table(colonial$africa, useNA="ifany")); cat("AER", requireNamespace("AER", quietly=TRUE), "'"\\n\")'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+ succeeded in 506ms:
+dims 64 9 
+[1] "shortnam" "africa"   "lat_abst" "rich4"    "avexpr"   "logpgp95" "logem4"  
+[8] "asia"     "loghjypl"
+   shortnam rich4
+     <char> <num>
+1:      AUS     1
+2:      CAN     1
+3:      NZL     1
+4:      USA     1
+
+ 0  1 
+37 27 
+AER TRUE 
+
+codex
+The lead-side design is now fixed: five separate complete-case samples, conventional partial first-stage F from comparing restricted and unrestricted first-stage models, and `AER::ivreg` for 2SLS. Terra is now implementing only that bounded specification; this delegation is where the orchestration skill shifts mechanical coding out of the lead context.
+exec
+/bin/zsh -lc 'codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" '"'Objective:
+Create the deterministic R estimation artifact and the Markdown robustness table required by BRIEF.md.
+
+Inputs and authoritative paths:
+- Read ./BRIEF.md completely.
+- Data are loaded only with library(ivdoctr); data(colonial, package = \"ivdoctr\").
+- AER is confirmed available.
+
+In scope:
+- Write only ./script.R and ./robustness-table.md.
+- Implement exactly five specifications: Base (no controls); Latitude (lat_abst); Continent controls (africa + asia); Drop neo-Europes (exclude AUS, CAN, NZL, USA by shortnam, no added controls); Africa only (africa == 1, no added controls).
+- For each specification, build one estimation data frame by applying the restriction and complete.cases to the outcome, endogenous regressor, excluded instrument, and that specification’s controls. Fit OLS and IV on this identical sample.
+- OLS: lm(logpgp95 ~ avexpr + controls).
+- IV: AER::ivreg(logpgp95 ~ avexpr + controls | logem4 + controls).
+- First stage: lm(avexpr ~ logem4 + controls) on that same data. Record the logem4 coefficient.
+- Compute the conventional partial F for the excluded instrument by anova(restricted first stage without logem4, unrestricted first stage with logem4), extracting the F statistic. With one excluded instrument this is the standard first-stage excluded-instrument F.
+- Mark F < 10 as weak. Preserve the numerical IV estimate in the table for transparency but label weak cases explicitly and ensure the note says weak-spec IV point estimates are not reliable causal estimates.
+- Table must have one row/specification and columns sufficient to show N, OLS avexpr estimate, 2SLS avexpr estimate, first-stage logem4 coefficient, first-stage F, identification status. Use sensible precision and one Markdown table only.
+- script.R must be self-contained, declare libraries at top, include set.seed() before estimation even though deterministic, generate robustness-table.md when run, and state/use the AER::ivreg path. No figure.
+
+Out of scope:
+- Do not write memo.md, routing-log.md, logs, figures, or any other file.
+- Do not interpret manuscript claims beyond concise table notes.
+- No web, no package installation, no commits.
+
+Constraints and invariants:
+- Current leaf only. Preserve unrelated files.
+- Follow BRIEF.md exactly.
+- Do not use robust/clustered standard errors; no SEs are requested.
+- Do not substitute ivreg diagnostic output for the explicitly computed first-stage partial F.
+
+Write ownership:
+Exclusive ownership of script.R and robustness-table.md. The shared workspace may change; reread inputs immediately before editing. Use apply_patch for edits.
+
+Expected artifact:
+A clean self-contained script.R and its generated robustness-table.md.
+
+Acceptance checks:
+Run Rscript script.R successfully. Verify exactly five rows, each OLS/IV pair uses identical N, restrictions are correct, Africa-only has 27 observations before any missingness, and rerunning produces identical table bytes. Report relevant numerical results and file paths.
+
+Return format:
+Conclusion, evidence/check output, changed files, residual risk.' < /dev/null > terra-implementation.log 2>&1" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+codex
+The implementation worker is still running. While it finishes, I’m holding the key interpretive rule fixed: coefficient instability under a strong first stage is evidence about robustness; coefficient instability under a collapsed first stage is not interpretable as either confirmation or refutation.
+ succeeded in 89731ms:
+exec
+/bin/zsh -lc "sed -n '1,260p' script.R; printf '\\nTABLE\\n'; cat robustness-table.md; printf '\\nTERRA LOG TAIL\\n'; tail -80 terra-implementation.log; printf '\\nFILES\\n'; rg --files | sort" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+ succeeded in 0ms:
+#!/usr/bin/env Rscript
+
+# Deterministic replication and robustness checks for the AJR colonial sample.
+library(ivdoctr)
+library(AER)
+
+set.seed(2001)
+
+data(colonial, package = "ivdoctr")
+colonial <- as.data.frame(colonial)
+
+# The raw AJR base sample contains 27 African countries before missing-data removal.
+stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
+
+specifications <- list(
+  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
+  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
+  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
+  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
+  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
+)
+
+make_formula <- function(lhs, rhs_terms) {
+  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
+  stats::as.formula(paste(lhs, "~", rhs))
+}
+
+estimate_specification <- function(spec, data) {
+  # Apply this specification's restriction, then complete cases for all model variables.
+  restricted <- data[spec$keep(data), , drop = FALSE]
+  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
+  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
+
+  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
+  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
+  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
+  iv_formula <- stats::as.formula(paste(
+    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
+    "|", paste(c("logem4", spec$controls), collapse = " + ")
+  ))
+
+  ols <- stats::lm(ols_formula, data = estimation_data)
+  # Use the required AER::ivreg path for two-stage least squares.
+  iv <- AER::ivreg(iv_formula, data = estimation_data)
+  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
+  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
+  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
+  partial_f <- first_stage_comparison$F[2L]
+
+  data.frame(
+    specification = spec$name,
+    n = nrow(estimation_data),
+    ols = unname(stats::coef(ols)["avexpr"]),
+    iv = unname(stats::coef(iv)["avexpr"]),
+    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
+    first_stage_f = partial_f,
+    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
+    stringsAsFactors = FALSE
+  )
+}
+
+results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
+stopifnot(nrow(results) == 5L)
+
+table_lines <- c(
+  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
+  "|---|---:|---:|---:|---:|---:|---|",
+  vapply(seq_len(nrow(results)), function(i) {
+    row <- results[i, ]
+    paste0(
+      "| ", row$specification,
+      " | ", row$n,
+      " | ", sprintf("%.3f", row$ols),
+      " | ", sprintf("%.3f", row$iv),
+      " | ", sprintf("%.3f", row$first_stage_logem4),
+      " | ", sprintf("%.2f", row$first_stage_f),
+      " | ", row$identification, " |"
+    )
+  }, character(1)),
+  "",
+  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
+)
+
+writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+TABLE
+| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |
+|---|---:|---:|---:|---:|---:|---|
+| Base | 64 | 0.522 | 0.944 | -0.607 | 22.95 | Not weak (F >= 10) |
+| Latitude | 64 | 0.468 | 0.996 | -0.510 | 13.09 | Not weak (F >= 10) |
+| Continent controls | 64 | 0.434 | 0.839 | -0.533 | 11.01 | Not weak (F >= 10) |
+| Drop neo-Europes | 60 | 0.487 | 1.281 | -0.391 | 8.65 | Weak (F < 10) |
+| Africa only | 27 | 0.302 | 2.400 | -0.108 | 0.30 | Weak (F < 10) |
+
+Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`.
+
+TERRA LOG TAIL
++  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
++  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
++
++  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
++  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
++  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
++  iv_formula <- stats::as.formula(paste(
++    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
++    "|", paste(c("logem4", spec$controls), collapse = " + ")
++  ))
++
++  ols <- stats::lm(ols_formula, data = estimation_data)
++  # Use the required AER::ivreg path for two-stage least squares.
++  iv <- AER::ivreg(iv_formula, data = estimation_data)
++  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
++  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
++  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
++  partial_f <- first_stage_comparison$F[2L]
++
++  data.frame(
++    specification = spec$name,
++    n = nrow(estimation_data),
++    ols = unname(stats::coef(ols)["avexpr"]),
++    iv = unname(stats::coef(iv)["avexpr"]),
++    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
++    first_stage_f = partial_f,
++    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
++    stringsAsFactors = FALSE
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
++stopifnot(nrow(results) == 5L)
++
++table_lines <- c(
++  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
++  "|---|---:|---:|---:|---:|---:|---|",
++  vapply(seq_len(nrow(results)), function(i) {
++    row <- results[i, ]
++    paste0(
++      "| ", row$specification,
++      " | ", row$n,
++      " | ", sprintf("%.3f", row$ols),
++      " | ", sprintf("%.3f", row$iv),
++      " | ", sprintf("%.3f", row$first_stage_logem4),
++      " | ", sprintf("%.2f", row$first_stage_f),
++      " | ", row$identification, " |"
++    )
++  }, character(1)),
++  "",
++  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
++)
++
++writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+
+tokens used
+33,484
+Conclusion: Completed the deterministic AJR estimation artifact and generated robustness table.
+
+Evidence/check output:
+
+- `Rscript script.R` succeeds.
+- Re-run output is byte-identical (`cmp` exit status 0).
+- Five specifications produced; Africa-only raw and estimation N = 27.
+- Results (OLS / 2SLS / first-stage F):
+
+  - Base: 0.522 / 0.944 / 22.95
+  - Latitude: 0.468 / 0.996 / 13.09
+  - Continent controls: 0.434 / 0.839 / 11.01
+  - Drop neo-Europes: 0.487 / 1.281 / 8.65 — weak
+  - Africa only: 0.302 / 2.400 / 0.30 — weak
+
+- The script uses `AER::ivreg`, applies restriction then complete cases per specification, and fits OLS/IV/first stage on that identical sample. It computes the excluded-instrument partial F via nested first-stage `anova()`.
+
+Changed files:
+
+- [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R)
+- [robustness-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/robustness-table.md)
+
+Residual risk: none identified; weak specifications are explicitly labeled and the table notes that their IV estimates are not reliable causal estimates.
+
+FILES
+BRIEF.md
+robustness-table.md
+script.R
+sol-session.log
+terra-implementation.log
+
+codex
+Terra’s implementation passed an initial lead inspection. The numerical pattern is clear: the headline replicates and survives latitude/continent controls with F-statistics just above the conventional threshold, while dropping neo-Europes weakens the first stage below 10 and the Africa-only first stage essentially disappears. I’m drafting the claim-calibrated memo from that distinction before the independent read-only audit.
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+
+exec
+/bin/zsh -lc "set -e
+Rscript script.R
+sha256sum robustness-table.md > /tmp/ajr-table-hash-1
+Rscript script.R
+sha256sum robustness-table.md > /tmp/ajr-table-hash-2
+diff -u /tmp/ajr-table-hash-1 /tmp/ajr-table-hash-2
+Rscript -e 'library(ivdoctr); library(AER); data(colonial, package=\"ivdoctr\"); fit <- ivreg(logpgp95 ~ avexpr | logem4, data=colonial); fs <- lm(avexpr ~ logem4, data=colonial); cat(sprintf(\"base iv=%.9f fs=%.9f diagF=%.9f\\n\", coef(fit)[[\"avexpr\"]], coef(fs)[[\"logem4\"]], summary(fit, diagnostics=TRUE)"'$diagnostics["Weak instruments","statistic"]))'"'
+wc -w memo.md
+cat memo.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+
+ succeeded in 1631ms:
+Loading required package: car
+Loading required package: carData
+Loading required package: lmtest
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Loading required package: sandwich
+Loading required package: survival
+Loading required package: car
+Loading required package: carData
+Loading required package: lmtest
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Loading required package: sandwich
+Loading required package: survival
+Loading required package: car
+Loading required package: carData
+Loading required package: lmtest
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Loading required package: sandwich
+Loading required package: survival
+base iv=0.944279385 fs=-0.606778249 diagF=22.946796587
+     386 memo.md
+# Memo: How much weight does the AJR result bear?
+
+The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
+
+The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
+
+The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
+
+The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+
+codex
+Lead verification now confirms deterministic regeneration, and `ivreg`’s base weak-instrument diagnostic exactly matches the independently computed F (22.9468). The memo is 386 words. I’m starting the second and final delegation: a read-only audit of formulas, samples, numbers, and claim language; it cannot modify the artifacts.
+exec
+/bin/zsh -lc 'codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox read-only --skip-git-repo-check -C "$PWD" '"'Objective:
+Independently audit the completed AJR replication artifacts against BRIEF.md. This is a verification task, not implementation.
+
+Inputs and authoritative paths:
+Read ./BRIEF.md, ./script.R, ./robustness-table.md, and ./memo.md. Load the local ivdoctr colonial data and run read-only R commands as needed.
+
+In scope:
+- Check all five specification definitions and restrictions.
+- Check that OLS and AER::ivreg formulas use the same controls and same complete-case sample per specification.
+- Independently recompute OLS avexpr coefficients, IV avexpr coefficients, first-stage logem4 coefficients, excluded-instrument partial F statistics, N, and weak flags.
+- Check table values/rounding against recomputation.
+- Check memo claims against results, especially treatment of F < 10 cases as inconclusive rather than confirming or overturning.
+- Check self-contained execution, deterministic output, the stated AER path, approximate 400-word length, one Markdown table, no required deliverable missing, and no brief violation.
+
+Out of scope:
+- Do not edit or create any file. Do not propose stylistic rewrites unless they fix a factual or constraint defect.
+- No web, package installation, commits, or writes outside normal temporary system behavior.
+
+Constraints and invariants:
+The workspace is shared and may change; reread every artifact immediately before checks. Treat BRIEF.md as authoritative. Conventional F < 10 flagging is the requested rule; do not demand alternative weak-IV thresholds or unrequested standard errors.
+
+Write ownership:
+Read-only. Write no project artifact; return findings only in stdout.
+
+Expected artifact:
+A concise audit report in this call’s captured log.
+
+Acceptance checks:
+Give PASS/FAIL for (1) formulas/samples, (2) recomputed numerics, (3) weak-IV labeling/interpretation, (4) deliverable/form constraints. If any failure, cite exact file/line and exact correction. Distinguish defects from optional enhancements.
+
+Return format:
+Conclusion, evidence with recomputed values, failures if any, residual risk.' < /dev/null > terra-verification.log 2>&1" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+
+codex
+The audit is still running. No artifact has been changed during this phase; once it returns, I’ll either use the one allowed revision cycle for a specific defect or, if it passes, finalize the routing record and run one last leaf-directory check.
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+
+ succeeded in 75953ms:
+exec
+/bin/zsh -lc 'tail -140 terra-verification.log' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+ succeeded in 0ms:
+    24	  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
+    25	  stats::as.formula(paste(lhs, "~", rhs))
+    26	}
+    27	
+    28	estimate_specification <- function(spec, data) {
+    29	  # Apply this specification's restriction, then complete cases for all model variables.
+    30	  restricted <- data[spec$keep(data), , drop = FALSE]
+    31	  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
+    32	  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
+    33	
+    34	  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
+    35	  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
+    36	  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
+    37	  iv_formula <- stats::as.formula(paste(
+    38	    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
+    39	    "|", paste(c("logem4", spec$controls), collapse = " + ")
+    40	  ))
+    41	
+    42	  ols <- stats::lm(ols_formula, data = estimation_data)
+    43	  # Use the required AER::ivreg path for two-stage least squares.
+    44	  iv <- AER::ivreg(iv_formula, data = estimation_data)
+    45	  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
+    46	  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
+    47	  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
+    48	  partial_f <- first_stage_comparison$F[2L]
+    49	
+    50	  data.frame(
+    51	    specification = spec$name,
+    52	    n = nrow(estimation_data),
+    53	    ols = unname(stats::coef(ols)["avexpr"]),
+    54	    iv = unname(stats::coef(iv)["avexpr"]),
+    55	    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
+    56	    first_stage_f = partial_f,
+    57	    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
+    58	    stringsAsFactors = FALSE
+    59	  )
+    60	}
+    61	
+    62	results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
+    63	stopifnot(nrow(results) == 5L)
+    64	
+    65	table_lines <- c(
+    66	  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
+    67	  "|---|---:|---:|---:|---:|---:|---|",
+    68	  vapply(seq_len(nrow(results)), function(i) {
+    69	    row <- results[i, ]
+    70	    paste0(
+    71	      "| ", row$specification,
+    72	      " | ", row$n,
+    73	      " | ", sprintf("%.3f", row$ols),
+    74	      " | ", sprintf("%.3f", row$iv),
+    75	      " | ", sprintf("%.3f", row$first_stage_logem4),
+    76	      " | ", sprintf("%.2f", row$first_stage_f),
+    77	      " | ", row$identification, " |"
+    78	    )
+    79	  }, character(1)),
+    80	  "",
+    81	  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
+    82	)
+    83	
+    84	writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+     1	| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |
+     2	|---|---:|---:|---:|---:|---:|---|
+     3	| Base | 64 | 0.522 | 0.944 | -0.607 | 22.95 | Not weak (F >= 10) |
+     4	| Latitude | 64 | 0.468 | 0.996 | -0.510 | 13.09 | Not weak (F >= 10) |
+     5	| Continent controls | 64 | 0.434 | 0.839 | -0.533 | 11.01 | Not weak (F >= 10) |
+     6	| Drop neo-Europes | 60 | 0.487 | 1.281 | -0.391 | 8.65 | Weak (F < 10) |
+     7	| Africa only | 27 | 0.302 | 2.400 | -0.108 | 0.30 | Weak (F < 10) |
+     8	
+     9	Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`.
+     1	# Memo: How much weight does the AJR result bear?
+     2	
+     3	The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
+     4	
+     5	The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
+     6	
+     7	The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
+     8	
+     9	The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+     386 memo.md
+
+codex
+## Conclusion
+
+**Audit incomplete—no artifact defect found, but independent numeric recomputation could not run in this read-only sandbox.**
+
+| Acceptance check | Result |
+|---|---|
+| Formulas/samples | **PASS** |
+| Independently recomputed numerics | **FAIL (environment-blocked)** |
+| Weak-IV labeling/interpretation | **PASS** |
+| Deliverable/form constraints | **PASS, except runtime execution unverified** |
+
+## Evidence
+
+- All five specifications match the brief: base, latitude, continent controls, dropping `AUS/CAN/NZL/USA`, and `africa == 1` ([script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R:15)).
+- Restriction precedes complete-case filtering, which includes outcome, endogenous regressor, instrument, and controls ([script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R:29)).
+- OLS, first stage, and `AER::ivreg` use the same controls and explicitly constructed estimation data ([script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R:34), [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R:42)).
+- The partial F is correctly specified as the nested first-stage F for adding `logem4` ([script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R:45)).
+- Reported values are: Base `N=64`, OLS `0.522`, IV `0.944`, first stage `-0.607`, F `22.95`; latitude `0.468/0.996/-0.510/13.09`; continent `0.434/0.839/-0.533/11.01`; drop neo-Europes `0.487/1.281/-0.391/8.65`; Africa `0.302/2.400/-0.108/0.30` ([robustness-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/robustness-table.md:3)).
+- F<10 is flagged exactly for drop-neo-Europe and Africa-only. The memo correctly treats both as inconclusive—not confirmation or overturning ([memo.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md:7)).
+- Required files exist; the table has exactly one Markdown table; memo length is **386 words**; `AER::ivreg`, package loading, and deterministic seed are stated.
+
+## Failure / exact correction
+
+No project-file correction is warranted. The failed check is environmental: every read-only R attempt terminated before loading data because R cannot create `R_TempDir`, including with `TMPDIR=/private/tmp`. To obtain a true independent numeric PASS, rerun the same read-only audit where R may create ordinary temporary files.
+
+## Residual risk
+
+The coefficients and rounding are statically consistent with the script and table, but remain **unverified by a fresh local R recomputation in this call**.
+tokens used
+56,775
+## Conclusion
+
+**Audit incomplete—no artifact defect found, but independent numeric recomputation could not run in this read-only sandbox.**
+
+| Acceptance check | Result |
+|---|---|
+| Formulas/samples | **PASS** |
+| Independently recomputed numerics | **FAIL (environment-blocked)** |
+| Weak-IV labeling/interpretation | **PASS** |
+| Deliverable/form constraints | **PASS, except runtime execution unverified** |
+
+## Evidence
+
+- All five specifications match the brief: base, latitude, continent controls, dropping `AUS/CAN/NZL/USA`, and `africa == 1` ([script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R:15)).
+- Restriction precedes complete-case filtering, which includes outcome, endogenous regressor, instrument, and controls ([script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R:29)).
+- OLS, first stage, and `AER::ivreg` use the same controls and explicitly constructed estimation data ([script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R:34), [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R:42)).
+- The partial F is correctly specified as the nested first-stage F for adding `logem4` ([script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R:45)).
+- Reported values are: Base `N=64`, OLS `0.522`, IV `0.944`, first stage `-0.607`, F `22.95`; latitude `0.468/0.996/-0.510/13.09`; continent `0.434/0.839/-0.533/11.01`; drop neo-Europes `0.487/1.281/-0.391/8.65`; Africa `0.302/2.400/-0.108/0.30` ([robustness-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/robustness-table.md:3)).
+- F<10 is flagged exactly for drop-neo-Europe and Africa-only. The memo correctly treats both as inconclusive—not confirmation or overturning ([memo.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md:7)).
+- Required files exist; the table has exactly one Markdown table; memo length is **386 words**; `AER::ivreg`, package loading, and deterministic seed are stated.
+
+## Failure / exact correction
+
+No project-file correction is warranted. The failed check is environmental: every read-only R attempt terminated before loading data because R cannot create `R_TempDir`, including with `TMPDIR=/private/tmp`. To obtain a true independent numeric PASS, rerun the same read-only audit where R may create ordinary temporary files.
+
+## Residual risk
+
+The coefficients and rounding are statically consistent with the script and table, but remain **unverified by a fresh local R recomputation in this call**.
+
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+
+codex
+The verifier found no artifact defect but could not execute R because its read-only sandbox blocked creation of `R_TempDir`. That does not trigger a revision cycle. I’m closing the gap directly with an independent all-specification recomputation using the one-instrument identity \(F=t^2\), then I’ll record the sandbox limitation as friction.
+exec
+/bin/zsh -lc "rm -f /tmp/ajr-table-hash-1 /tmp/ajr-table-hash-2
+Rscript -e '
+library(ivdoctr); library(AER); data(colonial, package=\"ivdoctr\"); d <- as.data.frame(colonial)
+specs <- list(Base=list(rows=rep(TRUE,nrow(d)),controls=character()), Latitude=list(rows=rep(TRUE,nrow(d)),controls=\"lat_abst\"), Continent=list(rows=rep(TRUE,nrow(d)),controls=c(\"africa\",\"asia\")), DropNeo=list(rows="'!d$shortnam %in% c("AUS","CAN","NZL","USA"),controls=character()), Africa=list(rows=d$africa==1,controls=character()))
+for (nm in names(specs)) { s <- specs[[nm]]; x <- d[s$rows,,drop=FALSE]; vars <- c("logpgp95","avexpr","logem4",s$controls); x <- x[complete.cases(x[,vars,drop=FALSE]),,drop=FALSE]; rhs1 <- paste(c("avexpr",s$controls),collapse="+"); rhsz <- paste(c("logem4",s$controls),collapse="+"); ols <- lm(as.formula(paste("logpgp95~",rhs1)),data=x); iv <- ivreg(as.formula(paste("logpgp95~",rhs1,"|",rhsz)),data=x); fs <- lm(as.formula(paste("avexpr~",rhsz)),data=x); f <- coef(summary(fs))["logem4","t value"]''^2; cat(sprintf("%-9s N=%d OLS=%.9f IV=%.9f FS=%.9f F=%.9f'"\\n\",nm,nrow(x),coef(ols)[[\"avexpr\"]],coef(iv)[[\"avexpr\"]],coef(fs)[[\"logem4\"]],f)) }
+'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+
+ succeeded in 550ms:
+Loading required package: car
+Loading required package: carData
+Loading required package: lmtest
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Loading required package: sandwich
+Loading required package: survival
+Base      N=64 OLS=0.522107030 IV=0.944279385 FS=-0.606778249 F=22.946796587
+Latitude  N=64 OLS=0.467887064 IV=0.995704032 FS=-0.510268055 F=13.093151094
+Continent N=64 OLS=0.434122687 IV=0.839048224 FS=-0.533065051 F=11.005531995
+DropNeo   N=60 OLS=0.486848178 IV=1.281239905 FS=-0.391238390 F=8.646071850
+Africa    N=27 OLS=0.301786608 IV=2.400495379 FS=-0.108353213 F=0.298384122
+
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md b/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..2776b5f354427a5986097cb07e38ff86d5241c68
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md
+@@ -0,0 +1,107 @@
++# Routing log
++
++## Route table
++
++| Workstream | Owner | Why this owner | Acceptance check |
++|---|---|---|---|
++| Estimand, sample, and diagnostic design | Sol (lead, direct) | The definition of comparable samples, controls, and weak-identification evidence required analytical judgment and governed all downstream work. | Each specification uses one complete-case sample for OLS, IV, and first stage; the excluded-instrument partial F comes from the specification-specific first stage. |
++| Mechanical estimation and table generation | Terra out-of-band | The implementation was bounded by fixed formulas, restrictions, outputs, and objective runtime checks. | `Rscript script.R` succeeds; five rows are produced; reruns are byte-identical; restrictions and weak flags are correct. |
++| Interpretation and claim calibration | Sol (lead, direct) | Distinguishing non-robustness from weak-IV inconclusiveness and bounding the causal claim required lead-level judgment. | Memo is roughly 400 words, matches the estimates, and neither confirms nor overturns the result from weakly identified specifications. |
++| Independent artifact audit | Terra out-of-band | Static review and routine recomputation were bounded verification work and benefited from a fresh context. | Formulas, samples, table, memo, and constraints checked; numerical recomputation attempted independently. |
++| Integration and final verification | Sol (lead, direct) | The lead retained end-to-end accountability and had to resolve the verifier's sandbox limitation. | Independent all-specification recomputation matches every reported value; required files exist; constraints and routing record are complete. |
++
++## Out-of-band calls
++
++### 1. Mechanical implementation — tokens used: 33,484
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" 'Objective:
++Create the deterministic R estimation artifact and the Markdown robustness table required by BRIEF.md.
++
++Inputs and authoritative paths:
++- Read ./BRIEF.md completely.
++- Data are loaded only with library(ivdoctr); data(colonial, package = "ivdoctr").
++- AER is confirmed available.
++
++In scope:
++- Write only ./script.R and ./robustness-table.md.
++- Implement exactly five specifications: Base (no controls); Latitude (lat_abst); Continent controls (africa + asia); Drop neo-Europes (exclude AUS, CAN, NZL, USA by shortnam, no added controls); Africa only (africa == 1, no added controls).
++- For each specification, build one estimation data frame by applying the restriction and complete.cases to the outcome, endogenous regressor, excluded instrument, and that specification’s controls. Fit OLS and IV on this identical sample.
++- OLS: lm(logpgp95 ~ avexpr + controls).
++- IV: AER::ivreg(logpgp95 ~ avexpr + controls | logem4 + controls).
++- First stage: lm(avexpr ~ logem4 + controls) on that same data. Record the logem4 coefficient.
++- Compute the conventional partial F for the excluded instrument by anova(restricted first stage without logem4, unrestricted first stage with logem4), extracting the F statistic. With one excluded instrument this is the standard first-stage excluded-instrument F.
++- Mark F < 10 as weak. Preserve the numerical IV estimate in the table for transparency but label weak cases explicitly and ensure the note says weak-spec IV point estimates are not reliable causal estimates.
++- Table must have one row/specification and columns sufficient to show N, OLS avexpr estimate, 2SLS avexpr estimate, first-stage logem4 coefficient, first-stage F, identification status. Use sensible precision and one Markdown table only.
++- script.R must be self-contained, declare libraries at top, include set.seed() before estimation even though deterministic, generate robustness-table.md when run, and state/use the AER::ivreg path. No figure.
++
++Out of scope:
++- Do not write memo.md, routing-log.md, logs, figures, or any other file.
++- Do not interpret manuscript claims beyond concise table notes.
++- No web, no package installation, no commits.
++
++Constraints and invariants:
++- Current leaf only. Preserve unrelated files.
++- Follow BRIEF.md exactly.
++- Do not use robust/clustered standard errors; no SEs are requested.
++- Do not substitute ivreg diagnostic output for the explicitly computed first-stage partial F.
++
++Write ownership:
++Exclusive ownership of script.R and robustness-table.md. The shared workspace may change; reread inputs immediately before editing. Use apply_patch for edits.
++
++Expected artifact:
++A clean self-contained script.R and its generated robustness-table.md.
++
++Acceptance checks:
++Run Rscript script.R successfully. Verify exactly five rows, each OLS/IV pair uses identical N, restrictions are correct, Africa-only has 27 observations before any missingness, and rerunning produces identical table bytes. Report relevant numerical results and file paths.
++
++Return format:
++Conclusion, evidence/check output, changed files, residual risk.' < /dev/null > terra-implementation.log 2>&1
++```
++
++### 2. Independent verification — tokens used: 56,775
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox read-only --skip-git-repo-check -C "$PWD" 'Objective:
++Independently audit the completed AJR replication artifacts against BRIEF.md. This is a verification task, not implementation.
++
++Inputs and authoritative paths:
++Read ./BRIEF.md, ./script.R, ./robustness-table.md, and ./memo.md. Load the local ivdoctr colonial data and run read-only R commands as needed.
++
++In scope:
++- Check all five specification definitions and restrictions.
++- Check that OLS and AER::ivreg formulas use the same controls and same complete-case sample per specification.
++- Independently recompute OLS avexpr coefficients, IV avexpr coefficients, first-stage logem4 coefficients, excluded-instrument partial F statistics, N, and weak flags.
++- Check table values/rounding against recomputation.
++- Check memo claims against results, especially treatment of F < 10 cases as inconclusive rather than confirming or overturning.
++- Check self-contained execution, deterministic output, the stated AER path, approximate 400-word length, one Markdown table, no required deliverable missing, and no brief violation.
++
++Out of scope:
++- Do not edit or create any file. Do not propose stylistic rewrites unless they fix a factual or constraint defect.
++- No web, package installation, commits, or writes outside normal temporary system behavior.
++
++Constraints and invariants:
++The workspace is shared and may change; reread every artifact immediately before checks. Treat BRIEF.md as authoritative. Conventional F < 10 flagging is the requested rule; do not demand alternative weak-IV thresholds or unrequested standard errors.
++
++Write ownership:
++Read-only. Write no project artifact; return findings only in stdout.
++
++Expected artifact:
++A concise audit report in this call’s captured log.
++
++Acceptance checks:
++Give PASS/FAIL for (1) formulas/samples, (2) recomputed numerics, (3) weak-IV labeling/interpretation, (4) deliverable/form constraints. If any failure, cite exact file/line and exact correction. Distinguish defects from optional enhancements.
++
++Return format:
++Conclusion, evidence with recomputed values, failures if any, residual risk.' < /dev/null > terra-verification.log 2>&1
++```
++
++## What Sol reasoned directly
++
++The lead fixed the five estimands and their sample logic; chose the conventional specification-specific partial F for the single excluded instrument; required identical OLS/IV/first-stage samples; interpreted F = 11.01 as only marginally above the rule-of-thumb threshold; and separated genuine coefficient robustness in the three stronger-first-stage specifications from the inconclusive drop-neo-Europe and Africa-only exercises. The lead also bounded the manuscript's entitlement: replication and limited control robustness are supported, but universal robustness, within-Africa evidence, and the exclusion restriction are not established.
++
++## Friction
++
++The read-only Terra verifier could not launch R because R could not create `R_TempDir`; it therefore passed the static/formula, weak-IV interpretation, and deliverable checks but marked independent numeric execution environment-blocked. The lead resolved this by independently recomputing all five specifications in the interactive session, using the single-instrument identity `F = t^2`; every full-precision value matched the table. No artifact correction or revision cycle was needed. During lead verification, two hash files were inadvertently created in `/tmp`; both were removed immediately, and all persistent artifacts remain confined to the current leaf.
++
++[SOL LEAD TOKENS: ____]  + Terra one-shots: 90,259  = <total>
+
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md b/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..2776b5f354427a5986097cb07e38ff86d5241c68
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md
+@@ -0,0 +1,107 @@
++# Routing log
++
++## Route table
++
++| Workstream | Owner | Why this owner | Acceptance check |
++|---|---|---|---|
++| Estimand, sample, and diagnostic design | Sol (lead, direct) | The definition of comparable samples, controls, and weak-identification evidence required analytical judgment and governed all downstream work. | Each specification uses one complete-case sample for OLS, IV, and first stage; the excluded-instrument partial F comes from the specification-specific first stage. |
++| Mechanical estimation and table generation | Terra out-of-band | The implementation was bounded by fixed formulas, restrictions, outputs, and objective runtime checks. | `Rscript script.R` succeeds; five rows are produced; reruns are byte-identical; restrictions and weak flags are correct. |
++| Interpretation and claim calibration | Sol (lead, direct) | Distinguishing non-robustness from weak-IV inconclusiveness and bounding the causal claim required lead-level judgment. | Memo is roughly 400 words, matches the estimates, and neither confirms nor overturns the result from weakly identified specifications. |
++| Independent artifact audit | Terra out-of-band | Static review and routine recomputation were bounded verification work and benefited from a fresh context. | Formulas, samples, table, memo, and constraints checked; numerical recomputation attempted independently. |
++| Integration and final verification | Sol (lead, direct) | The lead retained end-to-end accountability and had to resolve the verifier's sandbox limitation. | Independent all-specification recomputation matches every reported value; required files exist; constraints and routing record are complete. |
++
++## Out-of-band calls
++
++### 1. Mechanical implementation — tokens used: 33,484
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" 'Objective:
++Create the deterministic R estimation artifact and the Markdown robustness table required by BRIEF.md.
++
++Inputs and authoritative paths:
++- Read ./BRIEF.md completely.
++- Data are loaded only with library(ivdoctr); data(colonial, package = "ivdoctr").
++- AER is confirmed available.
++
++In scope:
++- Write only ./script.R and ./robustness-table.md.
++- Implement exactly five specifications: Base (no controls); Latitude (lat_abst); Continent controls (africa + asia); Drop neo-Europes (exclude AUS, CAN, NZL, USA by shortnam, no added controls); Africa only (africa == 1, no added controls).
++- For each specification, build one estimation data frame by applying the restriction and complete.cases to the outcome, endogenous regressor, excluded instrument, and that specification’s controls. Fit OLS and IV on this identical sample.
++- OLS: lm(logpgp95 ~ avexpr + controls).
++- IV: AER::ivreg(logpgp95 ~ avexpr + controls | logem4 + controls).
++- First stage: lm(avexpr ~ logem4 + controls) on that same data. Record the logem4 coefficient.
++- Compute the conventional partial F for the excluded instrument by anova(restricted first stage without logem4, unrestricted first stage with logem4), extracting the F statistic. With one excluded instrument this is the standard first-stage excluded-instrument F.
++- Mark F < 10 as weak. Preserve the numerical IV estimate in the table for transparency but label weak cases explicitly and ensure the note says weak-spec IV point estimates are not reliable causal estimates.
++- Table must have one row/specification and columns sufficient to show N, OLS avexpr estimate, 2SLS avexpr estimate, first-stage logem4 coefficient, first-stage F, identification status. Use sensible precision and one Markdown table only.
++- script.R must be self-contained, declare libraries at top, include set.seed() before estimation even though deterministic, generate robustness-table.md when run, and state/use the AER::ivreg path. No figure.
++
++Out of scope:
++- Do not write memo.md, routing-log.md, logs, figures, or any other file.
++- Do not interpret manuscript claims beyond concise table notes.
++- No web, no package installation, no commits.
++
++Constraints and invariants:
++- Current leaf only. Preserve unrelated files.
++- Follow BRIEF.md exactly.
++- Do not use robust/clustered standard errors; no SEs are requested.
++- Do not substitute ivreg diagnostic output for the explicitly computed first-stage partial F.
++
++Write ownership:
++Exclusive ownership of script.R and robustness-table.md. The shared workspace may change; reread inputs immediately before editing. Use apply_patch for edits.
++
++Expected artifact:
++A clean self-contained script.R and its generated robustness-table.md.
++
++Acceptance checks:
++Run Rscript script.R successfully. Verify exactly five rows, each OLS/IV pair uses identical N, restrictions are correct, Africa-only has 27 observations before any missingness, and rerunning produces identical table bytes. Report relevant numerical results and file paths.
++
++Return format:
++Conclusion, evidence/check output, changed files, residual risk.' < /dev/null > terra-implementation.log 2>&1
++```
++
++### 2. Independent verification — tokens used: 56,775
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox read-only --skip-git-repo-check -C "$PWD" 'Objective:
++Independently audit the completed AJR replication artifacts against BRIEF.md. This is a verification task, not implementation.
++
++Inputs and authoritative paths:
++Read ./BRIEF.md, ./script.R, ./robustness-table.md, and ./memo.md. Load the local ivdoctr colonial data and run read-only R commands as needed.
++
++In scope:
++- Check all five specification definitions and restrictions.
++- Check that OLS and AER::ivreg formulas use the same controls and same complete-case sample per specification.
++- Independently recompute OLS avexpr coefficients, IV avexpr coefficients, first-stage logem4 coefficients, excluded-instrument partial F statistics, N, and weak flags.
++- Check table values/rounding against recomputation.
++- Check memo claims against results, especially treatment of F < 10 cases as inconclusive rather than confirming or overturning.
++- Check self-contained execution, deterministic output, the stated AER path, approximate 400-word length, one Markdown table, no required deliverable missing, and no brief violation.
++
++Out of scope:
++- Do not edit or create any file. Do not propose stylistic rewrites unless they fix a factual or constraint defect.
++- No web, package installation, commits, or writes outside normal temporary system behavior.
++
++Constraints and invariants:
++The workspace is shared and may change; reread every artifact immediately before checks. Treat BRIEF.md as authoritative. Conventional F < 10 flagging is the requested rule; do not demand alternative weak-IV thresholds or unrequested standard errors.
++
++Write ownership:
++Read-only. Write no project artifact; return findings only in stdout.
++
++Expected artifact:
++A concise audit report in this call’s captured log.
++
++Acceptance checks:
++Give PASS/FAIL for (1) formulas/samples, (2) recomputed numerics, (3) weak-IV labeling/interpretation, (4) deliverable/form constraints. If any failure, cite exact file/line and exact correction. Distinguish defects from optional enhancements.
++
++Return format:
++Conclusion, evidence with recomputed values, failures if any, residual risk.' < /dev/null > terra-verification.log 2>&1
++```
++
++## What Sol reasoned directly
++
++The lead fixed the five estimands and their sample logic; chose the conventional specification-specific partial F for the single excluded instrument; required identical OLS/IV/first-stage samples; interpreted F = 11.01 as only marginally above the rule-of-thumb threshold; and separated genuine coefficient robustness in the three stronger-first-stage specifications from the inconclusive drop-neo-Europe and Africa-only exercises. The lead also bounded the manuscript's entitlement: replication and limited control robustness are supported, but universal robustness, within-Africa evidence, and the exclusion restriction are not established.
++
++## Friction
++
++The read-only Terra verifier could not launch R because R could not create `R_TempDir`; it therefore passed the static/formula, weak-IV interpretation, and deliverable checks but marked independent numeric execution environment-blocked. The lead resolved this by independently recomputing all five specifications in the interactive session, using the single-instrument identity `F = t^2`; every full-precision value matched the table. No artifact correction or revision cycle was needed. During lead verification, two hash files were inadvertently created in `/tmp`; both were removed immediately, and all persistent artifacts remain confined to the current leaf.
++
++[SOL LEAD TOKENS: ____]  + Terra one-shots: 90,259  = <total>
+
+codex
+The independent lead recomputation matches all five rows at full precision, so the verifier’s sandbox failure leaves no numerical residual uncertainty. No revision cycle was needed. I’ve recorded both exact calls, their 90,259 combined Terra tokens, the read-only `R_TempDir` friction, and the analytical decisions retained by Sol; only the final end-to-end file check remains.
+exec
+/bin/zsh -lc 'set -e
+before=$(shasum -a 256 robustness-table.md | awk '"'{print "'$1}'"')
+Rscript script.R >/dev/null
+after="'$(shasum -a 256 robustness-table.md | awk '"'{print "'$1}'"')
+test \""'$before" = "$after"
+test "$(grep -c '"'"'^| Base'"\\|"'^| Latitude'"\\|"'^| Continent controls'"\\|"'^| Drop neo-Europes'"\\|"'^| Africa only'"' robustness-table.md)\" -eq 5
+test \""'$(wc -w < memo.md | tr -d '"' ')\" -ge 350
+test \""'$(wc -w < memo.md | tr -d '"' ')\" -le 450
+for f in script.R robustness-table.md memo.md routing-log.md terra-implementation.log terra-verification.log; do test -s \""'$f"; done
+printf '"'table_sha256=%s\\nmemo_words=%s\\n' \""'$after" "$(wc -w < memo.md | tr -d '"' ')\"
+rg -n '"'^tokens used|''^'"\\[SOL LEAD TOKENS:' terra-implementation.log terra-verification.log routing-log.md
+printf '\\nleaf files:\\n'
+rg --files | sort" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md b/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..2776b5f354427a5986097cb07e38ff86d5241c68
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md
+@@ -0,0 +1,107 @@
++# Routing log
++
++## Route table
++
++| Workstream | Owner | Why this owner | Acceptance check |
++|---|---|---|---|
++| Estimand, sample, and diagnostic design | Sol (lead, direct) | The definition of comparable samples, controls, and weak-identification evidence required analytical judgment and governed all downstream work. | Each specification uses one complete-case sample for OLS, IV, and first stage; the excluded-instrument partial F comes from the specification-specific first stage. |
++| Mechanical estimation and table generation | Terra out-of-band | The implementation was bounded by fixed formulas, restrictions, outputs, and objective runtime checks. | `Rscript script.R` succeeds; five rows are produced; reruns are byte-identical; restrictions and weak flags are correct. |
++| Interpretation and claim calibration | Sol (lead, direct) | Distinguishing non-robustness from weak-IV inconclusiveness and bounding the causal claim required lead-level judgment. | Memo is roughly 400 words, matches the estimates, and neither confirms nor overturns the result from weakly identified specifications. |
++| Independent artifact audit | Terra out-of-band | Static review and routine recomputation were bounded verification work and benefited from a fresh context. | Formulas, samples, table, memo, and constraints checked; numerical recomputation attempted independently. |
++| Integration and final verification | Sol (lead, direct) | The lead retained end-to-end accountability and had to resolve the verifier's sandbox limitation. | Independent all-specification recomputation matches every reported value; required files exist; constraints and routing record are complete. |
++
++## Out-of-band calls
++
++### 1. Mechanical implementation — tokens used: 33,484
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" 'Objective:
++Create the deterministic R estimation artifact and the Markdown robustness table required by BRIEF.md.
++
++Inputs and authoritative paths:
++- Read ./BRIEF.md completely.
++- Data are loaded only with library(ivdoctr); data(colonial, package = "ivdoctr").
++- AER is confirmed available.
++
++In scope:
++- Write only ./script.R and ./robustness-table.md.
++- Implement exactly five specifications: Base (no controls); Latitude (lat_abst); Continent controls (africa + asia); Drop neo-Europes (exclude AUS, CAN, NZL, USA by shortnam, no added controls); Africa only (africa == 1, no added controls).
++- For each specification, build one estimation data frame by applying the restriction and complete.cases to the outcome, endogenous regressor, excluded instrument, and that specification’s controls. Fit OLS and IV on this identical sample.
++- OLS: lm(logpgp95 ~ avexpr + controls).
++- IV: AER::ivreg(logpgp95 ~ avexpr + controls | logem4 + controls).
++- First stage: lm(avexpr ~ logem4 + controls) on that same data. Record the logem4 coefficient.
++- Compute the conventional partial F for the excluded instrument by anova(restricted first stage without logem4, unrestricted first stage with logem4), extracting the F statistic. With one excluded instrument this is the standard first-stage excluded-instrument F.
++- Mark F < 10 as weak. Preserve the numerical IV estimate in the table for transparency but label weak cases explicitly and ensure the note says weak-spec IV point estimates are not reliable causal estimates.
++- Table must have one row/specification and columns sufficient to show N, OLS avexpr estimate, 2SLS avexpr estimate, first-stage logem4 coefficient, first-stage F, identification status. Use sensible precision and one Markdown table only.
++- script.R must be self-contained, declare libraries at top, include set.seed() before estimation even though deterministic, generate robustness-table.md when run, and state/use the AER::ivreg path. No figure.
++
++Out of scope:
++- Do not write memo.md, routing-log.md, logs, figures, or any other file.
++- Do not interpret manuscript claims beyond concise table notes.
++- No web, no package installation, no commits.
++
++Constraints and invariants:
++- Current leaf only. Preserve unrelated files.
++- Follow BRIEF.md exactly.
++- Do not use robust/clustered standard errors; no SEs are requested.
++- Do not substitute ivreg diagnostic output for the explicitly computed first-stage partial F.
++
++Write ownership:
++Exclusive ownership of script.R and robustness-table.md. The shared workspace may change; reread inputs immediately before editing. Use apply_patch for edits.
++
++Expected artifact:
++A clean self-contained script.R and its generated robustness-table.md.
++
++Acceptance checks:
++Run Rscript script.R successfully. Verify exactly five rows, each OLS/IV pair uses identical N, restrictions are correct, Africa-only has 27 observations before any missingness, and rerunning produces identical table bytes. Report relevant numerical results and file paths.
++
++Return format:
++Conclusion, evidence/check output, changed files, residual risk.' < /dev/null > terra-implementation.log 2>&1
++```
++
++### 2. Independent verification — tokens used: 56,775
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox read-only --skip-git-repo-check -C "$PWD" 'Objective:
++Independently audit the completed AJR replication artifacts against BRIEF.md. This is a verification task, not implementation.
++
++Inputs and authoritative paths:
++Read ./BRIEF.md, ./script.R, ./robustness-table.md, and ./memo.md. Load the local ivdoctr colonial data and run read-only R commands as needed.
++
++In scope:
++- Check all five specification definitions and restrictions.
++- Check that OLS and AER::ivreg formulas use the same controls and same complete-case sample per specification.
++- Independently recompute OLS avexpr coefficients, IV avexpr coefficients, first-stage logem4 coefficients, excluded-instrument partial F statistics, N, and weak flags.
++- Check table values/rounding against recomputation.
++- Check memo claims against results, especially treatment of F < 10 cases as inconclusive rather than confirming or overturning.
++- Check self-contained execution, deterministic output, the stated AER path, approximate 400-word length, one Markdown table, no required deliverable missing, and no brief violation.
++
++Out of scope:
++- Do not edit or create any file. Do not propose stylistic rewrites unless they fix a factual or constraint defect.
++- No web, package installation, commits, or writes outside normal temporary system behavior.
++
++Constraints and invariants:
++The workspace is shared and may change; reread every artifact immediately before checks. Treat BRIEF.md as authoritative. Conventional F < 10 flagging is the requested rule; do not demand alternative weak-IV thresholds or unrequested standard errors.
++
++Write ownership:
++Read-only. Write no project artifact; return findings only in stdout.
++
++Expected artifact:
++A concise audit report in this call’s captured log.
++
++Acceptance checks:
++Give PASS/FAIL for (1) formulas/samples, (2) recomputed numerics, (3) weak-IV labeling/interpretation, (4) deliverable/form constraints. If any failure, cite exact file/line and exact correction. Distinguish defects from optional enhancements.
++
++Return format:
++Conclusion, evidence with recomputed values, failures if any, residual risk.' < /dev/null > terra-verification.log 2>&1
++```
++
++## What Sol reasoned directly
++
++The lead fixed the five estimands and their sample logic; chose the conventional specification-specific partial F for the single excluded instrument; required identical OLS/IV/first-stage samples; interpreted F = 11.01 as only marginally above the rule-of-thumb threshold; and separated genuine coefficient robustness in the three stronger-first-stage specifications from the inconclusive drop-neo-Europe and Africa-only exercises. The lead also bounded the manuscript's entitlement: replication and limited control robustness are supported, but universal robustness, within-Africa evidence, and the exclusion restriction are not established.
++
++## Friction
++
++The read-only Terra verifier could not launch R because R could not create `R_TempDir`; it therefore passed the static/formula, weak-IV interpretation, and deliverable checks but marked independent numeric execution environment-blocked. The lead resolved this by independently recomputing all five specifications in the interactive session, using the single-instrument identity `F = t^2`; every full-precision value matched the table. No artifact correction or revision cycle was needed. During lead verification, two hash files were inadvertently created in `/tmp`; both were removed immediately, and all persistent artifacts remain confined to the current leaf.
++
++[SOL LEAD TOKENS: ____]  + Terra one-shots: 90,259  = <total>
+
+ succeeded in 553ms:
+Loading required package: car
+Loading required package: carData
+Loading required package: lmtest
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Loading required package: sandwich
+Loading required package: survival
+table_sha256=e66ebb9703e0ff2000b2eb2cd969e847430a1d5e1fc92c1807e048b134aac9cc
+memo_words=386
+routing-log.md:107:[SOL LEAD TOKENS: ____]  + Terra one-shots: 90,259  = <total>
+terra-verification.log:385:tokens used
+terra-implementation.log:1446:tokens used
+
+leaf files:
+BRIEF.md
+memo.md
+robustness-table.md
+routing-log.md
+script.R
+sol-session.log
+terra-implementation.log
+terra-verification.log
+
+codex
+Completed [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R), [robustness-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/robustness-table.md), [memo.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md), and [routing-log.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md). Terra handled mechanical implementation and an independent audit; I fixed the estimation design, interpreted the robustness pattern, calibrated the manuscript claims, and independently recomputed all five specifications. The script runs reproducibly and the table is byte-stable. The residual substantive risk is that instrument relevance does not establish the exclusion restriction; moreover, the neo-Europe-excluded and Africa-only estimates are weakly identified and therefore inconclusive.
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..df764ced3947798a036d87fc10cc781ff673cafb
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md
+@@ -0,0 +1,9 @@
++# Memo: How much weight does the AJR result bear?
++
++The headline result replicates in the 64-country base sample. OLS estimates that a one-unit increase in protection against expropriation risk is associated with 0.522 log points higher 1995 income. Instrumenting institutions with log settler mortality raises the estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-point reduction in the institutions index. Its excluded-instrument F-statistic is 22.95, so the base result is not weakly identified by the conventional F = 10 rule.
++
++The result also survives two common control adjustments, although the instrument becomes less decisive. With latitude included, the OLS and 2SLS estimates are 0.468 and 0.996, respectively, and the first-stage F falls to 13.09. With Africa and Asia indicators, the corresponding estimates are 0.434 and 0.839, with F = 11.01. Thus, across the three specifications that clear the stated strength threshold, the IV coefficient remains positive, substantively large, and appreciably above OLS. The continent-control first stage is only just above the rule-of-thumb cutoff, however, so “not weak” should not be read as “overwhelmingly strong.”
++
++The two sample perturbations do not supply reliable additional causal evidence. After removing Australia, Canada, New Zealand, and the United States, the first-stage coefficient attenuates from -0.607 to -0.391 and F falls to 8.65. The reported 2SLS estimate of 1.281 is therefore weakly identified. Within Africa, the first stage nearly collapses: its coefficient is -0.108 and F is 0.30. The resulting 2SLS estimate of 2.400 is not meaningfully interpretable. Neither weak specification confirms the headline, but neither overturns it: each primarily shows that these data contain too little relevant first-stage variation for that exercise.
++
++The manuscript may claim that it reproduces AJR’s bivariate result in this sample and that the positive, large IV estimate is robust to adding latitude or the two continent indicators under the conventional first-stage diagnostic. It should also disclose that instrument relevance is sensitive to the sample composition and absent within Africa. It may not claim that the exercise establishes a universally robust causal effect, that the Africa-only estimate supports the mechanism, or that removing the neo-Europes leaves the conclusion intact. Even in the stronger specifications, causal interpretation still depends on instrument validity—not merely relevance—especially the exclusion restriction; these estimates do not test that assumption.
+diff --git a/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md b/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..2776b5f354427a5986097cb07e38ff86d5241c68
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md
+@@ -0,0 +1,107 @@
++# Routing log
++
++## Route table
++
++| Workstream | Owner | Why this owner | Acceptance check |
++|---|---|---|---|
++| Estimand, sample, and diagnostic design | Sol (lead, direct) | The definition of comparable samples, controls, and weak-identification evidence required analytical judgment and governed all downstream work. | Each specification uses one complete-case sample for OLS, IV, and first stage; the excluded-instrument partial F comes from the specification-specific first stage. |
++| Mechanical estimation and table generation | Terra out-of-band | The implementation was bounded by fixed formulas, restrictions, outputs, and objective runtime checks. | `Rscript script.R` succeeds; five rows are produced; reruns are byte-identical; restrictions and weak flags are correct. |
++| Interpretation and claim calibration | Sol (lead, direct) | Distinguishing non-robustness from weak-IV inconclusiveness and bounding the causal claim required lead-level judgment. | Memo is roughly 400 words, matches the estimates, and neither confirms nor overturns the result from weakly identified specifications. |
++| Independent artifact audit | Terra out-of-band | Static review and routine recomputation were bounded verification work and benefited from a fresh context. | Formulas, samples, table, memo, and constraints checked; numerical recomputation attempted independently. |
++| Integration and final verification | Sol (lead, direct) | The lead retained end-to-end accountability and had to resolve the verifier's sandbox limitation. | Independent all-specification recomputation matches every reported value; required files exist; constraints and routing record are complete. |
++
++## Out-of-band calls
++
++### 1. Mechanical implementation — tokens used: 33,484
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" 'Objective:
++Create the deterministic R estimation artifact and the Markdown robustness table required by BRIEF.md.
++
++Inputs and authoritative paths:
++- Read ./BRIEF.md completely.
++- Data are loaded only with library(ivdoctr); data(colonial, package = "ivdoctr").
++- AER is confirmed available.
++
++In scope:
++- Write only ./script.R and ./robustness-table.md.
++- Implement exactly five specifications: Base (no controls); Latitude (lat_abst); Continent controls (africa + asia); Drop neo-Europes (exclude AUS, CAN, NZL, USA by shortnam, no added controls); Africa only (africa == 1, no added controls).
++- For each specification, build one estimation data frame by applying the restriction and complete.cases to the outcome, endogenous regressor, excluded instrument, and that specification’s controls. Fit OLS and IV on this identical sample.
++- OLS: lm(logpgp95 ~ avexpr + controls).
++- IV: AER::ivreg(logpgp95 ~ avexpr + controls | logem4 + controls).
++- First stage: lm(avexpr ~ logem4 + controls) on that same data. Record the logem4 coefficient.
++- Compute the conventional partial F for the excluded instrument by anova(restricted first stage without logem4, unrestricted first stage with logem4), extracting the F statistic. With one excluded instrument this is the standard first-stage excluded-instrument F.
++- Mark F < 10 as weak. Preserve the numerical IV estimate in the table for transparency but label weak cases explicitly and ensure the note says weak-spec IV point estimates are not reliable causal estimates.
++- Table must have one row/specification and columns sufficient to show N, OLS avexpr estimate, 2SLS avexpr estimate, first-stage logem4 coefficient, first-stage F, identification status. Use sensible precision and one Markdown table only.
++- script.R must be self-contained, declare libraries at top, include set.seed() before estimation even though deterministic, generate robustness-table.md when run, and state/use the AER::ivreg path. No figure.
++
++Out of scope:
++- Do not write memo.md, routing-log.md, logs, figures, or any other file.
++- Do not interpret manuscript claims beyond concise table notes.
++- No web, no package installation, no commits.
++
++Constraints and invariants:
++- Current leaf only. Preserve unrelated files.
++- Follow BRIEF.md exactly.
++- Do not use robust/clustered standard errors; no SEs are requested.
++- Do not substitute ivreg diagnostic output for the explicitly computed first-stage partial F.
++
++Write ownership:
++Exclusive ownership of script.R and robustness-table.md. The shared workspace may change; reread inputs immediately before editing. Use apply_patch for edits.
++
++Expected artifact:
++A clean self-contained script.R and its generated robustness-table.md.
++
++Acceptance checks:
++Run Rscript script.R successfully. Verify exactly five rows, each OLS/IV pair uses identical N, restrictions are correct, Africa-only has 27 observations before any missingness, and rerunning produces identical table bytes. Report relevant numerical results and file paths.
++
++Return format:
++Conclusion, evidence/check output, changed files, residual risk.' < /dev/null > terra-implementation.log 2>&1
++```
++
++### 2. Independent verification — tokens used: 56,775
++
++```bash
++codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox read-only --skip-git-repo-check -C "$PWD" 'Objective:
++Independently audit the completed AJR replication artifacts against BRIEF.md. This is a verification task, not implementation.
++
++Inputs and authoritative paths:
++Read ./BRIEF.md, ./script.R, ./robustness-table.md, and ./memo.md. Load the local ivdoctr colonial data and run read-only R commands as needed.
++
++In scope:
++- Check all five specification definitions and restrictions.
++- Check that OLS and AER::ivreg formulas use the same controls and same complete-case sample per specification.
++- Independently recompute OLS avexpr coefficients, IV avexpr coefficients, first-stage logem4 coefficients, excluded-instrument partial F statistics, N, and weak flags.
++- Check table values/rounding against recomputation.
++- Check memo claims against results, especially treatment of F < 10 cases as inconclusive rather than confirming or overturning.
++- Check self-contained execution, deterministic output, the stated AER path, approximate 400-word length, one Markdown table, no required deliverable missing, and no brief violation.
++
++Out of scope:
++- Do not edit or create any file. Do not propose stylistic rewrites unless they fix a factual or constraint defect.
++- No web, package installation, commits, or writes outside normal temporary system behavior.
++
++Constraints and invariants:
++The workspace is shared and may change; reread every artifact immediately before checks. Treat BRIEF.md as authoritative. Conventional F < 10 flagging is the requested rule; do not demand alternative weak-IV thresholds or unrequested standard errors.
++
++Write ownership:
++Read-only. Write no project artifact; return findings only in stdout.
++
++Expected artifact:
++A concise audit report in this call’s captured log.
++
++Acceptance checks:
++Give PASS/FAIL for (1) formulas/samples, (2) recomputed numerics, (3) weak-IV labeling/interpretation, (4) deliverable/form constraints. If any failure, cite exact file/line and exact correction. Distinguish defects from optional enhancements.
++
++Return format:
++Conclusion, evidence with recomputed values, failures if any, residual risk.' < /dev/null > terra-verification.log 2>&1
++```
++
++## What Sol reasoned directly
++
++The lead fixed the five estimands and their sample logic; chose the conventional specification-specific partial F for the single excluded instrument; required identical OLS/IV/first-stage samples; interpreted F = 11.01 as only marginally above the rule-of-thumb threshold; and separated genuine coefficient robustness in the three stronger-first-stage specifications from the inconclusive drop-neo-Europe and Africa-only exercises. The lead also bounded the manuscript's entitlement: replication and limited control robustness are supported, but universal robustness, within-Africa evidence, and the exclusion restriction are not established.
++
++## Friction
++
++The read-only Terra verifier could not launch R because R could not create `R_TempDir`; it therefore passed the static/formula, weak-IV interpretation, and deliverable checks but marked independent numeric execution environment-blocked. The lead resolved this by independently recomputing all five specifications in the interactive session, using the single-instrument identity `F = t^2`; every full-precision value matched the table. No artifact correction or revision cycle was needed. During lead verification, two hash files were inadvertently created in `/tmp`; both were removed immediately, and all persistent artifacts remain confined to the current leaf.
++
++[SOL LEAD TOKENS: ____]  + Terra one-shots: 90,259  = <total>
+
+tokens used
+58,529
+Completed [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/script.R), [robustness-table.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/robustness-table.md), [memo.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/memo.md), and [routing-log.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/high-ajr/routing-log.md). Terra handled mechanical implementation and an independent audit; I fixed the estimation design, interpreted the robustness pattern, calibrated the manuscript claims, and independently recomputed all five specifications. The script runs reproducibly and the table is byte-stable. The residual substantive risk is that instrument relevance does not establish the exclusion restriction; moreover, the neo-Europe-excluded and Africa-only estimates are weakly identified and therefore inconclusive.

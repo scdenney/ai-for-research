@@ -1,0 +1,2346 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.1
+--------
+workdir: ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f5b0b-7514-79e1-b108-dea66919159e
+--------
+user
+Objective: Create the initial requested analysis deliverables from BRIEF.md using the fixed lead specification below.
+Inputs and authoritative paths: ./BRIEF.md and the installed R package projoint with exampleData1. Work only in the current directory.
+In scope: Write ./script.R; when run, it must create ./figures/amce-dotwhisker.png and ./report.md. Run Rscript script.R. Use reshape_projoint exactly with outcomes choice1 through choice8 plus choice1_repeated_flipped. Fit projoint(out, .structure="profile_level", .estimand="amce", .se_method="analytical", .auto_cluster=TRUE). Select estimand == "amce_corrected" for reporting and plotting. Join label metadata, add all seven level1 reference rows with estimate and interval endpoints equal to zero, and preserve label-table attribute and within-attribute level order. Assert seven attributes and respondent clustering by id from the fitted object. Report the estimated tau and the actual variance fallback accurately if useful, but do not overfocus on it.
+Out of scope: Do not alter BRIEF.md or sol-session.log. Do not write routing-log.md. Do not use the web, install packages, commit, or touch any parent/sibling directory.
+Constraints and invariants: script.R is self-contained; declare an Okabe-Ito palette and a ggplot theme at the top, then call set.seed before anything stochastic. Use only installed packages. Figure is grouped clearly by attribute, includes labeled reference levels at zero, has a visible vertical zero line, corrected AMCE dots and 95 percent whiskers, no in-plot title, caption belongs in report.md under the Markdown figure reference, and export is at least 300 dpi. Avoid an in-plot caption too. Report is one paper-ready results paragraph roughly 200 words, identifies largest corrected effects with direction and percentage-point magnitudes, and includes one sentence on respondent-clustered 95 percent uncertainty. Put a Markdown image reference after the paragraph and its plain-text caption immediately below it. Any methods wording must state corrected AMCEs relative to the first-listed level of each attribute. Prefer a readable tall plot and Okabe-Ito colors by attribute.
+Write ownership: Only ./script.R, ./report.md, and ./figures/amce-dotwhisker.png plus creation of ./figures if absent. Shared workspace may change; reread files before edits. Use apply_patch for text-file edits.
+Expected artifact: The three deliverables above, reproducible by Rscript script.R.
+Acceptance checks: Rscript script.R exits zero; PNG metadata is 300 dpi or greater; plot contains 24 levels in seven ordered groups including seven zero references; reported numbers match corrected rows; fit cluster_by is id; report is approximately 180 to 230 words excluding caption.
+Return format: conclusion, evidence including key estimates and checks, changed files, residual risk.
+codex
+I’ll build and run the requested R analysis, then verify the output against the stated invariants. I’m also using the advisory review skill to sanity-check the finished analysis before handoff.
+exec
+/bin/zsh -lc "sed -n '1,240p' ~/Documents/github/resources/open-science-skills/codex/advisor/SKILL.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2
+ succeeded in 0ms:
+---
+name: advisor
+description: Consult an independent GPT-5.6 reviewer (Terra by default; Sol on request, for a stronger but costlier review), matched to your current reasoning-effort level. Use before committing to an interpretation or a substantial piece of writing/analysis, when stuck (recurring errors, a non-converging approach, results that do not fit), when considering a change of approach, or when you believe a task is complete and want a check before finalizing. Not a co-implementer — read-only advisory only, does not edit files.
+---
+
+# Advisor (GPT-5.6 consulted)
+
+Consult an independent **GPT-5.6** reviewer for one specific decision point, at the same reasoning effort you are currently running at. This is the Codex-side counterpart of the Claude-side `advisor` skill (`plugin/skills/advisor/` in `open-science-skills`), built the same session for the same reason: a single-turn advisory consult, not a delegated implementation.
+
+**Which 5.6 tier, and why it matters.** There are three distinct GPT-5.6 tiers, not one model: `gpt-5.6-sol` (flagship, "most capable"), `gpt-5.6-terra` (balanced, "everyday work"), `gpt-5.6-luna` (fast/cheap). This skill defaults to **`gpt-5.6-terra`** for routine consults — it is cheaper and confirmed reliable. `gpt-5.6-sol` is confirmed working on both hosts this repo runs on (July 2026, both authenticated via ChatGPT login) — an earlier "rejected outright under ChatGPT-account auth" finding no longer reproduces; whether that was a temporary rollout gate or a stale/outdated-CLI artifact is unclear, so re-verify with a smoke test if `sol` ever errors on your account rather than assuming it's gated. Pass `--model gpt-5.6-sol` explicitly for a stronger, costlier consult — see *Effort calibration* below.
+
+Read [`scripts/sol-advisor.sh`](scripts/sol-advisor.sh) before the first run — the flags and the effort-handling note there are load-bearing.
+
+## Sandbox constraint — read this before your first run
+
+`sol-advisor.sh` shells out to a nested `codex exec` process. Confirmed by direct reproduction (July 2026, both hosts this repo runs on): a `codex exec` process running under **any** sandbox mode (`read-only` or `workspace-write`) cannot spawn a working nested `codex exec` child — it fails immediately with `Error: failed to initialize in-process app-server client: Operation not permitted` (macOS) or `Read-only file system` (Linux). This is structural — the OS sandbox applies transitively to the whole process tree — and is **not** fixed by passing `--dangerously-bypass-approvals-and-sandbox` to the nested call itself; only an unsandboxed top-level session avoids it entirely.
+
+- If you are interactive (not `codex exec` invoked non-interactively) and this failure surfaces, request escalation for that one shell command (`sandbox_permissions: require_escalated`, with a short justification) so it runs outside the sandbox — this is exactly the case the built-in escalation path exists for.
+- If you are running non-interactively (`codex exec` at the top level shows `approval: never` in its own banner — no human is available to approve an escalation), this call cannot succeed. Report the failure honestly; do not silently produce the review yourself in place of the consult (that defeats the point of an independent second opinion) and do not retry indefinitely.
+
+## When to use
+
+- **Before substantive work** — before writing, before committing to an interpretation, before building on an assumption. Orientation (finding files, reading a source) is not substantive; writing, editing, and declaring an answer are.
+- **When you believe a task is complete.** Make the deliverable durable first (write the file, save the result, commit the change) — the consult takes real time.
+- **When stuck** — errors recurring, an approach not converging, results that do not fit.
+- **When considering a change of approach.**
+
+On tasks longer than a few steps, consult at least once before committing to an approach and once before declaring done. Give the advice serious weight: if a step you followed on the consult's advice fails empirically, or you have primary-source evidence contradicting a specific claim, adapt. If your own evidence and the consult's advice point different directions, surface the conflict in one more consult rather than silently picking a side.
+
+## Effort calibration — read this before running
+
+The consulted model should run at the **same reasoning effort you are currently running at**, not a hardcoded default. Codex does not expose its own live reasoning-effort setting as an environment variable inheritable by subprocesses (confirmed empirically: dumping `env` inside a running `codex exec` call shows no `CODEX_REASONING_EFFORT` or equivalent — only Claude Code's own `$CLAUDE_EFFORT` leaked through from an enclosing Claude Code process, which is not your effort level when you are the one running as Codex).
+
+What Codex *does* expose: the "reasoning effort: `<level>`" line shown in your own session banner at startup, visible in your own context. Before running the consult, **read that value from your own session context** and pass it explicitly:
+
+```bash
+scripts/sol-advisor.sh --prompt-file <briefing-path> --out <output-path> -C "$PWD" --effort <your-own-level>
+```
+
+Do not omit `--effort` and let it silently default to the script's fallback (`high`) unless `high` genuinely is your own current level — the fallback exists so the script never errors on a missing flag, not as a substitute for checking your own level.
+
+## Steps
+
+1. **Compose the briefing.** A self-contained document: the task, what you have done so far (key steps, findings, decisions), your current approach or the specific claim to check, and the precise question. Concrete — file paths, line numbers, the actual claim. Save to a scratch file. The consulted model has no access to your conversation beyond this file.
+
+2. **If declaring a task complete, make the deliverable durable first.**
+
+3. **Read your own current reasoning-effort level from your session context**, then run:
+
+   ```bash
+   scripts/sol-advisor.sh --prompt-file <briefing-path> --out <output-path> -C "$PWD" --effort <your-level>
+   ```
+
+4. **Read the output file** and weigh the advice. Integrate it; if you diverge from it, be able to say why.
+
+## Notes
+
+- `scripts/sol-advisor.sh --check` verifies the `codex` CLI is on PATH.
+- The spawned session runs `--sandbox read-only` and `--ephemeral` — advisory only, no edits, not saved as a resumable session.
+- **Default model is `gpt-5.6-terra`, not `gpt-5.6-sol`** — cost, not reliability. There are three distinct GPT-5.6 tiers (`sol` flagship / `terra` balanced / `luna` fast) — not one model with a shorthand. An earlier finding claimed `gpt-5.6-sol` was rejected outright on a Codex CLI authenticated via `codex login` with a ChatGPT account (as opposed to an API key) — `"The 'gpt-5.6' model is not supported when using Codex with a ChatGPT account."` This has since been re-tested (July 2026) and no longer reproduces: `sol` now works on hosts authenticated the identical way (`codex login status` → `Logged in using ChatGPT`). Whether the original block was a temporary rollout gate or an artifact of an outdated CLI on that host is unclear — if `sol` ever errors on your account, check `codex --version` first (an outdated CLI rejects even `terra`/`luna` with a *different*, version-specific error) before concluding it's an account gate. Pass `--model gpt-5.6-sol` explicitly for a stronger reviewer at higher cost. If the model you asked for is unreachable for any reason, report it and ask whether to stop or use a named replacement — do not silently fall back further (e.g. to `gpt-5.5`) for what is supposed to be a genuinely independent second opinion (a reviewer identical to the executor defeats the point of this specific skill; if a same-model consult is actually fine for the task at hand, the calling agent should use its own judgment directly rather than spend a consult on it).
+- Effort enum: `none, minimal, low, medium, high, xhigh` (Codex's scale — no `max`; Claude Code's `max` has no Codex equivalent).
+- Companion skill: `plugin/skills/advisor/` (Claude-side) — same pattern, consulting Fable 5, effort read from `$CLAUDE_EFFORT` instead of the session banner.
+
+exec
+/bin/zsh -lc "sed -n '1,240p' BRIEF.md && printf '\\n--- files ---\\n' && rg --files -g '"'!*figures*'"'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2
+ succeeded in 0ms:
+# Task T2 — Estimate and report (standard tier)
+
+You are working in a project directory. Use R (`Rscript`); the `projoint` package is installed.
+
+**Data.** Same as T1:
+
+```r
+library(projoint)
+data(exampleData1)
+out <- reshape_projoint(exampleData1,
+  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
+```
+
+**Task.** Estimate Average Marginal Component Effects (AMCEs) for all seven attributes on profile choice, with uncertainty clustered at the respondent level. Use projoint's estimator, or an explicit alternative with a one-line justification if you deviate.
+
+**Produce, in the current working directory:**
+
+1. `script.R` — one self-contained script; Okabe-Ito palette and theme declared at the top; `set.seed()` before anything stochastic.
+2. `figures/amce-dotwhisker.png` — a dot-and-whisker plot of the AMCE estimates with 95% intervals, grouped by attribute, levels ordered within attribute, reference levels shown at zero. 300+ dpi. No in-plot title.
+3. `report.md` — a results paragraph of roughly 200 words that a paper could use: the largest effects, their direction and magnitude in percentage points, and one sentence on uncertainty. Place the figure's caption under the figure reference.
+
+**Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. No web access. Do not install packages.
+
+--- files ---
+BRIEF.md
+terra-implementation.log
+sol-session.log
+
+exec
+/bin/zsh -lc "sed -n '1,260p' ~/Documents/github/resources/open-science-skills/codex/advisor/scripts/sol-advisor.sh && Rscript -e 'library(projoint); data(exampleData1); print(dim(exampleData1)); print(names(exampleData1)); print(utils::head(exampleData1[, 1:min(12,ncol(exampleData1))]))'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2
+ succeeded in 509ms:
+[1] 400 185
+  [1] "ResponseId"               "choice1_repeated_flipped"
+  [3] "choice1"                  "choice2"                 
+  [5] "choice3"                  "choice4"                 
+  [7] "choice5"                  "choice6"                 
+  [9] "choice7"                  "choice8"                 
+ [11] "race"                     "party_1"                 
+ [13] "party_2"                  "party_3"                 
+ [15] "party_4"                  "ideology"                
+ [17] "honesty"                  "K-1-1"                   
+ [19] "K-1-1-1"                  "K-1-2"                   
+ [21] "K-1-1-2"                  "K-1-3"                   
+ [23] "K-1-1-3"                  "K-1-4"                   
+ [25] "K-1-1-4"                  "K-1-5"                   
+ [27] "K-1-1-5"                  "K-1-6"                   
+ [29] "K-1-1-6"                  "K-1-7"                   
+ [31] "K-1-1-7"                  "K-1-2-1"                 
+ [33] "K-1-2-2"                  "K-1-2-3"                 
+ [35] "K-1-2-4"                  "K-1-2-5"                 
+ [37] "K-1-2-6"                  "K-1-2-7"                 
+ [39] "K-2-1"                    "K-2-1-1"                 
+ [41] "K-2-2"                    "K-2-1-2"                 
+ [43] "K-2-3"                    "K-2-1-3"                 
+ [45] "K-2-4"                    "K-2-1-4"                 
+ [47] "K-2-5"                    "K-2-1-5"                 
+ [49] "K-2-6"                    "K-2-1-6"                 
+ [51] "K-2-7"                    "K-2-1-7"                 
+ [53] "K-2-2-1"                  "K-2-2-2"                 
+ [55] "K-2-2-3"                  "K-2-2-4"                 
+ [57] "K-2-2-5"                  "K-2-2-6"                 
+ [59] "K-2-2-7"                  "K-3-1"                   
+ [61] "K-3-1-1"                  "K-3-2"                   
+ [63] "K-3-1-2"                  "K-3-3"                   
+ [65] "K-3-1-3"                  "K-3-4"                   
+ [67] "K-3-1-4"                  "K-3-5"                   
+ [69] "K-3-1-5"                  "K-3-6"                   
+ [71] "K-3-1-6"                  "K-3-7"                   
+ [73] "K-3-1-7"                  "K-3-2-1"                 
+ [75] "K-3-2-2"                  "K-3-2-3"                 
+ [77] "K-3-2-4"                  "K-3-2-5"                 
+ [79] "K-3-2-6"                  "K-3-2-7"                 
+ [81] "K-4-1"                    "K-4-1-1"                 
+ [83] "K-4-2"                    "K-4-1-2"                 
+ [85] "K-4-3"                    "K-4-1-3"                 
+ [87] "K-4-4"                    "K-4-1-4"                 
+ [89] "K-4-5"                    "K-4-1-5"                 
+ [91] "K-4-6"                    "K-4-1-6"                 
+ [93] "K-4-7"                    "K-4-1-7"                 
+ [95] "K-4-2-1"                  "K-4-2-2"                 
+ [97] "K-4-2-3"                  "K-4-2-4"                 
+ [99] "K-4-2-5"                  "K-4-2-6"                 
+[101] "K-4-2-7"                  "K-5-1"                   
+[103] "K-5-1-1"                  "K-5-2"                   
+[105] "K-5-1-2"                  "K-5-3"                   
+[107] "K-5-1-3"                  "K-5-4"                   
+[109] "K-5-1-4"                  "K-5-5"                   
+[111] "K-5-1-5"                  "K-5-6"                   
+[113] "K-5-1-6"                  "K-5-7"                   
+[115] "K-5-1-7"                  "K-5-2-1"                 
+[117] "K-5-2-2"                  "K-5-2-3"                 
+[119] "K-5-2-4"                  "K-5-2-5"                 
+[121] "K-5-2-6"                  "K-5-2-7"                 
+[123] "K-6-1"                    "K-6-1-1"                 
+[125] "K-6-2"                    "K-6-1-2"                 
+[127] "K-6-3"                    "K-6-1-3"                 
+[129] "K-6-4"                    "K-6-1-4"                 
+[131] "K-6-5"                    "K-6-1-5"                 
+[133] "K-6-6"                    "K-6-1-6"                 
+[135] "K-6-7"                    "K-6-1-7"                 
+[137] "K-6-2-1"                  "K-6-2-2"                 
+[139] "K-6-2-3"                  "K-6-2-4"                 
+[141] "K-6-2-5"                  "K-6-2-6"                 
+[143] "K-6-2-7"                  "K-7-1"                   
+[145] "K-7-1-1"                  "K-7-2"                   
+[147] "K-7-1-2"                  "K-7-3"                   
+[149] "K-7-1-3"                  "K-7-4"                   
+[151] "K-7-1-4"                  "K-7-5"                   
+[153] "K-7-1-5"                  "K-7-6"                   
+[155] "K-7-1-6"                  "K-7-7"                   
+[157] "K-7-1-7"                  "K-7-2-1"                 
+[159] "K-7-2-2"                  "K-7-2-3"                 
+[161] "K-7-2-4"                  "K-7-2-5"                 
+[163] "K-7-2-6"                  "K-7-2-7"                 
+[165] "K-8-1"                    "K-8-1-1"                 
+[167] "K-8-2"                    "K-8-1-2"                 
+[169] "K-8-3"                    "K-8-1-3"                 
+[171] "K-8-4"                    "K-8-1-4"                 
+[173] "K-8-5"                    "K-8-1-5"                 
+[175] "K-8-6"                    "K-8-1-6"                 
+[177] "K-8-7"                    "K-8-1-7"                 
+[179] "K-8-2-1"                  "K-8-2-2"                 
+[181] "K-8-2-3"                  "K-8-2-4"                 
+[183] "K-8-2-5"                  "K-8-2-6"                 
+[185] "K-8-2-7"                 
+# A tibble: 6 × 12
+  ResponseId      choice1_repeated_fli…¹ choice1 choice2 choice3 choice4 choice5
+  <chr>           <chr>                  <chr>   <chr>   <chr>   <chr>   <chr>  
+1 R_1M3TDihZzq9z… Community B            Commun… Commun… Commun… Commun… Commun…
+2 R_3HtXzkcSSlfi… Community B            Commun… Commun… Commun… Commun… Commun…
+3 R_yjYj0jtOY98X… Community B            Commun… Commun… Commun… Commun… Commun…
+4 R_1dKd05O6FTOV… Community B            Commun… Commun… Commun… Commun… Commun…
+5 R_1otDp642wWYl… Community A            Commun… Commun… Commun… Commun… Commun…
+6 R_2BnD3fuJMRKZ… Community A            Commun… Commun… Commun… Commun… Commun…
+# ℹ abbreviated name: ¹​choice1_repeated_flipped
+# ℹ 5 more variables: choice6 <chr>, choice7 <chr>, choice8 <chr>, race <chr>,
+#   party_1 <chr>
+
+exec
+/bin/zsh -lc "Rscript - <<'RS'
+library(projoint)
+data(exampleData1)
+out <- reshape_projoint(exampleData1, .outcomes = c(paste0('choice', 1:8), 'choice1_repeated_flipped'))
+cat('out dimensions:', dim(out), '\\n')
+print(names(out))
+print(str(attributes(out), max.level = 2))
+fit <- projoint(out, .structure='profile_level', .estimand='amce', .se_method='analytical', .auto_cluster=TRUE)
+print(fit)
+cat('fit names:', names(fit), '\\n')
+print(str(fit, max.level=2))
+print(head(fit"'$estimates, 30))
+RS' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2
+ succeeded in 1641ms:
+out dimensions: 
+[1] "labels" "data"  
+List of 2
+ $ names: chr [1:2] "labels" "data"
+ $ class: chr "projoint_data"
+NULL
+Warning messages:
+1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+2: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+
+Projoint results object
+-------------------------
+Estimand:  amce 
+Structure:  profile_level 
+Standard error method:  analytical 
+IRR:  Estimated 
+Tau:  0.172 
+Number of estimates:  34 
+fit names: estimand structure estimates se_method irr tau remove_ties ignore_position attribute_of_interest levels_of_interest attribute_of_interest_0 levels_of_interest_0 attribute_of_interest_baseline levels_of_interest_baseline attribute_of_interest_0_baseline levels_of_interest_0_baseline se_type_used cluster_by labels data 
+List of 20
+ $ estimand                        : chr "amce"
+ $ structure                       : chr "profile_level"
+ $ estimates                       : tibble [34 × 7] (S3: tbl_df/tbl/data.frame)
+  ..- attr(*, "se_type_used")= chr "stata"
+  ..- attr(*, "cluster_by")= chr "id"
+ $ se_method                       : chr "analytical"
+ $ irr                             : chr "Estimated"
+ $ tau                             : num 0.172
+ $ remove_ties                     : logi TRUE
+ $ ignore_position                 : NULL
+ $ attribute_of_interest           : chr "all"
+ $ levels_of_interest              : chr "all except level1"
+ $ attribute_of_interest_0         : NULL
+ $ levels_of_interest_0            : NULL
+ $ attribute_of_interest_baseline  : chr "all"
+ $ levels_of_interest_baseline     : chr "level1"
+ $ attribute_of_interest_0_baseline: NULL
+ $ levels_of_interest_0_baseline   : NULL
+ $ se_type_used                    : chr "stata"
+ $ cluster_by                      : chr "id"
+ $ labels                          : tibble [24 × 4] (S3: tbl_df/tbl/data.frame)
+ $ data                            : tibble [6,400 × 13] (S3: tbl_df/tbl/data.frame)
+ - attr(*, "class")= chr "projoint_results"
+NULL
+# A tibble: 30 × 7
+   estimand         estimate     se conf.low conf.high att_level_choose
+   <chr>               <dbl>  <dbl>    <dbl>     <dbl> <chr>           
+ 1 amce_uncorrected -0.0899  0.0236  -0.136    -0.0435 att1:level2     
+ 2 amce_corrected   -0.137   0.0360  -0.208    -0.0662 att1:level2     
+ 3 amce_uncorrected -0.130   0.0250  -0.179    -0.0808 att1:level3     
+ 4 amce_corrected   -0.198   0.0386  -0.274    -0.122  att1:level3     
+ 5 amce_uncorrected  0.0348  0.0244  -0.0132    0.0828 att2:level2     
+ 6 amce_corrected    0.0530  0.0372  -0.0202    0.126  att2:level2     
+ 7 amce_uncorrected -0.00177 0.0263  -0.0536    0.0500 att2:level3     
+ 8 amce_corrected   -0.00270 0.0402  -0.0817    0.0763 att2:level3     
+ 9 amce_uncorrected  0.0240  0.0233  -0.0218    0.0699 att3:level2     
+10 amce_corrected    0.0366  0.0357  -0.0336    0.107  att3:level2     
+# ℹ 20 more rows
+# ℹ 1 more variable: att_level_choose_baseline <chr>
+
+exec
+/bin/zsh -lc "Rscript - <<'RS'
+library(projoint); data(exampleData1)
+out <- reshape_projoint(exampleData1, .outcomes=c(paste0('choice',1:8),'choice1_repeated_flipped'))
+print(out"'$labels, n=Inf)
+fit <- projoint(out,.structure='"'profile_level',.estimand='amce',.se_method='analytical',.auto_cluster=TRUE)
+print(dplyr::filter(fit"'$estimates, estimand == '"'amce_corrected'), n=Inf)
+RS" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2
+ succeeded in 1641ms:
+# A tibble: 24 × 4
+   attribute                                         level attribute_id level_id
+   <chr>                                             <chr> <chr>        <chr>   
+ 1 Housing Cost                                      15% … att1         att1:le…
+ 2 Housing Cost                                      30% … att1         att1:le…
+ 3 Housing Cost                                      40% … att1         att1:le…
+ 4 Presidential Vote (2020)                          30% … att2         att2:le…
+ 5 Presidential Vote (2020)                          50% … att2         att2:le…
+ 6 Presidential Vote (2020)                          70% … att2         att2:le…
+ 7 Racial Composition                                50% … att3         att3:le…
+ 8 Racial Composition                                75% … att3         att3:le…
+ 9 Racial Composition                                90% … att3         att3:le…
+10 Racial Composition                                96% … att3         att3:le…
+11 School Quality                                    5 ou… att4         att4:le…
+12 School Quality                                    9 ou… att4         att4:le…
+13 Total Daily Driving Time for Commuting and Erran… 10 m… att5         att5:le…
+14 Total Daily Driving Time for Commuting and Erran… 25 m… att5         att5:le…
+15 Total Daily Driving Time for Commuting and Erran… 45 m… att5         att5:le…
+16 Total Daily Driving Time for Commuting and Erran… 75 m… att5         att5:le…
+17 Type of Place                                     City… att6         att6:le…
+18 Type of Place                                     City… att6         att6:le…
+19 Type of Place                                     Rura… att6         att6:le…
+20 Type of Place                                     Smal… att6         att6:le…
+21 Type of Place                                     Subu… att6         att6:le…
+22 Type of Place                                     Subu… att6         att6:le…
+23 Violent Crime Rate (Vs National Rate)             20% … att7         att7:le…
+24 Violent Crime Rate (Vs National Rate)             20% … att7         att7:le…
+Warning messages:
+1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+2: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+# A tibble: 17 × 7
+   estimand       estimate     se conf.low conf.high att_level_choose
+   <chr>             <dbl>  <dbl>    <dbl>     <dbl> <chr>           
+ 1 amce_corrected -0.137   0.0360 -0.208   -0.0662   att1:level2     
+ 2 amce_corrected -0.198   0.0386 -0.274   -0.122    att1:level3     
+ 3 amce_corrected  0.0530  0.0372 -0.0202   0.126    att2:level2     
+ 4 amce_corrected -0.00270 0.0402 -0.0817   0.0763   att2:level3     
+ 5 amce_corrected  0.0366  0.0357 -0.0336   0.107    att3:level2     
+ 6 amce_corrected -0.0227  0.0361 -0.0936   0.0483   att3:level3     
+ 7 amce_corrected -0.0120  0.0382 -0.0871   0.0630   att3:level4     
+ 8 amce_corrected  0.116   0.0420  0.0330   0.198    att4:level2     
+ 9 amce_corrected -0.0696  0.0353 -0.139   -0.000176 att5:level2     
+10 amce_corrected -0.141   0.0365 -0.212   -0.0688   att5:level3     
+11 amce_corrected -0.237   0.0368 -0.310   -0.165    att5:level4     
+12 amce_corrected  0.115   0.0407  0.0350   0.195    att6:level2     
+13 amce_corrected  0.135   0.0429  0.0502   0.219    att6:level3     
+14 amce_corrected  0.158   0.0418  0.0757   0.240    att6:level4     
+15 amce_corrected  0.0786  0.0419 -0.00385  0.161    att6:level5     
+16 amce_corrected  0.146   0.0397  0.0681   0.224    att6:level6     
+17 amce_corrected -0.251   0.0422 -0.334   -0.168    att7:level2     
+# ℹ 1 more variable: att_level_choose_baseline <chr>
+
+exec
+/bin/zsh -lc "Rscript - <<'RS'
+library(projoint);data(exampleData1)
+out<-reshape_projoint(exampleData1,.outcomes=c(paste0('choice',1:8),'choice1_repeated_flipped'))
+print(as.data.frame(out"'$labels), row.names=FALSE)
+RS' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2
+ succeeded in 851ms:
+                                          attribute
+                                       Housing Cost
+                                       Housing Cost
+                                       Housing Cost
+                           Presidential Vote (2020)
+                           Presidential Vote (2020)
+                           Presidential Vote (2020)
+                                 Racial Composition
+                                 Racial Composition
+                                 Racial Composition
+                                 Racial Composition
+                                     School Quality
+                                     School Quality
+ Total Daily Driving Time for Commuting and Errands
+ Total Daily Driving Time for Commuting and Errands
+ Total Daily Driving Time for Commuting and Errands
+ Total Daily Driving Time for Commuting and Errands
+                                      Type of Place
+                                      Type of Place
+                                      Type of Place
+                                      Type of Place
+                                      Type of Place
+                                      Type of Place
+              Violent Crime Rate (Vs National Rate)
+              Violent Crime Rate (Vs National Rate)
+                                                         level attribute_id
+                                         15% of pre-tax income         att1
+                                         30% of pre-tax income         att1
+                                         40% of pre-tax income         att1
+                                  30% Democrat, 70% Republican         att2
+                                  50% Democrat, 50% Republican         att2
+                                  70% Democrat, 30% Republican         att2
+                                       50% White, 50% Nonwhite         att3
+                                       75% White, 25% Nonwhite         att3
+                                       90% White, 10% Nonwhite         att3
+                                        96% White, 4% Nonwhite         att3
+                                                   5 out of 10         att4
+                                                   9 out of 10         att4
+                                                        10 min         att5
+                                                        25 min         att5
+                                                        45 min         att5
+                                                        75 min         att5
+ City – downtown, with a mix of offices, apartments, and shops         att6
+                                   City, more residential area         att6
+                                                    Rural area         att6
+                                                    Small town         att6
+                        Suburban neighborhood with houses only         att6
+   Suburban neighborhood with mix of shops, houses, businesses         att6
+                          20% Less Crime Than National Average         att7
+                          20% More Crime Than National Average         att7
+    level_id
+ att1:level1
+ att1:level2
+ att1:level3
+ att2:level1
+ att2:level2
+ att2:level3
+ att3:level1
+ att3:level2
+ att3:level3
+ att3:level4
+ att4:level1
+ att4:level2
+ att5:level1
+ att5:level2
+ att5:level3
+ att5:level4
+ att6:level1
+ att6:level2
+ att6:level3
+ att6:level4
+ att6:level5
+ att6:level6
+ att7:level1
+ att7:level2
+
+2026-07-13T10:35:49.524290Z ERROR codex_core::tools::router: error=patch rejected: writing outside of the project; rejected by user approval settings
+codex
+The fitted object confirms respondent clustering by `id`; its requested analytical variance estimator fell back from CR2 to the package’s `stata` clustered variance calculation. I’ll preserve that distinction concisely in the uncertainty wording.
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2/script.R
+diff --git a/demos/orchestration-lab/runs/46-sol/t2/script.R b/demos/orchestration-lab/runs/46-sol/t2/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a0a50b474d078dc563cad4847f7236f272cdc843
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t2/script.R
+@@ -0,0 +1,115 @@
++suppressPackageStartupMessages({
++  library(dplyr)
++  library(ggplot2)
++  library(projoint)
++})
++
++# Okabe-Ito palette and a compact, publication-oriented plotting theme.
++okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
++               "#0072B2", "#D55E00", "#CC79A7")
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.background = element_rect(fill = "grey92", colour = NA),
++    strip.text.y.left = element_text(face = "bold", angle = 0, hjust = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 12)
++  )
++
++set.seed(20260713)
++
++data(exampleData1, package = "projoint")
++out <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++fit <- projoint(
++  out,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .auto_cluster = TRUE
++)
++
++stopifnot(identical(fit$cluster_by, "id"))
++stopifnot(identical(attr(fit$estimates, "cluster_by"), "id"))
++
++# The label table defines both the attribute sequence and within-attribute level sequence.
++labels <- fit$labels %>%
++  mutate(
++    attribute_order = match(attribute_id, unique(attribute_id)),
++    level_order = row_number(),
++    is_reference = grepl(":level1$", level_id)
++  )
++stopifnot(n_distinct(labels$attribute_id) == 7L)
++
++corrected <- fit$estimates %>%
++  filter(estimand == "amce_corrected") %>%
++  select(att_level_choose, estimate, se, conf.low, conf.high)
++
++# Joining from labels retains every level, including the seven first-listed references.
++plot_data <- labels %>%
++  left_join(corrected, by = c("level_id" = "att_level_choose")) %>%
++  mutate(
++    estimate = if_else(is_reference, 0, estimate),
++    conf.low = if_else(is_reference, 0, conf.low),
++    conf.high = if_else(is_reference, 0, conf.high),
++    level_display = if_else(is_reference,
++                            paste0(level, " (reference)"), level),
++    level_display = factor(level_display, levels = rev(level_display)),
++    attribute = factor(attribute, levels = unique(attribute))
++  )
++
++stopifnot(nrow(plot_data) == 24L)
++stopifnot(sum(plot_data$is_reference) == 7L)
++stopifnot(all(is.finite(plot_data$estimate)))
++stopifnot(all(is.finite(plot_data$conf.low)))
++stopifnot(all(is.finite(plot_data$conf.high)))
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++plot <- ggplot(plot_data, aes(x = estimate, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.45) +
++  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.20,
++                 linewidth = 0.55) +
++  geom_point(size = 2.15) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
++  scale_colour_manual(values = setNames(okabe_ito, levels(plot_data$attribute))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), " pp"),
++                     breaks = seq(-0.4, 0.3, by = 0.1),
++                     expand = expansion(mult = c(0.03, 0.08))) +
++  labs(x = "Corrected AMCE (percentage points)") +
++  theme_amce
++
++ggsave("figures/amce-dotwhisker.png", plot, width = 9.25, height = 14.5,
++       units = "in", dpi = 320, bg = "white")
++
++pp <- function(x) sprintf("%.1f", 100 * x)
++effect <- function(level_id) {
++  plot_data %>% filter(level_id == !!level_id) %>% pull(estimate)
++}
++
++housing <- effect("att1:level3")
++commute <- effect("att5:level4")
++place_small_town <- effect("att6:level4")
++place_suburb_mix <- effect("att6:level6")
++crime <- effect("att7:level2")
++
++paragraph <- paste0(
++  "Using the conjoint profiles, we estimated corrected average marginal component effects (AMCEs) on profile choice, with each level interpreted relative to the first-listed level of its attribute. ",
++  "The clearest negative response was to a violent-crime rate 20% above the national average: it reduced the probability of choosing a profile by ", pp(crime), " percentage points relative to a rate 20% below the national average. ",
++  "Longer daily travel also mattered substantially. A 75-minute commute reduced choice by ", pp(commute), " percentage points relative to 10 minutes, while housing costs equal to 40% of pre-tax income reduced choice by ", pp(housing), " points relative to 15%. ",
++  "Place type generated the largest positive shifts: a small town increased choice by ", pp(place_small_town), " points and a suburban neighborhood mixing shops, houses, and businesses increased it by ", pp(place_suburb_mix), " points, each compared with a downtown city setting with mixed offices, apartments, and shops. ",
++  "Several remaining contrasts were modest and their intervals crossed zero. The model estimated tau = ", sprintf("%.3f", fit$tau), ". ",
++  "The 95% intervals use respondent-clustered analytical uncertainty (clustered by id); the fitted object records the package's CR2-to-Stata variance fallback."
++)
++
++writeLines(c(
++  paragraph,
++  "",
++  "![Corrected AMCEs by conjoint attribute](figures/amce-dotwhisker.png)",
++  "Corrected AMCEs on profile choice relative to the first-listed level of each attribute; dots are estimates and whiskers are respondent-clustered 95% intervals."
++), "report.md")
+
+diff --git a/demos/orchestration-lab/runs/46-sol/t2/script.R b/demos/orchestration-lab/runs/46-sol/t2/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a0a50b474d078dc563cad4847f7236f272cdc843
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t2/script.R
+@@ -0,0 +1,115 @@
++suppressPackageStartupMessages({
++  library(dplyr)
++  library(ggplot2)
++  library(projoint)
++})
++
++# Okabe-Ito palette and a compact, publication-oriented plotting theme.
++okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
++               "#0072B2", "#D55E00", "#CC79A7")
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.background = element_rect(fill = "grey92", colour = NA),
++    strip.text.y.left = element_text(face = "bold", angle = 0, hjust = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 12)
++  )
++
++set.seed(20260713)
++
++data(exampleData1, package = "projoint")
++out <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++fit <- projoint(
++  out,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .auto_cluster = TRUE
++)
++
++stopifnot(identical(fit$cluster_by, "id"))
++stopifnot(identical(attr(fit$estimates, "cluster_by"), "id"))
++
++# The label table defines both the attribute sequence and within-attribute level sequence.
++labels <- fit$labels %>%
++  mutate(
++    attribute_order = match(attribute_id, unique(attribute_id)),
++    level_order = row_number(),
++    is_reference = grepl(":level1$", level_id)
++  )
++stopifnot(n_distinct(labels$attribute_id) == 7L)
++
++corrected <- fit$estimates %>%
++  filter(estimand == "amce_corrected") %>%
++  select(att_level_choose, estimate, se, conf.low, conf.high)
++
++# Joining from labels retains every level, including the seven first-listed references.
++plot_data <- labels %>%
++  left_join(corrected, by = c("level_id" = "att_level_choose")) %>%
++  mutate(
++    estimate = if_else(is_reference, 0, estimate),
++    conf.low = if_else(is_reference, 0, conf.low),
++    conf.high = if_else(is_reference, 0, conf.high),
++    level_display = if_else(is_reference,
++                            paste0(level, " (reference)"), level),
++    level_display = factor(level_display, levels = rev(level_display)),
++    attribute = factor(attribute, levels = unique(attribute))
++  )
++
++stopifnot(nrow(plot_data) == 24L)
++stopifnot(sum(plot_data$is_reference) == 7L)
++stopifnot(all(is.finite(plot_data$estimate)))
++stopifnot(all(is.finite(plot_data$conf.low)))
++stopifnot(all(is.finite(plot_data$conf.high)))
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++plot <- ggplot(plot_data, aes(x = estimate, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.45) +
++  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.20,
++                 linewidth = 0.55) +
++  geom_point(size = 2.15) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
++  scale_colour_manual(values = setNames(okabe_ito, levels(plot_data$attribute))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), " pp"),
++                     breaks = seq(-0.4, 0.3, by = 0.1),
++                     expand = expansion(mult = c(0.03, 0.08))) +
++  labs(x = "Corrected AMCE (percentage points)") +
++  theme_amce
++
++ggsave("figures/amce-dotwhisker.png", plot, width = 9.25, height = 14.5,
++       units = "in", dpi = 320, bg = "white")
++
++pp <- function(x) sprintf("%.1f", 100 * x)
++effect <- function(level_id) {
++  plot_data %>% filter(level_id == !!level_id) %>% pull(estimate)
++}
++
++housing <- effect("att1:level3")
++commute <- effect("att5:level4")
++place_small_town <- effect("att6:level4")
++place_suburb_mix <- effect("att6:level6")
++crime <- effect("att7:level2")
++
++paragraph <- paste0(
++  "Using the conjoint profiles, we estimated corrected average marginal component effects (AMCEs) on profile choice, with each level interpreted relative to the first-listed level of its attribute. ",
++  "The clearest negative response was to a violent-crime rate 20% above the national average: it reduced the probability of choosing a profile by ", pp(crime), " percentage points relative to a rate 20% below the national average. ",
++  "Longer daily travel also mattered substantially. A 75-minute commute reduced choice by ", pp(commute), " percentage points relative to 10 minutes, while housing costs equal to 40% of pre-tax income reduced choice by ", pp(housing), " points relative to 15%. ",
++  "Place type generated the largest positive shifts: a small town increased choice by ", pp(place_small_town), " points and a suburban neighborhood mixing shops, houses, and businesses increased it by ", pp(place_suburb_mix), " points, each compared with a downtown city setting with mixed offices, apartments, and shops. ",
++  "Several remaining contrasts were modest and their intervals crossed zero. The model estimated tau = ", sprintf("%.3f", fit$tau), ". ",
++  "The 95% intervals use respondent-clustered analytical uncertainty (clustered by id); the fitted object records the package's CR2-to-Stata variance fallback."
++)
++
++writeLines(c(
++  paragraph,
++  "",
++  "![Corrected AMCEs by conjoint attribute](figures/amce-dotwhisker.png)",
++  "Corrected AMCEs on profile choice relative to the first-listed level of each attribute; dots are estimates and whiskers are respondent-clustered 95% intervals."
++), "report.md")
+
+exec
+/bin/zsh -lc "Rscript script.R && wc -w report.md && file figures/amce-dotwhisker.png && Rscript - <<'RS'
+library(png)
+i <- readPNG('figures/amce-dotwhisker.png', info=TRUE)
+print(attributes(i)"'$info)
+RS' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2
+diff --git a/demos/orchestration-lab/runs/46-sol/t2/script.R b/demos/orchestration-lab/runs/46-sol/t2/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a0a50b474d078dc563cad4847f7236f272cdc843
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t2/script.R
+@@ -0,0 +1,115 @@
++suppressPackageStartupMessages({
++  library(dplyr)
++  library(ggplot2)
++  library(projoint)
++})
++
++# Okabe-Ito palette and a compact, publication-oriented plotting theme.
++okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
++               "#0072B2", "#D55E00", "#CC79A7")
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.background = element_rect(fill = "grey92", colour = NA),
++    strip.text.y.left = element_text(face = "bold", angle = 0, hjust = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 12)
++  )
++
++set.seed(20260713)
++
++data(exampleData1, package = "projoint")
++out <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++fit <- projoint(
++  out,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .auto_cluster = TRUE
++)
++
++stopifnot(identical(fit$cluster_by, "id"))
++stopifnot(identical(attr(fit$estimates, "cluster_by"), "id"))
++
++# The label table defines both the attribute sequence and within-attribute level sequence.
++labels <- fit$labels %>%
++  mutate(
++    attribute_order = match(attribute_id, unique(attribute_id)),
++    level_order = row_number(),
++    is_reference = grepl(":level1$", level_id)
++  )
++stopifnot(n_distinct(labels$attribute_id) == 7L)
++
++corrected <- fit$estimates %>%
++  filter(estimand == "amce_corrected") %>%
++  select(att_level_choose, estimate, se, conf.low, conf.high)
++
++# Joining from labels retains every level, including the seven first-listed references.
++plot_data <- labels %>%
++  left_join(corrected, by = c("level_id" = "att_level_choose")) %>%
++  mutate(
++    estimate = if_else(is_reference, 0, estimate),
++    conf.low = if_else(is_reference, 0, conf.low),
++    conf.high = if_else(is_reference, 0, conf.high),
++    level_display = if_else(is_reference,
++                            paste0(level, " (reference)"), level),
++    level_display = factor(level_display, levels = rev(level_display)),
++    attribute = factor(attribute, levels = unique(attribute))
++  )
++
++stopifnot(nrow(plot_data) == 24L)
++stopifnot(sum(plot_data$is_reference) == 7L)
++stopifnot(all(is.finite(plot_data$estimate)))
++stopifnot(all(is.finite(plot_data$conf.low)))
++stopifnot(all(is.finite(plot_data$conf.high)))
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++plot <- ggplot(plot_data, aes(x = estimate, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.45) +
++  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.20,
++                 linewidth = 0.55) +
++  geom_point(size = 2.15) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
++  scale_colour_manual(values = setNames(okabe_ito, levels(plot_data$attribute))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), " pp"),
++                     breaks = seq(-0.4, 0.3, by = 0.1),
++                     expand = expansion(mult = c(0.03, 0.08))) +
++  labs(x = "Corrected AMCE (percentage points)") +
++  theme_amce
++
++ggsave("figures/amce-dotwhisker.png", plot, width = 9.25, height = 14.5,
++       units = "in", dpi = 320, bg = "white")
++
++pp <- function(x) sprintf("%.1f", 100 * x)
++effect <- function(level_id) {
++  plot_data %>% filter(level_id == !!level_id) %>% pull(estimate)
++}
++
++housing <- effect("att1:level3")
++commute <- effect("att5:level4")
++place_small_town <- effect("att6:level4")
++place_suburb_mix <- effect("att6:level6")
++crime <- effect("att7:level2")
++
++paragraph <- paste0(
++  "Using the conjoint profiles, we estimated corrected average marginal component effects (AMCEs) on profile choice, with each level interpreted relative to the first-listed level of its attribute. ",
++  "The clearest negative response was to a violent-crime rate 20% above the national average: it reduced the probability of choosing a profile by ", pp(crime), " percentage points relative to a rate 20% below the national average. ",
++  "Longer daily travel also mattered substantially. A 75-minute commute reduced choice by ", pp(commute), " percentage points relative to 10 minutes, while housing costs equal to 40% of pre-tax income reduced choice by ", pp(housing), " points relative to 15%. ",
++  "Place type generated the largest positive shifts: a small town increased choice by ", pp(place_small_town), " points and a suburban neighborhood mixing shops, houses, and businesses increased it by ", pp(place_suburb_mix), " points, each compared with a downtown city setting with mixed offices, apartments, and shops. ",
++  "Several remaining contrasts were modest and their intervals crossed zero. The model estimated tau = ", sprintf("%.3f", fit$tau), ". ",
++  "The 95% intervals use respondent-clustered analytical uncertainty (clustered by id); the fitted object records the package's CR2-to-Stata variance fallback."
++)
++
++writeLines(c(
++  paragraph,
++  "",
++  "![Corrected AMCEs by conjoint attribute](figures/amce-dotwhisker.png)",
++  "Corrected AMCEs on profile choice relative to the first-listed level of each attribute; dots are estimates and whiskers are respondent-clustered 95% intervals."
++), "report.md")
+
+ succeeded in 2458ms:
+Warning messages:
+1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+2: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+Warning message:
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+ℹ Please use the `orientation` argument of `geom_errorbar()` instead. 
+`height` was translated to `width`.
+     202 report.md
+figures/amce-dotwhisker.png: PNG image data, 2960 x 4640, 8-bit/color RGB, non-interlaced
+$dim
+[1] 2960 4640
+
+$bit.depth
+[1] 8
+
+$color.type
+[1] "RGB"
+
+$dpi
+[1] 319.9892 319.9892
+
+
+exec
+/bin/zsh -lc "sed -n '1,120p' report.md && Rscript - <<'RS'
+lines <- readLines('report.md')
+cat('paragraph words:', length(strsplit(lines[1], '\\\\s+')[[1]]), '\\n')
+source('script.R', echo=FALSE)
+print(plot_data %>% select(attribute, level, level_id, is_reference, estimate, conf.low, conf.high), n=Inf)
+cat('attributes:', n_distinct(plot_data"'$attribute), '"'levels:', nrow(plot_data), 'references:', sum(plot_data"'$is_reference), '"'cluster:', fit"'$cluster_by, '"'se fallback:', fit"'$se_type_used, '"'\\n')
+RS" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2
+diff --git a/demos/orchestration-lab/runs/46-sol/t2/script.R b/demos/orchestration-lab/runs/46-sol/t2/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a0a50b474d078dc563cad4847f7236f272cdc843
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t2/script.R
+@@ -0,0 +1,115 @@
++suppressPackageStartupMessages({
++  library(dplyr)
++  library(ggplot2)
++  library(projoint)
++})
++
++# Okabe-Ito palette and a compact, publication-oriented plotting theme.
++okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
++               "#0072B2", "#D55E00", "#CC79A7")
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.background = element_rect(fill = "grey92", colour = NA),
++    strip.text.y.left = element_text(face = "bold", angle = 0, hjust = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 12)
++  )
++
++set.seed(20260713)
++
++data(exampleData1, package = "projoint")
++out <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++fit <- projoint(
++  out,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .auto_cluster = TRUE
++)
++
++stopifnot(identical(fit$cluster_by, "id"))
++stopifnot(identical(attr(fit$estimates, "cluster_by"), "id"))
++
++# The label table defines both the attribute sequence and within-attribute level sequence.
++labels <- fit$labels %>%
++  mutate(
++    attribute_order = match(attribute_id, unique(attribute_id)),
++    level_order = row_number(),
++    is_reference = grepl(":level1$", level_id)
++  )
++stopifnot(n_distinct(labels$attribute_id) == 7L)
++
++corrected <- fit$estimates %>%
++  filter(estimand == "amce_corrected") %>%
++  select(att_level_choose, estimate, se, conf.low, conf.high)
++
++# Joining from labels retains every level, including the seven first-listed references.
++plot_data <- labels %>%
++  left_join(corrected, by = c("level_id" = "att_level_choose")) %>%
++  mutate(
++    estimate = if_else(is_reference, 0, estimate),
++    conf.low = if_else(is_reference, 0, conf.low),
++    conf.high = if_else(is_reference, 0, conf.high),
++    level_display = if_else(is_reference,
++                            paste0(level, " (reference)"), level),
++    level_display = factor(level_display, levels = rev(level_display)),
++    attribute = factor(attribute, levels = unique(attribute))
++  )
++
++stopifnot(nrow(plot_data) == 24L)
++stopifnot(sum(plot_data$is_reference) == 7L)
++stopifnot(all(is.finite(plot_data$estimate)))
++stopifnot(all(is.finite(plot_data$conf.low)))
++stopifnot(all(is.finite(plot_data$conf.high)))
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++plot <- ggplot(plot_data, aes(x = estimate, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.45) +
++  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.20,
++                 linewidth = 0.55) +
++  geom_point(size = 2.15) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
++  scale_colour_manual(values = setNames(okabe_ito, levels(plot_data$attribute))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), " pp"),
++                     breaks = seq(-0.4, 0.3, by = 0.1),
++                     expand = expansion(mult = c(0.03, 0.08))) +
++  labs(x = "Corrected AMCE (percentage points)") +
++  theme_amce
++
++ggsave("figures/amce-dotwhisker.png", plot, width = 9.25, height = 14.5,
++       units = "in", dpi = 320, bg = "white")
++
++pp <- function(x) sprintf("%.1f", 100 * x)
++effect <- function(level_id) {
++  plot_data %>% filter(level_id == !!level_id) %>% pull(estimate)
++}
++
++housing <- effect("att1:level3")
++commute <- effect("att5:level4")
++place_small_town <- effect("att6:level4")
++place_suburb_mix <- effect("att6:level6")
++crime <- effect("att7:level2")
++
++paragraph <- paste0(
++  "Using the conjoint profiles, we estimated corrected average marginal component effects (AMCEs) on profile choice, with each level interpreted relative to the first-listed level of its attribute. ",
++  "The clearest negative response was to a violent-crime rate 20% above the national average: it reduced the probability of choosing a profile by ", pp(crime), " percentage points relative to a rate 20% below the national average. ",
++  "Longer daily travel also mattered substantially. A 75-minute commute reduced choice by ", pp(commute), " percentage points relative to 10 minutes, while housing costs equal to 40% of pre-tax income reduced choice by ", pp(housing), " points relative to 15%. ",
++  "Place type generated the largest positive shifts: a small town increased choice by ", pp(place_small_town), " points and a suburban neighborhood mixing shops, houses, and businesses increased it by ", pp(place_suburb_mix), " points, each compared with a downtown city setting with mixed offices, apartments, and shops. ",
++  "Several remaining contrasts were modest and their intervals crossed zero. The model estimated tau = ", sprintf("%.3f", fit$tau), ". ",
++  "The 95% intervals use respondent-clustered analytical uncertainty (clustered by id); the fitted object records the package's CR2-to-Stata variance fallback."
++)
++
++writeLines(c(
++  paragraph,
++  "",
++  "![Corrected AMCEs by conjoint attribute](figures/amce-dotwhisker.png)",
++  "Corrected AMCEs on profile choice relative to the first-listed level of each attribute; dots are estimates and whiskers are respondent-clustered 95% intervals."
++), "report.md")
+
+ succeeded in 2095ms:
+`height` was translated to `width`.
+Warning messages:
+1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+2: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+4: `geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+ℹ Please use the `orientation` argument of `geom_errorbar()` instead. 
+# A tibble: 24 × 7
+   attribute             level level_id is_reference estimate conf.low conf.high
+   <fct>                 <chr> <chr>    <lgl>           <dbl>    <dbl>     <dbl>
+ 1 Housing Cost          15% … att1:le… TRUE          0        0        0       
+ 2 Housing Cost          30% … att1:le… FALSE        -0.137   -0.208   -0.0662  
+ 3 Housing Cost          40% … att1:le… FALSE        -0.198   -0.274   -0.122   
+ 4 Presidential Vote (2… 30% … att2:le… TRUE          0        0        0       
+ 5 Presidential Vote (2… 50% … att2:le… FALSE         0.0530  -0.0202   0.126   
+ 6 Presidential Vote (2… 70% … att2:le… FALSE        -0.00270 -0.0817   0.0763  
+ 7 Racial Composition    50% … att3:le… TRUE          0        0        0       
+ 8 Racial Composition    75% … att3:le… FALSE         0.0366  -0.0336   0.107   
+ 9 Racial Composition    90% … att3:le… FALSE        -0.0227  -0.0936   0.0483  
+10 Racial Composition    96% … att3:le… FALSE        -0.0120  -0.0871   0.0630  
+11 School Quality        5 ou… att4:le… TRUE          0        0        0       
+12 School Quality        9 ou… att4:le… FALSE         0.116    0.0330   0.198   
+13 Total Daily Driving … 10 m… att5:le… TRUE          0        0        0       
+14 Total Daily Driving … 25 m… att5:le… FALSE        -0.0696  -0.139   -0.000176
+15 Total Daily Driving … 45 m… att5:le… FALSE        -0.141   -0.212   -0.0688  
+16 Total Daily Driving … 75 m… att5:le… FALSE        -0.237   -0.310   -0.165   
+17 Type of Place         City… att6:le… TRUE          0        0        0       
+18 Type of Place         City… att6:le… FALSE         0.115    0.0350   0.195   
+19 Type of Place         Rura… att6:le… FALSE         0.135    0.0502   0.219   
+20 Type of Place         Smal… att6:le… FALSE         0.158    0.0757   0.240   
+21 Type of Place         Subu… att6:le… FALSE         0.0786  -0.00385  0.161   
+22 Type of Place         Subu… att6:le… FALSE         0.146    0.0681   0.224   
+23 Violent Crime Rate (… 20% … att7:le… TRUE          0        0        0       
+24 Violent Crime Rate (… 20% … att7:le… FALSE        -0.251   -0.334   -0.168   
+attributes: 7 levels: 24 references: 7 cluster: id se fallback: stata 
+
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2/script.R
+diff --git a/demos/orchestration-lab/runs/46-sol/t2/script.R b/demos/orchestration-lab/runs/46-sol/t2/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..51751ad3e8dd36b971c9747fb246950a273229d0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t2/script.R
+@@ -0,0 +1,117 @@
++suppressPackageStartupMessages({
++  library(dplyr)
++  library(ggplot2)
++  library(projoint)
++})
++
++# Okabe-Ito palette and a compact, publication-oriented plotting theme.
++okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
++               "#0072B2", "#D55E00", "#CC79A7")
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.background = element_rect(fill = "grey92", colour = NA),
++    strip.text.y.left = element_text(face = "bold", angle = 0, hjust = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 12)
++  )
++
++set.seed(20260713)
++
++data(exampleData1, package = "projoint")
++out <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++fit <- projoint(
++  out,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .auto_cluster = TRUE
++)
++
++stopifnot(identical(fit$cluster_by, "id"))
++stopifnot(identical(attr(fit$estimates, "cluster_by"), "id"))
++
++# The label table defines both the attribute sequence and within-attribute level sequence.
++labels <- fit$labels %>%
++  mutate(
++    attribute_order = match(attribute_id, unique(attribute_id)),
++    level_order = row_number(),
++    is_reference = grepl(":level1$", level_id)
++  )
++stopifnot(n_distinct(labels$attribute_id) == 7L)
++
++corrected <- fit$estimates %>%
++  filter(estimand == "amce_corrected") %>%
++  select(att_level_choose, estimate, se, conf.low, conf.high)
++
++# Joining from labels retains every level, including the seven first-listed references.
++plot_data <- labels %>%
++  left_join(corrected, by = c("level_id" = "att_level_choose")) %>%
++  mutate(
++    estimate = if_else(is_reference, 0, estimate),
++    conf.low = if_else(is_reference, 0, conf.low),
++    conf.high = if_else(is_reference, 0, conf.high),
++    level_display = if_else(is_reference,
++                            paste0(level, " (reference)"), level),
++    level_display = factor(level_display, levels = rev(level_display)),
++    attribute = factor(attribute, levels = unique(attribute))
++  )
++
++stopifnot(nrow(plot_data) == 24L)
++stopifnot(sum(plot_data$is_reference) == 7L)
++stopifnot(all(is.finite(plot_data$estimate)))
++stopifnot(all(is.finite(plot_data$conf.low)))
++stopifnot(all(is.finite(plot_data$conf.high)))
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++plot <- ggplot(plot_data, aes(x = estimate, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.45) +
++  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.20,
++                 linewidth = 0.55) +
++  geom_point(size = 2.15) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
++  scale_colour_manual(values = setNames(okabe_ito, levels(plot_data$attribute))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), " pp"),
++                     breaks = seq(-0.4, 0.3, by = 0.1),
++                     expand = expansion(mult = c(0.03, 0.08))) +
++  labs(x = "Corrected AMCE (percentage points)") +
++  theme_amce
++
++ggsave("figures/amce-dotwhisker.png", plot, width = 9.25, height = 14.5,
++       units = "in", dpi = 320, bg = "white")
++
++pp <- function(x) sprintf("%.1f", 100 * x)
++pp_abs <- function(x) sprintf("%.1f", abs(100 * x))
++effect <- function(level_id) {
++  plot_data %>% filter(level_id == !!level_id) %>% pull(estimate)
++}
++
++housing <- effect("att1:level3")
++commute <- effect("att5:level4")
++place_small_town <- effect("att6:level4")
++place_suburb_mix <- effect("att6:level6")
++crime <- effect("att7:level2")
++
++paragraph <- paste0(
++  "Using the conjoint profiles, we estimated corrected average marginal component effects (AMCEs) on profile choice, with each level interpreted relative to the first-listed level of its attribute. ",
++  "This estimand adjusts for the estimated profile-level dependence in choices. ",
++  "The clearest negative response was to a violent-crime rate 20% above the national average: it reduced the probability of choosing a profile by ", pp_abs(crime), " percentage points relative to a rate 20% below the national average. ",
++  "Longer daily travel also mattered substantially. A 75-minute commute reduced choice by ", pp(commute), " percentage points relative to 10 minutes, while housing costs equal to 40% of pre-tax income reduced choice by ", pp(housing), " points relative to 15%. ",
++  "Place type generated the largest positive shifts: a small town increased choice by ", pp(place_small_town), " points and a suburban neighborhood mixing shops, houses, and businesses increased it by ", pp(place_suburb_mix), " points, each compared with a downtown city setting with mixed offices, apartments, and shops. ",
++  "Several remaining contrasts were modest and their intervals crossed zero. The model estimated tau = ", sprintf("%.3f", fit$tau), ". ",
++  "The 95% intervals use respondent-clustered analytical uncertainty (clustered by id); the fitted object records the package's CR2-to-Stata variance fallback."
++)
++
++writeLines(c(
++  paragraph,
++  "",
++  "![Corrected AMCEs by conjoint attribute](figures/amce-dotwhisker.png)",
++  "Corrected AMCEs on profile choice relative to the first-listed level of each attribute; dots are estimates and whiskers are respondent-clustered 95% intervals."
++), "report.md")
+
+diff --git a/demos/orchestration-lab/runs/46-sol/t2/script.R b/demos/orchestration-lab/runs/46-sol/t2/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..51751ad3e8dd36b971c9747fb246950a273229d0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t2/script.R
+@@ -0,0 +1,117 @@
++suppressPackageStartupMessages({
++  library(dplyr)
++  library(ggplot2)
++  library(projoint)
++})
++
++# Okabe-Ito palette and a compact, publication-oriented plotting theme.
++okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
++               "#0072B2", "#D55E00", "#CC79A7")
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.background = element_rect(fill = "grey92", colour = NA),
++    strip.text.y.left = element_text(face = "bold", angle = 0, hjust = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 12)
++  )
++
++set.seed(20260713)
++
++data(exampleData1, package = "projoint")
++out <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++fit <- projoint(
++  out,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .auto_cluster = TRUE
++)
++
++stopifnot(identical(fit$cluster_by, "id"))
++stopifnot(identical(attr(fit$estimates, "cluster_by"), "id"))
++
++# The label table defines both the attribute sequence and within-attribute level sequence.
++labels <- fit$labels %>%
++  mutate(
++    attribute_order = match(attribute_id, unique(attribute_id)),
++    level_order = row_number(),
++    is_reference = grepl(":level1$", level_id)
++  )
++stopifnot(n_distinct(labels$attribute_id) == 7L)
++
++corrected <- fit$estimates %>%
++  filter(estimand == "amce_corrected") %>%
++  select(att_level_choose, estimate, se, conf.low, conf.high)
++
++# Joining from labels retains every level, including the seven first-listed references.
++plot_data <- labels %>%
++  left_join(corrected, by = c("level_id" = "att_level_choose")) %>%
++  mutate(
++    estimate = if_else(is_reference, 0, estimate),
++    conf.low = if_else(is_reference, 0, conf.low),
++    conf.high = if_else(is_reference, 0, conf.high),
++    level_display = if_else(is_reference,
++                            paste0(level, " (reference)"), level),
++    level_display = factor(level_display, levels = rev(level_display)),
++    attribute = factor(attribute, levels = unique(attribute))
++  )
++
++stopifnot(nrow(plot_data) == 24L)
++stopifnot(sum(plot_data$is_reference) == 7L)
++stopifnot(all(is.finite(plot_data$estimate)))
++stopifnot(all(is.finite(plot_data$conf.low)))
++stopifnot(all(is.finite(plot_data$conf.high)))
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++plot <- ggplot(plot_data, aes(x = estimate, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.45) +
++  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.20,
++                 linewidth = 0.55) +
++  geom_point(size = 2.15) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
++  scale_colour_manual(values = setNames(okabe_ito, levels(plot_data$attribute))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), " pp"),
++                     breaks = seq(-0.4, 0.3, by = 0.1),
++                     expand = expansion(mult = c(0.03, 0.08))) +
++  labs(x = "Corrected AMCE (percentage points)") +
++  theme_amce
++
++ggsave("figures/amce-dotwhisker.png", plot, width = 9.25, height = 14.5,
++       units = "in", dpi = 320, bg = "white")
++
++pp <- function(x) sprintf("%.1f", 100 * x)
++pp_abs <- function(x) sprintf("%.1f", abs(100 * x))
++effect <- function(level_id) {
++  plot_data %>% filter(level_id == !!level_id) %>% pull(estimate)
++}
++
++housing <- effect("att1:level3")
++commute <- effect("att5:level4")
++place_small_town <- effect("att6:level4")
++place_suburb_mix <- effect("att6:level6")
++crime <- effect("att7:level2")
++
++paragraph <- paste0(
++  "Using the conjoint profiles, we estimated corrected average marginal component effects (AMCEs) on profile choice, with each level interpreted relative to the first-listed level of its attribute. ",
++  "This estimand adjusts for the estimated profile-level dependence in choices. ",
++  "The clearest negative response was to a violent-crime rate 20% above the national average: it reduced the probability of choosing a profile by ", pp_abs(crime), " percentage points relative to a rate 20% below the national average. ",
++  "Longer daily travel also mattered substantially. A 75-minute commute reduced choice by ", pp(commute), " percentage points relative to 10 minutes, while housing costs equal to 40% of pre-tax income reduced choice by ", pp(housing), " points relative to 15%. ",
++  "Place type generated the largest positive shifts: a small town increased choice by ", pp(place_small_town), " points and a suburban neighborhood mixing shops, houses, and businesses increased it by ", pp(place_suburb_mix), " points, each compared with a downtown city setting with mixed offices, apartments, and shops. ",
++  "Several remaining contrasts were modest and their intervals crossed zero. The model estimated tau = ", sprintf("%.3f", fit$tau), ". ",
++  "The 95% intervals use respondent-clustered analytical uncertainty (clustered by id); the fitted object records the package's CR2-to-Stata variance fallback."
++)
++
++writeLines(c(
++  paragraph,
++  "",
++  "![Corrected AMCEs by conjoint attribute](figures/amce-dotwhisker.png)",
++  "Corrected AMCEs on profile choice relative to the first-listed level of each attribute; dots are estimates and whiskers are respondent-clustered 95% intervals."
++), "report.md")
+
+apply patch
+patch: completed
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2/script.R
+diff --git a/demos/orchestration-lab/runs/46-sol/t2/script.R b/demos/orchestration-lab/runs/46-sol/t2/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..fa91beaa191546870befc8e13bd3f626bd84762b
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t2/script.R
+@@ -0,0 +1,117 @@
++suppressPackageStartupMessages({
++  library(dplyr)
++  library(ggplot2)
++  library(projoint)
++})
++
++# Okabe-Ito palette and a compact, publication-oriented plotting theme.
++okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
++               "#0072B2", "#D55E00", "#CC79A7")
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.background = element_rect(fill = "grey92", colour = NA),
++    strip.text.y.left = element_text(face = "bold", angle = 0, hjust = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 12)
++  )
++
++set.seed(20260713)
++
++data(exampleData1, package = "projoint")
++out <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++fit <- projoint(
++  out,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .auto_cluster = TRUE
++)
++
++stopifnot(identical(fit$cluster_by, "id"))
++stopifnot(identical(attr(fit$estimates, "cluster_by"), "id"))
++
++# The label table defines both the attribute sequence and within-attribute level sequence.
++labels <- fit$labels %>%
++  mutate(
++    attribute_order = match(attribute_id, unique(attribute_id)),
++    level_order = row_number(),
++    is_reference = grepl(":level1$", level_id)
++  )
++stopifnot(n_distinct(labels$attribute_id) == 7L)
++
++corrected <- fit$estimates %>%
++  filter(estimand == "amce_corrected") %>%
++  select(att_level_choose, estimate, se, conf.low, conf.high)
++
++# Joining from labels retains every level, including the seven first-listed references.
++plot_data <- labels %>%
++  left_join(corrected, by = c("level_id" = "att_level_choose")) %>%
++  mutate(
++    estimate = if_else(is_reference, 0, estimate),
++    conf.low = if_else(is_reference, 0, conf.low),
++    conf.high = if_else(is_reference, 0, conf.high),
++    level_display = if_else(is_reference,
++                            paste0(level, " (reference)"), level),
++    level_display = factor(level_display, levels = rev(level_display)),
++    attribute = factor(attribute, levels = unique(attribute))
++  )
++
++stopifnot(nrow(plot_data) == 24L)
++stopifnot(sum(plot_data$is_reference) == 7L)
++stopifnot(all(is.finite(plot_data$estimate)))
++stopifnot(all(is.finite(plot_data$conf.low)))
++stopifnot(all(is.finite(plot_data$conf.high)))
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++plot <- ggplot(plot_data, aes(x = estimate, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.45) +
++  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.20,
++                 linewidth = 0.55) +
++  geom_point(size = 2.15) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
++  scale_colour_manual(values = setNames(okabe_ito, levels(plot_data$attribute))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), " pp"),
++                     breaks = seq(-0.4, 0.3, by = 0.1),
++                     expand = expansion(mult = c(0.03, 0.08))) +
++  labs(x = "Corrected AMCE (percentage points)") +
++  theme_amce
++
++ggsave("figures/amce-dotwhisker.png", plot, width = 9.25, height = 14.5,
++       units = "in", dpi = 320, bg = "white")
++
++pp <- function(x) sprintf("%.1f", 100 * x)
++pp_abs <- function(x) sprintf("%.1f", abs(100 * x))
++effect <- function(level_id) {
++  plot_data %>% filter(level_id == !!level_id) %>% pull(estimate)
++}
++
++housing <- effect("att1:level3")
++commute <- effect("att5:level4")
++place_small_town <- effect("att6:level4")
++place_suburb_mix <- effect("att6:level6")
++crime <- effect("att7:level2")
++
++paragraph <- paste0(
++  "Using the conjoint profiles, we estimated corrected average marginal component effects (AMCEs) on profile choice, with each level interpreted relative to the first-listed level of its attribute. ",
++  "This estimand adjusts for the estimated profile-level dependence in choices. ",
++  "The clearest negative response was to a violent-crime rate 20% above the national average: it reduced the probability of choosing a profile by ", pp_abs(crime), " percentage points relative to a rate 20% below the national average. ",
++  "Longer daily travel also mattered substantially. A 75-minute commute reduced choice by ", pp_abs(commute), " percentage points relative to 10 minutes, while housing costs equal to 40% of pre-tax income reduced choice by ", pp_abs(housing), " points relative to 15%. ",
++  "Place type generated the largest positive shifts: a small town increased choice by ", pp(place_small_town), " points and a suburban neighborhood mixing shops, houses, and businesses increased it by ", pp(place_suburb_mix), " points, each compared with a downtown city setting with mixed offices, apartments, and shops. ",
++  "Several remaining contrasts were modest and their intervals crossed zero. The model estimated tau = ", sprintf("%.3f", fit$tau), ". ",
++  "The 95% intervals use respondent-clustered analytical uncertainty (clustered by id); the fitted object records the package's CR2-to-Stata variance fallback."
++)
++
++writeLines(c(
++  paragraph,
++  "",
++  "![Corrected AMCEs by conjoint attribute](figures/amce-dotwhisker.png)",
++  "Corrected AMCEs on profile choice relative to the first-listed level of each attribute; dots are estimates and whiskers are respondent-clustered 95% intervals."
++), "report.md")
+
+diff --git a/demos/orchestration-lab/runs/46-sol/t2/script.R b/demos/orchestration-lab/runs/46-sol/t2/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..fa91beaa191546870befc8e13bd3f626bd84762b
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t2/script.R
+@@ -0,0 +1,117 @@
++suppressPackageStartupMessages({
++  library(dplyr)
++  library(ggplot2)
++  library(projoint)
++})
++
++# Okabe-Ito palette and a compact, publication-oriented plotting theme.
++okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
++               "#0072B2", "#D55E00", "#CC79A7")
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.background = element_rect(fill = "grey92", colour = NA),
++    strip.text.y.left = element_text(face = "bold", angle = 0, hjust = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 12)
++  )
++
++set.seed(20260713)
++
++data(exampleData1, package = "projoint")
++out <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++fit <- projoint(
++  out,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .auto_cluster = TRUE
++)
++
++stopifnot(identical(fit$cluster_by, "id"))
++stopifnot(identical(attr(fit$estimates, "cluster_by"), "id"))
++
++# The label table defines both the attribute sequence and within-attribute level sequence.
++labels <- fit$labels %>%
++  mutate(
++    attribute_order = match(attribute_id, unique(attribute_id)),
++    level_order = row_number(),
++    is_reference = grepl(":level1$", level_id)
++  )
++stopifnot(n_distinct(labels$attribute_id) == 7L)
++
++corrected <- fit$estimates %>%
++  filter(estimand == "amce_corrected") %>%
++  select(att_level_choose, estimate, se, conf.low, conf.high)
++
++# Joining from labels retains every level, including the seven first-listed references.
++plot_data <- labels %>%
++  left_join(corrected, by = c("level_id" = "att_level_choose")) %>%
++  mutate(
++    estimate = if_else(is_reference, 0, estimate),
++    conf.low = if_else(is_reference, 0, conf.low),
++    conf.high = if_else(is_reference, 0, conf.high),
++    level_display = if_else(is_reference,
++                            paste0(level, " (reference)"), level),
++    level_display = factor(level_display, levels = rev(level_display)),
++    attribute = factor(attribute, levels = unique(attribute))
++  )
++
++stopifnot(nrow(plot_data) == 24L)
++stopifnot(sum(plot_data$is_reference) == 7L)
++stopifnot(all(is.finite(plot_data$estimate)))
++stopifnot(all(is.finite(plot_data$conf.low)))
++stopifnot(all(is.finite(plot_data$conf.high)))
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++plot <- ggplot(plot_data, aes(x = estimate, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.45) +
++  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.20,
++                 linewidth = 0.55) +
++  geom_point(size = 2.15) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
++  scale_colour_manual(values = setNames(okabe_ito, levels(plot_data$attribute))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), " pp"),
++                     breaks = seq(-0.4, 0.3, by = 0.1),
++                     expand = expansion(mult = c(0.03, 0.08))) +
++  labs(x = "Corrected AMCE (percentage points)") +
++  theme_amce
++
++ggsave("figures/amce-dotwhisker.png", plot, width = 9.25, height = 14.5,
++       units = "in", dpi = 320, bg = "white")
++
++pp <- function(x) sprintf("%.1f", 100 * x)
++pp_abs <- function(x) sprintf("%.1f", abs(100 * x))
++effect <- function(level_id) {
++  plot_data %>% filter(level_id == !!level_id) %>% pull(estimate)
++}
++
++housing <- effect("att1:level3")
++commute <- effect("att5:level4")
++place_small_town <- effect("att6:level4")
++place_suburb_mix <- effect("att6:level6")
++crime <- effect("att7:level2")
++
++paragraph <- paste0(
++  "Using the conjoint profiles, we estimated corrected average marginal component effects (AMCEs) on profile choice, with each level interpreted relative to the first-listed level of its attribute. ",
++  "This estimand adjusts for the estimated profile-level dependence in choices. ",
++  "The clearest negative response was to a violent-crime rate 20% above the national average: it reduced the probability of choosing a profile by ", pp_abs(crime), " percentage points relative to a rate 20% below the national average. ",
++  "Longer daily travel also mattered substantially. A 75-minute commute reduced choice by ", pp_abs(commute), " percentage points relative to 10 minutes, while housing costs equal to 40% of pre-tax income reduced choice by ", pp_abs(housing), " points relative to 15%. ",
++  "Place type generated the largest positive shifts: a small town increased choice by ", pp(place_small_town), " points and a suburban neighborhood mixing shops, houses, and businesses increased it by ", pp(place_suburb_mix), " points, each compared with a downtown city setting with mixed offices, apartments, and shops. ",
++  "Several remaining contrasts were modest and their intervals crossed zero. The model estimated tau = ", sprintf("%.3f", fit$tau), ". ",
++  "The 95% intervals use respondent-clustered analytical uncertainty (clustered by id); the fitted object records the package's CR2-to-Stata variance fallback."
++)
++
++writeLines(c(
++  paragraph,
++  "",
++  "![Corrected AMCEs by conjoint attribute](figures/amce-dotwhisker.png)",
++  "Corrected AMCEs on profile choice relative to the first-listed level of each attribute; dots are estimates and whiskers are respondent-clustered 95% intervals."
++), "report.md")
+
+exec
+/bin/zsh -lc "Rscript script.R && Rscript - <<'RS'
+lines <- readLines('report.md')
+cat('paragraph words:', length(strsplit(lines[1], '\\\\s+')[[1]]), '\\n')
+RS
+file figures/amce-dotwhisker.png" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2
+diff --git a/demos/orchestration-lab/runs/46-sol/t2/script.R b/demos/orchestration-lab/runs/46-sol/t2/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..fa91beaa191546870befc8e13bd3f626bd84762b
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t2/script.R
+@@ -0,0 +1,117 @@
++suppressPackageStartupMessages({
++  library(dplyr)
++  library(ggplot2)
++  library(projoint)
++})
++
++# Okabe-Ito palette and a compact, publication-oriented plotting theme.
++okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
++               "#0072B2", "#D55E00", "#CC79A7")
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.background = element_rect(fill = "grey92", colour = NA),
++    strip.text.y.left = element_text(face = "bold", angle = 0, hjust = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 12)
++  )
++
++set.seed(20260713)
++
++data(exampleData1, package = "projoint")
++out <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++fit <- projoint(
++  out,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .auto_cluster = TRUE
++)
++
++stopifnot(identical(fit$cluster_by, "id"))
++stopifnot(identical(attr(fit$estimates, "cluster_by"), "id"))
++
++# The label table defines both the attribute sequence and within-attribute level sequence.
++labels <- fit$labels %>%
++  mutate(
++    attribute_order = match(attribute_id, unique(attribute_id)),
++    level_order = row_number(),
++    is_reference = grepl(":level1$", level_id)
++  )
++stopifnot(n_distinct(labels$attribute_id) == 7L)
++
++corrected <- fit$estimates %>%
++  filter(estimand == "amce_corrected") %>%
++  select(att_level_choose, estimate, se, conf.low, conf.high)
++
++# Joining from labels retains every level, including the seven first-listed references.
++plot_data <- labels %>%
++  left_join(corrected, by = c("level_id" = "att_level_choose")) %>%
++  mutate(
++    estimate = if_else(is_reference, 0, estimate),
++    conf.low = if_else(is_reference, 0, conf.low),
++    conf.high = if_else(is_reference, 0, conf.high),
++    level_display = if_else(is_reference,
++                            paste0(level, " (reference)"), level),
++    level_display = factor(level_display, levels = rev(level_display)),
++    attribute = factor(attribute, levels = unique(attribute))
++  )
++
++stopifnot(nrow(plot_data) == 24L)
++stopifnot(sum(plot_data$is_reference) == 7L)
++stopifnot(all(is.finite(plot_data$estimate)))
++stopifnot(all(is.finite(plot_data$conf.low)))
++stopifnot(all(is.finite(plot_data$conf.high)))
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++plot <- ggplot(plot_data, aes(x = estimate, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.45) +
++  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.20,
++                 linewidth = 0.55) +
++  geom_point(size = 2.15) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
++  scale_colour_manual(values = setNames(okabe_ito, levels(plot_data$attribute))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), " pp"),
++                     breaks = seq(-0.4, 0.3, by = 0.1),
++                     expand = expansion(mult = c(0.03, 0.08))) +
++  labs(x = "Corrected AMCE (percentage points)") +
++  theme_amce
++
++ggsave("figures/amce-dotwhisker.png", plot, width = 9.25, height = 14.5,
++       units = "in", dpi = 320, bg = "white")
++
++pp <- function(x) sprintf("%.1f", 100 * x)
++pp_abs <- function(x) sprintf("%.1f", abs(100 * x))
++effect <- function(level_id) {
++  plot_data %>% filter(level_id == !!level_id) %>% pull(estimate)
++}
++
++housing <- effect("att1:level3")
++commute <- effect("att5:level4")
++place_small_town <- effect("att6:level4")
++place_suburb_mix <- effect("att6:level6")
++crime <- effect("att7:level2")
++
++paragraph <- paste0(
++  "Using the conjoint profiles, we estimated corrected average marginal component effects (AMCEs) on profile choice, with each level interpreted relative to the first-listed level of its attribute. ",
++  "This estimand adjusts for the estimated profile-level dependence in choices. ",
++  "The clearest negative response was to a violent-crime rate 20% above the national average: it reduced the probability of choosing a profile by ", pp_abs(crime), " percentage points relative to a rate 20% below the national average. ",
++  "Longer daily travel also mattered substantially. A 75-minute commute reduced choice by ", pp_abs(commute), " percentage points relative to 10 minutes, while housing costs equal to 40% of pre-tax income reduced choice by ", pp_abs(housing), " points relative to 15%. ",
++  "Place type generated the largest positive shifts: a small town increased choice by ", pp(place_small_town), " points and a suburban neighborhood mixing shops, houses, and businesses increased it by ", pp(place_suburb_mix), " points, each compared with a downtown city setting with mixed offices, apartments, and shops. ",
++  "Several remaining contrasts were modest and their intervals crossed zero. The model estimated tau = ", sprintf("%.3f", fit$tau), ". ",
++  "The 95% intervals use respondent-clustered analytical uncertainty (clustered by id); the fitted object records the package's CR2-to-Stata variance fallback."
++)
++
++writeLines(c(
++  paragraph,
++  "",
++  "![Corrected AMCEs by conjoint attribute](figures/amce-dotwhisker.png)",
++  "Corrected AMCEs on profile choice relative to the first-listed level of each attribute; dots are estimates and whiskers are respondent-clustered 95% intervals."
++), "report.md")
+
+ succeeded in 2181ms:
+Warning messages:
+1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+2: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+Warning message:
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+ℹ Please use the `orientation` argument of `geom_errorbar()` instead. 
+`height` was translated to `width`.
+paragraph words: 185 
+figures/amce-dotwhisker.png: PNG image data, 2960 x 4640, 8-bit/color RGB, non-interlaced
+
+diff --git a/demos/orchestration-lab/runs/46-sol/t2/script.R b/demos/orchestration-lab/runs/46-sol/t2/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..fa91beaa191546870befc8e13bd3f626bd84762b
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t2/script.R
+@@ -0,0 +1,117 @@
++suppressPackageStartupMessages({
++  library(dplyr)
++  library(ggplot2)
++  library(projoint)
++})
++
++# Okabe-Ito palette and a compact, publication-oriented plotting theme.
++okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
++               "#0072B2", "#D55E00", "#CC79A7")
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.background = element_rect(fill = "grey92", colour = NA),
++    strip.text.y.left = element_text(face = "bold", angle = 0, hjust = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 12)
++  )
++
++set.seed(20260713)
++
++data(exampleData1, package = "projoint")
++out <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++fit <- projoint(
++  out,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .auto_cluster = TRUE
++)
++
++stopifnot(identical(fit$cluster_by, "id"))
++stopifnot(identical(attr(fit$estimates, "cluster_by"), "id"))
++
++# The label table defines both the attribute sequence and within-attribute level sequence.
++labels <- fit$labels %>%
++  mutate(
++    attribute_order = match(attribute_id, unique(attribute_id)),
++    level_order = row_number(),
++    is_reference = grepl(":level1$", level_id)
++  )
++stopifnot(n_distinct(labels$attribute_id) == 7L)
++
++corrected <- fit$estimates %>%
++  filter(estimand == "amce_corrected") %>%
++  select(att_level_choose, estimate, se, conf.low, conf.high)
++
++# Joining from labels retains every level, including the seven first-listed references.
++plot_data <- labels %>%
++  left_join(corrected, by = c("level_id" = "att_level_choose")) %>%
++  mutate(
++    estimate = if_else(is_reference, 0, estimate),
++    conf.low = if_else(is_reference, 0, conf.low),
++    conf.high = if_else(is_reference, 0, conf.high),
++    level_display = if_else(is_reference,
++                            paste0(level, " (reference)"), level),
++    level_display = factor(level_display, levels = rev(level_display)),
++    attribute = factor(attribute, levels = unique(attribute))
++  )
++
++stopifnot(nrow(plot_data) == 24L)
++stopifnot(sum(plot_data$is_reference) == 7L)
++stopifnot(all(is.finite(plot_data$estimate)))
++stopifnot(all(is.finite(plot_data$conf.low)))
++stopifnot(all(is.finite(plot_data$conf.high)))
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++plot <- ggplot(plot_data, aes(x = estimate, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.45) +
++  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.20,
++                 linewidth = 0.55) +
++  geom_point(size = 2.15) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
++  scale_colour_manual(values = setNames(okabe_ito, levels(plot_data$attribute))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), " pp"),
++                     breaks = seq(-0.4, 0.3, by = 0.1),
++                     expand = expansion(mult = c(0.03, 0.08))) +
++  labs(x = "Corrected AMCE (percentage points)") +
++  theme_amce
++
++ggsave("figures/amce-dotwhisker.png", plot, width = 9.25, height = 14.5,
++       units = "in", dpi = 320, bg = "white")
++
++pp <- function(x) sprintf("%.1f", 100 * x)
++pp_abs <- function(x) sprintf("%.1f", abs(100 * x))
++effect <- function(level_id) {
++  plot_data %>% filter(level_id == !!level_id) %>% pull(estimate)
++}
++
++housing <- effect("att1:level3")
++commute <- effect("att5:level4")
++place_small_town <- effect("att6:level4")
++place_suburb_mix <- effect("att6:level6")
++crime <- effect("att7:level2")
++
++paragraph <- paste0(
++  "Using the conjoint profiles, we estimated corrected average marginal component effects (AMCEs) on profile choice, with each level interpreted relative to the first-listed level of its attribute. ",
++  "This estimand adjusts for the estimated profile-level dependence in choices. ",
++  "The clearest negative response was to a violent-crime rate 20% above the national average: it reduced the probability of choosing a profile by ", pp_abs(crime), " percentage points relative to a rate 20% below the national average. ",
++  "Longer daily travel also mattered substantially. A 75-minute commute reduced choice by ", pp_abs(commute), " percentage points relative to 10 minutes, while housing costs equal to 40% of pre-tax income reduced choice by ", pp_abs(housing), " points relative to 15%. ",
++  "Place type generated the largest positive shifts: a small town increased choice by ", pp(place_small_town), " points and a suburban neighborhood mixing shops, houses, and businesses increased it by ", pp(place_suburb_mix), " points, each compared with a downtown city setting with mixed offices, apartments, and shops. ",
++  "Several remaining contrasts were modest and their intervals crossed zero. The model estimated tau = ", sprintf("%.3f", fit$tau), ". ",
++  "The 95% intervals use respondent-clustered analytical uncertainty (clustered by id); the fitted object records the package's CR2-to-Stata variance fallback."
++)
++
++writeLines(c(
++  paragraph,
++  "",
++  "![Corrected AMCEs by conjoint attribute](figures/amce-dotwhisker.png)",
++  "Corrected AMCEs on profile choice relative to the first-listed level of each attribute; dots are estimates and whiskers are respondent-clustered 95% intervals."
++), "report.md")
+
+codex
+The figure has been rendered and visually checked: it is a tall seven-panel plot with all 24 levels, reference dots at zero, and a distinct vertical zero line. The report paragraph is 185 words, within the requested range.
+exec
+/bin/zsh -lc 'git status --short && git diff --check && git diff -- script.R report.md' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2
+ exited 2 in 0ms:
+ M ../t1/sol-session.log
+ M ../t1/terra-implementation.log
+ D ../../fable/high-ajr/SHA256SUMS
+ M ../../fable/high-ajr/claude-envelope.json
+ M ../../fable/high-ajr/memo.md
+ M ../../fable/high-ajr/robustness-table.md
+ D ../../fable/high-ajr/run-log.md
+ M ../../fable/high-ajr/script.R
+ D ../../fable/t1/SHA256SUMS
+ M ../../fable/t1/claude-envelope.json
+ M ../../fable/t1/figures/level-frequencies.png
+ D ../../fable/t1/run-log.md
+ M ../../fable/t1/script.R
+ M ../../fable/t1/summary.md
+ D ../../fable/t2/SHA256SUMS
+ M ../../fable/t2/claude-envelope.json
+ D ../../fable/t2/estimates.csv
+ M ../../fable/t2/figures/amce-dotwhisker.png
+ M ../../fable/t2/report.md
+ D ../../fable/t2/run-log.md
+ M ../../fable/t2/script.R
+ D ../../fable/t3/SHA256SUMS
+ M ../../fable/t3/claude-envelope.json
+ M ../../fable/t3/figures/sensitivity.png
+ M ../../fable/t3/memo.md
+ D ../../fable/t3/run-log.md
+ M ../../fable/t3/script.R
+ M ../../fable/t3/sensitivity-table.md
+ D ../../fable/vhigh-lalonde/SHA256SUMS
+ M ../../fable/vhigh-lalonde/claude-envelope.json
+ M ../../fable/vhigh-lalonde/figures/spec-curve.png
+ D ../../fable/vhigh-lalonde/memo.md
+ D ../../fable/vhigh-lalonde/run-log.md
+ M ../../fable/vhigh-lalonde/script.R
+ M ../../fable/vhigh-lalonde/spec-table.md
+?? ../high-ajr/memo.md
+?? ../high-ajr/robustness-table.md
+?? ../high-ajr/script.R
+?? ../high-ajr/sol-session.log
+?? ../high-ajr/terra-implementation.log
+?? ../high-ajr/terra-verification.log
+?? ../t1/figures/
+?? ../t1/routing-log.md
+?? ../t1/script.R
+?? ../t1/summary.md
+?? ../t1/terra-implementation-retry.log
+?? figures/
+?? report.md
+?? script.R
+?? sol-session.log
+?? terra-implementation.log
+?? ../t3/sol-session.log
+?? ../t3/terra-inventory.log
+?? ../vhigh-lalonde/sol-session.log
+?? ../vhigh-lalonde/terra-implementation.log
+?? ../../fable/high-ajr/figures/
+?? ../../fable/high-ajr/run-err.log
+?? ../../fable/t1/run-err.log
+?? ../../fable/t3/err.log
+?? ../../fable/t3/run-err.log
+?? ../../fable/vhigh-lalonde/run-err.log
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:228: trailing whitespace.
++ [1] "id"                "task"              "profile"          
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:229: trailing whitespace.
++ [4] "att4"              "att7"              "att3"             
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:230: trailing whitespace.
++ [7] "att1"              "att2"              "att5"             
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:232: trailing whitespace.
++[13] "agree"            
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:234: trailing whitespace.
++   attribute                level                        attribute_id level_id  
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:235: trailing whitespace.
++   <chr>                    <chr>                        <chr>        <chr>     
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:253: trailing whitespace.
++   <chr>                                             <chr> <chr>        <chr>   
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:278: trailing whitespace.
++    att1     att2     att3     att4     att5     att6     att7 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:279: trailing whitespace.
++"factor" "factor" "factor" "factor" "factor" "factor" "factor" 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:303: trailing whitespace.
++  1   2   3   4   5   6   7   8 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:304: trailing whitespace.
++800 800 800 800 800 800 800 800 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:306: trailing whitespace.
++   1    2 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:307: trailing whitespace.
++3200 3200 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:309: trailing whitespace.
++R_00zYHdY1te1Qlrz R_08nZFMyFiQJHEk1 R_0cV7D4FTFMlcBBT 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:310: trailing whitespace.
++               16                16                16 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:372: trailing whitespace.
++ [1] "id"                "task"              "profile"          
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:373: trailing whitespace.
++ [4] "att4"              "att7"              "att3"             
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:374: trailing whitespace.
++ [7] "att1"              "att2"              "att5"             
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:376: trailing whitespace.
++[13] "agree"            
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:378: trailing whitespace.
++   attribute                level                        attribute_id level_id  
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:379: trailing whitespace.
++   <chr>                    <chr>                        <chr>        <chr>     
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:397: trailing whitespace.
++   <chr>                                             <chr> <chr>        <chr>   
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:422: trailing whitespace.
++    att1     att2     att3     att4     att5     att6     att7 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:423: trailing whitespace.
++"factor" "factor" "factor" "factor" "factor" "factor" "factor" 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:447: trailing whitespace.
++  1   2   3   4   5   6   7   8 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:448: trailing whitespace.
++800 800 800 800 800 800 800 800 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:450: trailing whitespace.
++   1    2 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:451: trailing whitespace.
++3200 3200 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:453: trailing whitespace.
++R_00zYHdY1te1Qlrz R_08nZFMyFiQJHEk1 R_0cV7D4FTFMlcBBT 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:454: trailing whitespace.
++               16                16                16 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:695: trailing whitespace.
++att1 att2 att3 att4 att5 att6 att7 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:696: trailing whitespace.
++6400 6400 6400 6400 6400 6400 6400 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1037: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1043: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1053: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1057: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1070: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1080: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1086: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1096: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1100: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1113: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1125: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1131: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1141: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1145: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1158: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1176: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1182: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1192: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1196: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1209: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1404: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1410: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1420: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1424: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1437: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1495: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1501: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1511: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1515: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1528: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1581: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1587: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1597: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1601: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1614: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1669: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1675: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1685: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1689: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1702: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1766: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1772: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1782: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1786: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/sol-session.log:1799: trailing whitespace.
++ 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:54: trailing whitespace.
++ [1] "id"                "task"              "profile"          
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:55: trailing whitespace.
++ [4] "att4"              "att7"              "att3"             
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:56: trailing whitespace.
++ [7] "att1"              "att2"              "att5"             
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:58: trailing whitespace.
++[13] "agree"            
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:60: trailing whitespace.
++   attribute                level                        attribute_id level_id  
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:61: trailing whitespace.
++   <chr>                    <chr>                        <chr>        <chr>     
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:79: trailing whitespace.
++   <chr>                                             <chr> <chr>        <chr>   
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:104: trailing whitespace.
++    att1     att2     att3     att4     att5     att6     att7 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:105: trailing whitespace.
++"factor" "factor" "factor" "factor" "factor" "factor" "factor" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:129: trailing whitespace.
++  1   2   3   4   5   6   7   8 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:130: trailing whitespace.
++800 800 800 800 800 800 800 800 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:132: trailing whitespace.
++   1    2 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:133: trailing whitespace.
++3200 3200 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:135: trailing whitespace.
++R_00zYHdY1te1Qlrz R_08nZFMyFiQJHEk1 R_0cV7D4FTFMlcBBT 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:136: trailing whitespace.
++               16                16                16 
+demos/orchestration-lab/runs/fable/t1/summary.md:91: new blank line at EOF.
+demos/orchestration-lab/runs/fable/t3/sensitivity-table.md:61: new blank line at EOF.
+
+exec
+/bin/zsh -lc "Rscript - <<'RS'
+library(png)
+i <- readPNG('figures/amce-dotwhisker.png', info = TRUE)
+stopifnot(all(attributes(i)"'$info$dpi >= 300))
+cat(sprintf('"'PNG: %dx%d at %.1f x %.1f dpi\\n', attributes(i)"'$info$dim[1], attributes(i)$info$dim[2], attributes(i)$info$dpi[1], attributes(i)$info$dpi[2]))
+RS' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2
+diff --git a/demos/orchestration-lab/runs/46-sol/t2/script.R b/demos/orchestration-lab/runs/46-sol/t2/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..fa91beaa191546870befc8e13bd3f626bd84762b
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t2/script.R
+@@ -0,0 +1,117 @@
++suppressPackageStartupMessages({
++  library(dplyr)
++  library(ggplot2)
++  library(projoint)
++})
++
++# Okabe-Ito palette and a compact, publication-oriented plotting theme.
++okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
++               "#0072B2", "#D55E00", "#CC79A7")
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.background = element_rect(fill = "grey92", colour = NA),
++    strip.text.y.left = element_text(face = "bold", angle = 0, hjust = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 12)
++  )
++
++set.seed(20260713)
++
++data(exampleData1, package = "projoint")
++out <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++fit <- projoint(
++  out,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .auto_cluster = TRUE
++)
++
++stopifnot(identical(fit$cluster_by, "id"))
++stopifnot(identical(attr(fit$estimates, "cluster_by"), "id"))
++
++# The label table defines both the attribute sequence and within-attribute level sequence.
++labels <- fit$labels %>%
++  mutate(
++    attribute_order = match(attribute_id, unique(attribute_id)),
++    level_order = row_number(),
++    is_reference = grepl(":level1$", level_id)
++  )
++stopifnot(n_distinct(labels$attribute_id) == 7L)
++
++corrected <- fit$estimates %>%
++  filter(estimand == "amce_corrected") %>%
++  select(att_level_choose, estimate, se, conf.low, conf.high)
++
++# Joining from labels retains every level, including the seven first-listed references.
++plot_data <- labels %>%
++  left_join(corrected, by = c("level_id" = "att_level_choose")) %>%
++  mutate(
++    estimate = if_else(is_reference, 0, estimate),
++    conf.low = if_else(is_reference, 0, conf.low),
++    conf.high = if_else(is_reference, 0, conf.high),
++    level_display = if_else(is_reference,
++                            paste0(level, " (reference)"), level),
++    level_display = factor(level_display, levels = rev(level_display)),
++    attribute = factor(attribute, levels = unique(attribute))
++  )
++
++stopifnot(nrow(plot_data) == 24L)
++stopifnot(sum(plot_data$is_reference) == 7L)
++stopifnot(all(is.finite(plot_data$estimate)))
++stopifnot(all(is.finite(plot_data$conf.low)))
++stopifnot(all(is.finite(plot_data$conf.high)))
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++plot <- ggplot(plot_data, aes(x = estimate, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.45) +
++  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.20,
++                 linewidth = 0.55) +
++  geom_point(size = 2.15) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
++  scale_colour_manual(values = setNames(okabe_ito, levels(plot_data$attribute))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), " pp"),
++                     breaks = seq(-0.4, 0.3, by = 0.1),
++                     expand = expansion(mult = c(0.03, 0.08))) +
++  labs(x = "Corrected AMCE (percentage points)") +
++  theme_amce
++
++ggsave("figures/amce-dotwhisker.png", plot, width = 9.25, height = 14.5,
++       units = "in", dpi = 320, bg = "white")
++
++pp <- function(x) sprintf("%.1f", 100 * x)
++pp_abs <- function(x) sprintf("%.1f", abs(100 * x))
++effect <- function(level_id) {
++  plot_data %>% filter(level_id == !!level_id) %>% pull(estimate)
++}
++
++housing <- effect("att1:level3")
++commute <- effect("att5:level4")
++place_small_town <- effect("att6:level4")
++place_suburb_mix <- effect("att6:level6")
++crime <- effect("att7:level2")
++
++paragraph <- paste0(
++  "Using the conjoint profiles, we estimated corrected average marginal component effects (AMCEs) on profile choice, with each level interpreted relative to the first-listed level of its attribute. ",
++  "This estimand adjusts for the estimated profile-level dependence in choices. ",
++  "The clearest negative response was to a violent-crime rate 20% above the national average: it reduced the probability of choosing a profile by ", pp_abs(crime), " percentage points relative to a rate 20% below the national average. ",
++  "Longer daily travel also mattered substantially. A 75-minute commute reduced choice by ", pp_abs(commute), " percentage points relative to 10 minutes, while housing costs equal to 40% of pre-tax income reduced choice by ", pp_abs(housing), " points relative to 15%. ",
++  "Place type generated the largest positive shifts: a small town increased choice by ", pp(place_small_town), " points and a suburban neighborhood mixing shops, houses, and businesses increased it by ", pp(place_suburb_mix), " points, each compared with a downtown city setting with mixed offices, apartments, and shops. ",
++  "Several remaining contrasts were modest and their intervals crossed zero. The model estimated tau = ", sprintf("%.3f", fit$tau), ". ",
++  "The 95% intervals use respondent-clustered analytical uncertainty (clustered by id); the fitted object records the package's CR2-to-Stata variance fallback."
++)
++
++writeLines(c(
++  paragraph,
++  "",
++  "![Corrected AMCEs by conjoint attribute](figures/amce-dotwhisker.png)",
++  "Corrected AMCEs on profile choice relative to the first-listed level of each attribute; dots are estimates and whiskers are respondent-clustered 95% intervals."
++), "report.md")
+
+ succeeded in 180ms:
+PNG: 2960x4640 at 320.0 x 320.0 dpi
+
+codex
+Conclusion: Deliverables are complete and reproducible with `Rscript script.R`.
+
+Evidence:
+- Corrected AMCE highlights: violent crime +20% vs. −20% national rate: −25.1 pp; 75 vs. 10 minute commute: −23.7 pp; 40% vs. 15% housing cost: −19.8 pp; small town: +15.8 pp.
+- Fit asserts clustering by `id`, includes seven attributes and 24 ordered levels with seven zero reference rows.
+- PNG is 2960×4640 at 320 dpi.
+- Report paragraph is 185 words and includes respondent-clustered 95% uncertainty and the `CR2 → stata` fallback.
+
+Changed files:
+- [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2/script.R)
+- [report.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2/report.md)
+- [amce-dotwhisker.png](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2/figures/amce-dotwhisker.png)
+
+Residual risk: `projoint` emits its documented analytical-SE warning because CR2 fell back to its clustered `stata` variance calculation; the report states this accurately. An independent advisory consult could not launch due to the session’s nested-process sandbox restriction.
+diff --git a/demos/orchestration-lab/runs/46-sol/t2/script.R b/demos/orchestration-lab/runs/46-sol/t2/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..fa91beaa191546870befc8e13bd3f626bd84762b
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/t2/script.R
+@@ -0,0 +1,117 @@
++suppressPackageStartupMessages({
++  library(dplyr)
++  library(ggplot2)
++  library(projoint)
++})
++
++# Okabe-Ito palette and a compact, publication-oriented plotting theme.
++okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
++               "#0072B2", "#D55E00", "#CC79A7")
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.background = element_rect(fill = "grey92", colour = NA),
++    strip.text.y.left = element_text(face = "bold", angle = 0, hjust = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 12)
++  )
++
++set.seed(20260713)
++
++data(exampleData1, package = "projoint")
++out <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++fit <- projoint(
++  out,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .auto_cluster = TRUE
++)
++
++stopifnot(identical(fit$cluster_by, "id"))
++stopifnot(identical(attr(fit$estimates, "cluster_by"), "id"))
++
++# The label table defines both the attribute sequence and within-attribute level sequence.
++labels <- fit$labels %>%
++  mutate(
++    attribute_order = match(attribute_id, unique(attribute_id)),
++    level_order = row_number(),
++    is_reference = grepl(":level1$", level_id)
++  )
++stopifnot(n_distinct(labels$attribute_id) == 7L)
++
++corrected <- fit$estimates %>%
++  filter(estimand == "amce_corrected") %>%
++  select(att_level_choose, estimate, se, conf.low, conf.high)
++
++# Joining from labels retains every level, including the seven first-listed references.
++plot_data <- labels %>%
++  left_join(corrected, by = c("level_id" = "att_level_choose")) %>%
++  mutate(
++    estimate = if_else(is_reference, 0, estimate),
++    conf.low = if_else(is_reference, 0, conf.low),
++    conf.high = if_else(is_reference, 0, conf.high),
++    level_display = if_else(is_reference,
++                            paste0(level, " (reference)"), level),
++    level_display = factor(level_display, levels = rev(level_display)),
++    attribute = factor(attribute, levels = unique(attribute))
++  )
++
++stopifnot(nrow(plot_data) == 24L)
++stopifnot(sum(plot_data$is_reference) == 7L)
++stopifnot(all(is.finite(plot_data$estimate)))
++stopifnot(all(is.finite(plot_data$conf.low)))
++stopifnot(all(is.finite(plot_data$conf.high)))
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++
++plot <- ggplot(plot_data, aes(x = estimate, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.45) +
++  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.20,
++                 linewidth = 0.55) +
++  geom_point(size = 2.15) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
++  scale_colour_manual(values = setNames(okabe_ito, levels(plot_data$attribute))) +
++  scale_x_continuous(labels = function(x) paste0(round(100 * x), " pp"),
++                     breaks = seq(-0.4, 0.3, by = 0.1),
++                     expand = expansion(mult = c(0.03, 0.08))) +
++  labs(x = "Corrected AMCE (percentage points)") +
++  theme_amce
++
++ggsave("figures/amce-dotwhisker.png", plot, width = 9.25, height = 14.5,
++       units = "in", dpi = 320, bg = "white")
++
++pp <- function(x) sprintf("%.1f", 100 * x)
++pp_abs <- function(x) sprintf("%.1f", abs(100 * x))
++effect <- function(level_id) {
++  plot_data %>% filter(level_id == !!level_id) %>% pull(estimate)
++}
++
++housing <- effect("att1:level3")
++commute <- effect("att5:level4")
++place_small_town <- effect("att6:level4")
++place_suburb_mix <- effect("att6:level6")
++crime <- effect("att7:level2")
++
++paragraph <- paste0(
++  "Using the conjoint profiles, we estimated corrected average marginal component effects (AMCEs) on profile choice, with each level interpreted relative to the first-listed level of its attribute. ",
++  "This estimand adjusts for the estimated profile-level dependence in choices. ",
++  "The clearest negative response was to a violent-crime rate 20% above the national average: it reduced the probability of choosing a profile by ", pp_abs(crime), " percentage points relative to a rate 20% below the national average. ",
++  "Longer daily travel also mattered substantially. A 75-minute commute reduced choice by ", pp_abs(commute), " percentage points relative to 10 minutes, while housing costs equal to 40% of pre-tax income reduced choice by ", pp_abs(housing), " points relative to 15%. ",
++  "Place type generated the largest positive shifts: a small town increased choice by ", pp(place_small_town), " points and a suburban neighborhood mixing shops, houses, and businesses increased it by ", pp(place_suburb_mix), " points, each compared with a downtown city setting with mixed offices, apartments, and shops. ",
++  "Several remaining contrasts were modest and their intervals crossed zero. The model estimated tau = ", sprintf("%.3f", fit$tau), ". ",
++  "The 95% intervals use respondent-clustered analytical uncertainty (clustered by id); the fitted object records the package's CR2-to-Stata variance fallback."
++)
++
++writeLines(c(
++  paragraph,
++  "",
++  "![Corrected AMCEs by conjoint attribute](figures/amce-dotwhisker.png)",
++  "Corrected AMCEs on profile choice relative to the first-listed level of each attribute; dots are estimates and whiskers are respondent-clustered 95% intervals."
++), "report.md")
+
+tokens used
+87,170
+Conclusion: Deliverables are complete and reproducible with `Rscript script.R`.
+
+Evidence:
+- Corrected AMCE highlights: violent crime +20% vs. −20% national rate: −25.1 pp; 75 vs. 10 minute commute: −23.7 pp; 40% vs. 15% housing cost: −19.8 pp; small town: +15.8 pp.
+- Fit asserts clustering by `id`, includes seven attributes and 24 ordered levels with seven zero reference rows.
+- PNG is 2960×4640 at 320 dpi.
+- Report paragraph is 185 words and includes respondent-clustered 95% uncertainty and the `CR2 → stata` fallback.
+
+Changed files:
+- [script.R](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2/script.R)
+- [report.md](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2/report.md)
+- [amce-dotwhisker.png](~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t2/figures/amce-dotwhisker.png)
+
+Residual risk: `projoint` emits its documented analytical-SE warning because CR2 fell back to its clustered `stata` variance calculation; the report states this accurately. An independent advisory consult could not launch due to the session’s nested-process sandbox restriction.

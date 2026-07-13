@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.144.1
 --------
-workdir: /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t1
+workdir: ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t1
 model: gpt-5.6-terra
 provider: openai
 approval: never
@@ -15,9 +15,9 @@ Objective: Implement the fully specified descriptive-design analysis in BRIEF.md
 codex
 I’ll implement the reproducible R analysis strictly within the three requested artifacts, first checking the brief and the local package interface. I’m also using the advisory review skill because this is a fully specified analysis with several exact acceptance conditions.
 exec
-/bin/zsh -lc "pwd && rg --files -g 'AGENTS.md' -g 'BRIEF.md' -g 'routing-log.md' -g 'sol-session.log' -g 'terra*' -g 'script.R' -g 'summary.md' -g 'figures/**' && sed -n '1,240p' BRIEF.md" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t1
+/bin/zsh -lc "pwd && rg --files -g 'AGENTS.md' -g 'BRIEF.md' -g 'routing-log.md' -g 'sol-session.log' -g 'terra*' -g 'script.R' -g 'summary.md' -g 'figures/**' && sed -n '1,240p' BRIEF.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t1
  succeeded in 0ms:
-/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t1
+~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/t1
 BRIEF.md
 terra-implementation.log
 sol-session.log

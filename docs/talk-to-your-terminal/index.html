@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Talk to Your Terminal — AI for Research</title>
+<meta name="description" content="Install a dictation pipeline for your CLI agent: tap a hotkey, speak, tap again, and the cleaned-up text lands at your cursor about a second later. Linux and macOS, by hand or by agent.">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cobalt:#1F4E9B; --gold:#E0A526; --ochre:#9A6B14; --ink:#17171A;
+    --grey:#6E6E73; --paper:#F3EFE3; --paper-2:#ECE6D6; --line:#d9d2bf; --maxw:760px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --cobalt:#3D6FCB; --gold:#E8B23E; --ochre:#E8B23E; --ink:#EFE8D7;
+      --grey:#9b9ba3; --paper:#14161C; --paper-2:#1b1e26; --line:#2c3038;
+    }
+  }
+  *{box-sizing:border-box} html{scroll-behavior:smooth}
+  body{margin:0; background:var(--paper); color:var(--ink);
+    font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
+  a{color:var(--cobalt)}
+
+  .nav{position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:saturate(160%) blur(10px)}
+  .nav .row{max-width:var(--maxw); margin:0 auto; padding:13px 24px 14px; display:flex; align-items:center; justify-content:space-between; gap:18px; border-bottom:1px solid var(--line)}
+  .brand{display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit; white-space:nowrap}
+  .brand .mark{font-size:15px; letter-spacing:.26em; color:var(--cobalt)} .brand .mark b{color:var(--gold); font-weight:inherit}
+  .brand .name{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:21px; letter-spacing:.01em}
+  .topmenu{display:flex; align-items:center; gap:22px; font-size:15px; letter-spacing:.01em; flex-wrap:wrap; justify-content:flex-end}
+  .topmenu a{color:var(--grey); text-decoration:none; padding:4px 0}
+  .topmenu a:hover{color:var(--cobalt)}
+  .topmenu a.ext::after{content:" ↗"; font-size:.85em; opacity:.7}
+
+  header.hero{padding:46px 0 0; border-bottom:0}
+  header.hero .wrap{padding-bottom:22px; border-bottom:1px solid var(--line)}
+  .kicker{font:600 13px/1 -apple-system,sans-serif; letter-spacing:.16em; text-transform:uppercase; color:var(--grey); margin:0 0 14px}
+  .wave{font-size:26px; letter-spacing:.3em; margin:0 0 8px; color:var(--cobalt)} .wave b{color:var(--gold); font-weight:inherit}
+  h1{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:44px; line-height:1.08; margin:.08em 0 .3em; letter-spacing:-.01em}
+  .lede{font-family:"EB Garamond",Georgia,serif; font-size:22px; line-height:1.42; opacity:.92; margin:0}
+
+  main{padding:8px 0 40px}
+  main p{margin:1em 0}
+  main h2{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:30px; margin:1.5em 0 .35em; scroll-margin-top:108px}
+  main h3{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:21px; margin:1.3em 0 .3em}
+  h2 .tag{font:600 13px/1 -apple-system,sans-serif; letter-spacing:.09em; text-transform:uppercase; color:var(--gold); margin-left:.6em; vertical-align:middle}
+  strong{font-weight:650}
+  code{font:14px/1.5 Menlo,"SF Mono",ui-monospace,monospace; background:var(--paper-2); padding:.12em .4em; border-radius:4px}
+  pre{background:var(--paper-2); border:1px solid var(--line); border-radius:10px; padding:15px 18px; overflow:auto; margin:1em 0}
+  pre code{background:none; padding:0; font-size:13.5px; line-height:1.7}
+  .rule{border-left:3px solid var(--gold); background:var(--paper-2); border-radius:0 10px 10px 0; padding:13px 18px; margin:1.2em 0; font-size:17px}
+  .rule b{color:var(--ochre)}
+  table{border-collapse:collapse; width:100%; font-size:15px; margin:1em 0}
+  th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top}
+  th{background:var(--paper-2); font-size:12.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--grey)}
+  .note{font-size:15.5px; color:var(--grey)}
+  figure.demo-video{margin:1.3em 0}
+  figure.demo-video video{width:100%; display:block; border:1px solid var(--line); border-radius:10px; background:#14161C}
+  figure.demo-video figcaption{font-size:14.5px; color:var(--grey); text-align:center; margin-top:9px; line-height:1.55}
+  .next{display:flex; flex-direction:column; border:1px solid var(--line); border-radius:13px; padding:18px 22px; text-decoration:none; color:inherit; background:var(--paper-2); margin:1.4em 0; transition:border-color .15s}
+  .next:hover{border-color:var(--cobalt)}
+  .next h3{margin:0 0 4px; font-size:19px; color:var(--cobalt); font-family:"EB Garamond",Georgia,serif}
+  .next p{margin:0; font-size:15.5px; opacity:.9}
+  footer{color:var(--grey); font-size:14px; padding:52px 0 64px; text-align:center; border-top:1px solid var(--line)}
+  footer a{color:var(--cobalt); text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  .foot-links{margin:0; font-size:14.5px; line-height:1.45}
+  pre{position:relative}
+  .copy{position:absolute; top:8px; right:8px; display:inline-flex; align-items:center; border:1px solid var(--line); background:var(--paper); color:var(--grey); border-radius:6px; padding:5px 6px; cursor:pointer; opacity:.75; transition:opacity .12s, color .12s, border-color .12s}
+  .copy:hover{opacity:1; color:var(--cobalt); border-color:var(--cobalt)}
+  .copy.done{color:#2c7a4b; border-color:#2c7a4b; opacity:1}
+  .copy svg{display:block}
+  @media (max-width:700px){
+    .nav .row{flex-wrap:wrap; row-gap:8px}
+    .topmenu{width:100%; justify-content:flex-start; font-size:15px; gap:16px}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav"><div class="row">
+  <a class="brand" href="../">
+    <span class="mark">▁▂▃<b>▅</b><b>▂</b>▁</span>
+    <span class="name">AI for Research</span>
+  </a>
+  <div class="topmenu">
+    <a href="../getting-started/">Getting started</a>
+    <a href="../demos/">Demos</a>
+    <a href="../lectures/">Lectures</a>
+    <a href="../skills/">Skills</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <p class="kicker">Demo</p>
+  <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
+  <h1>Talk to Your Terminal</h1>
+  <p class="lede">Install a dictation pipeline for your CLI agent: tap a hotkey, speak, tap again, and the cleaned-up text lands at your cursor about a second later.</p>
+</div></header>
+
+<main class="wrap">
+
+  <section id="issue">
+    <h2>The issue</h2>
+    <p>Most of the work with a command-line agent is writing prompts. Claude Code and Codex do best when you provide as much information as possible: what you tried already, what you suspect is wrong, what should be left alone. Detailed prompts of this kind easily run three hundred words, and typing three hundred words for every prompt, all day, is a kind of drudgery. The rational response is to shorten the prompt, which also degrades the answer and the work being done.</p>
+    <p>Dictation resolves the trade-off. A language model is very good at pulling intent out of even meandering speech; it needs volume and specifics, and speaking is the cheapest way to supply both. You still type anything that must be exact, such as slash commands, file paths, flag names, and model IDs, but almost everything else can be said out loud. The practice to adopt is hybrid: speak the intent at length, type what must be exact, and let a cleanup model make the result readable.</p>
+    <p>For years the transcription was not good enough and the wait was too long. Both have changed: current speech models transcribe more accurately than they have any right to, and the 2026 streaming generation transcribes <em>while you talk</em>, so the wait after you stop speaking is about one second regardless of how long you spoke. A month of heavy use, 662 dictations and 54,796 words across two machines, cost $3.04 in API fees.</p>
+    <p class="note">The argument, the measurements, and the caveats are in the full post: <a href="https://www.pixelsandpatterns.org/p/talk-to-your-terminal">Talk to your terminal</a> (Pixels &amp; Patterns).</p>
+  </section>
+
+  <section id="watch">
+    <h2>The loop, in real time</h2>
+    <figure class="demo-video">
+      <video src="../assets/talk-to-your-terminal/dictation-loop.mp4" poster="../assets/talk-to-your-terminal/dictation-loop-poster.png" autoplay loop muted playsinline controls></video>
+      <figcaption>One tap starts the recording, the pill streams the live transcript while speaking, and a second tap leaves the cleaned-up text at the Claude Code prompt. Thirteen seconds, unedited.</figcaption>
+    </figure>
+  </section>
+
+  <section id="what">
+    <h2>What you are installing</h2>
+    <p>Two small public repositories, one per platform. Neither is an application or a package. Each is a <strong>reproducible configuration pattern</strong>: hotkey-triggered recording, streaming OpenAI transcription, a constrained LLM cleanup pass, and a calibration loop that teaches the setup your vocabulary and style over time.</p>
+    <table>
+      <tr><th></th><th>Linux</th><th>macOS</th></tr>
+      <tr><td>Repository</td><td><a href="https://github.com/scdenney/hyperwhspr">scdenney/hyperwhspr</a></td><td><a href="https://github.com/scdenney/macwhspr">scdenney/macwhspr</a></td></tr>
+      <tr><td>What it is</td><td>Config for the upstream <a href="https://github.com/goodroot/hyprwhspr">hyprwhspr</a> recorder (Hyprland)</td><td>The whole setup in one repo: Python daemon + system glue</td></tr>
+      <tr><td>Hotkey</td><td><code>SUPER+ALT+D</code> (Hyprland bind)</td><td>Globe/Fn key (Karabiner + Hammerspoon)</td></tr>
+      <tr><td>Runs as</td><td>systemd user service</td><td>launchd LaunchAgent</td></tr>
+    </table>
+    <p>The pipeline is the same on both: a hotkey starts recording, audio streams to the transcription model while you speak, a second tap commits the buffer, a small LLM repairs the transcript, and the result is pasted at your cursor in whatever window has focus.</p>
+    <div class="rule"><b>You need an OpenAI API key</b> on either platform. Both repos default to streaming <code>gpt-realtime-whisper</code> ($0.017/min), keep the cheaper batch endpoint one config line away, and on Linux a fully local ONNX backend is available if audio must not leave the machine.</div>
+  </section>
+
+  <section id="linux">
+    <h2>Install by hand <span class="tag">Linux</span></h2>
+    <p>Prerequisites: Hyprland, upstream <a href="https://github.com/goodroot/hyprwhspr">hyprwhspr</a> installed and working, an API key. Four steps: copy the files, fix two paths, add your key, start the service.</p>
+    <pre><code># 1. Clone and copy the config into place
+git clone https://github.com/scdenney/hyperwhspr
+cd hyperwhspr
+mkdir -p ~/.config/hyprwhspr ~/.config/systemd/user ~/.claude/commands
+cp config/config.json config/cleanup.py config/vocab.md ~/.config/hyprwhspr/
+cp config/hyprwhspr.service ~/.config/systemd/user/
+cp claude/commands/hypr-calibrate.md ~/.claude/commands/
+chmod +x ~/.config/hyprwhspr/cleanup.py
+
+# 2. Point two paths at your machine (see README step 2)
+#    config.json:  "post_transcription_hook": "/home/YOU/.config/hyprwhspr/cleanup.py"
+#    cleanup.py:   #!/home/YOU/.local/share/hyprwhspr/venv/bin/python
+
+# 3. Store your key and install the hook dependency
+mkdir -p ~/.local/share/hyprwhspr && chmod 700 ~/.local/share/hyprwhspr
+printf '{"openai":"YOUR_OPENAI_API_KEY"}\n' > ~/.local/share/hyprwhspr/credentials
+chmod 600 ~/.local/share/hyprwhspr/credentials
+~/.local/share/hyprwhspr/venv/bin/pip install httpx
+
+# 4. Start the service
+systemctl --user daemon-reload
+systemctl --user enable --now hyprwhspr</code></pre>
+    <p class="note">Test: focus any text field, tap <code>SUPER+ALT+D</code>, speak, tap again. Full details, backends, and the known-issues table are in the <a href="https://github.com/scdenney/hyperwhspr#install">README</a>.</p>
+  </section>
+
+  <section id="macos">
+    <h2>Install by hand <span class="tag">macOS</span></h2>
+    <p>Prerequisites: <a href="https://brew.sh">Homebrew</a> and an API key. The installer script does everything scriptable; five manual steps remain, and macOS makes you click through its permission prompts.</p>
+    <pre><code># Prerequisites
+brew install sox
+brew install --cask karabiner-elements hammerspoon
+
+# Clone and run the idempotent installer
+git clone https://github.com/scdenney/macwhspr
+cd macwhspr
+./setup.sh</code></pre>
+    <p>Then, in order (the script prints these too):</p>
+    <ol>
+      <li><strong>Store your API key</strong> in the Keychain: <code>security add-generic-password -U -s macwhspr -a openai -w 'sk-...'</code></li>
+      <li><strong>Free the Globe key:</strong> System Settings → Keyboard → "Press 🌐 key to:" → Do Nothing.</li>
+      <li><strong>Enable the Karabiner rule</strong> (Complex Modifications → "macwhspr: Fn/Globe tap → F18") and grant its permissions.</li>
+      <li><strong>Reload Hammerspoon</strong> (menu bar icon → Reload Config) and grant Accessibility.</li>
+      <li><strong>Start the daemon:</strong> <code>launchctl bootstrap gui/$UID ~/Library/LaunchAgents/com.macwhspr.daemon.plist</code></li>
+    </ol>
+    <p class="note">Test: focus any text field, tap Globe, speak, tap again. Full details in the <a href="https://github.com/scdenney/macwhspr#install">README</a>.</p>
+  </section>
+
+  <section id="agent">
+    <h2>Or have an agent install it <span class="tag">Claude Code / Codex</span></h2>
+    <p>Both READMEs are written so a coding agent can run the install. Paste the matching prompt into Claude Code or Codex and supervise. Two things stay with you on purpose: <strong>your API key never passes through the conversation</strong>, and on the Mac the GUI permission prompts need a human at the screen.</p>
+    <h3>Linux</h3>
+    <pre><code>Install hyperwhspr from https://github.com/scdenney/hyperwhspr: clone the
+repo and follow the README's Install section. If upstream hyprwhspr is not
+installed, install it first from https://github.com/goodroot/hyprwhspr.
+Substitute my real home directory for the YOUR_USER placeholders in step 2.
+Skip the API key line in step 3; I will create the credentials file myself.
+Finish by running `systemctl --user status hyprwhspr` and showing me the
+result.</code></pre>
+    <h3>macOS</h3>
+    <pre><code>Install macwhspr from https://github.com/scdenney/macwhspr: install the brew
+prerequisites from the README, clone the repo, run ./setup.sh, then walk me
+through the remaining manual steps one at a time. Skip the Keychain command
+in step 1; I will add the API key myself. Steps 2-4 are System Settings,
+Karabiner, and Hammerspoon permission prompts that I have to click, so tell
+me what to do and wait for my confirmation. Finish by starting the daemon
+(step 5) and showing me `launchctl print gui/$UID/com.macwhspr.daemon`.</code></pre>
+    <p class="note">The agent handles cloning, file copies, path edits, dependencies, and service setup; you add the key and click the prompts. Either way the finish line is the same: an observable status check, then a first dictation.</p>
+  </section>
+
+  <section id="after">
+    <h2>After the install</h2>
+    <p>The cleanup stage is the underrated half, and it is where the setup becomes yours. Every raw and cleaned transcript pair is logged, and the <code>/hypr-calibrate</code> command (installed on both platforms) reviews those logs and proposes edits to a vocabulary file: words the transcriber keeps missing, preferred spellings of names, troublesome romanizations, habits worth preserving. The system gets better at being you over time.</p>
+    <p>Costs are small enough that latency, not money, is the deciding factor. Measured on identical clips, the streaming backend returns the transcript about one second after you stop talking whether you spoke for 6 seconds or 94; the batch fallback's wait grows with the length of the dictation.</p>
+    <a class="next" href="https://www.pixelsandpatterns.org/p/talk-to-your-terminal">
+      <h3>Read the full post</h3>
+      <p>Talk to your terminal: the case for dictating prompts to a CLI agent, the measured latency and accuracy arc, and a month of real usage costs. On Pixels &amp; Patterns.</p>
+    </a>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <p class="foot-links"><a href="https://github.com/scdenney/ai-for-research">Repository</a> · CC BY-NC 4.0 · <a href="https://scdenney.net">Steven Denney</a></p>
+</footer>
+
+<script>
+(function(){
+  var COPY='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  var CHECK='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  document.querySelectorAll('pre').forEach(function(pre){
+    var b=document.createElement('button');
+    b.type='button'; b.className='copy'; b.title='Copy'; b.setAttribute('aria-label','Copy'); b.innerHTML=COPY;
+    b.addEventListener('click',function(){
+      var code=pre.querySelector('code');
+      var text=(code?code.innerText:pre.innerText);
+      navigator.clipboard.writeText(text).then(function(){
+        b.innerHTML=CHECK; b.classList.add('done'); b.title='Copied';
+        setTimeout(function(){b.innerHTML=COPY; b.classList.remove('done'); b.title='Copy';},1400);
+      });
+    });
+    pre.appendChild(b);
+  });
+})();
+</script>
+</body>
+</html>

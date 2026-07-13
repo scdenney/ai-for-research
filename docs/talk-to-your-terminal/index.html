@@ -108,7 +108,7 @@
     <h2>The issue</h2>
     <p>Most of the work with a command-line agent is writing prompts. Claude Code and Codex do best when you provide as much information as possible: what you tried already, what you suspect is wrong, what should be left alone. Detailed prompts of this kind easily run three hundred words, and typing three hundred words for every prompt, all day, is a kind of drudgery. The rational response is to shorten the prompt, which also degrades the answer and the work being done.</p>
     <p>Dictation resolves the trade-off. A language model is very good at pulling intent out of even meandering speech; it needs volume and specifics, and speaking is the cheapest way to supply both. You still type anything that must be exact, such as slash commands, file paths, flag names, and model IDs, but almost everything else can be said out loud. The practice to adopt is hybrid: speak the intent at length, type what must be exact, and let a cleanup model make the result readable.</p>
-    <p>For years the transcription was not good enough and the wait was too long. Both have changed: current speech models transcribe more accurately than they have any right to, and the 2026 streaming generation transcribes <em>while you talk</em>, so the wait after you stop speaking is about one second regardless of how long you spoke. A month of heavy use, 662 dictations and 54,796 words across two machines, cost $3.04 in API fees.</p>
+    <p>For years the transcription was not good enough and the wait was too long. Both have changed: current speech models transcribe more accurately than they have any right to, and the 2026 streaming generation transcribes <em>while you talk</em>, so the wait after you stop speaking is about one second regardless of how long you spoke. A month of heavy use, 662 dictations and 54,796 words across two machines, comes to about $8 in API fees at current streaming prices.</p>
     <p class="note">The argument, the measurements, and the caveats are in the full post: <a href="https://www.pixelsandpatterns.org/p/talk-to-your-terminal">Talk to your terminal</a> (Pixels &amp; Patterns).</p>
   </section>
 
@@ -135,7 +135,7 @@
   </section>
 
   <section id="linux">
-    <h2>Install by hand <span class="tag">Linux</span></h2>
+    <h2>Install manually <span class="tag">Linux</span></h2>
     <p>Prerequisites: Hyprland, upstream <a href="https://github.com/goodroot/hyprwhspr">hyprwhspr</a> installed and working, an API key. Four steps: copy the files, fix two paths, add your key, start the service.</p>
     <pre><code># 1. Clone and copy the config into place
 git clone https://github.com/scdenney/hyperwhspr
@@ -163,7 +163,7 @@ systemctl --user enable --now hyprwhspr</code></pre>
   </section>
 
   <section id="macos">
-    <h2>Install by hand <span class="tag">macOS</span></h2>
+    <h2>Install manually <span class="tag">macOS</span></h2>
     <p>Prerequisites: <a href="https://brew.sh">Homebrew</a> and an API key. The installer script does everything scriptable; five manual steps remain, and macOS makes you click through its permission prompts.</p>
     <pre><code># Prerequisites
 brew install sox

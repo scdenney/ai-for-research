@@ -86,7 +86,9 @@ do everything yourself in one context and don't fan out for its own sake):**
    codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium \
      --sandbox workspace-write --skip-git-repo-check -C "$PWD" \
      "<a complete, self-contained brief: objective, inputs/paths, in/out of
-      scope, constraints, expected artifact, acceptance checks>" \
+      scope, constraints, expected artifact, acceptance checks; end with:
+      'Implement directly — do not invoke any other skill, advisory consult,
+      or sub-orchestration'>" \
      < /dev/null > terra-<workstream>.log 2>&1
    ```
 
@@ -100,6 +102,13 @@ do everything yourself in one context and don't fan out for its own sake):**
      treat Terra's output as untrusted until you've checked it against the
      brief. A Terra one-shot is the weaker model; if its result looks wrong,
      fix it in your own reasoning, don't defer to it.
+   - **In every Terra brief, forbid other skills.** End each brief with:
+     "Implement the deliverables directly; do not invoke any other skill,
+     advisory consult, or sub-orchestration." A one-shot worker will otherwise
+     try to self-invoke an available skill (e.g. `advisor`), which is
+     structurally blocked under `approval never` and burns the turn without
+     writing the deliverable (observed on the first t1 attempt; Sol had to
+     retry).
 
 3. **Use `spawn_agent` sparingly.** Under a Sol lead every spawned child is
    *also Sol-priced* (subagents inherit the lead's model and effort — there is

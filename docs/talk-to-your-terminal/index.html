@@ -105,19 +105,13 @@
 <main class="wrap">
 
   <section id="issue">
-    <h2>The issue</h2>
-    <p>Most of the work with a command-line agent is writing prompts. Claude Code and Codex do best when you provide as much information as possible: what you tried already, what you suspect is wrong, what should be left alone. Detailed prompts of this kind easily run three hundred words, and typing three hundred words for every prompt, all day, is a kind of drudgery. The rational response is to shorten the prompt, which also degrades the answer and the work being done.</p>
-    <p>Dictation resolves the trade-off. A language model is very good at pulling intent out of even meandering speech; it needs volume and specifics, and speaking is the cheapest way to supply both. You still type anything that must be exact, such as slash commands, file paths, flag names, and model IDs, but almost everything else can be said out loud. The practice to adopt is hybrid: speak the intent at length, type what must be exact, and let a cleanup model make the result readable.</p>
-    <p>For years the transcription was not good enough and the wait was too long. Both have changed: current speech models transcribe more accurately than they have any right to, and the 2026 streaming generation transcribes <em>while you talk</em>, so the wait after you stop speaking is about one second regardless of how long you spoke. A month of heavy use, 662 dictations and 54,796 words across two machines, comes to about $8 in API fees at current streaming prices.</p>
-    <p class="note">The argument, the measurements, and the caveats are in the full post: <a href="https://www.pixelsandpatterns.org/p/talk-to-your-terminal">Talk to your terminal</a> (Pixels &amp; Patterns).</p>
-  </section>
-
-  <section id="watch">
-    <h2>Recording Loop</h2>
+    <h2>Watch it work</h2>
     <figure class="demo-video">
       <video src="../assets/talk-to-your-terminal/dictation-loop.mp4" poster="../assets/talk-to-your-terminal/dictation-loop-poster.png" autoplay loop muted playsinline controls></video>
-      <figcaption>A recording loop example from my Linux machine. Hotkeys start the recording, the pill streams the live transcript while I speak, and a second press of the hotkeys sends the cleaned-up text to the Claude Code prompt.</figcaption>
+      <figcaption>The loop on my Linux machine. Hotkeys start the recording, the pill streams the live transcript while I speak, and a second press sends the cleaned-up text to the Claude Code prompt.</figcaption>
     </figure>
+    <p>Detailed prompts get better answers from a CLI agent, and detailed prompts run three hundred words — typing that all day is drudgery. Dictation resolves the trade-off: speak the intent at length, type only what must be exact (paths, flags, slash commands), and let a small cleanup model make the result readable. The 2026 streaming models transcribe <em>while you talk</em>, so the wait after you stop is about one second however long you spoke, and a month of heavy use (662 dictations, 54,796 words) cost about $8.</p>
+    <p class="note">The full argument, the latency measurements, and the caveats: <a href="https://www.pixelsandpatterns.org/p/talk-to-your-terminal">Talk to your terminal</a> (Pixels &amp; Patterns).</p>
   </section>
 
   <section id="what">

@@ -9,9 +9,11 @@ The arms and their exact settings:
 | `fable-orchestrate` | Fable 5 · max | Opus 4.8 deep-reasoner (max) · Sonnet 4.5 fast-worker (low) · gpt-5.6-terra Codex peer (xhigh) | Claude Code |
 | `opus-orchestrate` | Opus 4.8 · ultracode | Sonnet 4.5 fast-worker (low); reasons on hard parts itself | Claude Code |
 | `advisor` | Fable 5 · max (solve + revise) | one Fable 5 reviewer · max (single consult) | Claude Code |
-| `46-orchestrate` | gpt-5.6-terra · medium | its own subagents, which inherit the lead's model and effort | Codex CLI |
+| `46-orchestrate` | gpt-5.6-sol · high | gpt-5.6-terra out-of-band one-shots for bounded work; gpt-5.6-luna only for tightly specified mechanical work | Codex CLI |
 
-The `46-orchestrate` arm was re-run on all five briefs via headless `codex exec` on 2026-07-12 and is scored in `RESULTS.md` and `SCORING.md`; it stays out of the dollar charts because Codex reports tokens, not USD. A Codex-side advisor arm is captured for the hard brief only, pending its own re-run.
+The `46-orchestrate` results reported on the page and in the post are the Sol-lead capture (2026-07-13, `gpt-5.6-sol` · medium leading with `gpt-5.6-terra` one-shots; leaves in `runs/46-sol/`). That is a historical capture under the earlier medium-effort policy; the current skill default above is Sol/high. It stays out of the dollar charts because Codex reports tokens, not USD. A headless single-tier Terra capture (2026-07-12, `runs/46/`) is retained in `RESULTS.md`, and a Codex-side advisor arm is captured for the hard brief only, pending its own re-run.
+
+The [demonstration page](https://scdenney.github.io/ai-for-research/orchestration-lab/) walks the run-a-cell-yourself path; the findings report, [Four ways to run a frontier model](https://www.pixelsandpatterns.org/p/four-ways-to-run-a-frontier-model), is on Pixels & Patterns.
 
 > **The one rule.** A captured run is one draw from a non-deterministic process, not a benchmark. These are specimens. Read the routing traces and the artifacts, re-run the briefs yourself, and expect your numbers to differ.
 

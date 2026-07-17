@@ -68,23 +68,26 @@ df <- rbind(
   data.frame(mode = "Advisor", brief = "T3", cost_usd = 7.08, minutes = 15.9, out_tokens = 160600, items = 6),
   data.frame(mode = "Advisor", brief = "H",  cost_usd = 1.09, minutes = 8.4,  out_tokens = 89700,  items = 6),
   data.frame(mode = "Advisor", brief = "VH", cost_usd = 3.36, minutes = 18.3, out_tokens = 212300, items = 6),
-  # Codex arm (2026-07-12; unaffected by the recalibration — headless = the
-  # Terra-lead fallback either way, so not re-run). out_tokens is the CLI's
-  # single total-tokens figure (no input/output breakdown; no USD reported).
-  data.frame(mode = "Codex lead",       brief = "T1", cost_usd = NA,   minutes = 3.3,  out_tokens = 64057, items = 4),
-  data.frame(mode = "Codex lead",       brief = "T2", cost_usd = NA,   minutes = 4.1,  out_tokens = 63539, items = 5),
-  data.frame(mode = "Codex lead",       brief = "T3", cost_usd = NA,   minutes = 3.9,  out_tokens = 92446, items = 4),
-  data.frame(mode = "Codex lead",       brief = "H",  cost_usd = NA,   minutes = 4.8,  out_tokens = 46016, items = 5),
-  data.frame(mode = "Codex lead",       brief = "VH", cost_usd = NA,   minutes = 3.6,  out_tokens = 74658, items = 6)
+  # Codex arm = the Sol-lead capture (2026-07-13; gpt-5.6-sol · medium leading,
+  # bulk delegated to gpt-5.6-terra one-shots; see runs/46-sol/*/routing-log.md).
+  # out_tokens is Sol-lead tokens + Terra one-shot tokens from each leaf's
+  # routing log (Codex /status totals; no input/output breakdown; no USD
+  # reported). Wall-clock was not recorded for these interactive sessions, so
+  # minutes is NA and the Codex arm is absent from the time chart. The earlier
+  # headless Terra-lead fallback capture (2026-07-12) remains in RESULTS.md.
+  data.frame(mode = "Codex lead",       brief = "T1", cost_usd = NA,   minutes = NA,  out_tokens = 176606, items = 4),
+  data.frame(mode = "Codex lead",       brief = "T2", cost_usd = NA,   minutes = NA,  out_tokens = 202549, items = 5),
+  data.frame(mode = "Codex lead",       brief = "T3", cost_usd = NA,   minutes = NA,  out_tokens = 344946, items = 4),
+  data.frame(mode = "Codex lead",       brief = "H",  cost_usd = NA,   minutes = NA,  out_tokens = 148788, items = 6),
+  data.frame(mode = "Codex lead",       brief = "VH", cost_usd = NA,   minutes = NA,  out_tokens = 366619, items = 6)
 )
 
 df$mode <- factor(df$mode, levels = mode_levels)
 df$brief <- factor(df$brief, levels = brief_levels)
 df$score <- df$items / 6
-# 46/high-ajr met core + completeness but missed the judgment item, so its
-# fraction (5/6) sits at the Pass+ line while its band is Pass (SCORING.md).
-# Drawn hollow to mark the one fraction-above-band case.
-df$band_matches <- !(df$mode == "Codex lead" & df$brief == "H")
+# Every plotted run's fraction lands in the band its line predicts (the
+# Sol-lead capture has no fraction-above-band case), so no hollow markers.
+df$band_matches <- TRUE
 
 out_dirs <- c(
   "/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/analysis/figures",

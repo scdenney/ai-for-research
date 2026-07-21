@@ -243,9 +243,9 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge/SKILL.md" aria-label="Open diverge on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:diverge</code> <span class="cmd-sep">·</span> <code class="cmd">$diverge</code></div>
-      <p class="desc" id="desc-diverge">Before committing to one approach, generate three to five genuinely different ones — safe, bold, unconventional — so you're choosing between real options instead of the first idea.</p>
+      <p class="desc" id="desc-diverge">Before committing to one approach, generate three to five genuinely different ones — safe, bold, unconventional — so you're choosing between real options instead of the first idea. Runs entirely in whatever model and effort your current session already has; no separate model call.</p>
     </li>
-        <li class="entry" id="diverge-codex" data-cat="id" data-plat="both" data-search="diverge-codex ideation brainstorm cross-model codex gpt /oss:diverge-codex $diverge-codex codex claude both">
+        <li class="entry" id="diverge-codex" data-cat="id" data-plat="both" data-search="diverge-codex ideation brainstorm cross-model codex gpt-5.6 sol xhigh /oss:diverge-codex $diverge-codex codex claude both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">ID</span><span class="name">diverge-codex</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
@@ -253,7 +253,7 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge-codex/SKILL.md" aria-label="Open diverge-codex on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:diverge-codex</code> <span class="cmd-sep">·</span> <code class="cmd">$diverge-codex</code></div>
-      <p class="desc" id="desc-diverge-codex">The same brainstorming step as <code>diverge</code>, but handed to a second AI model (Codex) so the ideas don't all come from the same source.</p>
+      <p class="desc" id="desc-diverge-codex">The same brainstorming step as <code>diverge</code>, but handed to a second AI model so the ideas don't all come from the same source. From Claude Code, that's a genuinely separate model: Codex, pinned to GPT-5.6 "Sol" at xhigh effort. From the Codex CLI, it instead spawns a fresh same-family Codex subagent for a clean context — not a cross-model check, so it runs at whatever model and effort that session already has.</p>
     </li>
   </ul>
 

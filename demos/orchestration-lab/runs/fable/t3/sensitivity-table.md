@@ -1,37 +1,65 @@
-# Conjoint reference-category sensitivity analysis
+# Baseline sensitivity: AMCE vs marginal means
 
-Violent Crime Rate is a **binary** attribute (two levels); its AMCE under one baseline is
-an exact sign-flip of its AMCE under the other, while its marginal means are fixed
-regardless of baseline choice. Type of Place has six levels, so per-level AMCEs shift
-in magnitude (not just sign) depending on which level is used as the reference category.
+## 1. Headline attribute (Violent Crime Rate) under each baseline
 
-## Table 1 -- Violent Crime Rate: AMCE under each baseline vs. marginal means
-
-| Level | AMCE (baseline = Less crime) | AMCE (baseline = More crime) | Marginal mean [95% CI] |
-|---|---|---|---|
-| 20% Less Crime Than National Average | 0 (ref) | 0.251 [0.168, 0.334] | 0.626 [0.584, 0.667] |
-| 20% More Crime Than National Average | -0.251 [-0.334, -0.168] | 0 (ref) | 0.374 [0.333, 0.416] |
-
-## Table 2 -- Type of Place: AMCEs shift with baseline
-
-| Level | AMCE (base = City downtown / level1) | AMCE (base = Small town / level4) | AMCE (base = Rural / level3) | Marginal mean [95% CI] |
+| Reference set | Contrast estimated | AMCE (corrected) | 95% CI | AMCE (uncorrected) |
 |---|---|---|---|---|
-| City – downtown, with a mix of offices, apartments, and shops | 0 (ref) | -0.158 [-0.240, -0.076] | -0.135 [-0.219, -0.050] | 0.394 [0.342, 0.446] |
-| City, more residential area | 0.115 [0.035, 0.195] | -0.043 [-0.128, 0.042] | -0.020 [-0.108, 0.069] | 0.509 [0.454, 0.564] |
-| Rural area | 0.135 [0.050, 0.219] | -0.023 [-0.104, 0.058] | 0 (ref) | 0.529 [0.474, 0.583] |
-| Small town | 0.158 [0.076, 0.240] | 0 (ref) | 0.023 [-0.058, 0.104] | 0.552 [0.499, 0.605] |
-| Suburban neighborhood with houses only | 0.079 [-0.004, 0.161] | -0.079 [-0.161, 0.003] | -0.056 [-0.137, 0.025] | 0.473 [0.420, 0.526] |
-| Suburban neighborhood with mix of shops, houses, businesses | 0.146 [0.068, 0.224] | -0.012 [-0.092, 0.068] | 0.012 [-0.070, 0.094] | 0.540 [0.489, 0.591] |
+| level1 = Less Crime (default) | level2 (More Crime) vs level1 (Less Crime) | -25.1pp | [-33.4, -16.8] | -16.5pp |
+| level2 = More Crime (flipped) | level1 (Less Crime) vs level2 (More Crime) | 25.1pp | [16.8, 33.4] | 16.5pp |
 
-## Table 3 -- Baseline-free attribute importance (MM range)
+Note: |AMCE| is identical (25.1pp) under both baselines for this binary attribute; only the sign flips.
 
-| Rank | Attribute | # levels | MM range (max−min) |
+## 2. A multi-level attribute (Total Daily Driving Time) — where the reviewer is right
+
+| Level | AMCE vs *10 min* (default) | AMCE vs *75 min* (alt) |
+|---|---|---|
+| 10 min | 0.0 *(ref)* | 23.7pp |
+| 25 min | -7.0pp | 16.8pp |
+| 45 min | -14.1pp | 9.7pp |
+| 75 min | -23.7pp | 0.0 *(ref)* |
+
+Note: every non-reference number changes when the baseline changes, but the overall spread (max - min across levels) is preserved regardless of which level is chosen as reference.
+
+## 3. Marginal means for ALL levels (the baseline-invariant quantity)
+
+| Attribute | Level | Marginal mean | 95% CI |
 |---|---|---|---|
-| 1 | Violent Crime Rate (Vs National Rate) | 2 | 0.251 |
-| 2 | Total Daily Driving Time for Commuting and Errands | 4 | 0.237 |
-| 3 | Housing Cost | 3 | 0.198 |
-| 4 | Type of Place | 6 | 0.158 |
-| 5 | School Quality | 2 | 0.116 |
-| 6 | Racial Composition | 4 | 0.059 |
-| 7 | Presidential Vote (2020) | 3 | 0.056 |
+| Violent Crime Rate (Vs National Rate) | 20% Less Crime Than National Average | 62.6% | [58.4, 66.7] |
+|  | 20% More Crime Than National Average | 37.4% | [33.3, 41.6] |
+| Total Daily Driving Time for Commuting and Errands | 10 min | 61.0% | [56.7, 65.4] |
+|  | 25 min | 54.1% | [49.8, 58.4] |
+|  | 45 min | 47.0% | [42.5, 51.4] |
+|  | 75 min | 37.3% | [32.9, 41.7] |
+| Housing Cost | 15% of pre-tax income | 61.4% | [57.1, 65.7] |
+|  | 30% of pre-tax income | 47.7% | [43.6, 51.7] |
+|  | 40% of pre-tax income | 41.6% | [37.2, 45.9] |
+| Type of Place | City – downtown, with a mix of offices, apartments, and shops | 39.4% | [34.2, 44.6] |
+|  | City, more residential area | 50.9% | [45.4, 56.4] |
+|  | Rural area | 52.9% | [47.4, 58.3] |
+|  | Small town | 55.2% | [49.9, 60.5] |
+|  | Suburban neighborhood with houses only | 47.3% | [42.0, 52.6] |
+|  | Suburban neighborhood with mix of shops, houses, businesses | 54.0% | [48.9, 59.1] |
+| School Quality | 5 out of 10 | 44.2% | [40.1, 48.4] |
+|  | 9 out of 10 | 55.8% | [51.6, 59.9] |
+| Racial Composition | 50% White, 50% Nonwhite | 50.0% | [45.6, 54.4] |
+|  | 75% White, 25% Nonwhite | 53.7% | [49.2, 58.1] |
+|  | 90% White, 10% Nonwhite | 47.7% | [43.7, 51.8] |
+|  | 96% White, 4% Nonwhite | 48.8% | [44.2, 53.4] |
+| Presidential Vote (2020) | 30% Democrat, 70% Republican | 48.3% | [43.8, 52.8] |
+|  | 50% Democrat, 50% Republican | 53.6% | [49.6, 57.6] |
+|  | 70% Democrat, 30% Republican | 48.0% | [43.6, 52.4] |
+
+## 4. Attribute importance by MM range (baseline-invariant ordering)
+
+| Rank | Attribute | MM range (max - min) |
+|---|---|---|
+| 1 | Violent Crime Rate (Vs National Rate) | 25.1pp |
+| 2 | Total Daily Driving Time for Commuting and Errands | 23.7pp |
+| 3 | Housing Cost | 19.8pp |
+| 4 | Type of Place | 15.8pp |
+| 5 | School Quality | 11.6pp |
+| 6 | Racial Composition | 5.9pp |
+| 7 | Presidential Vote (2020) | 5.6pp |
+
+Gap between rank 1 and rank 2: 1.4pp.
 

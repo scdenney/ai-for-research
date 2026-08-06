@@ -1,13 +1,48 @@
-# Memo — How much weight does the AJR IV headline bear?
+# Memo — how much weight the AJR headline will bear
 
-**Bottom line.** The headline replicates and survives both control perturbations. It does **not** survive either sample perturbation — but not because they overturn it. In both, the instrument stops doing any work, so those specifications are silent rather than contradictory.
+## Replication
 
-**Replication (base sample, N = 64).** Settler mortality is a strong instrument for expropriation-risk institutions: the first stage is highly significant (β = −0.61, correctly signed — higher mortality → worse institutions) with F = 22.9, well above the F ≈ 10 rule of thumb. The 2SLS coefficient of log GDP on `avexpr` is 0.94 (SE 0.16), nearly double the OLS 0.52 (SE 0.06). This reproduces AJR's headline, including the feature the manuscript leans on: 2SLS far above OLS. *(2SLS via `AER::ivreg`, so the second-stage SEs are the correct IV standard errors, not the naive two-stage approximation. First-stage F is the partial F on the excluded instrument via `car::linearHypothesis`.)*
+On the full 64-country sample the bivariate result reproduces exactly. OLS of
+`logpgp95` on `avexpr` is 0.52; 2SLS instrumenting `avexpr` with `logem4` is
+0.94; the first stage is strong, with a coefficient of −0.61 and an
+excluded-instrument F of 22.9. The 2SLS estimate sits well above OLS, as the
+manuscript reports. All 2SLS was estimated with `AER::ivreg`, so the
+second-stage standard errors are exact rather than the approximate
+two-stage-`lm` version.
 
-**What survives.** Adding absolute latitude, or continent dummies for Africa and Asia, leaves 2SLS in the 0.84–1.00 band — statistically indistinguishable from the base estimate and still well above OLS (0.43–0.47). The first stage weakens (F = 13.1 with latitude, 11.0 with continents) but holds above the threshold. On these two perturbations the result is genuinely robust.
+## What survives
 
-**What does not survive.** The identifying variation in settler mortality is concentrated in the extreme low-mortality neo-Europes (Australia, Canada, New Zealand, the US). Remove them and the first stage falls to F = 8.6, below the rule of thumb; the 2SLS estimate (1.28) is now contaminated by weak-instrument bias and its SE is understated. Restrict to Africa alone and the first stage collapses outright: the instrument coefficient (−0.11) is statistically zero, F = 0.3, and the 2SLS "estimate" is 2.40 with SE 3.99 and a 95% CI of [−5.41, 10.21] — no information at all.
+The headline holds under both full-sample control perturbations. Adding
+latitude leaves 2SLS at 1.00 with a first-stage F of 13.1; adding continent
+dummies leaves it at 0.84 with an F of 11.0. Both clear the weak-instrument
+threshold, and both keep 2SLS clearly above its OLS counterpart (0.47 and
+0.43). Identification is adequate in each, though the continent specification
+is marginal at F = 11.
 
-**What the manuscript may and may not claim.** It **may** claim that AJR's headline replicates on the base sample and is robust to latitude and continent controls, on a strong-to-moderate first stage. It **may not** present the drop-neo-Europes or Africa-only 2SLS coefficients as reliable estimates, and in particular may not read the larger point estimates there as a *stronger* effect — that is weak-instrument noise, not signal. Nor may it claim the finding is confirmed "even within Africa." The disciplined statement is symmetric: a collapsed first stage neither confirms nor refutes the structural coefficient; it cannot identify it. The result holds where the instrument is strong and is untestable where it is not.
+## What does not
 
-**Method note.** Every number was independently reproduced from scratch by a blind estimation on a different-vendor model (GPT-5.6 "Terra" via Codex), which wrote its own R and agreed on all five specifications. Table in `robustness-table.md`; code in `script.R`; full precision in `results.csv`.
+The two sample restrictions break identification. Dropping the four
+neo-Europes lowers the first-stage F to 8.6, just under the rule-of-thumb 10,
+while the 2SLS estimate rises to 1.28. That combination is a warning rather
+than a strengthening: a point estimate that climbs as the first stage weakens
+is the signature of weak-instrument bias, not evidence of a larger effect. The
+estimate cannot be leaned on, and a weak first stage does not overturn the
+result either. Restricting to Africa collapses the instrument outright (N = 27,
+first-stage coefficient −0.11, F = 0.30). The resulting 2SLS estimate of 2.40
+carries no information about the causal coefficient in either direction.
+
+## What the manuscript may and may not claim
+
+It may claim that the large positive 2SLS estimate is reproduced in the full
+sample and stays numerically robust to latitude and continent controls, with
+first-stage strength that is acceptable but increasingly marginal. It should
+report that excluding the neo-Europes raises the point estimate while pushing
+identification below the conventional threshold, and that the Africa-only
+subsample yields no usable IV evidence.
+
+It may not present robustness across all four stress tests, treat the larger
+estimates from the weakly identified specifications as the strongest
+confirmation, or read the Africa-only coefficient at face value. The honest
+summary is that the finding is solid in the full sample and survives
+reasonable controls, but its identification is not deep enough to survive
+dropping the richest colonies or narrowing to Africa.

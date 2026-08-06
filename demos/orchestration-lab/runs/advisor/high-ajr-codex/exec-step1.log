@@ -1,0 +1,1794 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.5
+--------
+workdir: /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f7078-347e-75b2-b916-0eff739af015
+--------
+user
+# Task H — Replicate and stress a famous IV result (high-complexity tier)
+
+You are working in a project directory. Use R (`Rscript`); the `ivdoctr`, `AER`, and `car` packages are installed.
+
+**Data.** Acemoglu, Johnson & Robinson (2001), *The Colonial Origins of Comparative Development*. The base sample ships with `ivdoctr`:
+
+```r
+library(ivdoctr)
+data(colonial, package = "ivdoctr")   # 64 countries, AJR base sample
+```
+
+Key columns: `logpgp95` (log PPP GDP per capita, 1995 — the outcome); `avexpr` (average protection against expropriation risk — the institutions measure, endogenous); `logem4` (log settler mortality — the excluded instrument); `lat_abst` (absolute latitude / 90); `africa`, `asia` (continent dummies); `shortnam` (three-letter country code); `rich4` (= 1 for the four "neo-Europes").
+
+**Background.** A manuscript uses these data to replicate AJR's headline: settler mortality instruments expropriation-risk institutions, which in turn predict long-run income. Structurally, `logpgp95 ~ avexpr`, with `avexpr` instrumented by `logem4`. The paper reports a 2SLS coefficient far above its OLS counterpart and treats the finding as established. Your job is to reproduce that headline and then find out how much weight it will bear.
+
+**Task.**
+
+1. **Replicate the headline.** Estimate the bivariate 2SLS coefficient of `logpgp95` on `avexpr` instrumented by `logem4`, and its OLS counterpart on the same sample. Report the first stage (the coefficient of `avexpr` on `logem4`).
+2. **Stress the result** with four perturbations, each re-estimating OLS and 2SLS on the same sample/controls: (a) add latitude (`lat_abst`); (b) add continent controls (`africa`, `asia`); (c) drop the neo-Europes (`AUS`, `CAN`, `NZL`, `USA`, by `shortnam`); (d) restrict to Africa only (`africa == 1`).
+3. **Report first-stage strength per specification** — the first-stage F on the excluded instrument — and **flag any specification where the instrument is weak** (rule of thumb: F below ~10). Do not report a 2SLS point estimate as if it were reliable when its first stage is weak.
+4. **Deliverables** (see below): a script, a robustness table, and a short memo stating what survives the stress tests and what the paper is entitled to claim.
+
+**Produce, in the current working directory:**
+
+1. `script.R` — one self-contained script; conventions as in the other briefs (packages and any palette/theme declared at the top; `set.seed()` before anything stochastic — note that OLS/2SLS here are deterministic). If you produce a figure it is optional; follow house figure conventions if you do (Okabe-Ito palette, 300+ dpi, no in-plot title).
+2. `robustness-table.md` — **one** table reporting, for every specification, the OLS estimate, the 2SLS estimate, and the first-stage F (with the first-stage coefficient), so all specs are comparable at a glance. Note which specs are weakly identified.
+3. `memo.md` — roughly 400 words: state what survives the stress tests and what does not, and say precisely what the manuscript may and may not claim on this evidence. Do not overclaim in either direction — a specification whose instrument has collapsed does not confirm the result, and it does not overturn it either.
+
+**Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. No web access. Do not install packages. For 2SLS use `AER::ivreg` if it is available; otherwise estimate explicit two-stage least squares via two `lm` stages and note that the second-stage standard errors are approximate (uncorrected for the generated regressor). Say which path you took.
+codex
+I’ll reproduce the models directly from the packaged AJR data, calculate the excluded-instrument first-stage statistics consistently, and then write the requested script, table, and memo. I’m using the project’s advisor review step before settling the interpretation.
+codex
+The independent advisor can only run from an escalated interactive session, which this sandbox does not permit. I’ll proceed with direct, reproducible checks and will keep the interpretation appropriately cautious.
+exec
+/bin/zsh -lc "Rscript -e 'library(ivdoctr); library(AER); data(colonial, package=\"ivdoctr\"); print(dim(colonial)); print(names(colonial)); print(summary(colonial[, c(\"logpgp95\",\"avexpr\",\"logem4\",\"lat_abst\",\"africa\",\"asia\",\"shortnam\",\"rich4\")]));'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex
+ succeeded in 555ms:
+Loading required package: car
+Loading required package: carData
+Loading required package: lmtest
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Loading required package: sandwich
+Loading required package: survival
+[1] 64  9
+[1] "shortnam" "africa"   "lat_abst" "rich4"    "avexpr"   "logpgp95" "logem4"  
+[8] "asia"     "loghjypl"
+    logpgp95          avexpr           logem4         lat_abst      
+ Min.   : 6.109   Min.   : 3.500   Min.   :2.146   Min.   :0.00000  
+ 1st Qu.: 7.300   1st Qu.: 5.614   1st Qu.:4.233   1st Qu.:0.08889  
+ Median : 7.950   Median : 6.477   Median :4.359   Median :0.15278  
+ Mean   : 8.062   Mean   : 6.516   Mean   :4.657   Mean   :0.18110  
+ 3rd Qu.: 8.849   3rd Qu.: 7.352   3rd Qu.:5.519   3rd Qu.:0.25833  
+ Max.   :10.216   Max.   :10.000   Max.   :7.986   Max.   :0.66667  
+     africa            asia          shortnam             rich4       
+ Min.   :0.0000   Min.   :0.0000   Length:64          Min.   :0.0000  
+ 1st Qu.:0.0000   1st Qu.:0.0000   Class :character   1st Qu.:0.0000  
+ Median :0.0000   Median :0.0000   Mode  :character   Median :0.0000  
+ Mean   :0.4219   Mean   :0.1406                      Mean   :0.0625  
+ 3rd Qu.:1.0000   3rd Qu.:0.0000                      3rd Qu.:0.0000  
+ Max.   :1.0000   Max.   :1.0000                      Max.   :1.0000  
+
+exec
+/bin/zsh -lc "Rscript - <<'RS'
+suppressPackageStartupMessages({library(ivdoctr); library(AER); library(car)})
+data(colonial, package='ivdoctr')
+specs <- list(
+  Headline=list(subset=rep(TRUE,nrow(colonial)), controls=character()),
+  "'`+ Latitude`=list(subset=rep(TRUE,nrow(colonial)), controls='"'lat_abst'),
+  "'`+ Continents`=list(subset=rep(TRUE,nrow(colonial)), controls=c('"'africa','asia')),
+  "'`Drop neo-Europes`=list(subset=!(colonial$shortnam %in% c('"'AUS','CAN','NZL','USA')), controls=character()),
+  "'`Africa only`=list(subset=colonial$africa==1, controls=character())
+)
+for (nm in names(specs)) {
+ sp<-specs[[nm]]; d<-colonial[sp$subset,]; vars<-c('"'logpgp95','avexpr','logem4',sp"'$controls); d<-d[complete.cases(d[,vars]),]
+ rhs<-paste(c('"'avexpr',sp"'$controls),collapse='"' + '); fsrhs<-paste(c('logem4',sp"'$controls),collapse='"' + '); inst<-paste(c('logem4',sp"'$controls),collapse='"' + ')
+ ols<-lm(as.formula(paste('logpgp95 ~',rhs)),d)
+ iv<-ivreg(as.formula(paste('logpgp95 ~',rhs,'|',inst)),d)
+ fs<-lm(as.formula(paste('avexpr ~',fsrhs)),d)
+ restricted<-lm(as.formula(paste('avexpr ~',if(length(sp"'$controls)) paste(sp$controls,collapse='"' + ') else '1')),d)
+ a<-anova(restricted,fs); ff<-a"'$F[2]
+ cat('"'\\n', nm, 'n=',nrow(d),'\\n'); print(coef(summary(ols))['avexpr',]); print(coef(summary(iv))['avexpr',]); print(coef(summary(fs))['logem4',]); print(a)
+ print(summary(iv, diagnostics=TRUE)"'$diagnostics)
+}
+RS' in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex
+ exited 1 in 512ms:
+Error in .checkTypos(e, names_x) : 
+  j (the 2nd argument inside [...]) is a single symbol but column name 'vars' is not found. If you intended to select columns using a variable in calling scope, please try DT[, ..vars]. The .. prefix conveys one-level-up similar to a file system path.
+Calls: [ ... <Anonymous> -> .checkTypos -> stopf -> raise_condition -> signal
+Execution halted
+
+exec
+/bin/zsh -lc "Rscript - <<'RS'
+suppressPackageStartupMessages({library(ivdoctr); library(AER); library(car)})
+data(colonial, package='ivdoctr'); colonial <- as.data.frame(colonial)
+specs <- list(
+  Headline=list(subset=rep(TRUE,nrow(colonial)), controls=character()),
+  "'`+ Latitude`=list(subset=rep(TRUE,nrow(colonial)), controls='"'lat_abst'),
+  "'`+ Continents`=list(subset=rep(TRUE,nrow(colonial)), controls=c('"'africa','asia')),
+  "'`Drop neo-Europes`=list(subset=!(colonial$shortnam %in% c('"'AUS','CAN','NZL','USA')), controls=character()),
+  "'`Africa only`=list(subset=colonial$africa==1, controls=character())
+)
+for (nm in names(specs)) {
+ sp<-specs[[nm]]; d<-colonial[sp$subset,]; vars<-c('"'logpgp95','avexpr','logem4',sp"'$controls); d<-d[complete.cases(d[,vars]),]
+ rhs<-paste(c('"'avexpr',sp"'$controls),collapse='"' + '); fsrhs<-paste(c('logem4',sp"'$controls),collapse='"' + '); inst<-paste(c('logem4',sp"'$controls),collapse='"' + ')
+ ols<-lm(as.formula(paste('logpgp95 ~',rhs)),d)
+ iv<-ivreg(as.formula(paste('logpgp95 ~',rhs,'|',inst)),d)
+ fs<-lm(as.formula(paste('avexpr ~',fsrhs)),d)
+ restricted<-lm(as.formula(paste('avexpr ~',if(length(sp"'$controls)) paste(sp$controls,collapse='"' + ') else '1')),d)
+ a<-anova(restricted,fs); ff<-a"'$F[2]
+ cat('"'\\n', nm, 'n=',nrow(d),'\\n'); print(coef(summary(ols))['avexpr',]); print(coef(summary(iv))['avexpr',]); print(coef(summary(fs))['logem4',]); print(a)
+ print(summary(iv, diagnostics=TRUE)"'$diagnostics)
+}
+RS' in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex
+ exited 1 in 508ms:
+Error in ivreg(as.formula(paste("logpgp95 ~", rhs, "|", inst)), d) : 
+  length(formula)[1] == 1L is not TRUE
+Calls: ivreg -> stopifnot
+Execution halted
+
+exec
+/bin/zsh -lc "Rscript - <<'RS'
+suppressPackageStartupMessages({library(ivdoctr); library(AER); library(car)})
+data(colonial, package='ivdoctr'); colonial <- as.data.frame(colonial)
+specs <- list(Headline=list(subset=rep(TRUE,nrow(colonial)), controls=character()), "'`+ Latitude`=list(subset=rep(TRUE,nrow(colonial)), controls='"'lat_abst'), "'`+ Continents`=list(subset=rep(TRUE,nrow(colonial)), controls=c('"'africa','asia')), "'`Drop neo-Europes`=list(subset=!(colonial$shortnam %in% c('"'AUS','CAN','NZL','USA')), controls=character()), "'`Africa only`=list(subset=colonial$africa==1, controls=character()))
+for (nm in names(specs)) {
+ sp<-specs[[nm]]; d<-colonial[sp$subset,]; vars<-c('"'logpgp95','avexpr','logem4',sp"'$controls); d<-d[complete.cases(d[,vars]),]
+ rhs<-paste(c('"'avexpr',sp"'$controls),collapse='"' + '); fsrhs<-paste(c('logem4',sp"'$controls),collapse='"' + '); inst<-paste(c('logem4',sp"'$controls),collapse='"' + ')
+ ols<-lm(as.formula(paste('logpgp95 ~',rhs)),d)
+ iv<-ivreg(Formula::as.Formula(paste('logpgp95 ~',rhs,'|',inst)),data=d)
+ fs<-lm(as.formula(paste('avexpr ~',fsrhs)),d)
+ restricted<-lm(as.formula(paste('avexpr ~',if(length(sp"'$controls)) paste(sp$controls,collapse='"' + ') else '1')),d)
+ a<-anova(restricted,fs)
+ cat('\\n', nm, 'n=',nrow(d),'\\n'); print(coef(summary(ols))['avexpr',]); print(coef(summary(iv))['avexpr',]); print(coef(summary(fs))['logem4',]); print(a); print(summary(iv, diagnostics=TRUE)"'$diagnostics)
+}
+RS' in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex
+ succeeded in 653ms:
+
+ Headline n= 64 
+    Estimate   Std. Error      t value     Pr(>|t|) 
+5.221070e-01 6.118504e-02 8.533247e+00 4.723618e-12 
+    Estimate   Std. Error      t value     Pr(>|t|) 
+9.442794e-01 1.565255e-01 6.032753e+00 9.798645e-08 
+     Estimate    Std. Error       t value      Pr(>|t|) 
+-6.067782e-01  1.266686e-01 -4.790281e+00  1.076546e-05 
+Analysis of Variance Table
+
+Model 1: avexpr ~ 1
+Model 2: avexpr ~ logem4
+  Res.Df     RSS Df Sum of Sq      F    Pr(>F)    
+1     63 135.886                                  
+2     62  99.179  1    36.707 22.947 1.077e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+                 df1 df2 statistic      p-value
+Weak instruments   1  62  22.94680 1.076546e-05
+Wu-Hausman         1  61  24.21962 6.852437e-06
+Sargan             0  NA        NA           NA
+
+ + Latitude n= 64 
+    Estimate   Std. Error      t value     Pr(>|t|) 
+4.678871e-01 6.416425e-02 7.292022e+00 7.288720e-10 
+    Estimate   Std. Error      t value     Pr(>|t|) 
+9.957040e-01 2.216816e-01 4.491595e+00 3.207974e-05 
+     Estimate    Std. Error       t value      Pr(>|t|) 
+-0.5102680546  0.1410185648 -3.6184459501  0.0006031745 
+Analysis of Variance Table
+
+Model 1: avexpr ~ lat_abst
+Model 2: avexpr ~ logem4 + lat_abst
+  Res.Df     RSS Df Sum of Sq      F    Pr(>F)    
+1     62 116.198                                  
+2     61  95.665  1    20.534 13.093 0.0006032 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+                 df1 df2 statistic      p-value
+Weak instruments   1  61  13.09315 6.031745e-04
+Wu-Hausman         1  60  18.75081 5.746788e-05
+Sargan             0  NA        NA           NA
+
+ + Continents n= 64 
+    Estimate   Std. Error      t value     Pr(>|t|) 
+4.341227e-01 5.409759e-02 8.024806e+00 4.445368e-11 
+    Estimate   Std. Error      t value     Pr(>|t|) 
+8.390482e-01 1.910829e-01 4.391018e+00 4.654802e-05 
+    Estimate   Std. Error      t value     Pr(>|t|) 
+-0.533065051  0.160684760 -3.317458665  0.001546712 
+Analysis of Variance Table
+
+Model 1: avexpr ~ africa + asia
+Model 2: avexpr ~ logem4 + africa + asia
+  Res.Df     RSS Df Sum of Sq      F   Pr(>F)   
+1     61 116.119                                
+2     60  98.121  1    17.998 11.005 0.001547 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+                 df1 df2 statistic      p-value
+Weak instruments   1  60  11.00553 0.0015467117
+Wu-Hausman         1  59  12.19401 0.0009148942
+Sargan             0  NA        NA           NA
+
+ Drop neo-Europes n= 60 
+    Estimate   Std. Error      t value     Pr(>|t|) 
+4.868482e-01 7.610468e-02 6.397086e+00 2.993070e-08 
+    Estimate   Std. Error      t value     Pr(>|t|) 
+1.2812399051 0.3584881414 3.5740091706 0.0007160915 
+   Estimate  Std. Error     t value    Pr(>|t|) 
+-0.39123839  0.13305526 -2.94042035  0.00470128 
+Analysis of Variance Table
+
+Model 1: avexpr ~ 1
+Model 2: avexpr ~ logem4
+  Res.Df    RSS Df Sum of Sq      F   Pr(>F)   
+1     59 92.569                                
+2     58 80.560  1    12.009 8.6461 0.004701 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+                 df1 df2 statistic      p-value
+Weak instruments   1  58  8.646072 4.701280e-03
+Wu-Hausman         1  57 22.170317 1.639237e-05
+Sargan             0  NA        NA           NA
+
+ Africa only n= 27 
+   Estimate  Std. Error     t value    Pr(>|t|) 
+0.301786608 0.106270546 2.839795411 0.008842094 
+  Estimate Std. Error    t value   Pr(>|t|) 
+ 2.4004954  3.9868696  0.6021003  0.5525296 
+  Estimate Std. Error    t value   Pr(>|t|) 
+-0.1083532  0.1983599 -0.5462455  0.5897394 
+Analysis of Variance Table
+
+Model 1: avexpr ~ 1
+Model 2: avexpr ~ logem4
+  Res.Df    RSS Df Sum of Sq      F Pr(>F)
+1     26 38.726                           
+2     25 38.269  1   0.45675 0.2984 0.5897
+                 df1 df2 statistic    p-value
+Weak instruments   1  25 0.2983841 0.58973936
+Wu-Hausman         1  24 5.4911908 0.02773044
+Sargan             0  NA        NA         NA
+
+codex
+The core replication is clear: headline OLS is 0.522 and 2SLS is 0.944, with a first-stage coefficient of −0.607 and F=22.95. Latitude and continent controls retain first-stage F above 10; dropping neo-Europes falls to F=8.65, while Africa-only collapses to F=0.30.
+apply patch
+patch: completed
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md b/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..0572682408e105493fba45de788a5c607a49488f
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md
+@@ -0,0 +1,9 @@
++# Memo: what the AJR base-sample stress tests support
++
++The packaged 64-country AJR base sample reproduces the headline contrast. In the bivariate model, the OLS association between protection against expropriation and log GDP per capita is 0.522. Instrumenting protection with log settler mortality raises the 2SLS estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-unit reduction in the protection measure, with a partial excluded-instrument F statistic of 22.95. Thus, within this particular bivariate cross-country specification, the famous result is reproducible and the instrument clears the conventional F-about-10 screening rule.
++
++The main finding also survives two modest changes in covariate adjustment. With absolute latitude included, the 2SLS coefficient is 0.996 and the first-stage F is 13.09. With Africa and Asia indicators included, the 2SLS coefficient is 0.839 and the first-stage F is 11.01. The estimates remain positive, appreciably larger than their corresponding OLS estimates (0.468 and 0.434), and the first stage remains above the stated threshold. Still, the continent-adjusted first stage is close enough to 10 to warrant more caution than the bivariate model.
++
++The sample perturbations are more revealing. Removing Australia, Canada, New Zealand, and the United States produces a 2SLS point estimate of 1.281, but the first-stage F falls to 8.65. On the requested rule of thumb this is weak identification, so the larger coefficient cannot be presented as a reliable confirmation that the effect strengthens without the neo-Europes. It also does not refute the original result: weak identification makes the IV estimate uninformative for that comparison. In the Africa-only sample, the first stage essentially disappears (coefficient -0.108; F=0.30). Its 2SLS estimate, 2.400, has a conventional standard error of 3.987 and is not credible evidence for a large African effect. The positive OLS association in Africa (0.302) is a different, non-causal estimand and does not repair the failed instrument.
++
++The manuscript may claim a reproducible, positive IV association in the AJR base sample that is retained after adding latitude or broad continent controls, conditional on the IV exclusion restriction. It may report that the IV estimate exceeds OLS in those identified specifications. It may not describe the relationship as established across regional or non-neo-European samples, infer a precise Africa-specific causal effect, or use the weakly identified estimates as corroboration. More fundamentally, first-stage strength addresses relevance, not the exclusion restriction: these regressions alone do not establish that settler mortality affects 1995 income only through institutions. The appropriate conclusion is therefore limited external robustness for the base-sample IV pattern, alongside meaningful fragility in where the instrument has usable variation.
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md b/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..8a52169055ebd310ed8a8a11d04bc1bce5858dc0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md
+@@ -0,0 +1,13 @@
++# AJR base-sample robustness checks
++
++All models use `ivdoctr::colonial` and `AER::ivreg` for 2SLS. The first-stage F is the partial nested-model F test for the excluded instrument, `logem4`, conditional on the controls shown. “Weak” uses the stated rule of thumb, F < 10. Coefficients are in log-income units per one-unit change in expropriation protection.
++
++| Specification | N | OLS: `avexpr` | 2SLS: `avexpr` | First-stage `logem4` coefficient | First-stage F | Identification flag |
++|---|---:|---:|---:|---:|---:|---|
++| Headline: no controls | 64 | 0.522 | 0.944 | -0.607 | 22.947 | Not weak |
++| Add latitude | 64 | 0.468 | 0.996 | -0.510 | 13.093 | Not weak |
++| Add continent controls | 64 | 0.434 | 0.839 | -0.533 | 11.006 | Not weak (borderline) |
++| Drop neo-Europes | 60 | 0.487 | 1.281 | -0.391 | 8.646 | **Weak** |
++| Africa only | 27 | 0.302 | 2.400 | -0.108 | 0.298 | **Weak** |
++
++The Africa-only 2SLS estimate is extremely imprecise (conventional SE 3.987) and should not be interpreted as evidence of a large effect. The drop-neo-Europe estimate is also weakly identified under the requested threshold.
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R b/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..d613e41239ee811ead90914281d1d248947a979b
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R
+@@ -0,0 +1,78 @@
++# Replication and robustness checks for AJR (2001), using ivdoctr's base sample.
++# 2SLS is estimated with AER::ivreg, which reports conventional IV standard errors.
++
++set.seed(20260717) # No stochastic steps are used; set for project convention.
++
++suppressPackageStartupMessages({
++  library(ivdoctr)
++  library(AER)
++})
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial) # The packaged object may be a data.table.
++
++# Each specification uses complete cases on its outcome, endogenous regressor,
++# excluded instrument, and included controls.  These are 64 observations except
++# where the indicated sample restriction applies.
++specifications <- list(
++  "Headline" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = character(0)
++  ),
++  "Latitude" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = "lat_abst"
++  ),
++  "Continents" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = c("africa", "asia")
++  ),
++  "Drop neo-Europes" = list(
++    keep = !(colonial$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++    controls = character(0)
++  ),
++  "Africa only" = list(
++    keep = colonial$africa == 1, controls = character(0)
++  )
++)
++
++fit_specification <- function(specification) {
++  controls <- specification$controls
++  vars_needed <- c("logpgp95", "avexpr", "logem4", controls)
++  dat <- colonial[specification$keep, vars_needed, drop = FALSE]
++  dat <- dat[complete.cases(dat), , drop = FALSE]
++
++  outcome_rhs <- paste(c("avexpr", controls), collapse = " + ")
++  first_stage_rhs <- paste(c("logem4", controls), collapse = " + ")
++  instrument_rhs <- paste(c("logem4", controls), collapse = " + ")
++
++  ols <- lm(as.formula(paste("logpgp95 ~", outcome_rhs)), data = dat)
++  # Included exogenous controls appear after |, instrumenting themselves.
++  iv <- AER::ivreg(
++    Formula::as.Formula(paste("logpgp95 ~", outcome_rhs, "|", instrument_rhs)),
++    data = dat
++  )
++  first_stage <- lm(as.formula(paste("avexpr ~", first_stage_rhs)), data = dat)
++  restricted_rhs <- if (length(controls)) paste(controls, collapse = " + ") else "1"
++  first_stage_restricted <- lm(
++    as.formula(paste("avexpr ~", restricted_rhs)), data = dat
++  )
++
++  # This nested-model F is the partial first-stage F for the excluded logem4.
++  excluded_f <- anova(first_stage_restricted, first_stage)$F[2]
++
++  data.frame(
++    n = nrow(dat),
++    ols = unname(coef(ols)["avexpr"]),
++    iv_2sls = unname(coef(iv)["avexpr"]),
++    first_stage_coefficient = unname(coef(first_stage)["logem4"]),
++    first_stage_f = excluded_f,
++    weak_identification = excluded_f < 10,
++    row.names = NULL
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, fit_specification))
++results <- cbind(specification = names(specifications), results)
++results[, c("ols", "iv_2sls", "first_stage_coefficient", "first_stage_f")] <-
++  lapply(results[, c("ols", "iv_2sls", "first_stage_coefficient", "first_stage_f")], round, 3)
++
++print(results, row.names = FALSE)
++cat("\nWeak identification is flagged where the partial first-stage F is below 10.\n")
+
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md b/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..0572682408e105493fba45de788a5c607a49488f
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md
+@@ -0,0 +1,9 @@
++# Memo: what the AJR base-sample stress tests support
++
++The packaged 64-country AJR base sample reproduces the headline contrast. In the bivariate model, the OLS association between protection against expropriation and log GDP per capita is 0.522. Instrumenting protection with log settler mortality raises the 2SLS estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-unit reduction in the protection measure, with a partial excluded-instrument F statistic of 22.95. Thus, within this particular bivariate cross-country specification, the famous result is reproducible and the instrument clears the conventional F-about-10 screening rule.
++
++The main finding also survives two modest changes in covariate adjustment. With absolute latitude included, the 2SLS coefficient is 0.996 and the first-stage F is 13.09. With Africa and Asia indicators included, the 2SLS coefficient is 0.839 and the first-stage F is 11.01. The estimates remain positive, appreciably larger than their corresponding OLS estimates (0.468 and 0.434), and the first stage remains above the stated threshold. Still, the continent-adjusted first stage is close enough to 10 to warrant more caution than the bivariate model.
++
++The sample perturbations are more revealing. Removing Australia, Canada, New Zealand, and the United States produces a 2SLS point estimate of 1.281, but the first-stage F falls to 8.65. On the requested rule of thumb this is weak identification, so the larger coefficient cannot be presented as a reliable confirmation that the effect strengthens without the neo-Europes. It also does not refute the original result: weak identification makes the IV estimate uninformative for that comparison. In the Africa-only sample, the first stage essentially disappears (coefficient -0.108; F=0.30). Its 2SLS estimate, 2.400, has a conventional standard error of 3.987 and is not credible evidence for a large African effect. The positive OLS association in Africa (0.302) is a different, non-causal estimand and does not repair the failed instrument.
++
++The manuscript may claim a reproducible, positive IV association in the AJR base sample that is retained after adding latitude or broad continent controls, conditional on the IV exclusion restriction. It may report that the IV estimate exceeds OLS in those identified specifications. It may not describe the relationship as established across regional or non-neo-European samples, infer a precise Africa-specific causal effect, or use the weakly identified estimates as corroboration. More fundamentally, first-stage strength addresses relevance, not the exclusion restriction: these regressions alone do not establish that settler mortality affects 1995 income only through institutions. The appropriate conclusion is therefore limited external robustness for the base-sample IV pattern, alongside meaningful fragility in where the instrument has usable variation.
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md b/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..8a52169055ebd310ed8a8a11d04bc1bce5858dc0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md
+@@ -0,0 +1,13 @@
++# AJR base-sample robustness checks
++
++All models use `ivdoctr::colonial` and `AER::ivreg` for 2SLS. The first-stage F is the partial nested-model F test for the excluded instrument, `logem4`, conditional on the controls shown. “Weak” uses the stated rule of thumb, F < 10. Coefficients are in log-income units per one-unit change in expropriation protection.
++
++| Specification | N | OLS: `avexpr` | 2SLS: `avexpr` | First-stage `logem4` coefficient | First-stage F | Identification flag |
++|---|---:|---:|---:|---:|---:|---|
++| Headline: no controls | 64 | 0.522 | 0.944 | -0.607 | 22.947 | Not weak |
++| Add latitude | 64 | 0.468 | 0.996 | -0.510 | 13.093 | Not weak |
++| Add continent controls | 64 | 0.434 | 0.839 | -0.533 | 11.006 | Not weak (borderline) |
++| Drop neo-Europes | 60 | 0.487 | 1.281 | -0.391 | 8.646 | **Weak** |
++| Africa only | 27 | 0.302 | 2.400 | -0.108 | 0.298 | **Weak** |
++
++The Africa-only 2SLS estimate is extremely imprecise (conventional SE 3.987) and should not be interpreted as evidence of a large effect. The drop-neo-Europe estimate is also weakly identified under the requested threshold.
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R b/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..d613e41239ee811ead90914281d1d248947a979b
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R
+@@ -0,0 +1,78 @@
++# Replication and robustness checks for AJR (2001), using ivdoctr's base sample.
++# 2SLS is estimated with AER::ivreg, which reports conventional IV standard errors.
++
++set.seed(20260717) # No stochastic steps are used; set for project convention.
++
++suppressPackageStartupMessages({
++  library(ivdoctr)
++  library(AER)
++})
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial) # The packaged object may be a data.table.
++
++# Each specification uses complete cases on its outcome, endogenous regressor,
++# excluded instrument, and included controls.  These are 64 observations except
++# where the indicated sample restriction applies.
++specifications <- list(
++  "Headline" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = character(0)
++  ),
++  "Latitude" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = "lat_abst"
++  ),
++  "Continents" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = c("africa", "asia")
++  ),
++  "Drop neo-Europes" = list(
++    keep = !(colonial$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++    controls = character(0)
++  ),
++  "Africa only" = list(
++    keep = colonial$africa == 1, controls = character(0)
++  )
++)
++
++fit_specification <- function(specification) {
++  controls <- specification$controls
++  vars_needed <- c("logpgp95", "avexpr", "logem4", controls)
++  dat <- colonial[specification$keep, vars_needed, drop = FALSE]
++  dat <- dat[complete.cases(dat), , drop = FALSE]
++
++  outcome_rhs <- paste(c("avexpr", controls), collapse = " + ")
++  first_stage_rhs <- paste(c("logem4", controls), collapse = " + ")
++  instrument_rhs <- paste(c("logem4", controls), collapse = " + ")
++
++  ols <- lm(as.formula(paste("logpgp95 ~", outcome_rhs)), data = dat)
++  # Included exogenous controls appear after |, instrumenting themselves.
++  iv <- AER::ivreg(
++    Formula::as.Formula(paste("logpgp95 ~", outcome_rhs, "|", instrument_rhs)),
++    data = dat
++  )
++  first_stage <- lm(as.formula(paste("avexpr ~", first_stage_rhs)), data = dat)
++  restricted_rhs <- if (length(controls)) paste(controls, collapse = " + ") else "1"
++  first_stage_restricted <- lm(
++    as.formula(paste("avexpr ~", restricted_rhs)), data = dat
++  )
++
++  # This nested-model F is the partial first-stage F for the excluded logem4.
++  excluded_f <- anova(first_stage_restricted, first_stage)$F[2]
++
++  data.frame(
++    n = nrow(dat),
++    ols = unname(coef(ols)["avexpr"]),
++    iv_2sls = unname(coef(iv)["avexpr"]),
++    first_stage_coefficient = unname(coef(first_stage)["logem4"]),
++    first_stage_f = excluded_f,
++    weak_identification = excluded_f < 10,
++    row.names = NULL
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, fit_specification))
++results <- cbind(specification = names(specifications), results)
++results[, c("ols", "iv_2sls", "first_stage_coefficient", "first_stage_f")] <-
++  lapply(results[, c("ols", "iv_2sls", "first_stage_coefficient", "first_stage_f")], round, 3)
++
++print(results, row.names = FALSE)
++cat("\nWeak identification is flagged where the partial first-stage F is below 10.\n")
+
+exec
+/bin/zsh -lc 'Rscript script.R && wc -w memo.md && git diff --check && git status --short' in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md b/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..0572682408e105493fba45de788a5c607a49488f
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md
+@@ -0,0 +1,9 @@
++# Memo: what the AJR base-sample stress tests support
++
++The packaged 64-country AJR base sample reproduces the headline contrast. In the bivariate model, the OLS association between protection against expropriation and log GDP per capita is 0.522. Instrumenting protection with log settler mortality raises the 2SLS estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-unit reduction in the protection measure, with a partial excluded-instrument F statistic of 22.95. Thus, within this particular bivariate cross-country specification, the famous result is reproducible and the instrument clears the conventional F-about-10 screening rule.
++
++The main finding also survives two modest changes in covariate adjustment. With absolute latitude included, the 2SLS coefficient is 0.996 and the first-stage F is 13.09. With Africa and Asia indicators included, the 2SLS coefficient is 0.839 and the first-stage F is 11.01. The estimates remain positive, appreciably larger than their corresponding OLS estimates (0.468 and 0.434), and the first stage remains above the stated threshold. Still, the continent-adjusted first stage is close enough to 10 to warrant more caution than the bivariate model.
++
++The sample perturbations are more revealing. Removing Australia, Canada, New Zealand, and the United States produces a 2SLS point estimate of 1.281, but the first-stage F falls to 8.65. On the requested rule of thumb this is weak identification, so the larger coefficient cannot be presented as a reliable confirmation that the effect strengthens without the neo-Europes. It also does not refute the original result: weak identification makes the IV estimate uninformative for that comparison. In the Africa-only sample, the first stage essentially disappears (coefficient -0.108; F=0.30). Its 2SLS estimate, 2.400, has a conventional standard error of 3.987 and is not credible evidence for a large African effect. The positive OLS association in Africa (0.302) is a different, non-causal estimand and does not repair the failed instrument.
++
++The manuscript may claim a reproducible, positive IV association in the AJR base sample that is retained after adding latitude or broad continent controls, conditional on the IV exclusion restriction. It may report that the IV estimate exceeds OLS in those identified specifications. It may not describe the relationship as established across regional or non-neo-European samples, infer a precise Africa-specific causal effect, or use the weakly identified estimates as corroboration. More fundamentally, first-stage strength addresses relevance, not the exclusion restriction: these regressions alone do not establish that settler mortality affects 1995 income only through institutions. The appropriate conclusion is therefore limited external robustness for the base-sample IV pattern, alongside meaningful fragility in where the instrument has usable variation.
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md b/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..8a52169055ebd310ed8a8a11d04bc1bce5858dc0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md
+@@ -0,0 +1,13 @@
++# AJR base-sample robustness checks
++
++All models use `ivdoctr::colonial` and `AER::ivreg` for 2SLS. The first-stage F is the partial nested-model F test for the excluded instrument, `logem4`, conditional on the controls shown. “Weak” uses the stated rule of thumb, F < 10. Coefficients are in log-income units per one-unit change in expropriation protection.
++
++| Specification | N | OLS: `avexpr` | 2SLS: `avexpr` | First-stage `logem4` coefficient | First-stage F | Identification flag |
++|---|---:|---:|---:|---:|---:|---|
++| Headline: no controls | 64 | 0.522 | 0.944 | -0.607 | 22.947 | Not weak |
++| Add latitude | 64 | 0.468 | 0.996 | -0.510 | 13.093 | Not weak |
++| Add continent controls | 64 | 0.434 | 0.839 | -0.533 | 11.006 | Not weak (borderline) |
++| Drop neo-Europes | 60 | 0.487 | 1.281 | -0.391 | 8.646 | **Weak** |
++| Africa only | 27 | 0.302 | 2.400 | -0.108 | 0.298 | **Weak** |
++
++The Africa-only 2SLS estimate is extremely imprecise (conventional SE 3.987) and should not be interpreted as evidence of a large effect. The drop-neo-Europe estimate is also weakly identified under the requested threshold.
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R b/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..d613e41239ee811ead90914281d1d248947a979b
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R
+@@ -0,0 +1,78 @@
++# Replication and robustness checks for AJR (2001), using ivdoctr's base sample.
++# 2SLS is estimated with AER::ivreg, which reports conventional IV standard errors.
++
++set.seed(20260717) # No stochastic steps are used; set for project convention.
++
++suppressPackageStartupMessages({
++  library(ivdoctr)
++  library(AER)
++})
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial) # The packaged object may be a data.table.
++
++# Each specification uses complete cases on its outcome, endogenous regressor,
++# excluded instrument, and included controls.  These are 64 observations except
++# where the indicated sample restriction applies.
++specifications <- list(
++  "Headline" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = character(0)
++  ),
++  "Latitude" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = "lat_abst"
++  ),
++  "Continents" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = c("africa", "asia")
++  ),
++  "Drop neo-Europes" = list(
++    keep = !(colonial$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++    controls = character(0)
++  ),
++  "Africa only" = list(
++    keep = colonial$africa == 1, controls = character(0)
++  )
++)
++
++fit_specification <- function(specification) {
++  controls <- specification$controls
++  vars_needed <- c("logpgp95", "avexpr", "logem4", controls)
++  dat <- colonial[specification$keep, vars_needed, drop = FALSE]
++  dat <- dat[complete.cases(dat), , drop = FALSE]
++
++  outcome_rhs <- paste(c("avexpr", controls), collapse = " + ")
++  first_stage_rhs <- paste(c("logem4", controls), collapse = " + ")
++  instrument_rhs <- paste(c("logem4", controls), collapse = " + ")
++
++  ols <- lm(as.formula(paste("logpgp95 ~", outcome_rhs)), data = dat)
++  # Included exogenous controls appear after |, instrumenting themselves.
++  iv <- AER::ivreg(
++    Formula::as.Formula(paste("logpgp95 ~", outcome_rhs, "|", instrument_rhs)),
++    data = dat
++  )
++  first_stage <- lm(as.formula(paste("avexpr ~", first_stage_rhs)), data = dat)
++  restricted_rhs <- if (length(controls)) paste(controls, collapse = " + ") else "1"
++  first_stage_restricted <- lm(
++    as.formula(paste("avexpr ~", restricted_rhs)), data = dat
++  )
++
++  # This nested-model F is the partial first-stage F for the excluded logem4.
++  excluded_f <- anova(first_stage_restricted, first_stage)$F[2]
++
++  data.frame(
++    n = nrow(dat),
++    ols = unname(coef(ols)["avexpr"]),
++    iv_2sls = unname(coef(iv)["avexpr"]),
++    first_stage_coefficient = unname(coef(first_stage)["logem4"]),
++    first_stage_f = excluded_f,
++    weak_identification = excluded_f < 10,
++    row.names = NULL
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, fit_specification))
++results <- cbind(specification = names(specifications), results)
++results[, c("ols", "iv_2sls", "first_stage_coefficient", "first_stage_f")] <-
++  lapply(results[, c("ols", "iv_2sls", "first_stage_coefficient", "first_stage_f")], round, 3)
++
++print(results, row.names = FALSE)
++cat("\nWeak identification is flagged where the partial first-stage F is below 10.\n")
+
+ exited 2 in 637ms:
+    specification  n   ols iv_2sls first_stage_coefficient first_stage_f
+         Headline 64 0.522   0.944                  -0.607        22.947
+         Latitude 64 0.468   0.996                  -0.510        13.093
+       Continents 64 0.434   0.839                  -0.533        11.006
+ Drop neo-Europes 60 0.487   1.281                  -0.391         8.646
+      Africa only 27 0.302   2.400                  -0.108         0.298
+ weak_identification
+               FALSE
+               FALSE
+               FALSE
+                TRUE
+                TRUE
+
+Weak identification is flagged where the partial first-stage F is below 10.
+     430 memo.md
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:63: trailing whitespace.
++[1] "shortnam" "africa"   "lat_abst" "rich4"    "avexpr"   "logpgp95" "logem4"  
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:842: trailing whitespace.
+++[1] "shortnam" "africa"   "lat_abst" "rich4"    "avexpr"   "logpgp95" "logem4"  
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:844: trailing whitespace.
+++ [1] "id"                "task"              "profile"          
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:846: trailing whitespace.
+++ [4] "att4"              "att7"              "att3"             
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:848: trailing whitespace.
+++ [7] "att1"              "att2"              "att5"             
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:850: trailing whitespace.
+++[13] "agree"            
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:852: trailing whitespace.
+++   attribute                level                        attribute_id level_id  
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:854: trailing whitespace.
+++   <chr>                    <chr>                        <chr>        <chr>     
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:856: trailing whitespace.
+++                                    class 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:858: trailing whitespace.
+++                                 "factor" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:860: trailing whitespace.
+++                                   levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:862: trailing whitespace.
+++"att1:level1 | att1:level2 | att1:level3" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:864: trailing whitespace.
+++                                    class 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:866: trailing whitespace.
+++                                 "factor" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:868: trailing whitespace.
+++                                   levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:870: trailing whitespace.
+++"att2:level1 | att2:level2 | att2:level3" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:872: trailing whitespace.
+++                                                  class 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:874: trailing whitespace.
+++                                               "factor" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:876: trailing whitespace.
+++                                                 levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:878: trailing whitespace.
+++"att3:level1 | att3:level2 | att3:level3 | att3:level4" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:880: trailing whitespace.
+++                      class                      levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:882: trailing whitespace.
+++                   "factor" "att4:level1 | att4:level2" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:884: trailing whitespace.
+++                                                  class 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:886: trailing whitespace.
+++                                               "factor" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:888: trailing whitespace.
+++                                                 levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:890: trailing whitespace.
+++"att5:level1 | att5:level2 | att5:level3 | att5:level4" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:892: trailing whitespace.
+++                                                                              class 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:894: trailing whitespace.
+++                                                                           "factor" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:896: trailing whitespace.
+++                                                                             levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:898: trailing whitespace.
+++"att6:level1 | att6:level2 | att6:level3 | att6:level4 | att6:level5 | att6:level6" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:900: trailing whitespace.
+++                      class                      levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:902: trailing whitespace.
+++                   "factor" "att7:level1 | att7:level2" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:904: trailing whitespace.
+++   attribute                level                        attribute_id level_id  
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:906: trailing whitespace.
+++   <chr>                    <chr>                        <chr>        <chr>     
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:908: trailing whitespace.
+++data's fill values. 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:910: trailing whitespace.
+++data's fill values. 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-verification.log:256: new blank line at EOF.
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:131: trailing whitespace.
++ [1] "id"                "task"              "profile"          
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:132: trailing whitespace.
++ [4] "att4"              "att7"              "att3"             
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:133: trailing whitespace.
++ [7] "att1"              "att2"              "att5"             
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:135: trailing whitespace.
++[13] "agree"            
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:142: trailing whitespace.
++   attribute                level                        attribute_id level_id  
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:143: trailing whitespace.
++   <chr>                    <chr>                        <chr>        <chr>     
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:166: trailing whitespace.
++                                    class 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:167: trailing whitespace.
++                                 "factor" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:168: trailing whitespace.
++                                   levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:169: trailing whitespace.
++"att1:level1 | att1:level2 | att1:level3" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:172: trailing whitespace.
++                                    class 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:173: trailing whitespace.
++                                 "factor" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:174: trailing whitespace.
++                                   levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:175: trailing whitespace.
++"att2:level1 | att2:level2 | att2:level3" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:178: trailing whitespace.
++                                                  class 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:179: trailing whitespace.
++                                               "factor" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:180: trailing whitespace.
++                                                 levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:181: trailing whitespace.
++"att3:level1 | att3:level2 | att3:level3 | att3:level4" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:184: trailing whitespace.
++                      class                      levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:185: trailing whitespace.
++                   "factor" "att4:level1 | att4:level2" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:188: trailing whitespace.
++                                                  class 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:189: trailing whitespace.
++                                               "factor" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:190: trailing whitespace.
++                                                 levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:191: trailing whitespace.
++"att5:level1 | att5:level2 | att5:level3 | att5:level4" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:194: trailing whitespace.
++                                                                              class 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:195: trailing whitespace.
++                                                                           "factor" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:196: trailing whitespace.
++                                                                             levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:197: trailing whitespace.
++"att6:level1 | att6:level2 | att6:level3 | att6:level4 | att6:level5 | att6:level6" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:200: trailing whitespace.
++                      class                      levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:201: trailing whitespace.
++                   "factor" "att7:level1 | att7:level2" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:211: trailing whitespace.
++   attribute                level                        attribute_id level_id  
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:212: trailing whitespace.
++   <chr>                    <chr>                        <chr>        <chr>     
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:521: trailing whitespace.
++data's fill values. 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:523: trailing whitespace.
++data's fill values. 
+demos/orchestration-lab/runs/46-sol/t3/sensitivity-table.md:20: new blank line at EOF.
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/lead-rscript.log:2: trailing whitespace.
++Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/lead-rscript.log:3: trailing whitespace.
++Adjusted estimate range: -4025.224574 to 2786.752100 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/lead-rscript.log:5: trailing whitespace.
++Acceptance: 9 observational rows; one 320 dpi PNG; memo words: 441 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/memo.md:12: new blank line at EOF.
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:92: trailing whitespace.
++ [1] "1794.3423818501" "185"             "260"             "15992"          
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:93: trailing whitespace.
++ [5] "data_id"         "treat"           "age"             "educ"           
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:94: trailing whitespace.
++ [9] "black"           "hisp"            "marr"            "nodegree"       
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:95: trailing whitespace.
++[13] "re74"            "re75"            "re78"           
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:594: trailing whitespace.
++ℹ Please use the `orientation` argument of `geom_errorbar()` instead. 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:598: trailing whitespace.
++data's colour values. 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:600: trailing whitespace.
++data's colour values. 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:602: trailing whitespace.
++data's colour values. 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:604: trailing whitespace.
++Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:605: trailing whitespace.
++Estimate range: -8497.516148 to 2786.752100 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:607: trailing whitespace.
++Acceptance: 9 observational rows; one 320 dpi PNG; memo words: 439 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:1504: trailing whitespace.
++Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:1505: trailing whitespace.
++Estimate range: -8497.516148 to 2786.752100 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:1507: trailing whitespace.
++Acceptance: 9 observational rows; one 320 dpi PNG; memo words: 439 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:1682: trailing whitespace.
++Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:1683: trailing whitespace.
++Estimate range: -8497.516148 to 2786.752100 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:1685: trailing whitespace.
++Acceptance: 9 observational rows; one 320 dpi PNG; memo words: 439 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:270: trailing whitespace.
++34: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:273: trailing whitespace.
++37: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:277: trailing whitespace.
++41: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:283: trailing whitespace.
++47: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:289: trailing whitespace.
++53: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:299: trailing whitespace.
++63: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:341: trailing whitespace.
++151: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:567: trailing whitespace.
++./lead-rscript.log:2:Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:569: trailing whitespace.
++./terra-implementation.log:92: [1] "1794.3423818501" "185"             "260"             "15992"          
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:573: trailing whitespace.
++./terra-implementation.log:604:Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:578: trailing whitespace.
++./terra-implementation.log:1504:Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:580: trailing whitespace.
++./terra-implementation.log:1682:Benchmark: 1794.342382 
+demos/orchestration-lab/runs/advisor/t3-codex/briefing.md:56: trailing whitespace.
++The two AMCEs are exact sign reversals because crime has only two levels. For a multi-level contrast, Housing Cost changes displayed coefficients with the reference: 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:174: trailing whitespace.
++[1] "labels" "data"  
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:204: trailing whitespace.
++function (.data, .qoi = NULL, .by_var = NULL, .structure = "choice_level", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:205: trailing whitespace.
++    .estimand = "mm", .se_method = "analytical", .irr = NULL, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:206: trailing whitespace.
++    .remove_ties = TRUE, .ignore_position = NULL, .n_sims = NULL, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:207: trailing whitespace.
++    .n_boot = NULL, .weights_1 = NULL, .clusters_1 = NULL, .se_type_1 = NULL, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:208: trailing whitespace.
++    .weights_2 = NULL, .clusters_2 = NULL, .se_type_2 = NULL, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:209: trailing whitespace.
++    .auto_cluster = TRUE, .seed = NULL) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:237: trailing whitespace.
++        out <- projoint_level(.data = .data, .qoi = .qoi, .structure = .structure, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:238: trailing whitespace.
++            .estimand = .estimand, .se_method = .se_method, .irr = .irr, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:239: trailing whitespace.
++            .remove_ties = .remove_ties, .ignore_position = .ignore_position, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:240: trailing whitespace.
++            .n_sims = .n_sims, .n_boot = .n_boot, .weights_1 = weights1_quo, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:241: trailing whitespace.
++            .clusters_1 = clusters1_quo, .se_type_1 = .se_type_1, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:242: trailing whitespace.
++            .weights_2 = weights2_quo, .clusters_2 = clusters2_quo, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:246: trailing whitespace.
++        out <- projoint_diff(.data = .data, .qoi = .qoi, .by_var = .by_var, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:247: trailing whitespace.
++            .structure = .structure, .estimand = .estimand, .se_method = .se_method, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:248: trailing whitespace.
++            .irr = .irr, .remove_ties = .remove_ties, .ignore_position = .ignore_position, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:249: trailing whitespace.
++            .n_sims = .n_sims, .n_boot = .n_boot, .weights_1 = weights1_quo, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:250: trailing whitespace.
++            .clusters_1 = clusters1_quo, .se_type_1 = .se_type_1, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:251: trailing whitespace.
++            .weights_2 = weights2_quo, .clusters_2 = clusters2_quo, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:262: trailing whitespace.
++Error in projoint_level(.data = .data, .qoi = .qoi, .structure = .structure,  : 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:271: trailing whitespace.
++EST mm 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:275: trailing whitespace.
++Estimand:  mm 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:276: trailing whitespace.
++Structure:  profile_level 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:277: trailing whitespace.
++Standard error method:  analytical 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:278: trailing whitespace.
++IRR:  Estimated 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:279: trailing whitespace.
++Tau:  0.172 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:280: trailing whitespace.
++Number of estimates:  48 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:329: trailing whitespace.
++EST amce 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:333: trailing whitespace.
++Estimand:  amce 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:334: trailing whitespace.
++Structure:  profile_level 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:335: trailing whitespace.
++Standard error method:  analytical 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:336: trailing whitespace.
++IRR:  Estimated 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:337: trailing whitespace.
++Tau:  0.172 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:338: trailing whitespace.
++Number of estimates:  34 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:399: trailing whitespace.
++   attribute                level                        attribute_id level_id  
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:400: trailing whitespace.
++   <chr>                    <chr>                        <chr>        <chr>     
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:422: trailing whitespace.
++function (.structure = "choice_level", .estimand = "mm", .att_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:423: trailing whitespace.
++    .lev_choose, .att_notchoose = NULL, .lev_notchoose = NULL, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:424: trailing whitespace.
++    .att_choose_b = NULL, .lev_choose_b = NULL, .att_notchoose_b = NULL, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:425: trailing whitespace.
++    .lev_notchoose_b = NULL) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:427: trailing whitespace.
++    structure <- rlang::arg_match0(.structure, c("choice_level", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:430: trailing whitespace.
++    projoint_qoi(structure = structure, estimand = estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:431: trailing whitespace.
++        attribute_of_interest = .att_choose, levels_of_interest = .lev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:432: trailing whitespace.
++        attribute_of_interest_0 = .att_notchoose, levels_of_interest_0 = .lev_notchoose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:433: trailing whitespace.
++        attribute_of_interest_baseline = .att_choose_b, levels_of_interest_baseline = .lev_choose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:434: trailing whitespace.
++        attribute_of_interest_0_baseline = .att_notchoose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:557: trailing whitespace.
++  estimand         estimate    se conf.low conf.high att_level_choose      
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:558: trailing whitespace.
++  <chr>               <dbl> <dbl>    <dbl>     <dbl> <chr>                 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:579: trailing whitespace.
++function (...) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:592: trailing whitespace.
++function (.data, .structure, .estimand, .att_choose, .lev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:593: trailing whitespace.
++    .att_notchoose, .lev_notchoose, .att_choose_b, .lev_choose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:594: trailing whitespace.
++    .att_notchoose_b, .lev_notchoose_b, .se_method, .irr, .remove_ties, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:595: trailing whitespace.
++    .ignore_position, .n_sims, .n_boot, .weights_1, .clusters_1, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:596: trailing whitespace.
++    .se_type_1, .weights_2, .clusters_2, .se_type_2, .auto_cluster = TRUE, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:597: trailing whitespace.
++    .seed = NULL) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:599: trailing whitespace.
++    structure <- rlang::arg_match0(.structure, c("choice_level", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:602: trailing whitespace.
++    se_method <- rlang::arg_match0(.se_method, c("analytical", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:604: trailing whitespace.
++    if (structure == "choice_level" & is.null(.att_choose)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:606: trailing whitespace.
++    if (structure == "choice_level" & is.null(.lev_choose)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:608: trailing whitespace.
++    if (!is.null(.irr) & (!is.numeric(.irr) || length(.irr) != 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:612: trailing whitespace.
++    if (!is.logical(.remove_ties)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:614: trailing whitespace.
++    if (structure == "profile_level" && length(.lev_choose) != 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:615: trailing whitespace.
++        1L) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:626: trailing whitespace.
++    if (structure == "choice_level" & is.null(.att_notchoose)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:628: trailing whitespace.
++    if (structure == "choice_level" & is.null(.lev_notchoose)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:630: trailing whitespace.
++    if (estimand == "amce" & (is.null(.att_choose_b) || is.null(.lev_choose_b))) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:632: trailing whitespace.
++    if (estimand == "amce" && structure == "choice_level" && 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:633: trailing whitespace.
++        (is.null(.att_notchoose_b) || is.null(.lev_notchoose_b))) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:635: trailing whitespace.
++    if (!is.null(.n_sims) & (!is.numeric(.n_sims) || length(.n_sims) != 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:639: trailing whitespace.
++    if (!is.null(.n_boot) & (!is.numeric(.n_boot) || length(.n_boot) != 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:643: trailing whitespace.
++    if (se_method == "simulation" & is.null(.n_sims)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:645: trailing whitespace.
++    if (se_method != "simulation" & !is.null(.n_sims)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:647: trailing whitespace.
++    if (se_method == "bootstrap" & is.null(.n_boot)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:649: trailing whitespace.
++    if (se_method != "bootstrap" & !is.null(.n_boot)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:651: trailing whitespace.
++    if (structure == "choice_level" & estimand == "mm" & .remove_ties == 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:669: trailing whitespace.
++            attlev_choose <- stringr::str_c(.att_choose, ":", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:671: trailing whitespace.
++            attlev_notchoose <- stringr::str_c(.att_notchoose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:673: trailing whitespace.
++            temp1 <- organize_data(.dataframe = .data$data, .structure = structure, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:674: trailing whitespace.
++                .estimand = estimand, .remove_ties, .att_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:678: trailing whitespace.
++                  temp2 <- dplyr::select(dplyr::mutate(temp1$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:679: trailing whitespace.
++                    selected = ifelse(qoi_1 %in% attlev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:680: trailing whitespace.
++                      selected_1, selected_2), qoi_choose = stringr::str_c(attlev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:681: trailing whitespace.
++                      collapse = ", "), qoi_notchoose = stringr::str_c(attlev_notchoose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:685: trailing whitespace.
++                  temp2 <- dplyr::select(dplyr::mutate(temp1$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:686: trailing whitespace.
++                    selected = ifelse(qoi_choose_1 %in% attlev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:687: trailing whitespace.
++                      selected_1, selected_2), qoi_choose = stringr::str_c(attlev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:688: trailing whitespace.
++                      collapse = ", "), qoi_notchoose = stringr::str_c(attlev_notchoose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:694: trailing whitespace.
++                  temp2 <- dplyr::select(dplyr::mutate(dplyr::filter(temp1$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:695: trailing whitespace.
++                    qoi_1 %in% attlev_notchoose, qoi_2 %in% attlev_choose), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:696: trailing whitespace.
++                    selected = selected_2, qoi_choose = stringr::str_c(attlev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:697: trailing whitespace.
++                      collapse = ", "), qoi_notchoose = stringr::str_c(attlev_notchoose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:701: trailing whitespace.
++                  temp2 <- dplyr::select(dplyr::mutate(dplyr::filter(temp1$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:702: trailing whitespace.
++                    qoi_notchoose_1 %in% attlev_notchoose, qoi_choose_2 %in% 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:703: trailing whitespace.
++                      attlev_choose), selected = selected_2, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:704: trailing whitespace.
++                    qoi_choose = stringr::str_c(attlev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:705: trailing whitespace.
++                      collapse = ", "), qoi_notchoose = stringr::str_c(attlev_notchoose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:711: trailing whitespace.
++            if (!"id" %in% names(data_for_irr)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:713: trailing whitespace.
++            if (!"id" %in% names(data_for_estimand)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:717: trailing whitespace.
++            .list <- organize_data(.dataframe = .data$data, .structure = structure, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:718: trailing whitespace.
++                .estimand = estimand, .remove_ties, .att_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:722: trailing whitespace.
++            if (!"id" %in% names(data_for_irr)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:724: trailing whitespace.
++            if (!"id" %in% names(data_for_estimand)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:730: trailing whitespace.
++            attlev_choose <- stringr::str_c(.att_choose, ":", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:732: trailing whitespace.
++            attlev_notchoose <- stringr::str_c(.att_notchoose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:734: trailing whitespace.
++            temp1 <- organize_data(.dataframe = .data$data, .structure = structure, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:735: trailing whitespace.
++                .estimand = estimand, .remove_ties, .att_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:739: trailing whitespace.
++                  temp2 <- dplyr::select(dplyr::mutate(temp1$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:740: trailing whitespace.
++                    selected = ifelse(qoi_1 %in% attlev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:741: trailing whitespace.
++                      selected_1, selected_2), qoi_choose = stringr::str_c(attlev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:742: trailing whitespace.
++                      collapse = ", "), qoi_notchoose = stringr::str_c(attlev_notchoose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:746: trailing whitespace.
++                  temp2 <- dplyr::select(dplyr::mutate(temp1$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:747: trailing whitespace.
++                    selected = ifelse(qoi_choose_1 %in% attlev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:748: trailing whitespace.
++                      selected_1, selected_2), qoi_choose = stringr::str_c(attlev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:749: trailing whitespace.
++                      collapse = ", "), qoi_notchoose = stringr::str_c(attlev_notchoose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:755: trailing whitespace.
++                  temp2 <- dplyr::select(dplyr::mutate(dplyr::filter(temp1$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:756: trailing whitespace.
++                    qoi_1 %in% attlev_notchoose, qoi_2 %in% attlev_choose), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:757: trailing whitespace.
++                    selected = selected_2, qoi_choose = stringr::str_c(attlev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:758: trailing whitespace.
++                      collapse = ", "), qoi_notchoose = stringr::str_c(attlev_notchoose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:762: trailing whitespace.
++                  temp2 <- dplyr::select(dplyr::mutate(dplyr::filter(temp1$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:763: trailing whitespace.
++                    qoi_notchoose_1 %in% attlev_notchoose, qoi_choose_2 %in% 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:764: trailing whitespace.
++                      attlev_choose), selected = selected_2, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:765: trailing whitespace.
++                    qoi_choose = stringr::str_c(attlev_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:766: trailing whitespace.
++                      collapse = ", "), qoi_notchoose = stringr::str_c(attlev_notchoose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:770: trailing whitespace.
++            attlev_choose_b <- stringr::str_c(.att_choose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:772: trailing whitespace.
++            attlev_notchoose_b <- stringr::str_c(.att_notchoose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:774: trailing whitespace.
++            temp1_b <- organize_data(.dataframe = .data$data, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:775: trailing whitespace.
++                .structure = structure, .estimand = estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:776: trailing whitespace.
++                .remove_ties, .att_choose = .att_choose_b, .lev_choose = .lev_choose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:780: trailing whitespace.
++                  temp2_b <- dplyr::select(dplyr::mutate(temp1_b$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:781: trailing whitespace.
++                    selected = ifelse(qoi_1 %in% attlev_choose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:782: trailing whitespace.
++                      selected_1, selected_2), qoi_choose = stringr::str_c(attlev_choose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:783: trailing whitespace.
++                      collapse = ", "), qoi_notchoose = stringr::str_c(attlev_notchoose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:787: trailing whitespace.
++                  temp2_b <- dplyr::select(dplyr::mutate(temp1_b$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:788: trailing whitespace.
++                    selected = ifelse(qoi_choose_1 %in% attlev_choose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:789: trailing whitespace.
++                      selected_1, selected_2), qoi_choose = stringr::str_c(attlev_choose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:790: trailing whitespace.
++                      collapse = ", "), qoi_notchoose = stringr::str_c(attlev_notchoose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:796: trailing whitespace.
++                  temp2_b <- dplyr::select(dplyr::mutate(dplyr::filter(temp1_b$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:797: trailing whitespace.
++                    qoi_1 %in% attlev_notchoose_b, qoi_2 %in% 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:798: trailing whitespace.
++                      attlev_choose_b), selected = selected_2, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:799: trailing whitespace.
++                    qoi_choose = stringr::str_c(attlev_choose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:800: trailing whitespace.
++                      collapse = ", "), qoi_notchoose = stringr::str_c(attlev_notchoose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:804: trailing whitespace.
++                  temp2_b <- dplyr::select(dplyr::mutate(dplyr::filter(temp1_b$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:805: trailing whitespace.
++                    qoi_notchoose_1 %in% attlev_notchoose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:806: trailing whitespace.
++                    qoi_choose_2 %in% attlev_choose_b), selected = selected_2, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:807: trailing whitespace.
++                    qoi_choose = stringr::str_c(attlev_choose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:808: trailing whitespace.
++                      collapse = ", "), qoi_notchoose = stringr::str_c(attlev_notchoose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:812: trailing whitespace.
++            data_for_irr <- dplyr::distinct(dplyr::bind_rows(temp1$data_for_irr, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:814: trailing whitespace.
++            data_for_estimand <- dplyr::bind_rows(dplyr::mutate(temp2, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:816: trailing whitespace.
++            if (!"id" %in% names(data_for_irr)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:818: trailing whitespace.
++            if (!"id" %in% names(data_for_estimand)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:822: trailing whitespace.
++            temp1 <- organize_data(.dataframe = .data$data, .structure = structure, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:823: trailing whitespace.
++                .estimand = estimand, .remove_ties, .att_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:825: trailing whitespace.
++            temp1_b <- organize_data(.dataframe = .data$data, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:826: trailing whitespace.
++                .structure = structure, .estimand = estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:827: trailing whitespace.
++                .remove_ties, .att_choose = .att_choose_b, .lev_choose = .lev_choose_b, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:829: trailing whitespace.
++            data_for_irr <- dplyr::distinct(dplyr::bind_rows(temp1$data_for_irr, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:831: trailing whitespace.
++            data_for_estimand <- dplyr::bind_rows(dplyr::mutate(temp1$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:832: trailing whitespace.
++                x = 1), dplyr::mutate(temp1_b$data_for_estimand, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:834: trailing whitespace.
++            if (!"id" %in% names(data_for_irr)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:836: trailing whitespace.
++            if (!"id" %in% names(data_for_estimand)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:840: trailing whitespace.
++    if (!"id" %in% names(data_for_irr)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:842: trailing whitespace.
++    if (!"id" %in% names(data_for_estimand)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:844: trailing whitespace.
++    clusters1_quo <- if (rlang::is_quosure(.clusters_1)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:847: trailing whitespace.
++    weights1_quo <- if (rlang::is_quosure(.weights_1)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:850: trailing whitespace.
++    clusters2_quo <- if (rlang::is_quosure(.clusters_2)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:853: trailing whitespace.
++    weights2_quo <- if (rlang::is_quosure(.weights_2)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:856: trailing whitespace.
++    if (is.null(.irr) && .auto_cluster && rlang::quo_is_null(clusters1_quo) && 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:860: trailing whitespace.
++    if (.auto_cluster && rlang::quo_is_null(clusters2_quo) && 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:864: trailing whitespace.
++    is_clustered_1 <- if (is.null(.irr)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:868: trailing whitespace.
++    ok_uncl <- c("classical", "HC0", "HC1", "HC2", "HC3", "stata", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:873: trailing whitespace.
++            stop("`.se_type_1` must be one of ", paste(ok_cl, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:877: trailing whitespace.
++            stop("`.se_type_1` must be one of ", paste(ok_uncl, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:883: trailing whitespace.
++            stop("`.se_type_2` must be one of ", paste(ok_cl, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:887: trailing whitespace.
++            stop("`.se_type_2` must be one of ", paste(ok_uncl, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:892: trailing whitespace.
++        if (is_clustered_2) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:913: trailing whitespace.
++        if (!is.finite(ct)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:919: trailing whitespace.
++        reg_irr <- estimatr::tidy(estimatr::lm_robust(agree ~ 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:920: trailing whitespace.
++            1, weights = if (!rlang::quo_is_null(weights1_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:922: trailing whitespace.
++        else NULL, clusters = if (!rlang::quo_is_null(clusters1_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:933: trailing whitespace.
++                warning(sprintf("Estimated IRR was %.3f and clipped to [0.5, 1].", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:938: trailing whitespace.
++            var_irr <- if (is.na(se_irr)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:946: trailing whitespace.
++    else if (!is.numeric(.irr) || length(.irr) != 1L || is.na(.irr) || 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:952: trailing whitespace.
++            warning(sprintf("Supplied IRR %.3f clipped to [0.5, 1].", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:960: trailing whitespace.
++        w2 <- if (!rlang::quo_is_null(weights2_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:963: trailing whitespace.
++        cl2 <- if (!rlang::quo_is_null(clusters2_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:966: trailing whitespace.
++        reg_mm_fit <- suppressWarnings(estimatr::lm_robust(selected ~ 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:967: trailing whitespace.
++            1, weights = w2, clusters = cl2, se_type = se_type2_final, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:972: trailing whitespace.
++        bad_se <- any(!is.finite(summary(reg_mm_fit)$coefficients[, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:975: trailing whitespace.
++            reg_mm_fit <- suppressWarnings(estimatr::lm_robust(selected ~ 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:976: trailing whitespace.
++                1, weights = w2, clusters = cl2, se_type = "stata", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:981: trailing whitespace.
++            bad_se <- any(!is.finite(summary(reg_mm_fit)$coefficients[, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:984: trailing whitespace.
++                reg_mm_fit <- estimatr::lm_robust(selected ~ 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:985: trailing whitespace.
++                  1, weights = w2, clusters = NULL, se_type = "HC1", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:994: trailing whitespace.
++        critical_t <- critical_from_ci(reg_mm$estimate[1], reg_mm$std.error[1], 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1003: trailing whitespace.
++        w2 <- if (!rlang::quo_is_null(weights2_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1006: trailing whitespace.
++        cl2 <- if (!rlang::quo_is_null(clusters2_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1009: trailing whitespace.
++        reg_amce_fit <- suppressWarnings(estimatr::lm_robust(selected ~ 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1010: trailing whitespace.
++            x, weights = w2, clusters = cl2, se_type = se_type2_final, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1015: trailing whitespace.
++        bad_se <- any(!is.finite(summary(reg_amce_fit)$coefficients[, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1018: trailing whitespace.
++            reg_amce_fit <- suppressWarnings(estimatr::lm_robust(selected ~ 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1019: trailing whitespace.
++                x, weights = w2, clusters = cl2, se_type = "stata", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1024: trailing whitespace.
++            bad_se <- any(!is.finite(summary(reg_amce_fit)$coefficients[, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1027: trailing whitespace.
++                reg_amce_fit <- suppressWarnings(estimatr::lm_robust(selected ~ 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1028: trailing whitespace.
++                  x, weights = w2, clusters = NULL, se_type = "HC1", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1037: trailing whitespace.
++        critical_t <- critical_from_ci(reg_amce$estimate[2], 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1046: trailing whitespace.
++    data_for_cov <- if (has_agree) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1052: trailing whitespace.
++            cov_mm_irr <- if (nrow(data_for_cov) > 1L) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1064: trailing whitespace.
++        n0 <- if (nz) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1067: trailing whitespace.
++        n1 <- if (nz) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1071: trailing whitespace.
++            cov_mm0_irr <- if (n0 > 1L) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1074: trailing whitespace.
++            cov_mm1_irr <- if (n1 > 1L) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1091: trailing whitespace.
++            var_corrected_mm <- dp^2 * var_uncorrected_mm + dt^2 * 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1093: trailing whitespace.
++            output <- dplyr::mutate(data.frame(estimand = c("mm_uncorrected", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1094: trailing whitespace.
++                "mm_corrected"), estimate = c(mm_uncorrected, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1095: trailing whitespace.
++                mm_corrected), se = c(sqrt(pmax(var_uncorrected_mm, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1096: trailing whitespace.
++                0)), sqrt(pmax(var_corrected_mm, 0)))), conf.low = estimate - 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1097: trailing whitespace.
++                critical_t * se, conf.high = estimate + critical_t * 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1101: trailing whitespace.
++            if ((var_tau <= 0 || !is.finite(var_tau)) && (cov_mm_tau == 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1103: trailing whitespace.
++                mm_draws <- stats::rnorm(.n_sims, mean = mm_uncorrected, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1106: trailing whitespace.
++                sim_mm <- dplyr::mutate(data.frame(mm_uncorrected = mm_draws, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1107: trailing whitespace.
++                  tau = tau_draws), mm_corrected = (mm_uncorrected - 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1111: trailing whitespace.
++                vcov_mm_tau <- matrix(c(var_uncorrected_mm, cov_mm_tau, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1113: trailing whitespace.
++                sim_mm <- dplyr::mutate(rlang::set_names(as.data.frame(MASS::mvrnorm(.n_sims, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1114: trailing whitespace.
++                  c(mm_uncorrected, tau), vcov_mm_tau)), c("mm_uncorrected", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1115: trailing whitespace.
++                  "tau")), mm_corrected = (mm_uncorrected - tau)/(1 - 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1118: trailing whitespace.
++            output <- dplyr::mutate(data.frame(estimand = c("mm_uncorrected", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1119: trailing whitespace.
++                "mm_corrected"), estimate = c(mm_uncorrected, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1120: trailing whitespace.
++                mean(sim_mm$mm_corrected)), se = c(sqrt(pmax(var_uncorrected_mm, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1121: trailing whitespace.
++                0)), stats::sd(sim_mm$mm_corrected))), conf.low = estimate - 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1122: trailing whitespace.
++                critical_t * se, conf.high = estimate + critical_t * 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1128: trailing whitespace.
++                if (length(IDs_1) == 0L) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1135: trailing whitespace.
++                bs_sample_2 <- dplyr::left_join(data.frame(id = id_2), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1139: trailing whitespace.
++                  bs_sample_1 <- dplyr::left_join(data.frame(id = id_1), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1141: trailing whitespace.
++                  reg_irr <- estimatr::tidy(estimatr::lm_robust(agree ~ 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1142: trailing whitespace.
++                    1, weights = if (!rlang::quo_is_null(weights1_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1144: trailing whitespace.
++                  else NULL, clusters = if (!rlang::quo_is_null(clusters1_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1153: trailing whitespace.
++                reg_mm <- estimatr::tidy(estimatr::lm_robust(selected ~ 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1154: trailing whitespace.
++                  1, weights = if (!rlang::quo_is_null(weights2_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1156: trailing whitespace.
++                else NULL, clusters = if (!rlang::quo_is_null(clusters2_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1160: trailing whitespace.
++                mm_corrected_bs <- (mm_uncorrected_bs - tau_bs)/(1 - 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1162: trailing whitespace.
++                out <- dplyr::bind_rows(out, data.frame(estimand = c("mm_corrected", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1163: trailing whitespace.
++                  "mm_uncorrected"), estimate = c(mm_corrected_bs, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1166: trailing whitespace.
++            output <- dplyr::mutate(data.frame(estimand = c("mm_uncorrected", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1167: trailing whitespace.
++                "mm_corrected"), estimate = c(mean(dplyr::pull(dplyr::filter(out, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1168: trailing whitespace.
++                estimand == "mm_uncorrected"), estimate)), mean(dplyr::pull(dplyr::filter(out, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1169: trailing whitespace.
++                estimand == "mm_corrected"), estimate))), se = c(stats::sd(dplyr::pull(dplyr::filter(out, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1170: trailing whitespace.
++                estimand == "mm_uncorrected"), estimate)), stats::sd(dplyr::pull(dplyr::filter(out, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1171: trailing whitespace.
++                estimand == "mm_corrected"), estimate)))), conf.low = estimate - 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1172: trailing whitespace.
++                critical_t * se, conf.high = estimate + critical_t * 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1181: trailing whitespace.
++            var_corrected_amce <- db^2 * var_uncorrected_amce + 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1183: trailing whitespace.
++            output <- dplyr::mutate(data.frame(estimand = c("amce_uncorrected", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1184: trailing whitespace.
++                "amce_corrected"), estimate = c(amce_uncorrected, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1185: trailing whitespace.
++                amce_corrected), se = c(sqrt(pmax(var_uncorrected_amce, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1186: trailing whitespace.
++                0)), sqrt(pmax(var_corrected_amce, 0)))), conf.low = estimate - 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1187: trailing whitespace.
++                critical_t * se, conf.high = estimate + critical_t * 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1191: trailing whitespace.
++            if ((var_tau <= 0 || !is.finite(var_tau)) && (cov_amce_tau == 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1193: trailing whitespace.
++                amce_draws <- stats::rnorm(.n_sims, mean = amce_uncorrected, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1196: trailing whitespace.
++                sim_amce <- dplyr::mutate(data.frame(amce_uncorrected = amce_draws, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1197: trailing whitespace.
++                  tau = tau_draws), amce_corrected = amce_uncorrected/(1 - 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1201: trailing whitespace.
++                vcov_amce_tau <- matrix(c(var_uncorrected_amce, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1203: trailing whitespace.
++                sim_amce <- dplyr::mutate(rlang::set_names(as.data.frame(MASS::mvrnorm(.n_sims, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1204: trailing whitespace.
++                  c(amce_uncorrected, tau), vcov_amce_tau)), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1205: trailing whitespace.
++                  c("amce_uncorrected", "tau")), amce_corrected = amce_uncorrected/(1 - 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1208: trailing whitespace.
++            output <- dplyr::mutate(data.frame(estimand = c("amce_uncorrected", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1209: trailing whitespace.
++                "amce_corrected"), estimate = c(amce_uncorrected, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1210: trailing whitespace.
++                mean(sim_amce$amce_corrected)), se = c(sqrt(pmax(var_uncorrected_amce, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1211: trailing whitespace.
++                0)), stats::sd(sim_amce$amce_corrected))), conf.low = estimate - 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1212: trailing whitespace.
++                critical_t * se, conf.high = estimate + critical_t * 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1219: trailing whitespace.
++                if (length(IDs_1) == 0L) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1225: trailing whitespace.
++                bs_sample_2 <- dplyr::left_join(data.frame(id = id_2), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1229: trailing whitespace.
++                  bs_sample_1 <- dplyr::left_join(data.frame(id = id_1), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1231: trailing whitespace.
++                  reg_irr <- estimatr::tidy(estimatr::lm_robust(agree ~ 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1232: trailing whitespace.
++                    1, weights = if (!rlang::quo_is_null(weights1_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1234: trailing whitespace.
++                  else NULL, clusters = if (!rlang::quo_is_null(clusters1_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1243: trailing whitespace.
++                reg_amce <- estimatr::tidy(estimatr::lm_robust(selected ~ 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1244: trailing whitespace.
++                  x, weights = if (!rlang::quo_is_null(weights2_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1246: trailing whitespace.
++                else NULL, clusters = if (!rlang::quo_is_null(clusters2_quo)) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1250: trailing whitespace.
++                amce_corrected_bs <- amce_uncorrected_bs/(1 - 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1252: trailing whitespace.
++                out <- dplyr::bind_rows(out, data.frame(estimand = c("amce_corrected", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1253: trailing whitespace.
++                  "amce_uncorrected"), estimate = c(amce_corrected_bs, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1256: trailing whitespace.
++            output <- dplyr::mutate(data.frame(estimand = c("amce_uncorrected", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1257: trailing whitespace.
++                "amce_corrected"), estimate = c(mean(dplyr::pull(dplyr::filter(out, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1258: trailing whitespace.
++                estimand == "amce_uncorrected"), estimate)), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1259: trailing whitespace.
++                mean(dplyr::pull(dplyr::filter(out, estimand == 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1260: trailing whitespace.
++                  "amce_corrected"), estimate))), se = c(stats::sd(dplyr::pull(dplyr::filter(out, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1261: trailing whitespace.
++                estimand == "amce_uncorrected"), estimate)), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1262: trailing whitespace.
++                stats::sd(dplyr::pull(dplyr::filter(out, estimand == 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1263: trailing whitespace.
++                  "amce_corrected"), estimate)))), conf.low = estimate - 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1264: trailing whitespace.
++                critical_t * se, conf.high = estimate + critical_t * 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1269: trailing whitespace.
++        warning("Some standard errors are NA/Inf after corrections. ", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1299: trailing whitespace.
++function (.dataframe, .structure, .estimand, .remove_ties, .att_choose, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1300: trailing whitespace.
++    .lev_choose, .att_notchoose, .lev_notchoose) 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1302: trailing whitespace.
++    structure <- rlang::arg_match0(.structure, c("choice_level", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1328: trailing whitespace.
++        if (is.null(.att_notchoose) | length(.att_notchoose) != 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1332: trailing whitespace.
++        if (is.null(.lev_notchoose) | length(.lev_notchoose) < 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1343: trailing whitespace.
++        out2 <- out1 <- dplyr::select(dplyr::filter(dplyr::mutate(.dataframe, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1344: trailing whitespace.
++            qoi_choose = !!att_choose), qoi_choose %in% attlev_choose), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1347: trailing whitespace.
++            out2 <- dplyr::select(dplyr::filter(dplyr::ungroup(dplyr::mutate(dplyr::group_by(out1, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1348: trailing whitespace.
++                id, task), ties = dplyr::n() - 1)), ties == 0), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1355: trailing whitespace.
++        attlev_notchoose <- stringr::str_c(.att_notchoose, ":", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1366: trailing whitespace.
++            max_ndist <- unlist(dplyr::summarise(dplyr::summarise(dplyr::group_by(df, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1367: trailing whitespace.
++                id, task), dplyr::across(dplyr::all_of(cand), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1368: trailing whitespace.
++                ~dplyr::n_distinct(.x, na.rm = FALSE)), .groups = "drop"), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1369: trailing whitespace.
++                dplyr::across(dplyr::everything(), ~max(.x, na.rm = TRUE))), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1375: trailing whitespace.
++            out1 <- dplyr::select(dplyr::mutate(.dataframe, qoi = !!rlang::sym(.att_choose)), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1377: trailing whitespace.
++            id_cols <- setdiff(names(out1), c("profile", "selected", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1380: trailing whitespace.
++            out2 <- tidyr::pivot_wider(out1, id_cols = dplyr::all_of(id_cols), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1381: trailing whitespace.
++                names_from = profile, values_from = c(selected, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1383: trailing whitespace.
++            stopifnot(all(dplyr::pull(dplyr::count(out2, id, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1385: trailing whitespace.
++            out3 <- dplyr::filter(out2, (qoi_1 %in% attlev_choose & 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1386: trailing whitespace.
++                qoi_2 %in% attlev_notchoose) | (qoi_1 %in% attlev_notchoose & 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1390: trailing whitespace.
++            out1 <- dplyr::select(dplyr::mutate(.dataframe, qoi_choose = !!rlang::sym(.att_choose), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1391: trailing whitespace.
++                qoi_notchoose = !!rlang::sym(.att_notchoose)), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1393: trailing whitespace.
++            id_cols <- setdiff(names(out1), c("profile", "selected", 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1396: trailing whitespace.
++            out2 <- tidyr::pivot_wider(out1, id_cols = dplyr::all_of(id_cols), 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1397: trailing whitespace.
++                names_from = profile, values_from = c(selected, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1399: trailing whitespace.
++            stopifnot(all(dplyr::pull(dplyr::count(out2, id, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1401: trailing whitespace.
++            out3 <- dplyr::filter(out2, (qoi_choose_1 %in% attlev_choose & 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1402: trailing whitespace.
++                qoi_notchoose_2 %in% attlev_notchoose) | (qoi_choose_2 %in% 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1407: trailing whitespace.
++    data1 <- tibble::as_tibble(dplyr::select(dplyr::ungroup(dplyr::slice(dplyr::group_by(dplyr::filter(.dataframe, 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1421: trailing whitespace.
++1 amce_uncorrected   -0.165 0.0281   -0.220    -0.109 att7:level2     
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1422: trailing whitespace.
++2 amce_corrected     -0.251 0.0422   -0.334    -0.168 att7:level2     
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1431: trailing whitespace.
++ggplot2= TRUE 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1891: trailing whitespace.
++ℹ Please use the `orientation` argument of `geom_errorbar()` instead. 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step1.log:1902: trailing whitespace.
++The two AMCEs are exact sign reversals because crime has only two levels. For a multi-level contrast, Housing Cost changes displayed coefficients with the reference: 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step3.log:132: trailing whitespace.
++The two AMCEs are exact sign reversals because crime has only two levels. For a multi-level contrast, Housing Cost changes displayed coefficients with the reference: 
+demos/orchestration-lab/runs/advisor/t3-codex/exec-step3.log:342: trailing whitespace.
++The two AMCEs are exact sign reversals because crime has only two levels. For a multi-level contrast, Housing Cost changes displayed coefficients with the reference: 
+demos/orchestration-lab/runs/advisor/t3-codex/sensitivity-table.md:10: trailing whitespace.
++The two AMCEs are exact sign reversals because crime has only two levels. For a multi-level contrast, Housing Cost changes displayed coefficients with the reference: 
+demos/orchestration-lab/runs/opus/t1/summary.md:89: new blank line at EOF.
+
+codex
+All requested artifacts are now written and the script reruns successfully with `AER::ivreg`. I also verified that the reported table values match the script’s calculated output; the weak-identification flags are limited to the two restricted samples.
+exec
+/bin/zsh -lc "git diff --check -- script.R robustness-table.md memo.md; git status --short -- script.R robustness-table.md memo.md; sed -n '1,220p' robustness-table.md; sed -n '1,240p' memo.md" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex
+ succeeded in 0ms:
+?? memo.md
+?? robustness-table.md
+?? script.R
+# AJR base-sample robustness checks
+
+All models use `ivdoctr::colonial` and `AER::ivreg` for 2SLS. The first-stage F is the partial nested-model F test for the excluded instrument, `logem4`, conditional on the controls shown. “Weak” uses the stated rule of thumb, F < 10. Coefficients are in log-income units per one-unit change in expropriation protection.
+
+| Specification | N | OLS: `avexpr` | 2SLS: `avexpr` | First-stage `logem4` coefficient | First-stage F | Identification flag |
+|---|---:|---:|---:|---:|---:|---|
+| Headline: no controls | 64 | 0.522 | 0.944 | -0.607 | 22.947 | Not weak |
+| Add latitude | 64 | 0.468 | 0.996 | -0.510 | 13.093 | Not weak |
+| Add continent controls | 64 | 0.434 | 0.839 | -0.533 | 11.006 | Not weak (borderline) |
+| Drop neo-Europes | 60 | 0.487 | 1.281 | -0.391 | 8.646 | **Weak** |
+| Africa only | 27 | 0.302 | 2.400 | -0.108 | 0.298 | **Weak** |
+
+The Africa-only 2SLS estimate is extremely imprecise (conventional SE 3.987) and should not be interpreted as evidence of a large effect. The drop-neo-Europe estimate is also weakly identified under the requested threshold.
+# Memo: what the AJR base-sample stress tests support
+
+The packaged 64-country AJR base sample reproduces the headline contrast. In the bivariate model, the OLS association between protection against expropriation and log GDP per capita is 0.522. Instrumenting protection with log settler mortality raises the 2SLS estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-unit reduction in the protection measure, with a partial excluded-instrument F statistic of 22.95. Thus, within this particular bivariate cross-country specification, the famous result is reproducible and the instrument clears the conventional F-about-10 screening rule.
+
+The main finding also survives two modest changes in covariate adjustment. With absolute latitude included, the 2SLS coefficient is 0.996 and the first-stage F is 13.09. With Africa and Asia indicators included, the 2SLS coefficient is 0.839 and the first-stage F is 11.01. The estimates remain positive, appreciably larger than their corresponding OLS estimates (0.468 and 0.434), and the first stage remains above the stated threshold. Still, the continent-adjusted first stage is close enough to 10 to warrant more caution than the bivariate model.
+
+The sample perturbations are more revealing. Removing Australia, Canada, New Zealand, and the United States produces a 2SLS point estimate of 1.281, but the first-stage F falls to 8.65. On the requested rule of thumb this is weak identification, so the larger coefficient cannot be presented as a reliable confirmation that the effect strengthens without the neo-Europes. It also does not refute the original result: weak identification makes the IV estimate uninformative for that comparison. In the Africa-only sample, the first stage essentially disappears (coefficient -0.108; F=0.30). Its 2SLS estimate, 2.400, has a conventional standard error of 3.987 and is not credible evidence for a large African effect. The positive OLS association in Africa (0.302) is a different, non-causal estimand and does not repair the failed instrument.
+
+The manuscript may claim a reproducible, positive IV association in the AJR base sample that is retained after adding latitude or broad continent controls, conditional on the IV exclusion restriction. It may report that the IV estimate exceeds OLS in those identified specifications. It may not describe the relationship as established across regional or non-neo-European samples, infer a precise Africa-specific causal effect, or use the weakly identified estimates as corroboration. More fundamentally, first-stage strength addresses relevance, not the exclusion restriction: these regressions alone do not establish that settler mortality affects 1995 income only through institutions. The appropriate conclusion is therefore limited external robustness for the base-sample IV pattern, alongside meaningful fragility in where the instrument has usable variation.
+
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md b/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..0572682408e105493fba45de788a5c607a49488f
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md
+@@ -0,0 +1,9 @@
++# Memo: what the AJR base-sample stress tests support
++
++The packaged 64-country AJR base sample reproduces the headline contrast. In the bivariate model, the OLS association between protection against expropriation and log GDP per capita is 0.522. Instrumenting protection with log settler mortality raises the 2SLS estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-unit reduction in the protection measure, with a partial excluded-instrument F statistic of 22.95. Thus, within this particular bivariate cross-country specification, the famous result is reproducible and the instrument clears the conventional F-about-10 screening rule.
++
++The main finding also survives two modest changes in covariate adjustment. With absolute latitude included, the 2SLS coefficient is 0.996 and the first-stage F is 13.09. With Africa and Asia indicators included, the 2SLS coefficient is 0.839 and the first-stage F is 11.01. The estimates remain positive, appreciably larger than their corresponding OLS estimates (0.468 and 0.434), and the first stage remains above the stated threshold. Still, the continent-adjusted first stage is close enough to 10 to warrant more caution than the bivariate model.
++
++The sample perturbations are more revealing. Removing Australia, Canada, New Zealand, and the United States produces a 2SLS point estimate of 1.281, but the first-stage F falls to 8.65. On the requested rule of thumb this is weak identification, so the larger coefficient cannot be presented as a reliable confirmation that the effect strengthens without the neo-Europes. It also does not refute the original result: weak identification makes the IV estimate uninformative for that comparison. In the Africa-only sample, the first stage essentially disappears (coefficient -0.108; F=0.30). Its 2SLS estimate, 2.400, has a conventional standard error of 3.987 and is not credible evidence for a large African effect. The positive OLS association in Africa (0.302) is a different, non-causal estimand and does not repair the failed instrument.
++
++The manuscript may claim a reproducible, positive IV association in the AJR base sample that is retained after adding latitude or broad continent controls, conditional on the IV exclusion restriction. It may report that the IV estimate exceeds OLS in those identified specifications. It may not describe the relationship as established across regional or non-neo-European samples, infer a precise Africa-specific causal effect, or use the weakly identified estimates as corroboration. More fundamentally, first-stage strength addresses relevance, not the exclusion restriction: these regressions alone do not establish that settler mortality affects 1995 income only through institutions. The appropriate conclusion is therefore limited external robustness for the base-sample IV pattern, alongside meaningful fragility in where the instrument has usable variation.
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md b/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..8a52169055ebd310ed8a8a11d04bc1bce5858dc0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md
+@@ -0,0 +1,13 @@
++# AJR base-sample robustness checks
++
++All models use `ivdoctr::colonial` and `AER::ivreg` for 2SLS. The first-stage F is the partial nested-model F test for the excluded instrument, `logem4`, conditional on the controls shown. “Weak” uses the stated rule of thumb, F < 10. Coefficients are in log-income units per one-unit change in expropriation protection.
++
++| Specification | N | OLS: `avexpr` | 2SLS: `avexpr` | First-stage `logem4` coefficient | First-stage F | Identification flag |
++|---|---:|---:|---:|---:|---:|---|
++| Headline: no controls | 64 | 0.522 | 0.944 | -0.607 | 22.947 | Not weak |
++| Add latitude | 64 | 0.468 | 0.996 | -0.510 | 13.093 | Not weak |
++| Add continent controls | 64 | 0.434 | 0.839 | -0.533 | 11.006 | Not weak (borderline) |
++| Drop neo-Europes | 60 | 0.487 | 1.281 | -0.391 | 8.646 | **Weak** |
++| Africa only | 27 | 0.302 | 2.400 | -0.108 | 0.298 | **Weak** |
++
++The Africa-only 2SLS estimate is extremely imprecise (conventional SE 3.987) and should not be interpreted as evidence of a large effect. The drop-neo-Europe estimate is also weakly identified under the requested threshold.
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R b/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..d613e41239ee811ead90914281d1d248947a979b
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R
+@@ -0,0 +1,78 @@
++# Replication and robustness checks for AJR (2001), using ivdoctr's base sample.
++# 2SLS is estimated with AER::ivreg, which reports conventional IV standard errors.
++
++set.seed(20260717) # No stochastic steps are used; set for project convention.
++
++suppressPackageStartupMessages({
++  library(ivdoctr)
++  library(AER)
++})
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial) # The packaged object may be a data.table.
++
++# Each specification uses complete cases on its outcome, endogenous regressor,
++# excluded instrument, and included controls.  These are 64 observations except
++# where the indicated sample restriction applies.
++specifications <- list(
++  "Headline" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = character(0)
++  ),
++  "Latitude" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = "lat_abst"
++  ),
++  "Continents" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = c("africa", "asia")
++  ),
++  "Drop neo-Europes" = list(
++    keep = !(colonial$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++    controls = character(0)
++  ),
++  "Africa only" = list(
++    keep = colonial$africa == 1, controls = character(0)
++  )
++)
++
++fit_specification <- function(specification) {
++  controls <- specification$controls
++  vars_needed <- c("logpgp95", "avexpr", "logem4", controls)
++  dat <- colonial[specification$keep, vars_needed, drop = FALSE]
++  dat <- dat[complete.cases(dat), , drop = FALSE]
++
++  outcome_rhs <- paste(c("avexpr", controls), collapse = " + ")
++  first_stage_rhs <- paste(c("logem4", controls), collapse = " + ")
++  instrument_rhs <- paste(c("logem4", controls), collapse = " + ")
++
++  ols <- lm(as.formula(paste("logpgp95 ~", outcome_rhs)), data = dat)
++  # Included exogenous controls appear after |, instrumenting themselves.
++  iv <- AER::ivreg(
++    Formula::as.Formula(paste("logpgp95 ~", outcome_rhs, "|", instrument_rhs)),
++    data = dat
++  )
++  first_stage <- lm(as.formula(paste("avexpr ~", first_stage_rhs)), data = dat)
++  restricted_rhs <- if (length(controls)) paste(controls, collapse = " + ") else "1"
++  first_stage_restricted <- lm(
++    as.formula(paste("avexpr ~", restricted_rhs)), data = dat
++  )
++
++  # This nested-model F is the partial first-stage F for the excluded logem4.
++  excluded_f <- anova(first_stage_restricted, first_stage)$F[2]
++
++  data.frame(
++    n = nrow(dat),
++    ols = unname(coef(ols)["avexpr"]),
++    iv_2sls = unname(coef(iv)["avexpr"]),
++    first_stage_coefficient = unname(coef(first_stage)["logem4"]),
++    first_stage_f = excluded_f,
++    weak_identification = excluded_f < 10,
++    row.names = NULL
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, fit_specification))
++results <- cbind(specification = names(specifications), results)
++results[, c("ols", "iv_2sls", "first_stage_coefficient", "first_stage_f")] <-
++  lapply(results[, c("ols", "iv_2sls", "first_stage_coefficient", "first_stage_f")], round, 3)
++
++print(results, row.names = FALSE)
++cat("\nWeak identification is flagged where the partial first-stage F is below 10.\n")
+
+codex
+Completed and verified with `AER::ivreg`.
+
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R) — reproducible OLS, 2SLS, and partial first-stage F calculations.
+- [robustness-table.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md) — all five specifications with weak-ID flags.
+- [memo.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md) — cautious interpretation and claim boundaries.
+
+Headline: OLS = 0.522; 2SLS = 0.944; first-stage coefficient = −0.607; F = 22.947. Dropping neo-Europes is weakly identified (F = 8.646), and Africa-only has no usable first stage (F = 0.298).
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md b/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..0572682408e105493fba45de788a5c607a49488f
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md
+@@ -0,0 +1,9 @@
++# Memo: what the AJR base-sample stress tests support
++
++The packaged 64-country AJR base sample reproduces the headline contrast. In the bivariate model, the OLS association between protection against expropriation and log GDP per capita is 0.522. Instrumenting protection with log settler mortality raises the 2SLS estimate to 0.944. The first stage has the expected negative sign: a one-unit increase in log settler mortality predicts a 0.607-unit reduction in the protection measure, with a partial excluded-instrument F statistic of 22.95. Thus, within this particular bivariate cross-country specification, the famous result is reproducible and the instrument clears the conventional F-about-10 screening rule.
++
++The main finding also survives two modest changes in covariate adjustment. With absolute latitude included, the 2SLS coefficient is 0.996 and the first-stage F is 13.09. With Africa and Asia indicators included, the 2SLS coefficient is 0.839 and the first-stage F is 11.01. The estimates remain positive, appreciably larger than their corresponding OLS estimates (0.468 and 0.434), and the first stage remains above the stated threshold. Still, the continent-adjusted first stage is close enough to 10 to warrant more caution than the bivariate model.
++
++The sample perturbations are more revealing. Removing Australia, Canada, New Zealand, and the United States produces a 2SLS point estimate of 1.281, but the first-stage F falls to 8.65. On the requested rule of thumb this is weak identification, so the larger coefficient cannot be presented as a reliable confirmation that the effect strengthens without the neo-Europes. It also does not refute the original result: weak identification makes the IV estimate uninformative for that comparison. In the Africa-only sample, the first stage essentially disappears (coefficient -0.108; F=0.30). Its 2SLS estimate, 2.400, has a conventional standard error of 3.987 and is not credible evidence for a large African effect. The positive OLS association in Africa (0.302) is a different, non-causal estimand and does not repair the failed instrument.
++
++The manuscript may claim a reproducible, positive IV association in the AJR base sample that is retained after adding latitude or broad continent controls, conditional on the IV exclusion restriction. It may report that the IV estimate exceeds OLS in those identified specifications. It may not describe the relationship as established across regional or non-neo-European samples, infer a precise Africa-specific causal effect, or use the weakly identified estimates as corroboration. More fundamentally, first-stage strength addresses relevance, not the exclusion restriction: these regressions alone do not establish that settler mortality affects 1995 income only through institutions. The appropriate conclusion is therefore limited external robustness for the base-sample IV pattern, alongside meaningful fragility in where the instrument has usable variation.
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md b/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..8a52169055ebd310ed8a8a11d04bc1bce5858dc0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md
+@@ -0,0 +1,13 @@
++# AJR base-sample robustness checks
++
++All models use `ivdoctr::colonial` and `AER::ivreg` for 2SLS. The first-stage F is the partial nested-model F test for the excluded instrument, `logem4`, conditional on the controls shown. “Weak” uses the stated rule of thumb, F < 10. Coefficients are in log-income units per one-unit change in expropriation protection.
++
++| Specification | N | OLS: `avexpr` | 2SLS: `avexpr` | First-stage `logem4` coefficient | First-stage F | Identification flag |
++|---|---:|---:|---:|---:|---:|---|
++| Headline: no controls | 64 | 0.522 | 0.944 | -0.607 | 22.947 | Not weak |
++| Add latitude | 64 | 0.468 | 0.996 | -0.510 | 13.093 | Not weak |
++| Add continent controls | 64 | 0.434 | 0.839 | -0.533 | 11.006 | Not weak (borderline) |
++| Drop neo-Europes | 60 | 0.487 | 1.281 | -0.391 | 8.646 | **Weak** |
++| Africa only | 27 | 0.302 | 2.400 | -0.108 | 0.298 | **Weak** |
++
++The Africa-only 2SLS estimate is extremely imprecise (conventional SE 3.987) and should not be interpreted as evidence of a large effect. The drop-neo-Europe estimate is also weakly identified under the requested threshold.
+diff --git a/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R b/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..d613e41239ee811ead90914281d1d248947a979b
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R
+@@ -0,0 +1,78 @@
++# Replication and robustness checks for AJR (2001), using ivdoctr's base sample.
++# 2SLS is estimated with AER::ivreg, which reports conventional IV standard errors.
++
++set.seed(20260717) # No stochastic steps are used; set for project convention.
++
++suppressPackageStartupMessages({
++  library(ivdoctr)
++  library(AER)
++})
++
++data(colonial, package = "ivdoctr")
++colonial <- as.data.frame(colonial) # The packaged object may be a data.table.
++
++# Each specification uses complete cases on its outcome, endogenous regressor,
++# excluded instrument, and included controls.  These are 64 observations except
++# where the indicated sample restriction applies.
++specifications <- list(
++  "Headline" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = character(0)
++  ),
++  "Latitude" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = "lat_abst"
++  ),
++  "Continents" = list(
++    keep = rep(TRUE, nrow(colonial)), controls = c("africa", "asia")
++  ),
++  "Drop neo-Europes" = list(
++    keep = !(colonial$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
++    controls = character(0)
++  ),
++  "Africa only" = list(
++    keep = colonial$africa == 1, controls = character(0)
++  )
++)
++
++fit_specification <- function(specification) {
++  controls <- specification$controls
++  vars_needed <- c("logpgp95", "avexpr", "logem4", controls)
++  dat <- colonial[specification$keep, vars_needed, drop = FALSE]
++  dat <- dat[complete.cases(dat), , drop = FALSE]
++
++  outcome_rhs <- paste(c("avexpr", controls), collapse = " + ")
++  first_stage_rhs <- paste(c("logem4", controls), collapse = " + ")
++  instrument_rhs <- paste(c("logem4", controls), collapse = " + ")
++
++  ols <- lm(as.formula(paste("logpgp95 ~", outcome_rhs)), data = dat)
++  # Included exogenous controls appear after |, instrumenting themselves.
++  iv <- AER::ivreg(
++    Formula::as.Formula(paste("logpgp95 ~", outcome_rhs, "|", instrument_rhs)),
++    data = dat
++  )
++  first_stage <- lm(as.formula(paste("avexpr ~", first_stage_rhs)), data = dat)
++  restricted_rhs <- if (length(controls)) paste(controls, collapse = " + ") else "1"
++  first_stage_restricted <- lm(
++    as.formula(paste("avexpr ~", restricted_rhs)), data = dat
++  )
++
++  # This nested-model F is the partial first-stage F for the excluded logem4.
++  excluded_f <- anova(first_stage_restricted, first_stage)$F[2]
++
++  data.frame(
++    n = nrow(dat),
++    ols = unname(coef(ols)["avexpr"]),
++    iv_2sls = unname(coef(iv)["avexpr"]),
++    first_stage_coefficient = unname(coef(first_stage)["logem4"]),
++    first_stage_f = excluded_f,
++    weak_identification = excluded_f < 10,
++    row.names = NULL
++  )
++}
++
++results <- do.call(rbind, lapply(specifications, fit_specification))
++results <- cbind(specification = names(specifications), results)
++results[, c("ols", "iv_2sls", "first_stage_coefficient", "first_stage_f")] <-
++  lapply(results[, c("ols", "iv_2sls", "first_stage_coefficient", "first_stage_f")], round, 3)
++
++print(results, row.names = FALSE)
++cat("\nWeak identification is flagged where the partial first-stage F is below 10.\n")
+
+tokens used
+36,200
+Completed and verified with `AER::ivreg`.
+
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex/script.R) — reproducible OLS, 2SLS, and partial first-stage F calculations.
+- [robustness-table.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex/robustness-table.md) — all five specifications with weak-ID flags.
+- [memo.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/high-ajr-codex/memo.md) — cautious interpretation and claim boundaries.
+
+Headline: OLS = 0.522; 2SLS = 0.944; first-stage coefficient = −0.607; F = 22.947. Dropping neo-Europes is weakly identified (F = 8.646), and Africa-only has no usable first stage (F = 0.298).

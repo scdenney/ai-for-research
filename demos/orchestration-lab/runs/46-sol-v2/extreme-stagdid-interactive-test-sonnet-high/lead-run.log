@@ -1,0 +1,25 @@
+ATT estimates (ATT, SE):
+Naive TWFE: -0.03654894, 0.01326516
+Callaway-Sant'Anna (not-yet-treated): -0.03976363, 0.01239835
+Callaway-Sant'Anna (never-treated): -0.03995128, 0.01186957
+Sun-Abraham: -0.03995128, 0.01179628
+Roth-Sant'Anna staggered: -0.04705391, 0.01161384
+
+Bacon type shares and weighted contributions:
+                     type     weight  contribution
+ Earlier vs Later Treated 0.08330135 -0.0016480188
+ Later vs Earlier Treated 0.05392423  0.0002482489
+     Treated vs Untreated 0.86277442 -0.0351491668
+Bacon weights sum: 1.000000000000
+Bacon weighted sum: -0.036548936674; TWFE: -0.036548936674
+
+Never-treated C&S dynamic estimates (pointwise 95% intervals):
+ event_time         att         se        lower        upper
+         -3  0.02502183 0.01849176 -0.011221358  0.061265018
+         -2  0.02445874 0.01352986 -0.002059293  0.050976783
+         -1  0.00000000 0.00000000  0.000000000  0.000000000
+          0 -0.01993182 0.01171654 -0.042895818  0.003032184
+          1 -0.05095737 0.01776381 -0.085773791 -0.016140943
+          2 -0.13725874 0.03983801 -0.215339803 -0.059177675
+          3 -0.10081136 0.03619611 -0.171754429 -0.029868297
+Joint pretrend p-value: 0.16812000

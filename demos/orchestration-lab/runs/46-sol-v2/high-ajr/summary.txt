@@ -1,0 +1,10 @@
+Completed all requested deliverables:
+
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/high-ajr/script.R)
+- [robustness-table.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/high-ajr/robustness-table.md)
+- [memo.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/high-ajr/memo.md)
+- [routing-log.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/high-ajr/routing-log.md)
+
+Headline results: OLS = 0.522, 2SLS = 0.944, first stage = −0.607, F = 22.95. Identification remains above the specified threshold with latitude and continent controls, becomes weak after dropping the neo-Europes (F = 8.65), and collapses in Africa only (F = 0.30).
+
+The script uses `AER::ivreg`, runs successfully and deterministically, and generates the 370-word memo and robustness table. Terra and Claude `fable` independently reproduced the results; the final advisor review found no material errors.

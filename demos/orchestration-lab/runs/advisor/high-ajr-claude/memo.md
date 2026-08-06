@@ -1,54 +1,46 @@
-# Memo: what the AJR replication can and cannot support
+# Memo: What the AJR replication is entitled to claim
 
-The headline replicates. On the 64-country base sample, OLS of `logpgp95` on
-`avexpr` gives 0.52 (se 0.06); instrumenting `avexpr` with `logem4` gives a
-2SLS coefficient of 0.94 (se 0.16) — matching AJR's published estimate and,
-as advertised, well above OLS. The first stage is strong here: `avexpr` falls
-0.61 points for every log-point of settler mortality, with F = 23, comfortably
-above the weak-instrument threshold. Adding latitude (spec 2, F = 13) or
-continent dummies (spec 3, F = 11) leaves the story qualitatively intact — the
-2SLS coefficient stays in the 0.8–1.0 range and the instrument remains
-(barely, for spec 3) above the conventional F = 10 cutoff. So the core claim —
-that institutions instrumented by settler mortality predict long-run income,
-with 2SLS exceeding OLS — survives the two "add plausible controls" stress
-tests.
+**The headline replicates.** On the 64-country base sample, OLS of `logpgp95` on
+`avexpr` gives 0.522; instrumenting `avexpr` with `logem4` gives a 2SLS coefficient
+of 0.944 — nearly double OLS, matching AJR's qualitative pattern of 2SLS exceeding
+OLS. The first stage is strong: `avexpr` falls 0.607 points per log-point of
+settler mortality, with F = 22.95, comfortably
+above the weak-instrument threshold of 10. On this evidence, the manuscript can
+claim settler mortality is a relevant instrument for institutions in the base
+sample, and that 2SLS substantially exceeds OLS.
 
-The two sample-restriction stress tests fare differently, and the difference
-matters. Dropping the four neo-Europes (AUS, CAN, NZL, USA) drops the
-first-stage F to 8.65 — below the rule-of-thumb cutoff of 10, and squarely
-between the Stock-Yogo 15% and 25% size-distortion thresholds — while the
-2SLS point estimate rises to 1.28 with a much wider SE (0.36 vs. 0.16). That
-specification is directionally consistent with the headline but weakly
-identified, and its point estimate needs a weak-instrument caveat rather than
-being taken at face value. Restricting to Africa is a different case
-entirely: the first-stage coefficient on `logem4` shrinks to -0.11 and F
-collapses to 0.30, essentially no instrument power. The resulting 2SLS
-"estimate" of 2.40 (se 3.99) is not a more localized version of the headline
-effect — it is the output of a regression with no working instrument. With a
-single just-identified instrument, a weak first stage leaves the sampling
-distribution of the 2SLS estimator badly behaved and invalidates conventional
-SEs/CIs, so the Africa number should not be quoted, compared to the baseline,
-or read as evidence the effect is larger or smaller in Africa specifically.
+**Adding controls holds up, barely.** Adding latitude (spec a) leaves both the
+first stage (F = 13.09) and the 2SLS estimate (0.996, SE = 0.222) intact —
+essentially unchanged from the headline (0.944, SE = 0.157; ~0.2 SE apart).
+Adding continent dummies (spec b) pushes the first-stage F
+down to 11.01, just above the conventional threshold, while the 2SLS estimate
+(0.839) stays in the same range as the headline. Both are still usable, but
+continent dummies are already eating into instrument strength — this is a
+specification to flag as border, not to lean on for a stronger causal claim than
+the headline itself.
 
-**What the manuscript may claim:** the settler-mortality instrument for
-institutions produces a 2SLS estimate that exceeds OLS and is robust to
-adding latitude and continent controls, on the AJR base sample of 64
-countries. That is a genuine, reproducible finding.
+**Two stress tests break the instrument.** Dropping the four neo-Europes (AUS,
+CAN, NZL, USA) cuts the first-stage F to 8.65 — below 10 — and the 2SLS estimate
+moves to 1.281 (SE = 0.358), within one standard error of the headline.
+Restricting to Africa collapses the first stage almost entirely (F = 0.30):
+settler mortality has essentially no power to predict institutions within that
+subsample, and the resulting 2SLS estimate of 2.400 is not a credible causal
+estimate of anything — it is what a weak instrument produces when the denominator
+of the IV ratio is close to zero (its Anderson-Rubin confidence set is essentially
+unbounded, confirming this directly). Neither large 2SLS coefficient is evidence
+the true effect exceeds the headline: a collapsed first stage cannot confirm a
+stronger effect, and by the same logic cannot overturn the headline either.
 
-**What it may not claim:** that this result is confirmed, or overturned,
-within Africa. The instrument does not lose power there for lack of
-variation — the standard deviation of `logem4` within Africa is 1.22, almost
-identical to the full-sample 1.26, and mortality still ranges over 2.7–8.0
-log points within the continent. It loses power because the
-mortality-institutions slope goes flat (-0.11 versus -0.61 in the full
-sample): identification rides on the cross-continent gradient and the
-neo-Europe anchor points, and that relationship largely disappears within
-Africa despite ample variation in the instrument, so neither a large nor a
-small 2SLS coefficient there is informative. Excluding the neo-Europes is a
-milder case — F = 8.65 is marginal rather than dead, so that specification's
-1.28 estimate is directionally consistent with the headline but weakly
-identified, and should carry a weak-instrument caveat rather than being read
-as a confirmed, precisely estimated effect. The paper cannot speak to
-whether the effect holds within more homogeneous subpopulations, or survives
-excluding its most influential observations, without a stronger or different
-instrument.
+**What the manuscript may claim:** that AJR's headline pattern (2SLS > OLS, with a
+first-stage F well above 10) reproduces in the base sample and survives adding
+latitude, and survives — marginally — adding continent controls. **What it may
+not claim:** that the effect is even larger among non-neo-Europe countries or
+within Africa specifically. Those two specifications should be reported as
+diagnostic (instrument strength has failed), not as robustness checks that
+strengthen the headline number. All four checks above speak to instrument
+*relevance* and sample composition, not to the *exclusion restriction* — untestable
+here, in a just-identified model. The paper's causal claim thus rests on the full,
+latitude-controlled sample *conditional on the maintained assumption that settler
+mortality affects 1995 income only through institutions*, not directly via disease
+environment or geography — and does not extend to African-only identification with
+this instrument.

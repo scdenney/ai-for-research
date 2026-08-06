@@ -1,14 +1,11 @@
-The memo is broadly right, but it overstates “largest observed span” without testing that ranking. A 0.251 crime span versus 0.237 for driving does not establish that crime is largest; report the estimated difference in spans with a respondent-clustered confidence interval (or say only that the two are similar). Do not call crime the largest observed contrast in the revised headline unless that comparison is supported.
+The core judgment is sound, but I would change the deliverables in four places:
 
-Also correct the conceptual response to the reviewer: re-referencing cannot change an attribute’s reference-invariant range of level means (or equivalently, the max–min AMCE contrast). It can change the apparent importance only if the paper improperly ranks individual reference-coded coefficients. Say that plainly; otherwise the response concedes too much to the reviewer’s premise.
+1. Report all marginal means. The script computes them but the table and figure expose only crime MMs. This conflicts with both the brief and the memo’s promise to present “marginal means for every level.” Add an all-attribute MM section to `sensitivity-table.md` and make the single figure an all-level MM plot; leave the crime re-referencing evidence in the table.
 
-Before submission, make these changes:
+2. Soften the cross-attribute ranking further. Crime’s MM span (0.251) is only slightly larger than commuting’s (0.237), and no uncertainty is reported for their difference. Say that crime and commuting exhibit the largest observed spreads, not that crime is demonstrably the most important attribute. The data establish a strong crime contrast, not a unique first-place ranking.
 
-- Replace “this was the largest observed marginal-mean contrast” with “this was among the largest observed contrasts and was very close to commuting time,” unless a formal comparison supports the ranking.
-- Define the comparison set: “among the attributes and levels included in this experiment.” The current wording risks a general claim about what drives community choice.
-- Report the multi-level sensitivity more completely: name every racial-composition level, show both reference codings or, more efficiently, report all four MMs and the invariant max–min range. One set of unexplained coefficients is not a persuasive sensitivity demonstration.
-- State that all uncertainty estimates account for repeated profile evaluations within respondents. This is essential if the reported intervals do not already make that transparent.
-- Avoid “corrected marginal mean” unless the memo briefly explains what was corrected and why; otherwise it invites a new methodological question.
-- Fix the formatting inconsistency in the reversed AMCE CI: write `+0.251 (95% CI [0.168, 0.334])`.
+3. Describe MMs more precisely. Replace “probability of selection … for a profile with” with “average probability of selection for profiles assigned” each crime level. An MM averages over the other randomized attributes; it is not the probability for a fully specified profile.
 
-The revised claim should be: “Within the experimentally randomized levels, respondents preferred communities with crime 20% below rather than 20% above the national average. This difference was large and among the largest attribute-level contrasts observed, comparable to commuting time.”
+4. Make the manuscript concession explicit: reference changes do not alter the underlying pairwise comparisons, only which contrasts appear as coefficients. For multi-level attributes, coefficient-based rankings are coding-dependent; for binary crime, re-referencing merely reverses the same contrast. This distinction is sharper than saying only that the “coefficient vector changes.”
+
+The revised headline is appropriately cautious and should remain. I would add one sentence immediately afterward: “These analyses do not establish that violent crime is more influential than commuting or that it would dominate under different attribute ranges.”

@@ -23,3 +23,10 @@ This demo commits no data files. Every run loads real, public, package-shipped d
 - **Install:** `install.packages("causaldata")` (runs also use `MatchIt`, `sandwich`, `lmtest`)
 - **Load:** `library(causaldata)` then `nsw_mixtape` / `cps_mixtape`
 - **Cite:** LaLonde (1986); Dehejia and Wahba (1999, 2002); Smith and Todd (2005); plus the causaldata package.
+
+## Extreme rung (modern staggered-DiD reconciliation)
+
+- **Source:** the Callaway-Sant'Anna (2021) minimum-wage/teen-employment county panel — 500 US counties, 2003–2007, staggered adoption in 2004/2006/2007 — as shipped in the [did](https://cran.r-project.org/package=did) R package's own worked example (`mpdta`). Cross-checked with `fixest::sunab`, `staggered::staggered`, and `bacondecomp::bacon`, all CRAN.
+- **Install:** `install.packages(c("did", "fixest", "staggered", "bacondecomp"))`
+- **Load:** `library(did); data(mpdta)`
+- **Cite:** Callaway and Sant'Anna (2021), "Difference-in-Differences with Multiple Time Periods," *Journal of Econometrics* 225(2); Goodman-Bacon (2021), "Difference-in-Differences with Variation in Treatment Timing," *Journal of Econometrics* 225(2); Sun and Abraham (2021), *Journal of Econometrics* 225(2); Roth and Sant'Anna, the `staggered` package.

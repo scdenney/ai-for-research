@@ -1,85 +1,108 @@
-library(projoint)
-library(ggplot2)
-library(dplyr)
+# --- setup ---
+set.seed(1)
+suppressMessages({
+  library(projoint)
+  library(ggplot2)
+  library(dplyr)
+})
 
-okabe_ito <- c("#000000","#E69F00","#56B4E9","#009E73","#F0E442","#0072B2","#D55E00","#CC79A7")
+# Okabe-Ito palette (colorblind-safe), declared up top
+okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
+                "#0072B2", "#D55E00", "#CC79A7", "#000000")
 
-theme_amce <- theme_minimal(base_size = 11) +
+theme_amce <- theme_minimal(base_size = 12) +
   theme(
     panel.grid.minor = element_blank(),
-    strip.text = element_text(face = "bold"),
-    strip.text.y.left = element_text(angle = 0, face = "bold", size = 9, hjust = 1),
-    strip.placement = "outside",
+    panel.grid.major.y = element_blank(),
     legend.position = "none",
-    plot.title = element_blank()
+    axis.title.y = element_blank(),
+    plot.margin = margin(10, 15, 10, 10),
+    strip.text.y = element_text(angle = 0, hjust = 0)
   )
 
-set.seed(1234)
-
+# --- data ---
 data(exampleData1)
 out <- reshape_projoint(exampleData1,
   .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
-fit <- projoint(out, .estimand = "amce", .structure = "profile_level")
-est <- fit$estimates          # tibble
-labs <- out$labels            # data.frame: attribute, level, attribute_id, level_id
 
-# Keep only corrected AMCE estimates
-est_corrected <- est %>% filter(estimand == "amce_corrected")
+# --- estimate AMCEs (profile-level), clustered SEs at respondent level ---
+# projoint() auto-clusters analytical SEs on the respondent id column by
+# default (.auto_cluster = TRUE), confirmed via cluster_by = "id" in output.
+# We report the IRR/measurement-error-corrected AMCE (amce_corrected), which
+# is projoint's core estimator, rather than the uncorrected OLS AMCE.
+fit <- projoint(out, .structure = "profile_level", .estimand = "amce",
+                 .se_method = "analytical")
 
-# Join to labels for human-readable attribute/level
-plot_df <- est_corrected %>%
-  left_join(labs, by = c("att_level_choose" = "level_id")) %>%
-  mutate(is_ref = FALSE) %>%
-  select(attribute, level, estimate, se, conf.low, conf.high, is_ref, att_level_choose)
+est <- fit$estimates %>%
+  filter(estimand == "amce_corrected")
 
-# Build reference rows: one per attribute, its level1
-ref_rows <- labs %>%
-  filter(grepl("level1$", level_id)) %>%
-  mutate(
+# --- step 1: join to labels for human-readable text ---
+labels <- fit$labels
+
+est_joined <- est %>%
+  left_join(labels, by = c("att_level_choose" = "level_id")) %>%
+  transmute(
+    attribute = attribute,
+    level = level,
+    estimate,
+    se,
+    conf.low,
+    conf.high,
+    attribute_id,
+    level_id = att_level_choose
+  )
+
+# --- step 2: add baseline (level1) rows for each attribute ---
+baseline_rows <- labels %>%
+  filter(grepl(":level1$", level_id)) %>%
+  transmute(
+    attribute = attribute,
+    level = level,
     estimate = 0,
     se = NA_real_,
-    conf.low = 0,
-    conf.high = 0,
-    is_ref = TRUE,
-    att_level_choose = level_id
-  ) %>%
-  select(attribute, level, estimate, se, conf.low, conf.high, is_ref, att_level_choose)
+    conf.low = NA_real_,
+    conf.high = NA_real_,
+    attribute_id,
+    level_id
+  )
 
-plot_df <- bind_rows(plot_df, ref_rows)
+combined <- bind_rows(est_joined, baseline_rows)
 
-# Extract numeric attribute index and level index for ordering
-plot_df <- plot_df %>%
+# sort by attribute_id then level_id (numeric-aware)
+combined <- combined %>%
   mutate(
-    att_num = as.numeric(sub("^att(\\d+):level\\d+$", "\\1", att_level_choose)),
-    level_num = as.numeric(sub("^att\\d+:level(\\d+)$", "\\1", att_level_choose))
+    attribute_num = as.numeric(gsub("att", "", attribute_id)),
+    level_num = as.numeric(gsub(".*level", "", level_id))
   ) %>%
-  arrange(att_num, level_num)
+  arrange(attribute_num, level_num) %>%
+  select(-attribute_num, -level_num)
 
-# Build ordered factor for y-axis: reference (level1) first within each attribute group,
-# and attributes appear as contiguous groups. Reverse so that first row plots at top
-# when used with facet_grid + coord where category order top-to-bottom follows factor levels reversed.
-plot_df <- plot_df %>%
-  mutate(level_factor = factor(att_level_choose, levels = rev(att_level_choose)))
+# --- step 3: print full table + tau + n ---
+print(as.data.frame(combined), row.names = FALSE)
+cat("\nfit$tau (IRR estimate):", fit$tau, "\n")
+cat("Number of rows in analysis data (out$data):", nrow(out$data), "\n")
+cat("Number of unique respondents:",
+    length(unique(out$data[[grep("id|ResponseId", names(out$data), ignore.case = TRUE, value = TRUE)[1]]])), "\n")
 
-plot_df <- plot_df %>%
-  mutate(attribute = factor(attribute, levels = unique(attribute[order(att_num)])))
+# --- step 4: build dot-and-whisker plot ---
+plot_df <- combined %>%
+  mutate(
+    attribute_num = as.numeric(gsub("att", "", attribute_id)),
+    level_num = as.numeric(gsub(".*level", "", level_id))
+  ) %>%
+  arrange(attribute_num, level_num) %>%
+  mutate(level_f = factor(level, levels = rev(unique(level))))
 
-dir.create("figures", showWarnings = FALSE)
-
-p <- ggplot(plot_df, aes(x = estimate, xmin = conf.low, xmax = conf.high, y = level_factor)) +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "grey60") +
-  geom_pointrange(aes(color = is_ref)) +
-  scale_color_manual(values = c(`FALSE` = "#0072B2", `TRUE` = "#000000")) +
-  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y",
-             labeller = label_wrap_gen(width = 18)) +
-  scale_y_discrete(labels = setNames(plot_df$level, plot_df$level_factor)) +
-  labs(x = "AMCE on probability of profile selection", y = NULL) +
+p <- ggplot(plot_df, aes(x = estimate, y = level_f, color = attribute)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_point(size = 2) +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
+  scale_color_manual(values = okabe_ito[1:length(unique(plot_df$attribute))]) +
+  facet_grid(attribute ~ ., scales = "free_y", space = "free_y",
+             labeller = label_wrap_gen(width = 15)) +
+  labs(x = "AMCE (change in probability of profile choice)") +
   theme_amce
 
-ggsave("figures/amce-dotwhisker.png", plot = p, width = 9.5, height = 9, dpi = 300, bg = "white")
-
-write.csv(
-  plot_df %>% select(attribute, level, estimate, se, conf.low, conf.high, is_ref),
-  "estimates.csv",
-  row.names = FALSE
-)
+# --- step 5: save ---
+dir.create("figures", showWarnings = FALSE)
+ggsave("figures/amce-dotwhisker.png", p, width = 8, height = 9, dpi = 320)

@@ -4,104 +4,63 @@
 
 | Workstream | Owner | Why this owner | Acceptance check |
 |---|---|---|---|
-| Estimand, sample, and diagnostic design | Sol (lead, direct) | The definition of comparable samples, controls, and weak-identification evidence required analytical judgment and governed all downstream work. | Each specification uses one complete-case sample for OLS, IV, and first stage; the excluded-instrument partial F comes from the specification-specific first stage. |
-| Mechanical estimation and table generation | Terra out-of-band | The implementation was bounded by fixed formulas, restrictions, outputs, and objective runtime checks. | `Rscript script.R` succeeds; five rows are produced; reruns are byte-identical; restrictions and weak flags are correct. |
-| Interpretation and claim calibration | Sol (lead, direct) | Distinguishing non-robustness from weak-IV inconclusiveness and bounding the causal claim required lead-level judgment. | Memo is roughly 400 words, matches the estimates, and neither confirms nor overturns the result from weakly identified specifications. |
-| Independent artifact audit | Terra out-of-band | Static review and routine recomputation were bounded verification work and benefited from a fresh context. | Formulas, samples, table, memo, and constraints checked; numerical recomputation attempted independently. |
-| Integration and final verification | Sol (lead, direct) | The lead retained end-to-end accountability and had to resolve the verifier's sandbox limitation. | Independent all-specification recomputation matches every reported value; required files exist; constraints and routing record are complete. |
+| Estimand and specification design | Sol (lead, direct) | The meaning of the perturbations, same-sample rule, excluded-instrument partial F, and weak-IV interpretation required the central analytical judgment. | Five non-cumulative specifications; identical samples within each OLS/2SLS/first-stage row; controls included on both sides of the IV formula; F is the nested-test partial F. |
+| Deterministic R implementation and initial table | Terra out-of-band | The model contract was fixed and implementation was bounded, mechanical, and objectively testable. | `Rscript script.R` exits 0; five rows; `AER::ivreg`; partial F equals the squared first-stage t; only F < 10 rows are flagged. |
+| Memo and claim calibration | Sol (lead, direct) | The inferential distinction between a failed estimate and a failed first stage, and the resulting claim boundary, were substantive judgments. | Approximately 400 words; distinguishes full-sample survival from weakly identified restricted samples; does not treat weak-IV estimates as confirming or overturning the headline. |
+| Independent artifact review | Terra out-of-band | A separate bounded pass could inspect the implementation, table, and memo for omissions without sharing the implementation context. | Static logic and brief-compliance audit; intended independent numerical recomputation. The read-only sandbox blocked R temporary files, so Sol completed the numerical reconciliation directly. |
+| Integration and final acceptance | Sol (lead, direct) | End-to-end accountability and resolution of verifier/tool friction belong to the lead. | Deterministic rerun, independent five-row recomputation, exact weak flags, memo length, required files, and Markdown/table checks all pass. |
 
 ## Out-of-band calls
 
-### 1. Mechanical implementation — tokens used: 33,484
+### 1. Detached implementation attempt
+
+Exact command:
 
 ```bash
-codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" 'Objective:
-Create the deterministic R estimation artifact and the Markdown robustness table required by BRIEF.md.
-
-Inputs and authoritative paths:
-- Read ./BRIEF.md completely.
-- Data are loaded only with library(ivdoctr); data(colonial, package = "ivdoctr").
-- AER is confirmed available.
-
-In scope:
-- Write only ./script.R and ./robustness-table.md.
-- Implement exactly five specifications: Base (no controls); Latitude (lat_abst); Continent controls (africa + asia); Drop neo-Europes (exclude AUS, CAN, NZL, USA by shortnam, no added controls); Africa only (africa == 1, no added controls).
-- For each specification, build one estimation data frame by applying the restriction and complete.cases to the outcome, endogenous regressor, excluded instrument, and that specification’s controls. Fit OLS and IV on this identical sample.
-- OLS: lm(logpgp95 ~ avexpr + controls).
-- IV: AER::ivreg(logpgp95 ~ avexpr + controls | logem4 + controls).
-- First stage: lm(avexpr ~ logem4 + controls) on that same data. Record the logem4 coefficient.
-- Compute the conventional partial F for the excluded instrument by anova(restricted first stage without logem4, unrestricted first stage with logem4), extracting the F statistic. With one excluded instrument this is the standard first-stage excluded-instrument F.
-- Mark F < 10 as weak. Preserve the numerical IV estimate in the table for transparency but label weak cases explicitly and ensure the note says weak-spec IV point estimates are not reliable causal estimates.
-- Table must have one row/specification and columns sufficient to show N, OLS avexpr estimate, 2SLS avexpr estimate, first-stage logem4 coefficient, first-stage F, identification status. Use sensible precision and one Markdown table only.
-- script.R must be self-contained, declare libraries at top, include set.seed() before estimation even though deterministic, generate robustness-table.md when run, and state/use the AER::ivreg path. No figure.
-
-Out of scope:
-- Do not write memo.md, routing-log.md, logs, figures, or any other file.
-- Do not interpret manuscript claims beyond concise table notes.
-- No web, no package installation, no commits.
-
-Constraints and invariants:
-- Current leaf only. Preserve unrelated files.
-- Follow BRIEF.md exactly.
-- Do not use robust/clustered standard errors; no SEs are requested.
-- Do not substitute ivreg diagnostic output for the explicitly computed first-stage partial F.
-
-Write ownership:
-Exclusive ownership of script.R and robustness-table.md. The shared workspace may change; reread inputs immediately before editing. Use apply_patch for edits.
-
-Expected artifact:
-A clean self-contained script.R and its generated robustness-table.md.
-
-Acceptance checks:
-Run Rscript script.R successfully. Verify exactly five rows, each OLS/IV pair uses identical N, restrictions are correct, Africa-only has 27 observations before any missingness, and rerunning produces identical table bytes. Report relevant numerical results and file paths.
-
-Return format:
-Conclusion, evidence/check output, changed files, residual risk.' < /dev/null > terra-implementation.log 2>&1
+codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" 'Objective: implement the deterministic AJR robustness analysis specified below. Inputs and authoritative paths: BRIEF.md and the ivdoctr colonial dataset in the current directory context. In scope: create only script.R and robustness-table.md. Out of scope: memo.md, routing-log.md, figures, web access, package installation, edits outside the current directory. Constraints and invariants: use Rscript; use AER::ivreg because AER is installed; load packages and declare any constants at the top; set.seed before stochastic code although this analysis is deterministic; estimate exactly five separate specifications: (1) bivariate full sample, (2) full sample plus lat_abst, (3) full sample plus africa and asia, (4) bivariate after excluding shortnam in AUS CAN NZL USA, (5) bivariate restricted to africa == 1. For every specification construct one complete-case estimation sample using outcome logpgp95, endogenous regressor avexpr, excluded instrument logem4, and that specification controls/filters, then use exactly that sample for OLS, IV, and first stage. OLS is logpgp95 on avexpr plus controls. IV is the same structural equation, instrumenting avexpr with logem4 while including the same exogenous controls in both sides of the ivreg formula. First stage is avexpr on logem4 plus controls. Compute the excluded-instrument partial first-stage F by comparing the restricted first stage without logem4 to the unrestricted first stage, not the overall-model F; with one excluded instrument it should equal the squared t statistic. Flag F < 10 as weak. The Markdown table must have one row per specification and report N, OLS coefficient on avexpr, 2SLS coefficient on avexpr, first-stage coefficient on logem4, excluded-instrument partial F, and weak-identification status. Do not treat weak-IV 2SLS estimates as reliable. script.R must itself write robustness-table.md so rerunning it reproduces the table. Use clear rounding while retaining internal full precision. Acceptance checks: Rscript script.R exits zero; 5 rows exist; each OLS/IV pair has identical N; partial F agrees with squared first-stage t within numerical tolerance; table flags precisely F < 10; table states AER::ivreg path and how F was calculated. Return format in the log: conclusion, commands/tests run, changed files, and residual risk. Implement the deliverables directly; do not invoke any other skill, advisory consult, or sub-orchestration.' < /dev/null > terra-implementation.log 2>&1 & echo $!
 ```
 
-### 2. Independent verification — tokens used: 56,775
+`tokens used: 0` — the detached process did not persist, produced no session, log content, or artifact, and therefore reported no token footer.
+
+### 2. Managed implementation run
+
+Exact command:
 
 ```bash
-codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox read-only --skip-git-repo-check -C "$PWD" 'Objective:
-Independently audit the completed AJR replication artifacts against BRIEF.md. This is a verification task, not implementation.
-
-Inputs and authoritative paths:
-Read ./BRIEF.md, ./script.R, ./robustness-table.md, and ./memo.md. Load the local ivdoctr colonial data and run read-only R commands as needed.
-
-In scope:
-- Check all five specification definitions and restrictions.
-- Check that OLS and AER::ivreg formulas use the same controls and same complete-case sample per specification.
-- Independently recompute OLS avexpr coefficients, IV avexpr coefficients, first-stage logem4 coefficients, excluded-instrument partial F statistics, N, and weak flags.
-- Check table values/rounding against recomputation.
-- Check memo claims against results, especially treatment of F < 10 cases as inconclusive rather than confirming or overturning.
-- Check self-contained execution, deterministic output, the stated AER path, approximate 400-word length, one Markdown table, no required deliverable missing, and no brief violation.
-
-Out of scope:
-- Do not edit or create any file. Do not propose stylistic rewrites unless they fix a factual or constraint defect.
-- No web, package installation, commits, or writes outside normal temporary system behavior.
-
-Constraints and invariants:
-The workspace is shared and may change; reread every artifact immediately before checks. Treat BRIEF.md as authoritative. Conventional F < 10 flagging is the requested rule; do not demand alternative weak-IV thresholds or unrequested standard errors.
-
-Write ownership:
-Read-only. Write no project artifact; return findings only in stdout.
-
-Expected artifact:
-A concise audit report in this call’s captured log.
-
-Acceptance checks:
-Give PASS/FAIL for (1) formulas/samples, (2) recomputed numerics, (3) weak-IV labeling/interpretation, (4) deliverable/form constraints. If any failure, cite exact file/line and exact correction. Distinguish defects from optional enhancements.
-
-Return format:
-Conclusion, evidence with recomputed values, failures if any, residual risk.' < /dev/null > terra-verification.log 2>&1
+codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox workspace-write --skip-git-repo-check -C "$PWD" 'Objective: implement the deterministic AJR robustness analysis specified below. Inputs and authoritative paths: BRIEF.md and the ivdoctr colonial dataset in the current directory context. In scope: create only script.R and robustness-table.md. Out of scope: memo.md, routing-log.md, figures, web access, package installation, edits outside the current directory. Constraints and invariants: use Rscript; use AER::ivreg because AER is installed; load packages and declare any constants at the top; set.seed before stochastic code although this analysis is deterministic; estimate exactly five separate specifications: (1) bivariate full sample, (2) full sample plus lat_abst, (3) full sample plus africa and asia, (4) bivariate after excluding shortnam in AUS CAN NZL USA, (5) bivariate restricted to africa == 1. For every specification construct one complete-case estimation sample using outcome logpgp95, endogenous regressor avexpr, excluded instrument logem4, and that specification controls/filters, then use exactly that sample for OLS, IV, and first stage. OLS is logpgp95 on avexpr plus controls. IV is the same structural equation, instrumenting avexpr with logem4 while including the same exogenous controls in both sides of the ivreg formula. First stage is avexpr on logem4 plus controls. Compute the excluded-instrument partial first-stage F by comparing the restricted first stage without logem4 to the unrestricted first stage, not the overall-model F; with one excluded instrument it should equal the squared t statistic. Flag F < 10 as weak. The Markdown table must have one row per specification and report N, OLS coefficient on avexpr, 2SLS coefficient on avexpr, first-stage coefficient on logem4, excluded-instrument partial F, and weak-identification status. Do not treat weak-IV 2SLS estimates as reliable. script.R must itself write robustness-table.md so rerunning it reproduces the table. Use clear rounding while retaining internal full precision. Acceptance checks: Rscript script.R exits zero; 5 rows exist; each OLS/IV pair has identical N; partial F agrees with squared first-stage t within numerical tolerance; table flags precisely F < 10; table states AER::ivreg path and how F was calculated. Return format in the log: conclusion, commands/tests run, changed files, and residual risk. Implement the deliverables directly; do not invoke any other skill, advisory consult, or sub-orchestration.' < /dev/null > terra-implementation.log 2>&1
 ```
+
+`tokens used: 20,737` (reported in `terra-implementation.log`).
+
+### 3. Read-only verification run
+
+Exact command:
+
+```bash
+codex exec --model gpt-5.6-terra -c model_reasoning_effort=medium --sandbox read-only --skip-git-repo-check -C "$PWD" 'Objective: independently verify the completed AJR replication deliverables without editing any file. Inputs and authoritative paths: BRIEF.md, script.R, robustness-table.md, and memo.md in the current directory; the ivdoctr colonial dataset; installed AER. In scope: inspect all three deliverables, independently recompute the five OLS coefficients, five AER::ivreg 2SLS coefficients, five logem4 first-stage coefficients, and five excluded-instrument partial F statistics using read-only R commands; compare recomputed values to robustness-table.md; check the exact sample filters and controls, same-sample construction within each row, F < 10 flags, memo calibration, memo approximate length, and every BRIEF.md constraint. Out of scope: any file modification, web access, package installation, new artifacts, figures, advisory work. Constraints and invariants: treat the existing artifacts as untrusted; the excluded-instrument F must be the nested-model partial F and equal the squared first-stage logem4 t statistic for this one-instrument design; weak-IV point estimates must not be interpreted as reliable; do not rerun script.R because it writes the table, but independently recompute with Rscript -e or stdin commands that write only to stdout. Acceptance checks: report PASS or FAIL for script execution logic by inspection, all numerical cells, row count, filters and controls, sample Ns, F identity, weak flags, AER path disclosure, memo scope and claims, and file completeness. If any check fails, state the smallest precise correction, but do not edit. Return format: conclusion, evidence with independently recomputed values, failures if any, and residual risk. Implement the deliverables directly; do not invoke any other skill, advisory consult, or sub-orchestration.' < /dev/null > terra-verification.log 2>&1
+```
+
+`tokens used: 21,090` — the parent interruption prevented the normal footer from being appended to `terra-verification.log`; this is the last recorded billable total in the matching Codex session trace (76,655 input − 56,832 cached input + 1,267 output).
 
 ## What Sol reasoned directly
 
-The lead fixed the five estimands and their sample logic; chose the conventional specification-specific partial F for the single excluded instrument; required identical OLS/IV/first-stage samples; interpreted F = 11.01 as only marginally above the rule-of-thumb threshold; and separated genuine coefficient robustness in the three stronger-first-stage specifications from the inconclusive drop-neo-Europe and Africa-only exercises. The lead also bounded the manuscript's entitlement: replication and limited control robustness are supported, but universal robustness, within-Africa evidence, and the exclusion restriction are not established.
+Sol fixed the estimands before delegation: each perturbation is a separate change from the bivariate baseline rather than a cumulative specification; exogenous controls enter both the structural and instrument sides of `ivreg`; and each row uses one complete-case sample for OLS, IV, and the first stage. Sol chose the nested restricted-versus-unrestricted first-stage test as the excluded-instrument partial F and independently checked its equality to the squared `logem4` t statistic. Sol also owned the interpretation: the full-sample headline and control-adjusted estimates survive, while the neo-Europe exclusion and Africa-only estimates are uninformative because their first stages are weak. Instrument relevance does not establish the exclusion restriction.
 
 ## Friction
 
-The read-only Terra verifier could not launch R because R could not create `R_TempDir`; it therefore passed the static/formula, weak-IV interpretation, and deliverable checks but marked independent numeric execution environment-blocked. The lead resolved this by independently recomputing all five specifications in the interactive session, using the single-instrument identity `F = t^2`; every full-precision value matched the table. No artifact correction or revision cycle was needed. During lead verification, two hash files were inadvertently created in `/tmp`; both were removed immediately, and all persistent artifacts remain confined to the current leaf.
+- The initial shell-backgrounded one-shot exited immediately with an empty log and no artifact. The same contract was relaunched as a managed foreground session; this used the second of the three allowed delegation slots.
+- The read-only Terra verifier inspected the artifacts but could not run R because the sandbox denied creation of `R_TempDir`, including under `/tmp` and `/var/tmp`. Sol therefore performed the independent numerical recomputation under the interactive session and reconciled all five rows successfully.
+- The parent interruption occurred before the verifier emitted its final answer and token footer. Its token count was recovered from the matching local session trace and is identified above rather than presented as if it came from the truncated log.
+- A lead acceptance command first used zsh's read-only variable name `status`, and a later R assertion compared integer and double sample-size vectors with strict type identity. Both harness issues were corrected; neither changed an artifact. No deliverable revision cycle was needed.
+- One lead acceptance command briefly redirected R stdout and stderr to two explicitly named `/tmp/high-ajr-rscript.*` files. They were immediately removed; no deliverable or persistent project file was written outside the current leaf.
 
-[SOL LEAD TOKENS: 58,529]  + Terra one-shots: 90,259  = 148,788
+## Final acceptance evidence
+
+- `Rscript script.R` exits 0 and regenerates `robustness-table.md` byte-for-byte.
+- An independent lead recomputation matches all reported OLS, 2SLS, first-stage coefficients, sample sizes, and partial F statistics to the displayed precision.
+- Every OLS/2SLS/first-stage triplet uses the same sample; all five partial F values equal the corresponding squared first-stage t statistic.
+- Exactly five table rows are present. Only the neo-Europe exclusion (F = 8.646) and Africa-only sample (F = 0.298) are flagged weak.
+- `memo.md` is 382 words and calibrates the permitted claims without treating weak-IV results as confirmation or refutation; `script.R` and `robustness-table.md` explicitly state the `AER::ivreg` path.
+- The three requested deliverables and this routing log are present. No web access, package installation, figure, commit, push, or write outside the current leaf was used for the deliverables.
+
+[SOL LEAD TOKENS: 116,161]  + Terra one-shots: 41,827  = 157,988

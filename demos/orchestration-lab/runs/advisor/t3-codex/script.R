@@ -1,123 +1,139 @@
-# Sensitivity analysis for reference-category coding in the example conjoint.
-# Run from this directory: Rscript script.R
+# Task T3: reference-category sensitivity for AMCEs and marginal means
+# Requires the installed projoint package (and its installed ggplot2 dependency).
 
-suppressPackageStartupMessages(library(projoint))
+library(projoint)
+library(ggplot2)
 
 dir.create("figures", showWarnings = FALSE, recursive = TRUE)
 
+# Recreate the supplied example and retain the profile-level outcome.
 data(exampleData1)
 out <- reshape_projoint(
   exampleData1,
   .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
 )
+labels <- as.data.frame(out$labels, stringsAsFactors = FALSE)
 
-# Profile-level quantities use the selected-profile outcome.  The repeated task
-# lets projoint estimate and apply its measurement-error correction (tau).
-mm_fit <- projoint(out, .structure = "profile_level", .estimand = "mm",
-                   .se_method = "analytical")
-labels <- as.data.frame(out$labels)
-mm <- merge(
-  as.data.frame(mm_fit$estimates)[mm_fit$estimates$estimand == "mm_corrected", ],
-  labels, by.x = "att_level_choose", by.y = "level_id", sort = FALSE
+# Use the package's profile-level estimands.  We report the package's
+# measurement-error-corrected estimates; `uncorrected` estimates remain in the
+# objects below for reproducibility.
+mm_fit <- projoint(out, .structure = "profile_level", .estimand = "mm")
+mms <- merge(
+  subset(as.data.frame(mm_fit$estimates), estimand == "mm_corrected"),
+  labels, by.x = "att_level_choose", by.y = "level_id", all.x = TRUE,
+  sort = FALSE
 )
-mm <- mm[, c("attribute", "level", "attribute_id", "att_level_choose",
-             "estimate", "se", "conf.low", "conf.high")]
-mm <- mm[order(mm$attribute_id, mm$att_level_choose), ]
 
-# Estimate one explicitly chosen AMCE contrast.  This makes the reference
-# category transparent instead of relying on a package default.
-amce_contrast <- function(attribute, focal_level, reference_level) {
+# Estimate one explicitly chosen level relative to one explicitly chosen
+# reference level.  This makes re-referencing transparent rather than relying
+# on factor-order defaults.
+one_amce <- function(attribute, chosen_level, baseline_level) {
   qoi <- set_qoi(
     .structure = "profile_level", .estimand = "amce",
-    .att_choose = attribute, .lev_choose = focal_level,
-    .att_choose_b = attribute, .lev_choose_b = reference_level
+    .att_choose = attribute, .lev_choose = chosen_level,
+    .att_choose_b = attribute, .lev_choose_b = baseline_level
   )
-  fit <- projoint(out, .qoi = qoi, .se_method = "analytical")
-  ans <- as.data.frame(fit$estimates)
-  ans[ans$estimand == "amce_corrected", ]
+  ans <- projoint(out, .qoi = qoi)$estimates
+  ans <- subset(as.data.frame(ans), estimand == "amce_corrected")
+  ans$attribute_id <- attribute
+  ans$chosen_level_id <- paste0(attribute, ":", chosen_level)
+  ans$baseline_level_id <- paste0(attribute, ":", baseline_level)
+  ans
 }
 
-# Crime is binary: changing its reference can only reverse the same pairwise
-# contrast.  There is no third reference category that could change its size.
-crime_low_vs_high <- amce_contrast("att7", "level1", "level2")
-crime_high_vs_low <- amce_contrast("att7", "level2", "level1")
-
-# A genuinely multi-level check: re-reference racial composition from level 1
-# to level 2.  The object is printed when the script runs for an auditable
-# record of the alternative-baseline estimates.
-racial_rebased <- do.call(rbind, lapply(c("level1", "level3", "level4"), function(x) {
-  z <- amce_contrast("att3", x, "level2")
-  z$focal_level <- x
-  z$reference_level <- "level2"
-  z
+# Crime is binary: both possible reference choices are shown.
+crime_specs <- data.frame(
+  chosen = c("level2", "level1"), baseline = c("level1", "level2"),
+  stringsAsFactors = FALSE
+)
+crime_amces <- do.call(rbind, lapply(seq_len(nrow(crime_specs)), function(i) {
+  one_amce("att7", crime_specs$chosen[i], crime_specs$baseline[i])
 }))
-cat("\nMulti-level re-baselining check (Racial Composition; reference = level2):\n")
-print(racial_rebased[, c("focal_level", "reference_level", "estimate", "conf.low", "conf.high")], row.names = FALSE)
+crime_amces <- merge(crime_amces, labels[, c("level_id", "level")],
+                     by.x = "chosen_level_id", by.y = "level_id", all.x = TRUE)
+names(crime_amces)[names(crime_amces) == "level"] <- "chosen"
+crime_amces <- merge(crime_amces, labels[, c("level_id", "level")],
+                     by.x = "baseline_level_id", by.y = "level_id", all.x = TRUE)
+names(crime_amces)[names(crime_amces) == "level"] <- "baseline"
 
-fmt_est <- function(x, lo, hi) sprintf("%.3f [%.3f, %.3f]", x, lo, hi)
-crime_mm <- mm[mm$attribute_id == "att7", ]
-crime_rows <- data.frame(
-  level = c("20% less crime than national average", "20% more crime than national average"),
-  `AMCE; reference = 20% less crime` = c(
-    "Reference",
-    fmt_est(crime_high_vs_low$estimate, crime_high_vs_low$conf.low, crime_high_vs_low$conf.high)
-  ),
-  `AMCE; reference = 20% more crime` = c(
-    fmt_est(crime_low_vs_high$estimate, crime_low_vs_high$conf.low, crime_low_vs_high$conf.high),
-    "Reference"
-  ),
-  `Marginal mean` = sprintf("%.3f [%.3f, %.3f]", crime_mm$estimate, crime_mm$conf.low, crime_mm$conf.high),
-  check.names = FALSE
-)
+# A three-level illustration: all reference categories for Housing Cost.
+housing_levels <- paste0("level", 1:3)
+housing_amces <- do.call(rbind, lapply(housing_levels, function(ref) {
+  do.call(rbind, lapply(setdiff(housing_levels, ref), function(chosen) {
+    one_amce("att1", chosen, ref)
+  }))
+}))
+housing_amces <- merge(housing_amces, labels[, c("level_id", "level")],
+                       by.x = "chosen_level_id", by.y = "level_id", all.x = TRUE)
+names(housing_amces)[names(housing_amces) == "level"] <- "chosen"
+housing_amces <- merge(housing_amces, labels[, c("level_id", "level")],
+                       by.x = "baseline_level_id", by.y = "level_id", all.x = TRUE)
+names(housing_amces)[names(housing_amces) == "level"] <- "baseline"
 
-racial_mm <- mm[mm$attribute_id == "att3", ]
-racial_range <- max(racial_mm$estimate) - min(racial_mm$estimate)
-fmt_ci <- function(x, lo, hi) sprintf("%.3f (95%% CI [%.3f, %.3f])", x, lo, hi)
+# Attribute span is a baseline-invariant descriptive comparison of the MM
+# profile (not a substitute for a prespecified importance estimand).
+mm_spans <- do.call(rbind, lapply(split(mms, mms$attribute), function(x) {
+  data.frame(attribute = x$attribute[1],
+             mm_min = min(x$estimate), mm_max = max(x$estimate),
+             mm_span = max(x$estimate) - min(x$estimate))
+}))
+mm_spans <- mm_spans[order(-mm_spans$mm_span), ]
 
-table_lines <- c(
-  "# Reference-category sensitivity",
+fmt <- function(x) sprintf("%.3f", x)
+ci <- function(x) sprintf("[%.3f, %.3f]", x$conf.low, x$conf.high)
+
+# Required side-by-side crime table, with the two reference choices and MMs.
+crime_mm <- mms[mms$attribute_id == "att7", ]
+crime_mm <- crime_mm[match(c("att7:level1", "att7:level2"), crime_mm$att_level_choose), ]
+tab_lines <- c(
+  "# Crime reference-category sensitivity",
   "",
-  "Profile-level estimates are adjusted for within-respondent response unreliability estimated from the repeated profile task (tau = 0.172). All 95% confidence intervals use respondent-clustered standard errors.",
+  "Estimates are measurement-error-corrected profile-level quantities from `projoint`; intervals are 95% confidence intervals. AMCEs are percentage-point differences in probability of selection.",
   "",
-  "## Violent Crime Rate",
-  "",
-  "| Level | AMCE; reference = 20% less crime | AMCE; reference = 20% more crime | Marginal mean (95% CI) |",
+  "| Quantity | 20% less crime as reference | 20% more crime as reference | Marginal mean (95% CI) |",
   "|---|---:|---:|---:|",
-  "| 20% less crime than national average | Reference | +0.251 (95% CI [0.168, 0.334]) | 0.626 (95% CI [0.584, 0.667]) |",
-  "| 20% more crime than national average | -0.251 (95% CI [-0.334, -0.168]) | Reference | 0.374 (95% CI [0.333, 0.416]) |",
+  sprintf("| 20%% less crime than national average | Reference | %s (%s) | %s (%s) |",
+          fmt(crime_amces$estimate[crime_amces$chosen_level_id == "att7:level1"]),
+          ci(crime_amces[crime_amces$chosen_level_id == "att7:level1", ]),
+          fmt(crime_mm$estimate[1]), ci(crime_mm[1, ])),
+  sprintf("| 20%% more crime than national average | %s (%s) | Reference | %s (%s) |",
+          fmt(crime_amces$estimate[crime_amces$chosen_level_id == "att7:level2"]),
+          ci(crime_amces[crime_amces$chosen_level_id == "att7:level2", ]),
+          fmt(crime_mm$estimate[2]), ci(crime_mm[2, ])),
   "",
-  "With two levels, re-referencing merely reverses the same 0.251 contrast. Marginal means do not use a reference category.",
+  "The two AMCEs are exact sign reversals because crime has only two levels. For a multi-level contrast, Housing Cost changes displayed coefficients with the reference: ",
   "",
-  "## Racial Composition",
-  "",
-  "| Level | Marginal mean (95% CI) |",
+  "| Housing Cost contrast | AMCE (95% CI) |",
   "|---|---:|",
-  apply(racial_mm, 1, function(x) paste0("| ", x[["level"]], " | ", fmt_ci(as.numeric(x[["estimate"]]), as.numeric(x[["conf.low"]]), as.numeric(x[["conf.high"]])), " |")),
+  vapply(seq_len(nrow(housing_amces)), function(i) sprintf(
+    "| %s vs. %s | %s (%s) |", housing_amces$chosen[i], housing_amces$baseline[i],
+    fmt(housing_amces$estimate[i]), ci(housing_amces[i, ])), character(1)),
   "",
-  sprintf("The invariant max–min range is %.3f (%.3f minus %.3f); it is unchanged by reference coding.", racial_range, max(racial_mm$estimate), min(racial_mm$estimate))
+  "All marginal means (and the baseline-invariant max–min MM spans) are computed in `script.R`; the figure reports the crime MMs."
 )
-writeLines(table_lines, "sensitivity-table.md")
+writeLines(tab_lines, "sensitivity-table.md")
 
-# One reference-invariant visual: marginal means for every level.  The crime
-# panel is colored to make the evidence for the headline claim easy to inspect.
-ragg::agg_png("figures/sensitivity.png", width = 3000, height = 3600, res = 300)
-oldpar <- par(no.readonly = TRUE)
-par(mfrow = c(4, 2), mar = c(3.2, 10.5, 2.2, 0.8), oma = c(0, 0, 0, 0), las = 1)
-attributes <- unique(mm$attribute)
-for (att in attributes) {
-  d <- mm[mm$attribute == att, ]
-  d <- d[order(d$estimate), ]
-  yy <- seq_len(nrow(d))
-  is_crime <- d$attribute_id[1] == "att7"
-  col <- if (is_crime) "#007C91" else "#4D4D4D"
-  plot(d$estimate, yy, xlim = c(0.25, 0.75), ylim = c(0.5, nrow(d) + 0.5),
-       pch = 16, col = col, yaxt = "n", ylab = "", xlab = "",
-       bty = "n", cex = 0.75)
-  abline(v = 0.5, lty = 3, col = "#BDBDBD")
-  segments(d$conf.low, yy, d$conf.high, yy, col = col, lwd = 1.5)
-  axis(2, at = yy, labels = d$level, tick = FALSE, cex.axis = 0.62)
-  mtext(att, side = 3, line = 0.05, adj = 0, cex = 0.78, font = 2)
-}
-for (i in seq_len(8 - length(attributes))) plot.new()
-par(oldpar)
-dev.off()
+# One figure only: the identical binary contrast under either reference, plus
+# the baseline-invariant marginal means that identify the substantive pattern.
+crime_plot <- data.frame(
+  panel = c("AMCE under displayed reference", "AMCE under displayed reference",
+            "Marginal means", "Marginal means"),
+  label = c("More vs less", "Less vs more", "20% less crime", "20% more crime"),
+  estimate = c(crime_amces$estimate[match(c("att7:level2", "att7:level1"), crime_amces$chosen_level_id)],
+               crime_mm$estimate),
+  low = c(crime_amces$conf.low[match(c("att7:level2", "att7:level1"), crime_amces$chosen_level_id)],
+          crime_mm$conf.low),
+  high = c(crime_amces$conf.high[match(c("att7:level2", "att7:level1"), crime_amces$chosen_level_id)],
+           crime_mm$conf.high)
+)
+crime_plot$label <- factor(crime_plot$label, levels = rev(crime_plot$label))
+p <- ggplot(crime_plot, aes(x = estimate, y = label)) +
+  geom_vline(xintercept = 0, colour = "grey70", linewidth = 0.4) +
+  geom_errorbar(aes(xmin = low, xmax = high), width = 0.18,
+                orientation = "y", colour = "#236192") +
+  geom_point(size = 2.7, colour = "#236192") +
+  facet_wrap(~panel, scales = "free", nrow = 1) +
+  labs(x = "Corrected estimate (95% CI)", y = NULL) +
+  theme_minimal(base_size = 10) +
+  theme(panel.grid.major.y = element_blank(), strip.text = element_text(face = "bold"))
+ggsave("figures/sensitivity.png", p, width = 8.2, height = 3.4, units = "in", dpi = 320)

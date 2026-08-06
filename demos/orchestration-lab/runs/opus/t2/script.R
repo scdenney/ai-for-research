@@ -1,144 +1,155 @@
 # =====================================================================
-# T2 — Average Marginal Component Effects (AMCEs) with projoint
-# ---------------------------------------------------------------------
-# Estimates AMCEs for all seven attributes on profile choice, with
-# uncertainty clustered at the respondent level, and draws a grouped
-# dot-and-whisker plot. Self-contained: run with `Rscript script.R`.
+# T2 — AMCEs for a 7-attribute conjoint, estimated with {projoint}
+# Uncertainty clustered at the respondent level.
+# Self-contained: reshapes the data, estimates AMCEs, writes
+# figures/amce-dotwhisker.png, and prints the numbers used in report.md.
 # =====================================================================
 
 suppressPackageStartupMessages({
-  library(projoint)   # v1.1.1 — reshape + measurement-error-corrected AMCEs
-  library(dplyr)
+  library(projoint)
   library(ggplot2)
-  library(stringr)
+  library(dplyr)
 })
 
-set.seed(1234)  # set before any stochastic step (IRR estimation is deterministic here)
-
-# ---- Okabe-Ito palette (colour-blind-safe), one colour per attribute ----
+# ---- Okabe-Ito palette (color-blind-safe) & theme -------------------
 okabe_ito <- c(
-  "#E69F00", "#56B4E9", "#009E73", "#F0E442",
-  "#0072B2", "#D55E00", "#CC79A7", "#000000"
+  black      = "#000000",
+  orange     = "#E69F00",
+  skyblue    = "#56B4E9",
+  green      = "#009E73",
+  yellow     = "#F0E442",
+  blue       = "#0072B2",
+  vermillion = "#D55E00",
+  purple     = "#CC79A7",
+  grey       = "#999999"
 )
 
-# ---- Shared plot theme ----
 theme_amce <- theme_minimal(base_size = 11) +
   theme(
     panel.grid.major.y = element_blank(),
     panel.grid.minor   = element_blank(),
-    panel.grid.major.x = element_line(colour = "grey90"),
-    axis.title.y       = element_blank(),
-    axis.title.x       = element_text(margin = margin(t = 8)),
+    panel.grid.major.x = element_line(color = "grey92", linewidth = 0.3),
+    strip.text.y.left  = element_text(angle = 0, hjust = 1, face = "bold", size = 9),
     strip.placement    = "outside",
-    strip.text.y.left  = element_text(angle = 0, hjust = 0, face = "bold", size = 8.5),
     panel.spacing.y    = unit(4, "pt"),
+    axis.title.x       = element_text(margin = margin(t = 8)),
     legend.position    = "bottom",
-    plot.margin        = margin(10, 16, 10, 10)
+    legend.box         = "vertical",
+    legend.margin      = margin(t = 2, b = 0),
+    plot.margin        = margin(6, 12, 6, 6)
   )
 
-# ---- Data & reshape (identical to T1) ----
+# ---- Data & reshape (same call as T1) -------------------------------
+set.seed(2026)                       # before any estimation
 data(exampleData1)
 out <- reshape_projoint(
   exampleData1,
   .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
 )
-# choice1..choice8 are the analysed tasks; choice1_repeated_flipped is the
-# repeated, profile-flipped task used ONLY to estimate intra-respondent
-# reliability (IRR) — it is not itself an analysed choice.
 
-# ---- Estimate AMCEs ---------------------------------------------------
-# .structure = "profile_level" gives the classic AMCE: the marginal effect
-#   of a level on Pr(a profile is chosen), reference = each attribute's first
-#   level. (projoint's default "choice_level" is a different, paired quantity.)
-# projoint auto-clusters standard errors on the respondent id (ResponseId).
-# It returns BOTH an uncorrected AMCE and projoint's measurement-error-
-# corrected AMCE; the corrected estimand is projoint's estimator and is what
-# we report. NOTE: projoint may warn that the CR2 cluster-robust variance is
-# non-PSD and fall back to se_type = "stata" (then HC1) — this is projoint's
-# own documented, expected behaviour, not an error.
-fit <- projoint(out, .structure = "profile_level", .estimand = "amce")
+# ---- Estimate AMCEs for all seven attributes ------------------------
+# "profile_level" structure returns an AMCE for every attribute/level in
+# a single call (the "choice_level" structure requires a specific .qoi).
+# projoint clusters the analytical variance at the respondent id
+# (.auto_cluster = TRUE) and returns BOTH the conventional (uncorrected)
+# AMCE and its measurement-error-corrected counterpart. The correction
+# divides each AMCE by (1 - 2*tau), where tau is the estimated swapping-
+# error probability recovered from the repeated task (NOT the IRR itself;
+# the implied IRR here is ~0.72).
+amce <- projoint(out, .structure = "profile_level", .estimand = "amce")
 
-tau    <- as.numeric(fit$tau)          # estimated swap-error rate
-factor <- 1 / (1 - 2 * tau)            # attenuation-correction factor
+corr_factor <- 1 / (1 - 2 * amce$tau)
+cat(sprintf(paste0("SE method: %s | clustered by: %s | se_type: %s | ",
+                   "swapping-error prob tau: %.3f | AMCE correction 1/(1-2*tau): %.3f\n"),
+            amce$se_method, amce$cluster_by, amce$se_type_used, amce$tau, corr_factor))
 
-# ---- Assemble plotting frame -----------------------------------------
-# Label map: level_id ("att1:level2") -> attribute + level text.
-labs <- fit$labels %>%
-  mutate(attribute_lab = str_wrap(attribute, 20))
+est    <- amce$estimates
+labels <- amce$labels
 
-# Corrected AMCE for every non-reference level.
-est <- fit$estimates %>%
-  filter(estimand == "amce_corrected") %>%
+# ---- Build a tidy plotting frame ------------------------------------
+estimand_lab <- c(
+  amce_uncorrected = "AMCE (uncorrected)",
+  amce_corrected   = "AMCE (measurement-error corrected)"
+)
+
+plot_pts <- est %>%
+  left_join(labels, by = c("att_level_choose" = "level_id")) %>%
+  mutate(
+    estimand = unname(estimand_lab[estimand]),
+    lvl_num  = as.integer(sub(".*level", "", att_level_choose))
+  )
+
+# Reference levels (level1 of each attribute) pinned at exactly 0.
+ref_pts <- labels %>%
+  filter(grepl(":level1$", level_id)) %>%
   transmute(
-    level_id    = att_level_choose,
-    baseline_id = att_level_choose_baseline,
-    estimate, conf.low, conf.high,
-    is_ref = FALSE
-  ) %>%
-  left_join(labs, by = "level_id")
-
-# One reference row per attribute, pinned at exactly 0 (no interval).
-ref <- est %>%
-  distinct(attribute_id, baseline_id) %>%
-  transmute(level_id = baseline_id, estimate = 0,
-            conf.low = NA_real_, conf.high = NA_real_, is_ref = TRUE) %>%
-  left_join(labs, by = "level_id")
-
-plot_df <- bind_rows(select(est, -baseline_id), ref) %>%
-  mutate(
-    est_pp    = 100 * estimate,        # probability -> percentage points
-    lo_pp     = 100 * conf.low,
-    hi_pp     = 100 * conf.high,
-    level_num = as.integer(str_extract(level_id, "(?<=level)\\d+"))
+    attribute, level, attribute_id,
+    att_level_choose = level_id,
+    lvl_num  = 1L,
+    estimate = 0, se = NA_real_, conf.low = NA_real_, conf.high = NA_real_,
+    estimand = "Reference level (baseline, fixed at 0)"
   )
 
-# Order attributes att1..att7 (facets, top->bottom) and levels within each
-# attribute so the reference level sits at the top of its block.
-attr_levels <- labs %>% distinct(attribute_id, attribute_lab) %>%
-  arrange(attribute_id) %>% pull(attribute_lab)
-lev_levels  <- plot_df %>% arrange(attribute_id, desc(level_num)) %>%
-  pull(level) %>% unique()
+# Order: attributes att1..att7 top -> bottom; within each attribute the
+# reference sits on top, remaining levels in their natural order below.
+attr_order  <- labels %>% distinct(attribute_id, attribute) %>% arrange(attribute_id)
+level_order <- bind_rows(plot_pts, ref_pts) %>%
+  distinct(att_level_choose, level, attribute_id, lvl_num) %>%
+  arrange(attribute_id, desc(lvl_num)) %>%   # desc => level1 last => top of band
+  pull(level)
 
-plot_df <- plot_df %>%
-  mutate(
-    attribute_lab = factor(attribute_lab, levels = attr_levels),
-    level         = factor(level, levels = lev_levels)
+as_ordered <- function(df) {
+  df %>% mutate(
+    attribute = factor(attribute, levels = attr_order$attribute),
+    level     = factor(level,     levels = level_order)
   )
+}
+plot_pts <- as_ordered(plot_pts)
+ref_pts  <- as_ordered(ref_pts)
 
-pal <- setNames(okabe_ito[seq_along(attr_levels)], attr_levels)
+# ---- Dot-and-whisker plot -------------------------------------------
+dodge <- position_dodge(width = 0.55)
 
-# ---- Dot-and-whisker plot --------------------------------------------
-p <- ggplot(plot_df, aes(x = est_pp, y = level, colour = attribute_lab)) +
-  geom_vline(xintercept = 0, linetype = "dashed", colour = "grey55") +
-  geom_errorbar(aes(xmin = lo_pp, xmax = hi_pp), orientation = "y",
-                width = 0, linewidth = 0.5, na.rm = TRUE) +
-  geom_point(aes(shape = is_ref), size = 2.4, stroke = 0.7, na.rm = TRUE) +
-  facet_grid(attribute_lab ~ ., scales = "free_y", space = "free_y", switch = "y") +
-  scale_colour_manual(values = pal, guide = "none") +
+p <- ggplot(plot_pts, aes(x = estimate, y = level)) +
+  geom_vline(xintercept = 0, linetype = "dashed",
+             color = okabe_ito[["grey"]], linewidth = 0.4) +
+  geom_errorbar(aes(xmin = conf.low, xmax = conf.high, color = estimand),
+                orientation = "y", width = 0, linewidth = 0.6, position = dodge) +
+  geom_point(aes(color = estimand), size = 2.1, position = dodge) +
+  geom_point(data = ref_pts, aes(shape = estimand),
+             color = okabe_ito[["black"]], fill = "white",
+             size = 2.4, stroke = 0.7) +
+  facet_grid(rows = vars(attribute), scales = "free_y", space = "free_y",
+             switch = "y", labeller = label_wrap_gen(width = 18)) +
+  scale_color_manual(
+    values = c(
+      "AMCE (uncorrected)"                 = okabe_ito[["blue"]],
+      "AMCE (measurement-error corrected)" = okabe_ito[["vermillion"]]
+    ),
+    name = NULL) +
   scale_shape_manual(
-    values = c(`FALSE` = 16, `TRUE` = 1),
-    labels = c(`FALSE` = "AMCE (95% CI)", `TRUE` = "Reference (fixed at 0)"),
-    name = NULL
-  ) +
-  labs(x = "AMCE on P(profile chosen), percentage points") +
+    values = c("Reference level (baseline, fixed at 0)" = 21),
+    name = NULL) +
+  guides(color = guide_legend(order = 1, override.aes = list(linewidth = 0.6)),
+         shape = guide_legend(order = 2)) +
+  labs(x = "AMCE — change in Pr(profile chosen)", y = NULL) +
   theme_amce
 
 dir.create("figures", showWarnings = FALSE)
 ggsave("figures/amce-dotwhisker.png", p,
-       width = 8, height = 9, dpi = 320, bg = "white")
+       width = 8.5, height = 10, dpi = 320, bg = "white")
 
-# ---- Console summary (used to write report.md) -----------------------
-summary_tbl <- plot_df %>%
-  filter(!is_ref) %>%
+# ---- Numbers for report.md ------------------------------------------
+report_tbl <- plot_pts %>%
+  filter(estimand == "AMCE (uncorrected)") %>%
   transmute(
     attribute, level,
-    est_pp = round(est_pp, 1),
-    ci = sprintf("[%.1f, %.1f]", lo_pp, hi_pp),
-    sig = ifelse(lo_pp > 0 | hi_pp < 0, "*", "")
+    pp  = round(100 * estimate, 1),
+    lo  = round(100 * conf.low, 1),
+    hi  = round(100 * conf.high, 1),
+    sig = ifelse(conf.low > 0 | conf.high < 0, "*", "")
   ) %>%
-  arrange(desc(abs(est_pp)))
+  arrange(desc(abs(pp)))
 
-cat(sprintf("\nIRR swap-error rate tau = %.3f  |  correction factor = %.3f\n",
-            tau, factor))
-cat("Corrected AMCEs (percentage points), largest first:\n")
-print(as.data.frame(summary_tbl), row.names = FALSE)
+cat("\n== Uncorrected AMCEs in percentage points, largest first ==\n")
+print(as.data.frame(report_tbl), row.names = FALSE)

@@ -593,7 +593,7 @@
       <div class="cmds"><code class="cmd">/oss:paper-review-lite-codex</code> <span class="cmd-sep">·</span> <code class="cmd">$paper-review-lite-codex</code></div>
       <p class="desc" id="desc-paper-review-lite-codex">The same pre-submission review as <code>paper-review-lite</code>, but run by two AI models independently, then cross-checked against each other — Claude (whichever model your session runs, Opus 5 or Fable 5) and Codex (GPT-5.6 "Sol" at xhigh effort, pinned rather than left to <code>codex exec</code>'s own default).</p>
     </li>
-        <li class="entry" id="presubmit" data-cat="rs" data-plat="claude" data-search="presubmit review submission wizard cli 30 stage pipeline /oss:presubmit claude only">
+        <li class="entry" id="presubmit" data-cat="rs" data-plat="claude" data-search="presubmit review submission wizard cli 30 stage pipeline /oss:presubmit claude only haiku sonnet opus fable model tiers">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">RS</span><span class="name">presubmit</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
@@ -601,7 +601,7 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/presubmit/SKILL.md" aria-label="Open presubmit on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:presubmit</code></div>
-      <p class="desc" id="desc-presubmit">A guided walkthrough of a much larger, 30-plus-stage automated pre-submission review tool.</p>
+      <p class="desc" id="desc-presubmit">A guided walkthrough of a much larger, 30-plus-stage automated pre-submission review tool (the standalone <a href="https://github.com/scdenney/presubmit">presubmit</a> CLI, API-billed). It routes each stage to one of four Claude tiers by task difficulty. Haiku handles mechanical extraction, Sonnet handles bounded verification, Opus runs the adversarial Red Team, and Fable handles the Blue Team/Assessment/Reviewer synthesis that judges the Red Team's findings — so the critics and their judge aren't sharing a model. ~$2–4 per full run on an 80-page paper. A short article runs well under $2.</p>
     </li>
         <li class="entry" id="journal-review" data-cat="rs" data-plat="both" data-search="journal-review review submission referee report third party /oss:journal-review $journal-review codex claude both">
       <div class="row">

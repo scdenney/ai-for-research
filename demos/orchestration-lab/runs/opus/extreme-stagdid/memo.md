@@ -1,0 +1,13 @@
+# Does the staggered-DiD critique change the answer here?
+
+**Short answer: no — not for this dataset — though the modern estimators are still the ones to report.**
+
+**The estimates converge.** All five agree in sign, significance, and magnitude. The heterogeneity-robust estimators cluster tightly: Callaway–Sant'Anna simple = −0.040 (identical under not-yet-treated and never-treated controls), Sun–Abraham = −0.040, Roth–Sant'Anna = −0.047. Naive TWFE gives −0.037 — attenuated toward zero by only 0.003–0.010 log points, well inside one standard error (≈0.012). Were it badly contaminated, TWFE would diverge from the robust set; it does not.
+
+**Why the critique barely bites.** The Goodman–Bacon decomposition shows why. 86.3% of TWFE's identifying weight sits on clean treated-vs-never comparisons; only **5.4%** falls on the "later-vs-earlier-treated" bucket that can carry negative weight — and that bucket's average 2×2 estimate is a trivial +0.005, contributing ≈ +0.0003 to the pooled coefficient. The cause is structural: 309 of 500 counties (62%) are never treated, and treatment spans just three cohorts across five years, so clean controls are abundant and already-treated-as-control comparisons are rare. Negative weighting is severe when nearly everyone is eventually treated over a long horizon — the opposite of this panel.
+
+**Pre-trends are not jointly rejected** (uniform-band critical value 2.53 vs. largest |t| = 2.06) — which is weaker than "confirmed." The lone pointwise-marginal coefficient at e=−3 (+0.030) is what multiple comparisons across three pre-periods routinely throw up and vanishes under simultaneous inference; but failure to reject is not proof of no deviation, so I flag it rather than wave it through.
+
+**What I'd report.** ATT ≈ **−0.04** — about a **4% reduction** in county teen employment — from Callaway–Sant'Anna/Sun–Abraham, robust to the control-group choice. The single number hides a growing effect path (≈ −2% at impact, ≈ −10 to −14% by years 2–3), which is why the equal-weighted dynamic-overall (−0.077) exceeds the cohort-size-weighted simple ATT (−0.040, dominated by the large just-treated 2007 cohort). Treat the long horizons cautiously: e ≥ 2 is identified only off the 20-county 2004 cohort, so the growing path is suggestive, not firmly pinned.
+
+The lesson is dataset-specific, not a rule. The reflexive "TWFE is invalid under staggered adoption" verdict would have been wrong here for the sign, significance, and static magnitude — yet the robust estimators still win: they make the contaminated 5% visible and expose the dynamics a lone TWFE coefficient buries.

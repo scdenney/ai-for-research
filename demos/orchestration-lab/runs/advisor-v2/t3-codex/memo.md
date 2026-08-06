@@ -1,0 +1,13 @@
+# Reply to the reviewer
+
+Reference-coded coefficient tables display different pairwise contrasts under different baselines; releveling does not change any given pairwise contrast. We will revise the presentation to make every AMCE an explicitly labelled comparison rather than imply that a reference level is substantively privileged.
+
+This clarification does not make the crime finding an artifact of coding. Violent Crime Rate has only two experimentally presented levels: 20% less versus 20% more crime than the national average. With low crime as the reference, the AMCE for high crime is -0.251 (95% CI [-0.337, -0.170]); with high crime as the reference, the AMCE for low crime is +0.251 ([0.170, 0.337]). Because crime is binary, releveling only reverses the orientation of that one pairwise contrast; it does not change its magnitude.
+
+For multi-level attributes, releveling displays different comparisons. For Housing Cost, the AMCE for 40% rather than 15% of pre-tax income is -0.198, whereas the AMCE for 40% rather than 30% is -0.061. Those are distinct pairwise contrasts, not competing estimates of a level's intrinsic effect. We will report them as such and will not use a reference-coded coefficient magnitude as an attribute-wide measure of importance.
+
+Our primary evidence will be the baseline-invariant marginal means (MMs), reported for every level. The MM is 0.626 (95% CI [0.585, 0.669]) for 20% less crime and 0.374 ([0.331, 0.415]) for 20% more crime. Assigning a profile 20% less rather than 20% more violent crime therefore increased its selection probability by 25.1 percentage points on average over the randomized attributes (95% CI: 17.0–33.7). All intervals use the same respondent-cluster bootstrap, which re-estimates the IRR correction in each resample.
+
+This was the largest point-estimated range among the attribute levels presented, but it was only 1.4 points larger than the 23.7-point commuting-time contrast. The directly estimated difference between those contrasts is 1.4 points (95% CI: -9.9 to 12.4), so the ordering does not establish that crime uniquely dominates commuting or other considerations. More generally, these MM ranges depend on the experimental level ranges and are not scale-free measures of attribute importance.
+
+We will therefore replace the headline claim that crime “drives” community choice. The revised manuscript will state that, within the levels presented in this conjoint, lower violent crime substantially increased selection probability and had the largest point-estimated range. We will not claim that the rank is statistically established or that the design-specific range generalizes beyond the levels studied.

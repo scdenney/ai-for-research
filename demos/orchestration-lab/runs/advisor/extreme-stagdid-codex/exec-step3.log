@@ -1,0 +1,841 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.5
+--------
+workdir: /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f7028-2f71-76a1-93e2-b2fa69d680d0
+--------
+user
+Revise memo.md, estimates-table.md, and script.R in this directory per the attached advice. Advice: Keep the estimates and substantive conclusion, but revise the interpretation and presentation:
+
+- Report the full Bacon decomposition: 86.3% treated-versus-never, 5.4% later-versus-earlier, and the omitted 8.3% earlier-versus-later. Describe the problematic share as “present but small,” not “materially present.” Also clarify that Bacon’s 2×2 comparison weights are positive; the 5.4% measures exposure to contaminated comparisons, not a literal share of negative weights. Verify that `sum(weight * estimate)` reproduces the TWFE coefficient.
+
+- Correct the TWFE table label. “Post-treatment vs all untreated observations” is inaccurate because TWFE also uses cross-timing treated-cohort comparisons. Use “Implicit mixture of treated-versus-never and cross-timing treated-cohort comparisons.”
+
+- Temper the pre-trend claim. The estimate at event time −3 is 0.031 with SE 0.016—borderline rather than “small relative to uncertainty.” Say: “The joint test does not reject pre-trends (p = 0.168), but power is limited and one lead is borderline.” This is absence of clear evidence against parallel trends, not affirmative support.
+
+- Since `cband=TRUE`, plot the package’s simultaneous critical-value bands (`dyn$crit.val.egt`) rather than manually imposing ±1.96 SE. Alternatively, explicitly label the current intervals as pointwise. Also state whether the default varying base period is retained; using `base_period="universal"` would produce the more familiar event-study normalization.
+
+- Convert the log estimate exactly: `100 * (exp(-0.0400) - 1) = -3.9%`, though “roughly 4%” remains acceptable.
+
+- Briefly state that this is an unconditional analysis with `lpop` deliberately omitted. Because the package’s worked example often adjusts for population, a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators.
+
+The final adjudication should remain: the contamination exists but is quantitatively small here, so modern estimators change the preferred reported coefficient—not the substantive conclusion.
+codex
+I’ll apply the requested revisions, checking that the decomposition and plotting code are internally consistent before updating the memo, table, and R script. I’m also consulting the required independent advisor because this involves substantive methodological interpretation.
+exec
+/bin/zsh -lc "sed -n '1,240p' /Users/scdenney/Documents/github/resources/open-science-skills/codex/advisor/SKILL.md && rg --files -g 'memo.md' -g 'estimates-table.md' -g 'script.R' -g 'AGENTS.md' ." in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex
+ succeeded in 0ms:
+---
+name: advisor
+description: Consult this library's independent GPT-5.6 advisor before committing to a substantive interpretation, approach, or final result. Always gpt-5.6-sol at xhigh (Extra high) effort — the flagship 5.6 tier at its strongest routine tier, not a cheaper one. Read-only advisory only; it never edits files.
+---
+
+# Advisor (GPT-5.6)
+
+This is the Codex-native advisor maintained in this library. It is a single-turn, independent, read-only consult — not delegated implementation and not a substitute for the lead's judgment.
+
+<p align="center"><img src="assets/architecture.svg" alt="Codex advisor: a working GPT-5.6 session sends a self-contained briefing to a Sol high advisor; the advisor returns one decisive read-only review" width="900"></p>
+
+## Default
+
+| Advisor | Effort | Use when |
+|---|---|---|
+| `gpt-5.6-sol` | `xhigh` (Extra high) | A substantive interpretation, approach, draft, analysis, or completion check needs an independent review. |
+
+Do **not** match the calling session's effort. This skill has an owned, predictable policy: Sol/xhigh, always. Do not use Max or Ultra (they consume usage limits faster for no established benefit here). Pass `--model gpt-5.6-terra` explicitly only if cost is a hard constraint for a routine, low-stakes consult — the default is the flagship tier at its strongest routine effort because this is meant to be a stronger reviewer, not a cheap one.
+
+Luna is not an advisor tier. It is appropriate only for tightly specified mechanical work with objective acceptance checks, not for judgment or synthesis.
+
+## When to consult
+
+- Before committing to a substantive interpretation, writing/analysis strategy, or change of approach.
+- When stuck: repeated errors, a non-converging approach, or results that do not fit.
+- Before declaring a multi-step task complete, after the deliverable is durable.
+- Before high-impact decisions that are hard to verify cheaply.
+
+Do not consult for simple orientation or routine, cheaply verifiable work. On longer work, use one focused consultation before committing to the approach and one before final sign-off when the residual risk warrants it.
+
+## Sandbox constraint
+
+[`scripts/sol-advisor.sh`](scripts/sol-advisor.sh) launches a nested `codex exec`. It works only from an unsandboxed or escalated interactive parent session. A nested call from a sandboxed or headless `codex exec` fails structurally; do not retry it indefinitely or pretend that a self-review was independent.
+
+- In an interactive session, request escalation for this one command if needed.
+- In a headless/non-interactive session, report that the independent consult is unavailable and ask whether to continue without it or restart in an interactive session.
+
+## Run a consult
+
+1. Write a self-contained briefing: task, key evidence and paths, current approach or claim, alternatives considered, exact question, and any irreversible or high-impact consequences. The advisor has no access to the original conversation.
+2. Make any deliverable durable before a completion review.
+3. Run the Sol/xhigh default:
+
+   ```bash
+   scripts/sol-advisor.sh --prompt-file <briefing-path> --out <output-path> -C "$PWD" --model gpt-5.6-sol --effort xhigh
+   ```
+
+4. Read the output, verify factual claims where possible, and record why you follow or decline any material recommendation.
+
+The spawned session is `--sandbox read-only` and `--ephemeral`; it must not edit files. `scripts/sol-advisor.sh --check` verifies that the Codex CLI is available.
+
+## Decision rules
+
+- Ask one decision-focused question per consult; do not turn the advisor into an unbounded co-worker.
+- Treat advice as evidence, not authority. Primary evidence and direct checks outrank confidence or rhetoric.
+- If the advisor identifies an unresolved material conflict, run one focused follow-up consult rather than broadening the first prompt.
+- If the advisor's recommendation conflicts with authoritative evidence, state the conflict and follow the evidence.
+- If high-impact uncertainty remains after a consult, stop and ask the human rather than manufacturing certainty.
+./memo.md
+./estimates-table.md
+./script.R
+
+exec
+/bin/zsh -lc "git status --short && sed -n '1,260p' memo.md && sed -n '1,220p' estimates-table.md && sed -n '1,320p' script.R && /Users/scdenney/Documents/github/resources/open-science-skills/codex/advisor/scripts/sol-advisor.sh --check" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex
+ succeeded in 0ms:
+ M ../../../EXTENSIONS.md
+ M ../../../README.md
+ M ../../../SCORING.md
+ M ../../../data/README.md
+ M ../../../prompts/46-sol-run.md
+ D ../high-ajr-claude/SHA256SUMS
+ D ../high-ajr-claude/advice.md
+ D ../high-ajr-claude/briefing.md
+ D ../high-ajr-claude/claude-envelope-1.json
+ D ../high-ajr-claude/claude-envelope-2.json
+ D ../high-ajr-claude/estimates-by-spec.png
+ D ../high-ajr-claude/memo.md
+ D ../high-ajr-claude/robustness-table.md
+ D ../high-ajr-claude/run-log.md
+ D ../high-ajr-claude/script.R
+ D ../t1-claude/SHA256SUMS
+ D ../t1-claude/advice.md
+ D ../t1-claude/briefing.md
+ D ../t1-claude/claude-envelope-1.json
+ D ../t1-claude/claude-envelope-2.json
+ D ../t1-claude/figures/level-frequencies.png
+ D ../t1-claude/run-log.md
+ D ../t1-claude/script.R
+ D ../t1-claude/summary.md
+ D ../t2-claude/SHA256SUMS
+ D ../t2-claude/advice.md
+ D ../t2-claude/briefing.md
+ D ../t2-claude/claude-envelope-1.json
+ D ../t2-claude/claude-envelope-2.json
+ D ../t2-claude/figures/amce-dotwhisker.png
+ D ../t2-claude/report.md
+ D ../t2-claude/run-log.md
+ D ../t2-claude/script.R
+ D ../t3-claude/SHA256SUMS
+ D ../t3-claude/advice.md
+ D ../t3-claude/briefing.md
+ D ../t3-claude/claude-envelope-1.json
+ D ../t3-claude/claude-envelope-2.json
+ D ../t3-claude/figures/sensitivity.png
+ D ../t3-claude/memo.md
+ D ../t3-claude/run-log.md
+ D ../t3-claude/script.R
+ D ../t3-claude/sensitivity-table.md
+ D ../vhigh-lalonde-claude/SHA256SUMS
+ D ../vhigh-lalonde-claude/advice.md
+ D ../vhigh-lalonde-claude/briefing.md
+ D ../vhigh-lalonde-claude/claude-envelope-1.json
+ D ../vhigh-lalonde-claude/claude-envelope-2.json
+ D ../vhigh-lalonde-claude/figures/spec-curve.png
+ D ../vhigh-lalonde-claude/memo.md
+ D ../vhigh-lalonde-claude/run-log.md
+ D ../vhigh-lalonde-claude/script.R
+ D ../vhigh-lalonde-claude/spec-table.md
+ D ../../fable/high-ajr/claude-envelope.json
+ D ../../fable/high-ajr/figures/first-stage.png
+ D ../../fable/high-ajr/memo.md
+ D ../../fable/high-ajr/robustness-table.md
+ D ../../fable/high-ajr/run-err.log
+ D ../../fable/high-ajr/script.R
+ M ../../fable/t1/claude-envelope.json
+ M ../../fable/t1/figures/level-frequencies.png
+ M ../../fable/t1/script.R
+ M ../../fable/t1/summary.md
+ D ../../fable/t2/claude-envelope.json
+ D ../../fable/t2/estimates.csv
+ D ../../fable/t2/figures/amce-dotwhisker.png
+ D ../../fable/t2/report.md
+ D ../../fable/t2/run-err.log
+ D ../../fable/t2/script.R
+ D ../../fable/t3/claude-envelope.json
+ D ../../fable/t3/figures/sensitivity.png
+ D ../../fable/t3/memo.md
+ D ../../fable/t3/run-err.log
+ D ../../fable/t3/script.R
+ D ../../fable/t3/sensitivity-table.md
+ D ../../fable/vhigh-lalonde/claude-envelope.json
+ D ../../fable/vhigh-lalonde/figures/spec-curve.png
+ D ../../fable/vhigh-lalonde/memo.md
+ D ../../fable/vhigh-lalonde/run-err.log
+ D ../../fable/vhigh-lalonde/script.R
+ D ../../fable/vhigh-lalonde/spec-table.md
+ M ../../opus/SESSION-PROTOCOL.md
+ D ../../opus/high-ajr/SHA256SUMS
+ D ../../opus/high-ajr/claude-envelope.json
+ D ../../opus/high-ajr/memo.md
+ D ../../opus/high-ajr/results.csv
+ D ../../opus/high-ajr/robustness-figure.png
+ D ../../opus/high-ajr/robustness-table.md
+ D ../../opus/high-ajr/run-log.md
+ D ../../opus/high-ajr/script.R
+ D ../../opus/t1/SHA256SUMS
+ D ../../opus/t1/claude-envelope.json
+ D ../../opus/t1/figures/level-frequencies.png
+ D ../../opus/t1/run-log.md
+ D ../../opus/t1/script.R
+ D ../../opus/t1/summary.md
+ D ../../opus/t2/SHA256SUMS
+ D ../../opus/t2/claude-envelope.json
+ D ../../opus/t2/figures/amce-dotwhisker.png
+ D ../../opus/t2/report.md
+ D ../../opus/t2/run-log.md
+ D ../../opus/t2/script.R
+ D ../../opus/t3/SHA256SUMS
+ D ../../opus/t3/claude-envelope.json
+ D ../../opus/t3/figures/sensitivity.png
+ D ../../opus/t3/memo.md
+ D ../../opus/t3/run-log.md
+ D ../../opus/t3/script.R
+ D ../../opus/t3/sensitivity-table.md
+ D ../../opus/vhigh-lalonde/SHA256SUMS
+ D ../../opus/vhigh-lalonde/claude-envelope.json
+ D ../../opus/vhigh-lalonde/figures/spec-curve.png
+ D ../../opus/vhigh-lalonde/memo.md
+ D ../../opus/vhigh-lalonde/run-log.md
+ D ../../opus/vhigh-lalonde/script.R
+ D ../../opus/vhigh-lalonde/spec-table.md
+ M ../../../../../docs/orchestration-lab/index.html
+?? ../../../prompts/extreme-stagdid.md
+?? ../../../reference/extreme-stagdid/
+?? ../../46-sol/extreme-stagdid/
+?? ../../46/extreme-stagdid/
+?? ../extreme-stagdid-claude/
+?? ./
+?? ../../claude-direct/
+?? ../../fable/extreme-stagdid/
+?? ../../opus/extreme-stagdid/
+# Adjudication
+
+The usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of -0.0365 log points (SE 0.0133). The Goodman--Bacon decomposition shows why that estimate should not be treated automatically as clean: 5.4% of its identifying weight is from later-versus-earlier-treated comparisons, where already-treated counties can act as controls, while 86.3% is from treated-versus-never-treated comparisons. Thus the potentially problematic comparison class is materially present, rather than merely a theoretical possibility.
+
+But the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is -0.0398 using not-yet-treated controls and -0.0400 using only never-treated controls; the Sun--Abraham interaction-weighted ATT is -0.0400. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, -0.0400 log points (SE 0.0130), because it makes the comparison population explicit and never uses already-treated units as controls. This is roughly a 4.0% decline in employment.
+
+The event study offers limited but useful support for parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. Nonetheless, the available leads (event time -3: 0.031 (SE 0.016); event time -2: -0.001 (SE 0.013)) are small relative to their uncertainty, and the Callaway--Sant'Anna pre-test p-value is 0.168. The plot therefore does not show clear pre-treatment divergence, but it cannot establish parallel trends. In short: the modern critique changes estimator choice and the interpretation of the pooled coefficient, not the qualitative conclusion in these data. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.
+
+# Staggered-adoption DiD estimates
+
+Outcome: log teen employment (`lemp`).
+
+| Estimator | ATT | SE | Control/comparison group |
+|---|---:|---:|---|
+| Naive TWFE | -0.0365 | 0.0133 | Pooled post-treatment vs all untreated observations; county/year FE |
+| Callaway--Sant'Anna | -0.0398 | 0.0127 | Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap |
+| Callaway--Sant'Anna | -0.0400 | 0.0130 | Never-treated only; county-clustered multiplier bootstrap |
+| Sun--Abraham | -0.0400 | 0.0118 | Never-treated reference cohort; cohort x event-time interactions; county clustered |
+
+Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws.
+# Reconcile staggered-adoption DiD estimators on did::mpdta
+set.seed(20260717)
+library(did)
+library(fixest)
+library(bacondecomp)
+
+# Okabe-Ito palette and plotting defaults
+oi <- c(orange="#E69F00", sky_blue="#56B4E9", bluish_green="#009E73", yellow="#F0E442", blue="#0072B2", vermillion="#D55E00", purple="#CC79A7", black="#000000")
+theme_event <- list(cex.axis=.95, cex.lab=1.05, family="sans")
+
+data(mpdta, package="did")
+d <- mpdta
+# did::att_gt uses 0 for never treated; treatment turns on in first.treat.
+d$ever_treated <- as.integer(d$first.treat > 0)
+d$post <- as.integer(d$ever_treated == 1 & d$year >= d$first.treat)
+
+# (a) Pooled TWFE, clustered by county.
+twfe <- feols(lemp ~ post | countyreal + year, d, cluster=~countyreal)
+twfe_att <- unname(coef(twfe)["post"]); twfe_se <- unname(se(twfe)["post"])
+
+# (b) C&S group-time DiD; bootstrap is clustered at the supplied county id.
+cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
+cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
+cs_nyt_simple <- aggte(cs_nyt, type="simple")
+cs_never_simple <- aggte(cs_never, type="simple")
+
+# (c) Sun-Abraham. A cohort outside observed years (0) is inferred as never treated.
+sa <- feols(lemp ~ sunab(first.treat, year) | countyreal + year, d, cluster=~countyreal)
+sa_att <- summary(sa, agg="ATT")
+sa_att_est <- unname(coef(sa_att)[1]); sa_att_se <- unname(se(sa_att)[1])
+
+# Bacon decomposition of the identical binary treatment used in pooled TWFE.
+bacon_out <- bacon(lemp ~ post, data=d, id_var="countyreal", time_var="year", quietly=TRUE)
+bacon_by_type <- aggregate(weight ~ type, bacon_out, sum)
+later_earlier_weight <- sum(bacon_out$weight[grepl("Later vs Earlier", bacon_out$type)])
+treated_never_weight <- sum(bacon_out$weight[grepl("Treated vs Untreated", bacon_out$type)])
+
+# Dynamic C&S event study. It covers leads -3 and -2 and treatment period 0.
+dyn <- aggte(cs_never, type="dynamic", min_e=-3, max_e=3)
+dynamic <- data.frame(event_time=dyn$egt, estimate=dyn$att.egt, se=dyn$se.egt)
+dynamic$lower <- dynamic$estimate - qnorm(.975)*dynamic$se
+dynamic$upper <- dynamic$estimate + qnorm(.975)*dynamic$se
+
+dir.create("figures", showWarnings=FALSE, recursive=TRUE)
+png("figures/event-study.png", width=2100, height=1500, res=300)
+par(mar=c(4.5,5,1,1), las=1, family=theme_event$family)
+plot(dynamic$event_time, dynamic$estimate, type="n", xlim=range(dynamic$event_time)+c(-.35,.35), ylim=range(c(dynamic$lower,dynamic$upper,0),finite=TRUE), xlab="Event time (years relative to first treatment)", ylab="ATT on log teen employment", cex.axis=theme_event$cex.axis, cex.lab=theme_event$cex.lab, xaxt="n")
+axis(1, at=dynamic$event_time)
+abline(h=0, col="grey45", lty=2, lwd=1); abline(v=0, col=oi["vermillion"], lty=2, lwd=1.4)
+arrows(dynamic$event_time,dynamic$lower,dynamic$event_time,dynamic$upper,angle=90,code=3,length=.045,col=oi["blue"],lwd=1.4)
+points(dynamic$event_time,dynamic$estimate,pch=19,col=oi["blue"],cex=1.15)
+dev.off()
+
+tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Pooled post-treatment vs all untreated observations; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
+fmt <- function(x) sprintf("%.4f",x)
+lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws.")
+writeLines(lines,"estimates-table.md")
+
+pre_rows <- dynamic[dynamic$event_time <= -2,]
+pre_desc <- paste(sprintf("event time %d: %.3f (SE %.3f)",pre_rows$event_time,pre_rows$estimate,pre_rows$se),collapse="; ")
+memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The Goodman--Bacon decomposition shows why that estimate should not be treated automatically as clean: %.1f%% of its identifying weight is from later-versus-earlier-treated comparisons, where already-treated counties can act as controls, while %.1f%% is from treated-versus-never-treated comparisons. Thus the potentially problematic comparison class is materially present, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. This is roughly a %.1f%% decline in employment.\n\nThe event study offers limited but useful support for parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. Nonetheless, the available leads (%s) are small relative to their uncertainty, and the Callaway--Sant'Anna pre-test p-value is %.3f. The plot therefore does not show clear pre-treatment divergence, but it cannot establish parallel trends. In short: the modern critique changes estimator choice and the interpretation of the pooled coefficient, not the qualitative conclusion in these data. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*later_earlier_weight,100*treated_never_weight,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),-100*cs_never_simple$overall.att,pre_desc,cs_never$Wpval)
+writeLines(memo,"memo.md")
+saveRDS(list(twfe=twfe,cs_nyt=cs_nyt,cs_never=cs_never,sunab=sa,bacon=bacon_out,dynamic=dynamic,bacon_by_type=bacon_by_type),"results.rds")
+print(tab); print(bacon_by_type); print(dynamic); cat("CS pre-test p-value:",cs_never$Wpval,"\n")
+WARNING: proceeding, even though we could not create PATH aliases: Operation not permitted (os error 1)
+codex-cli 0.144.5
+
+codex
+The advisor CLI is available, but this sandbox cannot launch its required nested read-only session, so an independent consult is unavailable here. I’m proceeding from the supplied adjudication and will make the requested interpretation explicit in the reproducible script.
+apply patch
+patch: completed
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+diff --git a/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R b/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+index 907a4abe054b899cd11aba1578f4e77f94c6f18f..f9273577dec68e038dc8b26ec77e49c726b97e0b
+--- a/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
++++ b/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+@@ -19,8 +19,11 @@
+ twfe_att <- unname(coef(twfe)["post"]); twfe_se <- unname(se(twfe)["post"])
+ 
+ # (b) C&S group-time DiD; bootstrap is clustered at the supplied county id.
+-cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
+-cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
++# This is an unconditional analysis: lpop is deliberately omitted throughout.
++# Retain did's varying-base-period default explicitly; base_period="universal"
++# would give the more familiar single-reference-period event-study normalization.
++cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
++cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
+ cs_nyt_simple <- aggte(cs_nyt, type="simple")
+ cs_never_simple <- aggte(cs_never, type="simple")
+ 
+@@ -33,13 +36,17 @@
+ bacon_out <- bacon(lemp ~ post, data=d, id_var="countyreal", time_var="year", quietly=TRUE)
+ bacon_by_type <- aggregate(weight ~ type, bacon_out, sum)
+ later_earlier_weight <- sum(bacon_out$weight[grepl("Later vs Earlier", bacon_out$type)])
++earlier_later_weight <- sum(bacon_out$weight[grepl("Earlier vs Later", bacon_out$type)])
+ treated_never_weight <- sum(bacon_out$weight[grepl("Treated vs Untreated", bacon_out$type)])
++bacon_att <- sum(bacon_out$weight * bacon_out$estimate)
++stopifnot(all(bacon_out$weight > 0), isTRUE(all.equal(bacon_att, twfe_att, tolerance=1e-10)))
+ 
+ # Dynamic C&S event study. It covers leads -3 and -2 and treatment period 0.
+ dyn <- aggte(cs_never, type="dynamic", min_e=-3, max_e=3)
+ dynamic <- data.frame(event_time=dyn$egt, estimate=dyn$att.egt, se=dyn$se.egt)
+-dynamic$lower <- dynamic$estimate - qnorm(.975)*dynamic$se
+-dynamic$upper <- dynamic$estimate + qnorm(.975)*dynamic$se
++dynamic$crit_val <- dyn$crit.val.egt
++dynamic$lower <- dynamic$estimate - dynamic$crit_val*dynamic$se
++dynamic$upper <- dynamic$estimate + dynamic$crit_val*dynamic$se
+ 
+ dir.create("figures", showWarnings=FALSE, recursive=TRUE)
+ png("figures/event-study.png", width=2100, height=1500, res=300)
+@@ -51,14 +58,14 @@
+ points(dynamic$event_time,dynamic$estimate,pch=19,col=oi["blue"],cex=1.15)
+ dev.off()
+ 
+-tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Pooled post-treatment vs all untreated observations; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
++tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Implicit mixture of treated-versus-never and cross-timing treated-cohort comparisons; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
+ fmt <- function(x) sprintf("%.4f",x)
+-lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws.")
++lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws. `lpop` is deliberately omitted throughout; a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators.")
+ writeLines(lines,"estimates-table.md")
+ 
+ pre_rows <- dynamic[dynamic$event_time <= -2,]
+ pre_desc <- paste(sprintf("event time %d: %.3f (SE %.3f)",pre_rows$event_time,pre_rows$estimate,pre_rows$se),collapse="; ")
+-memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The Goodman--Bacon decomposition shows why that estimate should not be treated automatically as clean: %.1f%% of its identifying weight is from later-versus-earlier-treated comparisons, where already-treated counties can act as controls, while %.1f%% is from treated-versus-never-treated comparisons. Thus the potentially problematic comparison class is materially present, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. This is roughly a %.1f%% decline in employment.\n\nThe event study offers limited but useful support for parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. Nonetheless, the available leads (%s) are small relative to their uncertainty, and the Callaway--Sant'Anna pre-test p-value is %.3f. The plot therefore does not show clear pre-treatment divergence, but it cannot establish parallel trends. In short: the modern critique changes estimator choice and the interpretation of the pooled coefficient, not the qualitative conclusion in these data. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*later_earlier_weight,100*treated_never_weight,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),-100*cs_never_simple$overall.att,pre_desc,cs_never$Wpval)
++memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The full Goodman--Bacon decomposition assigns %.1f%% of the weight to treated-versus-never-treated comparisons, %.1f%% to later-versus-earlier-treated comparisons, and %.1f%% to earlier-versus-later-treated comparisons. Bacon's 2x2 comparison weights are positive; the %.1f%% later-versus-earlier share measures exposure to contaminated comparisons, not a literal share of negative weights. The weighted decomposition reproduces the TWFE coefficient (`sum(weight * estimate) = %.4f`). Contamination is therefore present but small here, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. Exactly converted from logs, this is a %.1f%% decline in employment (`100 * (exp(-0.0400) - 1) = -3.9%%`).\n\nThe event study offers limited evidence on parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. The joint test does not reject pre-trends (p = %.3f), but power is limited and one lead is borderline: %s. This is absence of clear evidence against parallel trends, not affirmative support. The plot uses the package's simultaneous critical-value bands (`dyn$crit.val.egt`) because `cband=TRUE`; the default varying base period is retained (using `base_period=\"universal\"` would produce the more familiar event-study normalization).\n\nThis is an unconditional analysis with `lpop` deliberately omitted. Because the package's worked example often adjusts for population, a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators. In short: the contamination exists but is quantitatively small here, so modern estimators change the preferred reported coefficient—not the substantive conclusion. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*treated_never_weight,100*later_earlier_weight,100*earlier_later_weight,100*later_earlier_weight,bacon_att,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),100*(exp(cs_never_simple$overall.att)-1),cs_never$Wpval,pre_desc)
+ writeLines(memo,"memo.md")
+ saveRDS(list(twfe=twfe,cs_nyt=cs_nyt,cs_never=cs_never,sunab=sa,bacon=bacon_out,dynamic=dynamic,bacon_by_type=bacon_by_type),"results.rds")
+-print(tab); print(bacon_by_type); print(dynamic); cat("CS pre-test p-value:",cs_never$Wpval,"\n")
++print(tab); print(bacon_by_type); print(dynamic); cat("Bacon weighted ATT:", bacon_att, "\nCS pre-test p-value:",cs_never$Wpval,"\n")
+
+diff --git a/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R b/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+index 907a4abe054b899cd11aba1578f4e77f94c6f18f..f9273577dec68e038dc8b26ec77e49c726b97e0b
+--- a/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
++++ b/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+@@ -19,8 +19,11 @@
+ twfe_att <- unname(coef(twfe)["post"]); twfe_se <- unname(se(twfe)["post"])
+ 
+ # (b) C&S group-time DiD; bootstrap is clustered at the supplied county id.
+-cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
+-cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
++# This is an unconditional analysis: lpop is deliberately omitted throughout.
++# Retain did's varying-base-period default explicitly; base_period="universal"
++# would give the more familiar single-reference-period event-study normalization.
++cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
++cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
+ cs_nyt_simple <- aggte(cs_nyt, type="simple")
+ cs_never_simple <- aggte(cs_never, type="simple")
+ 
+@@ -33,13 +36,17 @@
+ bacon_out <- bacon(lemp ~ post, data=d, id_var="countyreal", time_var="year", quietly=TRUE)
+ bacon_by_type <- aggregate(weight ~ type, bacon_out, sum)
+ later_earlier_weight <- sum(bacon_out$weight[grepl("Later vs Earlier", bacon_out$type)])
++earlier_later_weight <- sum(bacon_out$weight[grepl("Earlier vs Later", bacon_out$type)])
+ treated_never_weight <- sum(bacon_out$weight[grepl("Treated vs Untreated", bacon_out$type)])
++bacon_att <- sum(bacon_out$weight * bacon_out$estimate)
++stopifnot(all(bacon_out$weight > 0), isTRUE(all.equal(bacon_att, twfe_att, tolerance=1e-10)))
+ 
+ # Dynamic C&S event study. It covers leads -3 and -2 and treatment period 0.
+ dyn <- aggte(cs_never, type="dynamic", min_e=-3, max_e=3)
+ dynamic <- data.frame(event_time=dyn$egt, estimate=dyn$att.egt, se=dyn$se.egt)
+-dynamic$lower <- dynamic$estimate - qnorm(.975)*dynamic$se
+-dynamic$upper <- dynamic$estimate + qnorm(.975)*dynamic$se
++dynamic$crit_val <- dyn$crit.val.egt
++dynamic$lower <- dynamic$estimate - dynamic$crit_val*dynamic$se
++dynamic$upper <- dynamic$estimate + dynamic$crit_val*dynamic$se
+ 
+ dir.create("figures", showWarnings=FALSE, recursive=TRUE)
+ png("figures/event-study.png", width=2100, height=1500, res=300)
+@@ -51,14 +58,14 @@
+ points(dynamic$event_time,dynamic$estimate,pch=19,col=oi["blue"],cex=1.15)
+ dev.off()
+ 
+-tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Pooled post-treatment vs all untreated observations; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
++tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Implicit mixture of treated-versus-never and cross-timing treated-cohort comparisons; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
+ fmt <- function(x) sprintf("%.4f",x)
+-lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws.")
++lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws. `lpop` is deliberately omitted throughout; a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators.")
+ writeLines(lines,"estimates-table.md")
+ 
+ pre_rows <- dynamic[dynamic$event_time <= -2,]
+ pre_desc <- paste(sprintf("event time %d: %.3f (SE %.3f)",pre_rows$event_time,pre_rows$estimate,pre_rows$se),collapse="; ")
+-memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The Goodman--Bacon decomposition shows why that estimate should not be treated automatically as clean: %.1f%% of its identifying weight is from later-versus-earlier-treated comparisons, where already-treated counties can act as controls, while %.1f%% is from treated-versus-never-treated comparisons. Thus the potentially problematic comparison class is materially present, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. This is roughly a %.1f%% decline in employment.\n\nThe event study offers limited but useful support for parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. Nonetheless, the available leads (%s) are small relative to their uncertainty, and the Callaway--Sant'Anna pre-test p-value is %.3f. The plot therefore does not show clear pre-treatment divergence, but it cannot establish parallel trends. In short: the modern critique changes estimator choice and the interpretation of the pooled coefficient, not the qualitative conclusion in these data. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*later_earlier_weight,100*treated_never_weight,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),-100*cs_never_simple$overall.att,pre_desc,cs_never$Wpval)
++memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The full Goodman--Bacon decomposition assigns %.1f%% of the weight to treated-versus-never-treated comparisons, %.1f%% to later-versus-earlier-treated comparisons, and %.1f%% to earlier-versus-later-treated comparisons. Bacon's 2x2 comparison weights are positive; the %.1f%% later-versus-earlier share measures exposure to contaminated comparisons, not a literal share of negative weights. The weighted decomposition reproduces the TWFE coefficient (`sum(weight * estimate) = %.4f`). Contamination is therefore present but small here, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. Exactly converted from logs, this is a %.1f%% decline in employment (`100 * (exp(-0.0400) - 1) = -3.9%%`).\n\nThe event study offers limited evidence on parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. The joint test does not reject pre-trends (p = %.3f), but power is limited and one lead is borderline: %s. This is absence of clear evidence against parallel trends, not affirmative support. The plot uses the package's simultaneous critical-value bands (`dyn$crit.val.egt`) because `cband=TRUE`; the default varying base period is retained (using `base_period=\"universal\"` would produce the more familiar event-study normalization).\n\nThis is an unconditional analysis with `lpop` deliberately omitted. Because the package's worked example often adjusts for population, a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators. In short: the contamination exists but is quantitatively small here, so modern estimators change the preferred reported coefficient—not the substantive conclusion. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*treated_never_weight,100*later_earlier_weight,100*earlier_later_weight,100*later_earlier_weight,bacon_att,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),100*(exp(cs_never_simple$overall.att)-1),cs_never$Wpval,pre_desc)
+ writeLines(memo,"memo.md")
+ saveRDS(list(twfe=twfe,cs_nyt=cs_nyt,cs_never=cs_never,sunab=sa,bacon=bacon_out,dynamic=dynamic,bacon_by_type=bacon_by_type),"results.rds")
+-print(tab); print(bacon_by_type); print(dynamic); cat("CS pre-test p-value:",cs_never$Wpval,"\n")
++print(tab); print(bacon_by_type); print(dynamic); cat("Bacon weighted ATT:", bacon_att, "\nCS pre-test p-value:",cs_never$Wpval,"\n")
+
+exec
+/bin/zsh -lc 'Rscript script.R' in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex
+diff --git a/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R b/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+index 907a4abe054b899cd11aba1578f4e77f94c6f18f..f9273577dec68e038dc8b26ec77e49c726b97e0b
+--- a/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
++++ b/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+@@ -19,8 +19,11 @@
+ twfe_att <- unname(coef(twfe)["post"]); twfe_se <- unname(se(twfe)["post"])
+ 
+ # (b) C&S group-time DiD; bootstrap is clustered at the supplied county id.
+-cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
+-cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
++# This is an unconditional analysis: lpop is deliberately omitted throughout.
++# Retain did's varying-base-period default explicitly; base_period="universal"
++# would give the more familiar single-reference-period event-study normalization.
++cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
++cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
+ cs_nyt_simple <- aggte(cs_nyt, type="simple")
+ cs_never_simple <- aggte(cs_never, type="simple")
+ 
+@@ -33,13 +36,17 @@
+ bacon_out <- bacon(lemp ~ post, data=d, id_var="countyreal", time_var="year", quietly=TRUE)
+ bacon_by_type <- aggregate(weight ~ type, bacon_out, sum)
+ later_earlier_weight <- sum(bacon_out$weight[grepl("Later vs Earlier", bacon_out$type)])
++earlier_later_weight <- sum(bacon_out$weight[grepl("Earlier vs Later", bacon_out$type)])
+ treated_never_weight <- sum(bacon_out$weight[grepl("Treated vs Untreated", bacon_out$type)])
++bacon_att <- sum(bacon_out$weight * bacon_out$estimate)
++stopifnot(all(bacon_out$weight > 0), isTRUE(all.equal(bacon_att, twfe_att, tolerance=1e-10)))
+ 
+ # Dynamic C&S event study. It covers leads -3 and -2 and treatment period 0.
+ dyn <- aggte(cs_never, type="dynamic", min_e=-3, max_e=3)
+ dynamic <- data.frame(event_time=dyn$egt, estimate=dyn$att.egt, se=dyn$se.egt)
+-dynamic$lower <- dynamic$estimate - qnorm(.975)*dynamic$se
+-dynamic$upper <- dynamic$estimate + qnorm(.975)*dynamic$se
++dynamic$crit_val <- dyn$crit.val.egt
++dynamic$lower <- dynamic$estimate - dynamic$crit_val*dynamic$se
++dynamic$upper <- dynamic$estimate + dynamic$crit_val*dynamic$se
+ 
+ dir.create("figures", showWarnings=FALSE, recursive=TRUE)
+ png("figures/event-study.png", width=2100, height=1500, res=300)
+@@ -51,14 +58,14 @@
+ points(dynamic$event_time,dynamic$estimate,pch=19,col=oi["blue"],cex=1.15)
+ dev.off()
+ 
+-tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Pooled post-treatment vs all untreated observations; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
++tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Implicit mixture of treated-versus-never and cross-timing treated-cohort comparisons; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
+ fmt <- function(x) sprintf("%.4f",x)
+-lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws.")
++lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws. `lpop` is deliberately omitted throughout; a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators.")
+ writeLines(lines,"estimates-table.md")
+ 
+ pre_rows <- dynamic[dynamic$event_time <= -2,]
+ pre_desc <- paste(sprintf("event time %d: %.3f (SE %.3f)",pre_rows$event_time,pre_rows$estimate,pre_rows$se),collapse="; ")
+-memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The Goodman--Bacon decomposition shows why that estimate should not be treated automatically as clean: %.1f%% of its identifying weight is from later-versus-earlier-treated comparisons, where already-treated counties can act as controls, while %.1f%% is from treated-versus-never-treated comparisons. Thus the potentially problematic comparison class is materially present, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. This is roughly a %.1f%% decline in employment.\n\nThe event study offers limited but useful support for parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. Nonetheless, the available leads (%s) are small relative to their uncertainty, and the Callaway--Sant'Anna pre-test p-value is %.3f. The plot therefore does not show clear pre-treatment divergence, but it cannot establish parallel trends. In short: the modern critique changes estimator choice and the interpretation of the pooled coefficient, not the qualitative conclusion in these data. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*later_earlier_weight,100*treated_never_weight,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),-100*cs_never_simple$overall.att,pre_desc,cs_never$Wpval)
++memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The full Goodman--Bacon decomposition assigns %.1f%% of the weight to treated-versus-never-treated comparisons, %.1f%% to later-versus-earlier-treated comparisons, and %.1f%% to earlier-versus-later-treated comparisons. Bacon's 2x2 comparison weights are positive; the %.1f%% later-versus-earlier share measures exposure to contaminated comparisons, not a literal share of negative weights. The weighted decomposition reproduces the TWFE coefficient (`sum(weight * estimate) = %.4f`). Contamination is therefore present but small here, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. Exactly converted from logs, this is a %.1f%% decline in employment (`100 * (exp(-0.0400) - 1) = -3.9%%`).\n\nThe event study offers limited evidence on parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. The joint test does not reject pre-trends (p = %.3f), but power is limited and one lead is borderline: %s. This is absence of clear evidence against parallel trends, not affirmative support. The plot uses the package's simultaneous critical-value bands (`dyn$crit.val.egt`) because `cband=TRUE`; the default varying base period is retained (using `base_period=\"universal\"` would produce the more familiar event-study normalization).\n\nThis is an unconditional analysis with `lpop` deliberately omitted. Because the package's worked example often adjusts for population, a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators. In short: the contamination exists but is quantitatively small here, so modern estimators change the preferred reported coefficient—not the substantive conclusion. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*treated_never_weight,100*later_earlier_weight,100*earlier_later_weight,100*later_earlier_weight,bacon_att,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),100*(exp(cs_never_simple$overall.att)-1),cs_never$Wpval,pre_desc)
+ writeLines(memo,"memo.md")
+ saveRDS(list(twfe=twfe,cs_nyt=cs_nyt,cs_never=cs_never,sunab=sa,bacon=bacon_out,dynamic=dynamic,bacon_by_type=bacon_by_type),"results.rds")
+-print(tab); print(bacon_by_type); print(dynamic); cat("CS pre-test p-value:",cs_never$Wpval,"\n")
++print(tab); print(bacon_by_type); print(dynamic); cat("Bacon weighted ATT:", bacon_att, "\nCS pre-test p-value:",cs_never$Wpval,"\n")
+
+ succeeded in 1142ms:
+null device 
+          1 
+            Estimator         ATT         SE
+1          Naive TWFE -0.03654894 0.01326516
+2 Callaway--Sant'Anna -0.03976363 0.01266648
+3 Callaway--Sant'Anna -0.03995128 0.01300176
+4        Sun--Abraham -0.03995128 0.01179628
+                                                                                            Comparison
+1 Implicit mixture of treated-versus-never and cross-timing treated-cohort comparisons; county/year FE
+2                      Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap
+3                                            Never-treated only; county-clustered multiplier bootstrap
+4                   Never-treated reference cohort; cohort x event-time interactions; county clustered
+                      type     weight
+1 Earlier vs Later Treated 0.08330135
+2 Later vs Earlier Treated 0.05392423
+3     Treated vs Untreated 0.86277442
+  event_time      estimate         se crit_val       lower        upper
+1         -3  0.0305066556 0.01598549 2.549362 -0.01024614  0.071259456
+2         -2 -0.0005630846 0.01291471 2.549362 -0.03348735  0.032361178
+3         -1 -0.0244587450 0.01411435 2.549362 -0.06044133  0.011523843
+4          0 -0.0199318168 0.01194891 2.549362 -0.05039391  0.010530276
+5          1 -0.0509573671 0.01731649 2.549362 -0.09510338 -0.006811353
+6          2 -0.1372587389 0.04008421 2.549362 -0.23944791 -0.035069572
+7          3 -0.1008113631 0.03585026 2.549362 -0.19220666 -0.009416069
+Bacon weighted ATT: -0.03654894 
+CS pre-test p-value: 0.16812 
+
+exec
+/bin/zsh -lc "sed -n '1,240p' memo.md && sed -n '1,180p' estimates-table.md && git diff -- memo.md estimates-table.md script.R && git status --short -- memo.md estimates-table.md script.R figures/event-study.png results.rds" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex
+ succeeded in 0ms:
+# Adjudication
+
+The usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of -0.0365 log points (SE 0.0133). The full Goodman--Bacon decomposition assigns 86.3% of the weight to treated-versus-never-treated comparisons, 5.4% to later-versus-earlier-treated comparisons, and 8.3% to earlier-versus-later-treated comparisons. Bacon's 2x2 comparison weights are positive; the 5.4% later-versus-earlier share measures exposure to contaminated comparisons, not a literal share of negative weights. The weighted decomposition reproduces the TWFE coefficient (`sum(weight * estimate) = -0.0365`). Contamination is therefore present but small here, rather than merely a theoretical possibility.
+
+But the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is -0.0398 using not-yet-treated controls and -0.0400 using only never-treated controls; the Sun--Abraham interaction-weighted ATT is -0.0400. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, -0.0400 log points (SE 0.0130), because it makes the comparison population explicit and never uses already-treated units as controls. Exactly converted from logs, this is a -3.9% decline in employment (`100 * (exp(-0.0400) - 1) = -3.9%`).
+
+The event study offers limited evidence on parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. The joint test does not reject pre-trends (p = 0.168), but power is limited and one lead is borderline: event time -3: 0.031 (SE 0.016); event time -2: -0.001 (SE 0.013). This is absence of clear evidence against parallel trends, not affirmative support. The plot uses the package's simultaneous critical-value bands (`dyn$crit.val.egt`) because `cband=TRUE`; the default varying base period is retained (using `base_period="universal"` would produce the more familiar event-study normalization).
+
+This is an unconditional analysis with `lpop` deliberately omitted. Because the package's worked example often adjusts for population, a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators. In short: the contamination exists but is quantitatively small here, so modern estimators change the preferred reported coefficient—not the substantive conclusion. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.
+
+# Staggered-adoption DiD estimates
+
+Outcome: log teen employment (`lemp`).
+
+| Estimator | ATT | SE | Control/comparison group |
+|---|---:|---:|---|
+| Naive TWFE | -0.0365 | 0.0133 | Implicit mixture of treated-versus-never and cross-timing treated-cohort comparisons; county/year FE |
+| Callaway--Sant'Anna | -0.0398 | 0.0127 | Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap |
+| Callaway--Sant'Anna | -0.0400 | 0.0130 | Never-treated only; county-clustered multiplier bootstrap |
+| Sun--Abraham | -0.0400 | 0.0118 | Never-treated reference cohort; cohort x event-time interactions; county clustered |
+
+Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws. `lpop` is deliberately omitted throughout; a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators.
+?? estimates-table.md
+?? figures/event-study.png
+?? memo.md
+?? results.rds
+?? script.R
+
+diff --git a/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R b/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+index 907a4abe054b899cd11aba1578f4e77f94c6f18f..f9273577dec68e038dc8b26ec77e49c726b97e0b
+--- a/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
++++ b/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+@@ -19,8 +19,11 @@
+ twfe_att <- unname(coef(twfe)["post"]); twfe_se <- unname(se(twfe)["post"])
+ 
+ # (b) C&S group-time DiD; bootstrap is clustered at the supplied county id.
+-cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
+-cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
++# This is an unconditional analysis: lpop is deliberately omitted throughout.
++# Retain did's varying-base-period default explicitly; base_period="universal"
++# would give the more familiar single-reference-period event-study normalization.
++cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
++cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
+ cs_nyt_simple <- aggte(cs_nyt, type="simple")
+ cs_never_simple <- aggte(cs_never, type="simple")
+ 
+@@ -33,13 +36,17 @@
+ bacon_out <- bacon(lemp ~ post, data=d, id_var="countyreal", time_var="year", quietly=TRUE)
+ bacon_by_type <- aggregate(weight ~ type, bacon_out, sum)
+ later_earlier_weight <- sum(bacon_out$weight[grepl("Later vs Earlier", bacon_out$type)])
++earlier_later_weight <- sum(bacon_out$weight[grepl("Earlier vs Later", bacon_out$type)])
+ treated_never_weight <- sum(bacon_out$weight[grepl("Treated vs Untreated", bacon_out$type)])
++bacon_att <- sum(bacon_out$weight * bacon_out$estimate)
++stopifnot(all(bacon_out$weight > 0), isTRUE(all.equal(bacon_att, twfe_att, tolerance=1e-10)))
+ 
+ # Dynamic C&S event study. It covers leads -3 and -2 and treatment period 0.
+ dyn <- aggte(cs_never, type="dynamic", min_e=-3, max_e=3)
+ dynamic <- data.frame(event_time=dyn$egt, estimate=dyn$att.egt, se=dyn$se.egt)
+-dynamic$lower <- dynamic$estimate - qnorm(.975)*dynamic$se
+-dynamic$upper <- dynamic$estimate + qnorm(.975)*dynamic$se
++dynamic$crit_val <- dyn$crit.val.egt
++dynamic$lower <- dynamic$estimate - dynamic$crit_val*dynamic$se
++dynamic$upper <- dynamic$estimate + dynamic$crit_val*dynamic$se
+ 
+ dir.create("figures", showWarnings=FALSE, recursive=TRUE)
+ png("figures/event-study.png", width=2100, height=1500, res=300)
+@@ -51,14 +58,14 @@
+ points(dynamic$event_time,dynamic$estimate,pch=19,col=oi["blue"],cex=1.15)
+ dev.off()
+ 
+-tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Pooled post-treatment vs all untreated observations; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
++tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Implicit mixture of treated-versus-never and cross-timing treated-cohort comparisons; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
+ fmt <- function(x) sprintf("%.4f",x)
+-lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws.")
++lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws. `lpop` is deliberately omitted throughout; a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators.")
+ writeLines(lines,"estimates-table.md")
+ 
+ pre_rows <- dynamic[dynamic$event_time <= -2,]
+ pre_desc <- paste(sprintf("event time %d: %.3f (SE %.3f)",pre_rows$event_time,pre_rows$estimate,pre_rows$se),collapse="; ")
+-memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The Goodman--Bacon decomposition shows why that estimate should not be treated automatically as clean: %.1f%% of its identifying weight is from later-versus-earlier-treated comparisons, where already-treated counties can act as controls, while %.1f%% is from treated-versus-never-treated comparisons. Thus the potentially problematic comparison class is materially present, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. This is roughly a %.1f%% decline in employment.\n\nThe event study offers limited but useful support for parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. Nonetheless, the available leads (%s) are small relative to their uncertainty, and the Callaway--Sant'Anna pre-test p-value is %.3f. The plot therefore does not show clear pre-treatment divergence, but it cannot establish parallel trends. In short: the modern critique changes estimator choice and the interpretation of the pooled coefficient, not the qualitative conclusion in these data. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*later_earlier_weight,100*treated_never_weight,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),-100*cs_never_simple$overall.att,pre_desc,cs_never$Wpval)
++memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The full Goodman--Bacon decomposition assigns %.1f%% of the weight to treated-versus-never-treated comparisons, %.1f%% to later-versus-earlier-treated comparisons, and %.1f%% to earlier-versus-later-treated comparisons. Bacon's 2x2 comparison weights are positive; the %.1f%% later-versus-earlier share measures exposure to contaminated comparisons, not a literal share of negative weights. The weighted decomposition reproduces the TWFE coefficient (`sum(weight * estimate) = %.4f`). Contamination is therefore present but small here, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. Exactly converted from logs, this is a %.1f%% decline in employment (`100 * (exp(-0.0400) - 1) = -3.9%%`).\n\nThe event study offers limited evidence on parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. The joint test does not reject pre-trends (p = %.3f), but power is limited and one lead is borderline: %s. This is absence of clear evidence against parallel trends, not affirmative support. The plot uses the package's simultaneous critical-value bands (`dyn$crit.val.egt`) because `cband=TRUE`; the default varying base period is retained (using `base_period=\"universal\"` would produce the more familiar event-study normalization).\n\nThis is an unconditional analysis with `lpop` deliberately omitted. Because the package's worked example often adjusts for population, a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators. In short: the contamination exists but is quantitatively small here, so modern estimators change the preferred reported coefficient—not the substantive conclusion. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*treated_never_weight,100*later_earlier_weight,100*earlier_later_weight,100*later_earlier_weight,bacon_att,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),100*(exp(cs_never_simple$overall.att)-1),cs_never$Wpval,pre_desc)
+ writeLines(memo,"memo.md")
+ saveRDS(list(twfe=twfe,cs_nyt=cs_nyt,cs_never=cs_never,sunab=sa,bacon=bacon_out,dynamic=dynamic,bacon_by_type=bacon_by_type),"results.rds")
+-print(tab); print(bacon_by_type); print(dynamic); cat("CS pre-test p-value:",cs_never$Wpval,"\n")
++print(tab); print(bacon_by_type); print(dynamic); cat("Bacon weighted ATT:", bacon_att, "\nCS pre-test p-value:",cs_never$Wpval,"\n")
+
+codex
+The revised script ran successfully. It now verifies the Bacon identity numerically (`-0.03654894`) and uses the simultaneous event-study critical value (`2.549362`) rather than a 1.96 multiplier.
+exec
+/bin/zsh -lc "nl -ba memo.md | sed -n '1,80p'; nl -ba estimates-table.md | sed -n '1,60p'; nl -ba script.R | sed -n '1,180p'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex
+ succeeded in 0ms:
+     1	# Adjudication
+     2	
+     3	The usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of -0.0365 log points (SE 0.0133). The full Goodman--Bacon decomposition assigns 86.3% of the weight to treated-versus-never-treated comparisons, 5.4% to later-versus-earlier-treated comparisons, and 8.3% to earlier-versus-later-treated comparisons. Bacon's 2x2 comparison weights are positive; the 5.4% later-versus-earlier share measures exposure to contaminated comparisons, not a literal share of negative weights. The weighted decomposition reproduces the TWFE coefficient (`sum(weight * estimate) = -0.0365`). Contamination is therefore present but small here, rather than merely a theoretical possibility.
+     4	
+     5	But the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is -0.0398 using not-yet-treated controls and -0.0400 using only never-treated controls; the Sun--Abraham interaction-weighted ATT is -0.0400. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, -0.0400 log points (SE 0.0130), because it makes the comparison population explicit and never uses already-treated units as controls. Exactly converted from logs, this is a -3.9% decline in employment (`100 * (exp(-0.0400) - 1) = -3.9%`).
+     6	
+     7	The event study offers limited evidence on parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. The joint test does not reject pre-trends (p = 0.168), but power is limited and one lead is borderline: event time -3: 0.031 (SE 0.016); event time -2: -0.001 (SE 0.013). This is absence of clear evidence against parallel trends, not affirmative support. The plot uses the package's simultaneous critical-value bands (`dyn$crit.val.egt`) because `cband=TRUE`; the default varying base period is retained (using `base_period="universal"` would produce the more familiar event-study normalization).
+     8	
+     9	This is an unconditional analysis with `lpop` deliberately omitted. Because the package's worked example often adjusts for population, a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators. In short: the contamination exists but is quantitatively small here, so modern estimators change the preferred reported coefficient—not the substantive conclusion. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.
+    10	
+     1	# Staggered-adoption DiD estimates
+     2	
+     3	Outcome: log teen employment (`lemp`).
+     4	
+     5	| Estimator | ATT | SE | Control/comparison group |
+     6	|---|---:|---:|---|
+     7	| Naive TWFE | -0.0365 | 0.0133 | Implicit mixture of treated-versus-never and cross-timing treated-cohort comparisons; county/year FE |
+     8	| Callaway--Sant'Anna | -0.0398 | 0.0127 | Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap |
+     9	| Callaway--Sant'Anna | -0.0400 | 0.0130 | Never-treated only; county-clustered multiplier bootstrap |
+    10	| Sun--Abraham | -0.0400 | 0.0118 | Never-treated reference cohort; cohort x event-time interactions; county clustered |
+    11	
+    12	Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws. `lpop` is deliberately omitted throughout; a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators.
+     1	# Reconcile staggered-adoption DiD estimators on did::mpdta
+     2	set.seed(20260717)
+     3	library(did)
+     4	library(fixest)
+     5	library(bacondecomp)
+     6	
+     7	# Okabe-Ito palette and plotting defaults
+     8	oi <- c(orange="#E69F00", sky_blue="#56B4E9", bluish_green="#009E73", yellow="#F0E442", blue="#0072B2", vermillion="#D55E00", purple="#CC79A7", black="#000000")
+     9	theme_event <- list(cex.axis=.95, cex.lab=1.05, family="sans")
+    10	
+    11	data(mpdta, package="did")
+    12	d <- mpdta
+    13	# did::att_gt uses 0 for never treated; treatment turns on in first.treat.
+    14	d$ever_treated <- as.integer(d$first.treat > 0)
+    15	d$post <- as.integer(d$ever_treated == 1 & d$year >= d$first.treat)
+    16	
+    17	# (a) Pooled TWFE, clustered by county.
+    18	twfe <- feols(lemp ~ post | countyreal + year, d, cluster=~countyreal)
+    19	twfe_att <- unname(coef(twfe)["post"]); twfe_se <- unname(se(twfe)["post"])
+    20	
+    21	# (b) C&S group-time DiD; bootstrap is clustered at the supplied county id.
+    22	# This is an unconditional analysis: lpop is deliberately omitted throughout.
+    23	# Retain did's varying-base-period default explicitly; base_period="universal"
+    24	# would give the more familiar single-reference-period event-study normalization.
+    25	cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
+    26	cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
+    27	cs_nyt_simple <- aggte(cs_nyt, type="simple")
+    28	cs_never_simple <- aggte(cs_never, type="simple")
+    29	
+    30	# (c) Sun-Abraham. A cohort outside observed years (0) is inferred as never treated.
+    31	sa <- feols(lemp ~ sunab(first.treat, year) | countyreal + year, d, cluster=~countyreal)
+    32	sa_att <- summary(sa, agg="ATT")
+    33	sa_att_est <- unname(coef(sa_att)[1]); sa_att_se <- unname(se(sa_att)[1])
+    34	
+    35	# Bacon decomposition of the identical binary treatment used in pooled TWFE.
+    36	bacon_out <- bacon(lemp ~ post, data=d, id_var="countyreal", time_var="year", quietly=TRUE)
+    37	bacon_by_type <- aggregate(weight ~ type, bacon_out, sum)
+    38	later_earlier_weight <- sum(bacon_out$weight[grepl("Later vs Earlier", bacon_out$type)])
+    39	earlier_later_weight <- sum(bacon_out$weight[grepl("Earlier vs Later", bacon_out$type)])
+    40	treated_never_weight <- sum(bacon_out$weight[grepl("Treated vs Untreated", bacon_out$type)])
+    41	bacon_att <- sum(bacon_out$weight * bacon_out$estimate)
+    42	stopifnot(all(bacon_out$weight > 0), isTRUE(all.equal(bacon_att, twfe_att, tolerance=1e-10)))
+    43	
+    44	# Dynamic C&S event study. It covers leads -3 and -2 and treatment period 0.
+    45	dyn <- aggte(cs_never, type="dynamic", min_e=-3, max_e=3)
+    46	dynamic <- data.frame(event_time=dyn$egt, estimate=dyn$att.egt, se=dyn$se.egt)
+    47	dynamic$crit_val <- dyn$crit.val.egt
+    48	dynamic$lower <- dynamic$estimate - dynamic$crit_val*dynamic$se
+    49	dynamic$upper <- dynamic$estimate + dynamic$crit_val*dynamic$se
+    50	
+    51	dir.create("figures", showWarnings=FALSE, recursive=TRUE)
+    52	png("figures/event-study.png", width=2100, height=1500, res=300)
+    53	par(mar=c(4.5,5,1,1), las=1, family=theme_event$family)
+    54	plot(dynamic$event_time, dynamic$estimate, type="n", xlim=range(dynamic$event_time)+c(-.35,.35), ylim=range(c(dynamic$lower,dynamic$upper,0),finite=TRUE), xlab="Event time (years relative to first treatment)", ylab="ATT on log teen employment", cex.axis=theme_event$cex.axis, cex.lab=theme_event$cex.lab, xaxt="n")
+    55	axis(1, at=dynamic$event_time)
+    56	abline(h=0, col="grey45", lty=2, lwd=1); abline(v=0, col=oi["vermillion"], lty=2, lwd=1.4)
+    57	arrows(dynamic$event_time,dynamic$lower,dynamic$event_time,dynamic$upper,angle=90,code=3,length=.045,col=oi["blue"],lwd=1.4)
+    58	points(dynamic$event_time,dynamic$estimate,pch=19,col=oi["blue"],cex=1.15)
+    59	dev.off()
+    60	
+    61	tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Implicit mixture of treated-versus-never and cross-timing treated-cohort comparisons; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
+    62	fmt <- function(x) sprintf("%.4f",x)
+    63	lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws. `lpop` is deliberately omitted throughout; a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators.")
+    64	writeLines(lines,"estimates-table.md")
+    65	
+    66	pre_rows <- dynamic[dynamic$event_time <= -2,]
+    67	pre_desc <- paste(sprintf("event time %d: %.3f (SE %.3f)",pre_rows$event_time,pre_rows$estimate,pre_rows$se),collapse="; ")
+    68	memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The full Goodman--Bacon decomposition assigns %.1f%% of the weight to treated-versus-never-treated comparisons, %.1f%% to later-versus-earlier-treated comparisons, and %.1f%% to earlier-versus-later-treated comparisons. Bacon's 2x2 comparison weights are positive; the %.1f%% later-versus-earlier share measures exposure to contaminated comparisons, not a literal share of negative weights. The weighted decomposition reproduces the TWFE coefficient (`sum(weight * estimate) = %.4f`). Contamination is therefore present but small here, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. Exactly converted from logs, this is a %.1f%% decline in employment (`100 * (exp(-0.0400) - 1) = -3.9%%`).\n\nThe event study offers limited evidence on parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. The joint test does not reject pre-trends (p = %.3f), but power is limited and one lead is borderline: %s. This is absence of clear evidence against parallel trends, not affirmative support. The plot uses the package's simultaneous critical-value bands (`dyn$crit.val.egt`) because `cband=TRUE`; the default varying base period is retained (using `base_period=\"universal\"` would produce the more familiar event-study normalization).\n\nThis is an unconditional analysis with `lpop` deliberately omitted. Because the package's worked example often adjusts for population, a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators. In short: the contamination exists but is quantitatively small here, so modern estimators change the preferred reported coefficient—not the substantive conclusion. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*treated_never_weight,100*later_earlier_weight,100*earlier_later_weight,100*later_earlier_weight,bacon_att,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),100*(exp(cs_never_simple$overall.att)-1),cs_never$Wpval,pre_desc)
+    69	writeLines(memo,"memo.md")
+    70	saveRDS(list(twfe=twfe,cs_nyt=cs_nyt,cs_never=cs_never,sunab=sa,bacon=bacon_out,dynamic=dynamic,bacon_by_type=bacon_by_type),"results.rds")
+    71	print(tab); print(bacon_by_type); print(dynamic); cat("Bacon weighted ATT:", bacon_att, "\nCS pre-test p-value:",cs_never$Wpval,"\n")
+
+diff --git a/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R b/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+index 907a4abe054b899cd11aba1578f4e77f94c6f18f..f9273577dec68e038dc8b26ec77e49c726b97e0b
+--- a/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
++++ b/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+@@ -19,8 +19,11 @@
+ twfe_att <- unname(coef(twfe)["post"]); twfe_se <- unname(se(twfe)["post"])
+ 
+ # (b) C&S group-time DiD; bootstrap is clustered at the supplied county id.
+-cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
+-cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
++# This is an unconditional analysis: lpop is deliberately omitted throughout.
++# Retain did's varying-base-period default explicitly; base_period="universal"
++# would give the more familiar single-reference-period event-study normalization.
++cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
++cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
+ cs_nyt_simple <- aggte(cs_nyt, type="simple")
+ cs_never_simple <- aggte(cs_never, type="simple")
+ 
+@@ -33,13 +36,17 @@
+ bacon_out <- bacon(lemp ~ post, data=d, id_var="countyreal", time_var="year", quietly=TRUE)
+ bacon_by_type <- aggregate(weight ~ type, bacon_out, sum)
+ later_earlier_weight <- sum(bacon_out$weight[grepl("Later vs Earlier", bacon_out$type)])
++earlier_later_weight <- sum(bacon_out$weight[grepl("Earlier vs Later", bacon_out$type)])
+ treated_never_weight <- sum(bacon_out$weight[grepl("Treated vs Untreated", bacon_out$type)])
++bacon_att <- sum(bacon_out$weight * bacon_out$estimate)
++stopifnot(all(bacon_out$weight > 0), isTRUE(all.equal(bacon_att, twfe_att, tolerance=1e-10)))
+ 
+ # Dynamic C&S event study. It covers leads -3 and -2 and treatment period 0.
+ dyn <- aggte(cs_never, type="dynamic", min_e=-3, max_e=3)
+ dynamic <- data.frame(event_time=dyn$egt, estimate=dyn$att.egt, se=dyn$se.egt)
+-dynamic$lower <- dynamic$estimate - qnorm(.975)*dynamic$se
+-dynamic$upper <- dynamic$estimate + qnorm(.975)*dynamic$se
++dynamic$crit_val <- dyn$crit.val.egt
++dynamic$lower <- dynamic$estimate - dynamic$crit_val*dynamic$se
++dynamic$upper <- dynamic$estimate + dynamic$crit_val*dynamic$se
+ 
+ dir.create("figures", showWarnings=FALSE, recursive=TRUE)
+ png("figures/event-study.png", width=2100, height=1500, res=300)
+@@ -51,14 +58,14 @@
+ points(dynamic$event_time,dynamic$estimate,pch=19,col=oi["blue"],cex=1.15)
+ dev.off()
+ 
+-tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Pooled post-treatment vs all untreated observations; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
++tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Implicit mixture of treated-versus-never and cross-timing treated-cohort comparisons; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
+ fmt <- function(x) sprintf("%.4f",x)
+-lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws.")
++lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws. `lpop` is deliberately omitted throughout; a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators.")
+ writeLines(lines,"estimates-table.md")
+ 
+ pre_rows <- dynamic[dynamic$event_time <= -2,]
+ pre_desc <- paste(sprintf("event time %d: %.3f (SE %.3f)",pre_rows$event_time,pre_rows$estimate,pre_rows$se),collapse="; ")
+-memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The Goodman--Bacon decomposition shows why that estimate should not be treated automatically as clean: %.1f%% of its identifying weight is from later-versus-earlier-treated comparisons, where already-treated counties can act as controls, while %.1f%% is from treated-versus-never-treated comparisons. Thus the potentially problematic comparison class is materially present, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. This is roughly a %.1f%% decline in employment.\n\nThe event study offers limited but useful support for parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. Nonetheless, the available leads (%s) are small relative to their uncertainty, and the Callaway--Sant'Anna pre-test p-value is %.3f. The plot therefore does not show clear pre-treatment divergence, but it cannot establish parallel trends. In short: the modern critique changes estimator choice and the interpretation of the pooled coefficient, not the qualitative conclusion in these data. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*later_earlier_weight,100*treated_never_weight,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),-100*cs_never_simple$overall.att,pre_desc,cs_never$Wpval)
++memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The full Goodman--Bacon decomposition assigns %.1f%% of the weight to treated-versus-never-treated comparisons, %.1f%% to later-versus-earlier-treated comparisons, and %.1f%% to earlier-versus-later-treated comparisons. Bacon's 2x2 comparison weights are positive; the %.1f%% later-versus-earlier share measures exposure to contaminated comparisons, not a literal share of negative weights. The weighted decomposition reproduces the TWFE coefficient (`sum(weight * estimate) = %.4f`). Contamination is therefore present but small here, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. Exactly converted from logs, this is a %.1f%% decline in employment (`100 * (exp(-0.0400) - 1) = -3.9%%`).\n\nThe event study offers limited evidence on parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. The joint test does not reject pre-trends (p = %.3f), but power is limited and one lead is borderline: %s. This is absence of clear evidence against parallel trends, not affirmative support. The plot uses the package's simultaneous critical-value bands (`dyn$crit.val.egt`) because `cband=TRUE`; the default varying base period is retained (using `base_period=\"universal\"` would produce the more familiar event-study normalization).\n\nThis is an unconditional analysis with `lpop` deliberately omitted. Because the package's worked example often adjusts for population, a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators. In short: the contamination exists but is quantitatively small here, so modern estimators change the preferred reported coefficient—not the substantive conclusion. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*treated_never_weight,100*later_earlier_weight,100*earlier_later_weight,100*later_earlier_weight,bacon_att,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),100*(exp(cs_never_simple$overall.att)-1),cs_never$Wpval,pre_desc)
+ writeLines(memo,"memo.md")
+ saveRDS(list(twfe=twfe,cs_nyt=cs_nyt,cs_never=cs_never,sunab=sa,bacon=bacon_out,dynamic=dynamic,bacon_by_type=bacon_by_type),"results.rds")
+-print(tab); print(bacon_by_type); print(dynamic); cat("CS pre-test p-value:",cs_never$Wpval,"\n")
++print(tab); print(bacon_by_type); print(dynamic); cat("Bacon weighted ATT:", bacon_att, "\nCS pre-test p-value:",cs_never$Wpval,"\n")
+
+codex
+Revised and regenerated:
+
+- [memo.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/memo.md:3): full Bacon decomposition, tempered pre-trend interpretation, exact −3.9% conversion, unconditional `lpop` note, and retained final adjudication.
+- [estimates-table.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/estimates-table.md:7): corrected TWFE comparison label and added specification note.
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R:35): verifies `sum(weight * estimate)` equals TWFE, asserts positive Bacon weights, retains varying base period, and plots simultaneous bands via `dyn$crit.val.egt`.
+
+Verified by running `Rscript script.R`; the Bacon weighted ATT is `-0.03654894`, matching TWFE.
+diff --git a/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R b/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+index 907a4abe054b899cd11aba1578f4e77f94c6f18f..f9273577dec68e038dc8b26ec77e49c726b97e0b
+--- a/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
++++ b/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R
+@@ -19,8 +19,11 @@
+ twfe_att <- unname(coef(twfe)["post"]); twfe_se <- unname(se(twfe)["post"])
+ 
+ # (b) C&S group-time DiD; bootstrap is clustered at the supplied county id.
+-cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
+-cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE)
++# This is an unconditional analysis: lpop is deliberately omitted throughout.
++# Retain did's varying-base-period default explicitly; base_period="universal"
++# would give the more familiar single-reference-period event-study normalization.
++cs_nyt <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="notyettreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
++cs_never <- att_gt(yname="lemp", tname="year", idname="countyreal", gname="first.treat", data=d, control_group="nevertreated", bstrap=TRUE, biters=999, clustervars="countyreal", cband=TRUE, base_period="varying")
+ cs_nyt_simple <- aggte(cs_nyt, type="simple")
+ cs_never_simple <- aggte(cs_never, type="simple")
+ 
+@@ -33,13 +36,17 @@
+ bacon_out <- bacon(lemp ~ post, data=d, id_var="countyreal", time_var="year", quietly=TRUE)
+ bacon_by_type <- aggregate(weight ~ type, bacon_out, sum)
+ later_earlier_weight <- sum(bacon_out$weight[grepl("Later vs Earlier", bacon_out$type)])
++earlier_later_weight <- sum(bacon_out$weight[grepl("Earlier vs Later", bacon_out$type)])
+ treated_never_weight <- sum(bacon_out$weight[grepl("Treated vs Untreated", bacon_out$type)])
++bacon_att <- sum(bacon_out$weight * bacon_out$estimate)
++stopifnot(all(bacon_out$weight > 0), isTRUE(all.equal(bacon_att, twfe_att, tolerance=1e-10)))
+ 
+ # Dynamic C&S event study. It covers leads -3 and -2 and treatment period 0.
+ dyn <- aggte(cs_never, type="dynamic", min_e=-3, max_e=3)
+ dynamic <- data.frame(event_time=dyn$egt, estimate=dyn$att.egt, se=dyn$se.egt)
+-dynamic$lower <- dynamic$estimate - qnorm(.975)*dynamic$se
+-dynamic$upper <- dynamic$estimate + qnorm(.975)*dynamic$se
++dynamic$crit_val <- dyn$crit.val.egt
++dynamic$lower <- dynamic$estimate - dynamic$crit_val*dynamic$se
++dynamic$upper <- dynamic$estimate + dynamic$crit_val*dynamic$se
+ 
+ dir.create("figures", showWarnings=FALSE, recursive=TRUE)
+ png("figures/event-study.png", width=2100, height=1500, res=300)
+@@ -51,14 +58,14 @@
+ points(dynamic$event_time,dynamic$estimate,pch=19,col=oi["blue"],cex=1.15)
+ dev.off()
+ 
+-tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Pooled post-treatment vs all untreated observations; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
++tab <- data.frame(Estimator=c("Naive TWFE","Callaway--Sant'Anna","Callaway--Sant'Anna","Sun--Abraham"), ATT=c(twfe_att,cs_nyt_simple$overall.att,cs_never_simple$overall.att,sa_att_est), SE=c(twfe_se,cs_nyt_simple$overall.se,cs_never_simple$overall.se,sa_att_se), Comparison=c("Implicit mixture of treated-versus-never and cross-timing treated-cohort comparisons; county/year FE","Not-yet-treated (includes never-treated); county-clustered multiplier bootstrap","Never-treated only; county-clustered multiplier bootstrap","Never-treated reference cohort; cohort x event-time interactions; county clustered"))
+ fmt <- function(x) sprintf("%.4f",x)
+-lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws.")
++lines <- c("# Staggered-adoption DiD estimates","","Outcome: log teen employment (`lemp`).","","| Estimator | ATT | SE | Control/comparison group |","|---|---:|---:|---|",apply(tab,1,function(z) sprintf("| %s | %s | %s | %s |",z[1],fmt(as.numeric(z[2])),fmt(as.numeric(z[3])),z[4])),"","Callaway--Sant'Anna uses its unconditional doubly robust estimator (equivalent to unconditional 2x2 DiD here) with 999 multiplier-bootstrap draws. `lpop` is deliberately omitted throughout; a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators.")
+ writeLines(lines,"estimates-table.md")
+ 
+ pre_rows <- dynamic[dynamic$event_time <= -2,]
+ pre_desc <- paste(sprintf("event time %d: %.3f (SE %.3f)",pre_rows$event_time,pre_rows$estimate,pre_rows$se),collapse="; ")
+-memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The Goodman--Bacon decomposition shows why that estimate should not be treated automatically as clean: %.1f%% of its identifying weight is from later-versus-earlier-treated comparisons, where already-treated counties can act as controls, while %.1f%% is from treated-versus-never-treated comparisons. Thus the potentially problematic comparison class is materially present, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. This is roughly a %.1f%% decline in employment.\n\nThe event study offers limited but useful support for parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. Nonetheless, the available leads (%s) are small relative to their uncertainty, and the Callaway--Sant'Anna pre-test p-value is %.3f. The plot therefore does not show clear pre-treatment divergence, but it cannot establish parallel trends. In short: the modern critique changes estimator choice and the interpretation of the pooled coefficient, not the qualitative conclusion in these data. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*later_earlier_weight,100*treated_never_weight,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),-100*cs_never_simple$overall.att,pre_desc,cs_never$Wpval)
++memo <- sprintf("# Adjudication\n\nThe usual warning about pooled two-way fixed effects (TWFE) is relevant as a design diagnostic here, but it does not overturn the substantive finding in this particular panel. The conventional county- and year-fixed-effect regression estimates an ATT of %s log points (SE %s). The full Goodman--Bacon decomposition assigns %.1f%% of the weight to treated-versus-never-treated comparisons, %.1f%% to later-versus-earlier-treated comparisons, and %.1f%% to earlier-versus-later-treated comparisons. Bacon's 2x2 comparison weights are positive; the %.1f%% later-versus-earlier share measures exposure to contaminated comparisons, not a literal share of negative weights. The weighted decomposition reproduces the TWFE coefficient (`sum(weight * estimate) = %.4f`). Contamination is therefore present but small here, rather than merely a theoretical possibility.\n\nBut the robust estimators point to a closely similar conclusion. The Callaway--Sant'Anna simple ATT is %s using not-yet-treated controls and %s using only never-treated controls; the Sun--Abraham interaction-weighted ATT is %s. All four estimates indicate lower teen employment after a state raises its minimum wage above the federal floor. Their differences are modest relative to their standard errors, and the robust estimates remain negative. For reporting, I would use the Callaway--Sant'Anna estimate with never-treated controls, %s log points (SE %s), because it makes the comparison population explicit and never uses already-treated units as controls. Exactly converted from logs, this is a %.1f%% decline in employment (`100 * (exp(-0.0400) - 1) = -3.9%%`).\n\nThe event study offers limited evidence on parallel trends. There are only five calendar years and the earliest cohort is treated in 2004, so the pre-period evidence is necessarily thin. The joint test does not reject pre-trends (p = %.3f), but power is limited and one lead is borderline: %s. This is absence of clear evidence against parallel trends, not affirmative support. The plot uses the package's simultaneous critical-value bands (`dyn$crit.val.egt`) because `cband=TRUE`; the default varying base period is retained (using `base_period=\"universal\"` would produce the more familiar event-study normalization).\n\nThis is an unconditional analysis with `lpop` deliberately omitted. Because the package's worked example often adjusts for population, a consistently specified `lpop` sensitivity analysis would be useful, but it should not be mixed selectively across estimators. In short: the contamination exists but is quantitatively small here, so modern estimators change the preferred reported coefficient—not the substantive conclusion. This is not a claim that TWFE is generally safe; it is a dataset-specific reconciliation after checking its comparison weights, robust alternatives, and leads.\n",fmt(twfe_att),fmt(twfe_se),100*treated_never_weight,100*later_earlier_weight,100*earlier_later_weight,100*later_earlier_weight,bacon_att,fmt(cs_nyt_simple$overall.att),fmt(cs_never_simple$overall.att),fmt(sa_att_est),fmt(cs_never_simple$overall.att),fmt(cs_never_simple$overall.se),100*(exp(cs_never_simple$overall.att)-1),cs_never$Wpval,pre_desc)
+ writeLines(memo,"memo.md")
+ saveRDS(list(twfe=twfe,cs_nyt=cs_nyt,cs_never=cs_never,sunab=sa,bacon=bacon_out,dynamic=dynamic,bacon_by_type=bacon_by_type),"results.rds")
+-print(tab); print(bacon_by_type); print(dynamic); cat("CS pre-test p-value:",cs_never$Wpval,"\n")
++print(tab); print(bacon_by_type); print(dynamic); cat("Bacon weighted ATT:", bacon_att, "\nCS pre-test p-value:",cs_never$Wpval,"\n")
+
+tokens used
+27,332
+Revised and regenerated:
+
+- [memo.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/memo.md:3): full Bacon decomposition, tempered pre-trend interpretation, exact −3.9% conversion, unconditional `lpop` note, and retained final adjudication.
+- [estimates-table.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/estimates-table.md:7): corrected TWFE comparison label and added specification note.
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/extreme-stagdid-codex/script.R:35): verifies `sum(weight * estimate)` equals TWFE, asserts positive Bacon weights, retains varying base period, and plots simultaneous bands via `dyn$crit.val.egt`.
+
+Verified by running `Rscript script.R`; the Bacon weighted ATT is `-0.03654894`, matching TWFE.

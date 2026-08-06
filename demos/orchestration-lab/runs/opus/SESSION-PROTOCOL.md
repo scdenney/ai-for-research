@@ -41,3 +41,13 @@ The build session extracts `transcript-excerpt.md` from the local session log af
 
 [paste the full contents of demos/orchestration-lab/prompts/t3-reviewer-memo.md]
 ```
+
+## Paste block — EXTREME
+
+Run in `demos/orchestration-lab/runs/opus/extreme-stagdid` (create it first if it does not exist: `mkdir -p demos/orchestration-lab/runs/opus/extreme-stagdid`).
+
+```
+/oss:opus-orchestrate Work this brief in the current directory exactly as written. When done, create run-log.md here from the template at ../../../prompts/run-log-template.md, filling the routing-trace section yourself (who you delegated to, model + effort, purpose, what came back — "none, did it inline" is valid) and the friction log. Brief follows.
+
+[paste the full contents of demos/orchestration-lab/prompts/extreme-stagdid.md]
+```

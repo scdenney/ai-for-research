@@ -1,281 +1,170 @@
-# T3 — Baseline sensitivity of the crime-attribute finding
-# Re-estimates AMCEs under alternative reference categories, computes
-# baseline-invariant marginal means (MMs), formally tests whether the
-# crime MM range exceeds the driving-time MM range, and writes
-# figures/sensitivity.png and sensitivity-table.md.
-#
-# Run: Rscript script.R
+#!/usr/bin/env Rscript
+# T3 — Is the "Violent Crime Rate drives community choice" headline an
+# artifact of AMCE reference-category choice? Re-estimate crime AMCEs under
+# every available baseline, do the same for one multi-level attribute, and
+# compute marginal means (MMs), which have no reference category at all.
+# Produces: sensitivity-table.md, figures/sensitivity.png, memo.md.
 
-suppressMessages({
+set.seed(20260717)
+
+suppressPackageStartupMessages({
   library(projoint)
-  library(dplyr)
-  library(tidyr)
-  library(purrr)
-  library(stringr)
   library(ggplot2)
-  library(patchwork)
 })
 
-# ---- theme and palette (Okabe-Ito) ------------------------------------------
-okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
-               "#0072B2", "#D55E00", "#CC79A7", "#000000")
-theme_set(
-  theme_minimal(base_size = 11) +
-    theme(panel.grid.minor = element_blank(),
-          strip.text = element_text(face = "bold"),
-          legend.position = "bottom",
-          plot.margin = margin(6, 10, 6, 6))
+dir.create("figures", showWarnings = FALSE, recursive = TRUE)
+
+## Okabe-Ito palette + shared theme -------------------------------------
+okabe_ito <- c(
+  black = "#000000", orange = "#E69F00", sky = "#56B4E9", green = "#009E73",
+  yellow = "#F0E442", blue = "#0072B2", vermillion = "#D55E00", purple = "#CC79A7"
 )
-set.seed(2026)  # governs the 2,000-draw respondent-cluster bootstrap below
+theme_t3 <- theme_minimal(base_size = 11) +
+  theme(
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(face = "bold"),
+    axis.title = element_text(size = 10)
+  )
 
-dir.create("figures", showWarnings = FALSE)
-
-# ---- data --------------------------------------------------------------------
+## Data -------------------------------------------------------------------
 data(exampleData1)
-out <- reshape_projoint(exampleData1,
-  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
-
-labels <- out$labels %>%
-  mutate(level = str_trim(level), attribute = str_trim(attribute))
-lab_lookup <- setNames(labels$level, labels$level_id)
-att_lookup <- setNames(labels$attribute, labels$attribute_id)
-
-# All estimation below: profile-level estimands, analytical SEs clustered by
-# respondent, with projoint's IRR (measurement-error) correction from the
-# repeated task. Corrected estimates are the primary quantities; uncorrected
-# are kept for the table.
-
-# ---- 1. AMCEs under the default baselines (level1 of each attribute) ---------
-fit_amce <- suppressWarnings(
-  projoint(out, .structure = "profile_level", .estimand = "amce"))
-tau <- fit_amce$tau
-
-# ---- 2. Crime AMCE under each of its two possible baselines ------------------
-# att7 (Violent Crime Rate) is binary: level1 = 20% less crime than national
-# average, level2 = 20% more. Default baseline is level1; re-estimate with
-# level2 as the reference via set_qoi.
-qoi_crime_flip <- set_qoi(.structure = "profile_level", .estimand = "amce",
-  .att_choose = "att7", .lev_choose = "level1",
-  .att_choose_b = "att7", .lev_choose_b = "level2")
-fit_crime_flip <- suppressWarnings(
-  projoint(out, .qoi = qoi_crime_flip, .structure = "profile_level",
-           .estimand = "amce"))
-
-crime_tab <- bind_rows(
-  fit_amce$estimates %>%
-    filter(att_level_choose == "att7:level2") %>%
-    mutate(baseline = lab_lookup["att7:level1"],
-           estimated_level = lab_lookup["att7:level2"]),
-  fit_crime_flip$estimates %>%
-    mutate(baseline = lab_lookup["att7:level2"],
-           estimated_level = lab_lookup["att7:level1"])
-) %>%
-  select(baseline, estimated_level, estimand, estimate, se, conf.low, conf.high)
-
-# ---- 3. A multi-level attribute under an alternative baseline ----------------
-# att5 (Driving Time, 4 levels) — default baseline level1 (10 min);
-# alternative baseline level3 (45 min).
-drive_alt <- map_dfr(c("level1", "level2", "level4"), function(lv) {
-  q <- set_qoi(.structure = "profile_level", .estimand = "amce",
-    .att_choose = "att5", .lev_choose = lv,
-    .att_choose_b = "att5", .lev_choose_b = "level3")
-  suppressWarnings(
-    projoint(out, .qoi = q, .structure = "profile_level", .estimand = "amce")
-  )$estimates %>%
-    mutate(level_id = paste0("att5:", lv))
-})
-
-drive_tab <- bind_rows(
-  fit_amce$estimates %>%
-    filter(str_starts(att_level_choose, "att5")) %>%
-    mutate(baseline = "10 min", level_id = att_level_choose),
-  drive_alt %>% mutate(baseline = "45 min")
-) %>%
-  mutate(estimated_level = lab_lookup[level_id]) %>%
-  select(baseline, estimated_level, estimand, estimate, se, conf.low, conf.high)
-
-# ---- 4. Marginal means for all levels (baseline-invariant) -------------------
-fit_mm <- suppressWarnings(
-  projoint(out, .structure = "profile_level", .estimand = "mm"))
-
-mm_all <- fit_mm$estimates %>%
-  mutate(attribute_id = str_extract(att_level_choose, "^att\\d"),
-         attribute = att_lookup[attribute_id],
-         level = lab_lookup[att_level_choose])
-
-mm_ranges <- mm_all %>%
-  filter(estimand == "mm_corrected") %>%
-  group_by(attribute) %>%
-  summarise(mm_range = max(estimate) - min(estimate), .groups = "drop") %>%
-  arrange(desc(mm_range))
-print(mm_ranges)
-
-# ---- 5. Formal test: crime MM range vs driving-time MM range -----------------
-# The crime MM range equals its |AMCE|; the driving-time range is the
-# 10-min-minus-75-min MM contrast. projoint's profile-level MMs drop
-# attribute-tied tasks (both profiles share the level), so a plain OLS on all
-# rows targets a different (attenuated) estimand. Instead, reproduce the
-# tie-removed estimator exactly (verified to match projoint's uncorrected MMs
-# to 4+ decimals) and bootstrap the range difference clustering on
-# respondents. projoint's IRR correction rescales deviations from 0.5 by
-# 1/(1 - 2*tau) for all profile-level estimates alike, so the z-statistic and
-# p-value are identical on the corrected scale.
-# Fixed contrasts (levels chosen from full-sample point estimates, not
-# re-maximized within bootstrap draws): crime = att7 l1 - l2; driving time =
-# att5 l1 - l4; housing = att1 l1 - l3.
-cells <- tibble::tribble(
-  ~att,   ~lv,
-  "att7", "level1",
-  "att7", "level2",
-  "att5", "level1",
-  "att5", "level4",
-  "att1", "level1",
-  "att1", "level3")
-
-# per-respondent sums and counts of tie-removed qualifying profiles per cell
-per_resp <- purrr::pmap(cells, function(att, lv) {
-  out$data %>%
-    group_by(id, task) %>%
-    mutate(other = rev(.data[[att]])) %>%
-    ungroup() %>%
-    filter(.data[[att]] == paste0(att, ":", lv),
-           other != paste0(att, ":", lv)) %>%
-    group_by(id) %>%
-    summarise(s = sum(selected), n = n(), .groups = "drop")
-}) %>%
-  purrr::reduce(full_join, by = "id") %>%
-  replace(is.na(.), 0)
-S <- as.matrix(per_resp[, -1])  # s/n pairs: crime-l1, crime-l2, drive-l1, drive-l4, house-l1, house-l3
-
-ranges_fn <- function(rows) {
-  cs <- colSums(S[rows, , drop = FALSE])
-  c(crime = cs[[1]] / cs[[2]] - cs[[3]] / cs[[4]],
-    drive = cs[[5]] / cs[[6]] - cs[[7]] / cs[[8]],
-    house = cs[[9]] / cs[[10]] - cs[[11]] / cs[[12]])
-}
-n_resp <- nrow(S)
-pt <- ranges_fn(seq_len(n_resp))
-boot <- t(replicate(2000, ranges_fn(sample.int(n_resp, replace = TRUE))))
-scale_corr <- 1 / (1 - 2 * tau)
-
-tests <- purrr::map_dfr(c("drive", "house"), function(rival) {
-  d_est <- pt["crime"] - pt[rival]
-  d_se  <- sd(boot[, "crime"] - boot[, rival])
-  tibble(rival = rival,
-         diff_unc = d_est, se_unc = d_se,
-         diff_cor = d_est * scale_corr, se_cor = d_se * scale_corr,
-         z = d_est / d_se, p = 2 * pnorm(-abs(d_est / d_se)))
-})
-print(as.data.frame(tests), digits = 3)
-# kept for the table text below
-diff_est <- tests$diff_unc[1]; diff_se <- tests$se_unc[1]
-z <- tests$z[1]; p <- tests$p[1]
-
-# ---- 6. Figure: one two-panel PNG --------------------------------------------
-# Panel A: AMCEs for crime and driving time under each baseline choice.
-panelA_dat <- bind_rows(
-  crime_tab %>% mutate(attribute = "Violent Crime Rate",
-                       baseline = paste("ref:", baseline)),
-  drive_tab %>% mutate(attribute = "Driving Time",
-                       baseline = paste("ref:", baseline))
-) %>%
-  filter(estimand == "amce_corrected") %>%
-  mutate(estimated_level = str_wrap(estimated_level, 22),
-         attribute = factor(attribute,
-                            levels = c("Violent Crime Rate", "Driving Time")))
-
-pA <- ggplot(panelA_dat,
-             aes(x = estimate, y = estimated_level, color = baseline)) +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "grey55") +
-  geom_pointrange(aes(xmin = conf.low, xmax = conf.high),
-                  position = position_dodge(width = 0.55), size = 0.35) +
-  facet_grid(attribute ~ ., scales = "free_y", space = "free_y") +
-  scale_color_manual(values = okabe_ito[c(5, 6, 3, 1)], name = NULL) +
-  guides(color = guide_legend(nrow = 2)) +
-  labs(x = "AMCE (corrected), pr. profile chosen", y = NULL)
-
-# Panel B: baseline-invariant MMs for all levels, attributes ordered by range.
-panelB_dat <- mm_all %>%
-  filter(estimand == "mm_corrected") %>%
-  mutate(attribute = factor(attribute, levels = mm_ranges$attribute),
-         level = str_wrap(level, 30)) %>%
-  group_by(attribute) %>%
-  mutate(level = reorder(level, estimate)) %>%
-  ungroup()
-
-pB <- ggplot(panelB_dat, aes(x = estimate, y = level)) +
-  geom_vline(xintercept = 0.5, linetype = "dashed", color = "grey55") +
-  geom_pointrange(aes(xmin = conf.low, xmax = conf.high),
-                  color = okabe_ito[5], size = 0.3) +
-  facet_grid(attribute ~ ., scales = "free_y", space = "free_y",
-             labeller = labeller(attribute = label_wrap_gen(24))) +
-  theme(strip.text.y = element_text(angle = 0, hjust = 0)) +
-  labs(x = "Marginal mean (corrected), pr. profile chosen", y = NULL)
-
-fig <- pA + pB + plot_layout(widths = c(1, 1.15)) +
-  plot_annotation(tag_levels = "A")
-ggsave("figures/sensitivity.png", fig, width = 11.5, height = 9, dpi = 300,
-       bg = "white")
-
-# ---- 7. sensitivity-table.md --------------------------------------------------
-fmt <- function(x) sprintf("%.3f", x)
-row_md <- function(df) {
-  paste0("| ", df$baseline, " | ", df$estimated_level, " | ",
-         ifelse(df$estimand == "amce_corrected", "corrected", "uncorrected"),
-         " | ", fmt(df$estimate), " | ", fmt(df$se), " | [",
-         fmt(df$conf.low), ", ", fmt(df$conf.high), "] |")
-}
-
-mm_md <- mm_all %>%
-  arrange(att_level_choose, estimand) %>%
-  mutate(row = paste0("| ", attribute, " | ", level, " | ",
-                      ifelse(estimand == "mm_corrected", "corrected", "uncorrected"),
-                      " | ", fmt(estimate), " | ", fmt(se), " | [",
-                      fmt(conf.low), ", ", fmt(conf.high), "] |"))
-
-tbl <- c(
-  "# Baseline sensitivity: Violent Crime Rate",
-  "",
-  "All estimates: profile-level, respondent-clustered analytical SEs;",
-  sprintf("IRR-corrected estimates use projoint's tau = %.3f (correction rescales profile-level estimates by 1/(1 - 2*tau) = %.3f).", tau, 1 / (1 - 2 * tau)),
-  "",
-  "## Crime AMCE under each possible baseline (attribute is binary)",
-  "",
-  "| Reference category | Estimated level | Estimand | AMCE | SE | 95% CI |",
-  "|---|---|---|---|---|---|",
-  row_md(crime_tab %>% arrange(baseline, estimand)),
-  "",
-  "Swapping the reference flips the sign only; magnitude, SE, and CI width are identical.",
-  "",
-  "## Driving Time AMCEs under two baselines (multi-level attribute)",
-  "",
-  "| Reference category | Estimated level | Estimand | AMCE | SE | 95% CI |",
-  "|---|---|---|---|---|---|",
-  row_md(drive_tab %>% arrange(baseline, estimated_level, estimand)),
-  "",
-  "Here individual AMCEs do change with the reference category (reparameterization of the same information).",
-  "",
-  "## Marginal means (baseline-invariant), all levels",
-  "",
-  "| Attribute | Level | Estimand | MM | SE | 95% CI |",
-  "|---|---|---|---|---|---|",
-  mm_md$row,
-  "",
-  "## Attribute importance as corrected-MM range (max minus min)",
-  "",
-  "| Attribute | MM range |",
-  "|---|---|",
-  paste0("| ", mm_ranges$attribute, " | ", fmt(mm_ranges$mm_range), " |"),
-  "",
-  "Formal tests of range differences (respondent-cluster bootstrap, 2,000 draws; fixed contrasts, levels chosen from full-sample point estimates, not re-maximized per draw; two unadjusted pairwise tests):",
-  "",
-  sprintf("- Crime minus driving time: %.3f (SE %.3f) uncorrected, %.3f (SE %.3f) corrected; z = %.2f, p = %.3f.",
-          tests$diff_unc[1], tests$se_unc[1], tests$diff_cor[1], tests$se_cor[1], tests$z[1], tests$p[1]),
-  sprintf("- Crime minus housing cost: %.3f (SE %.3f) uncorrected, %.3f (SE %.3f) corrected; z = %.2f, p = %.3f.",
-          tests$diff_unc[2], tests$se_unc[2], tests$diff_cor[2], tests$se_cor[2], tests$z[2], tests$p[2]),
-  "",
-  "The IRR correction rescales all ranges by the same factor, so z and p are identical on either scale; corrected-scale SEs condition on the estimated tau."
+out <- reshape_projoint(
+  exampleData1,
+  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
 )
-writeLines(tbl, "sensitivity-table.md")
 
-cat("Done: figures/sensitivity.png, sensitivity-table.md\n")
+## Marginal means: the baseline-invariant quantity -------------------------
+mm_fit <- projoint(out, .structure = "profile_level", .estimand = "mm")
+invisible(capture.output(mm <- as.data.frame(summary(mm_fit))))
+mm <- mm[mm$estimand == "mm_corrected", ]
+names(mm)[names(mm) == "att_level_choose"] <- "level_id"
+mm <- merge(out$labels, mm, by = "level_id", sort = FALSE)
+mm <- mm[order(mm$attribute_id, mm$level_id), ]
+
+## AMCEs under every available reference for a given attribute -------------
+fit_amce <- function(attribute_id, focal_level, reference_level) {
+  qoi <- set_qoi(
+    .structure = "profile_level", .estimand = "amce",
+    .att_choose = attribute_id, .lev_choose = focal_level,
+    .att_choose_b = attribute_id, .lev_choose_b = reference_level
+  )
+  fit <- suppressWarnings(projoint(out, .qoi = qoi))
+  invisible(capture.output(s <- as.data.frame(summary(fit))))
+  s[s$estimand == "amce_corrected", c("estimate", "conf.low", "conf.high")]
+}
+
+baseline_grid <- function(attribute_id) {
+  levs <- out$labels[out$labels$attribute_id == attribute_id, ]
+  short <- sub(".*:", "", levs$level_id)
+  n <- nrow(levs)
+  est <- lo <- hi <- matrix(NA_real_, n, n, dimnames = list(levs$level_id, levs$level_id))
+  for (ref in seq_len(n)) {
+    for (foc in seq_len(n)) {
+      if (foc == ref) { est[foc, ref] <- 0; next }
+      s <- fit_amce(attribute_id, short[foc], short[ref])
+      est[foc, ref] <- s$estimate; lo[foc, ref] <- s$conf.low; hi[foc, ref] <- s$conf.high
+    }
+  }
+  list(levels = levs, estimate = est, low = lo, high = hi)
+}
+
+crime <- baseline_grid("att7")     # binary: only a sign reversal is possible
+housing <- baseline_grid("att1")   # multi-level check: 3 levels, 3 possible baselines
+
+## sensitivity-table.md -----------------------------------------------------
+fmt_cell <- function(est, lo, hi) {
+  if (is.na(lo)) "0.000 (ref.)" else sprintf("%.3f [%.3f, %.3f]", est, lo, hi)
+}
+grid_table <- function(grid, heading, note) {
+  lab <- grid$levels$level
+  header <- paste(c("Focal level", paste0("Reference: ", lab)), collapse = " | ")
+  divider <- paste(rep("---", length(lab) + 1), collapse = " | ")
+  rows <- vapply(seq_along(lab), function(i) {
+    cells <- vapply(seq_along(lab), function(j) {
+      fmt_cell(grid$estimate[i, j], grid$low[i, j], grid$high[i, j])
+    }, character(1))
+    paste(c(lab[i], cells), collapse = " | ")
+  }, character(1))
+  c(paste0("## ", heading), "", header, divider, rows, "", note, "")
+}
+
+mm_rows <- vapply(seq_len(nrow(mm)), function(i) {
+  sprintf("| %s | %s | %.3f [%.3f, %.3f] |",
+          mm$attribute[i], mm$level[i], mm$estimate[i], mm$conf.low[i], mm$conf.high[i])
+}, character(1))
+
+mm_range <- aggregate(estimate ~ attribute, data = mm, FUN = function(x) diff(range(x)))
+mm_range <- mm_range[order(-mm_range$estimate), ]
+range_text <- paste(sprintf("%s: %.3f", mm_range$attribute, mm_range$estimate), collapse = "; ")
+
+short_name <- c(att1 = "housing cost", att2 = "presidential vote", att3 = "racial composition",
+                 att4 = "school quality", att5 = "commuting time", att6 = "type of place",
+                 att7 = "violent crime rate")
+attribute_of <- setNames(out$labels$attribute_id, out$labels$attribute)[mm_range$attribute]
+crime_range <- mm_range$estimate[mm_range$attribute == "Violent Crime Rate (Vs National Rate)"]
+next_range <- mm_range[mm_range$attribute != "Violent Crime Rate (Vs National Rate)", ][1, ]
+next_range$short_name <- short_name[[attribute_of[[next_range$attribute]]]]
+
+lines <- c(
+  "# Reference-category sensitivity: AMCEs vs. marginal means",
+  "",
+  sprintf("All figures are profile-level, IRR-corrected `projoint` estimates with respondent-clustered analytical 95%% CIs (estimated tau = %.3f). A `0.000 (ref.)` cell is the fitted reference level, not a null result.", mm_fit$tau),
+  "",
+  grid_table(crime, "Violent Crime Rate (att7, binary) — AMCE under each reference",
+             "Crime has only two levels, so re-baselining can only flip the sign of the same contrast; no third comparison exists to reveal."),
+  grid_table(housing, "Housing Cost (att1, 3 levels) — AMCE under each reference",
+             sprintf("With three levels, each baseline choice reports 2 AMCEs (not one), and *which* two of the three pairwise contrasts get shown, and their apparent size, changes with the baseline: the largest displayed |AMCE| is %.3f under the 15%%-or-40%%-income baseline but only %.3f under the 30%%-income baseline, even though the underlying 15%%-vs-40%% pairwise contrast (%.3f) never changes. The matrix is antisymmetric: every off-diagonal entry is just the corresponding MM difference (row level minus column level), so a lower-triangle entry is always the upper triangle's mirror-image entry with the sign flipped.",
+                     max(abs(housing$estimate["att1:level3", "att1:level1"]), abs(housing$estimate["att1:level1", "att1:level3"])),
+                     abs(housing$estimate["att1:level1", "att1:level2"]),
+                     abs(housing$estimate["att1:level3", "att1:level1"]))),
+  "## Marginal means — every experimental level (baseline-invariant)",
+  "",
+  "| Attribute | Level | Marginal mean [95% CI] |",
+  "| --- | --- | --- |",
+  mm_rows,
+  "",
+  sprintf("Within-attribute MM range (descriptive only, not a formal importance test): %s.", range_text),
+  "",
+  sprintf("Identity worth noting: for any attribute, the largest AMCE achievable under *any* choice of reference equals that attribute's MM range (an AMCE against a given baseline is just the difference of two MMs). Since crime's range (%.3f) is the largest of the seven, no re-baselining of *any* attribute in this design can produce a reported AMCE bigger than crime's — the point-estimate ordering with crime at the top is invariant to reference choice, even though crime's narrow lead over commuting time (%.3f) is not itself a precise, statistically distinguishable ranking.",
+          crime_range, next_range$estimate)
+)
+writeLines(lines, "sensitivity-table.md")
+
+## figures/sensitivity.png ---------------------------------------------------
+# All 24 levels, baseline-invariant MMs, grouped by attribute and ordered by
+# descending within-attribute range so crime (the headline attribute) leads.
+mm_fig <- mm
+mm_fig$attribute <- factor(mm_fig$attribute, levels = mm_range$attribute)
+mm_fig$level <- factor(mm_fig$level, levels = rev(mm_fig$level[order(mm_fig$attribute, mm_fig$level_id)]))
+
+fig <- ggplot(mm_fig, aes(x = estimate, y = level, color = attribute)) +
+  geom_vline(xintercept = 0.5, linetype = 2, color = "grey55") +
+  geom_pointrange(aes(xmin = conf.low, xmax = conf.high), size = 0.45, linewidth = 0.7) +
+  facet_grid(attribute ~ ., scales = "free_y", space = "free_y") +
+  scale_color_manual(values = unname(okabe_ito[c("vermillion", "blue", "green", "orange", "purple", "sky", "yellow")]), guide = "none") +
+  labs(x = "Marginal mean (probability a profile is chosen)", y = NULL) +
+  theme_t3 +
+  theme(strip.text.y = element_text(angle = 0, hjust = 0, size = 8), axis.text.y = element_text(size = 8))
+
+ggsave("figures/sensitivity.png", fig, width = 7.2, height = 7.6, dpi = 320)
+
+crime_mm <- mm[mm$attribute_id == "att7", ]
+crime_less_mm <- crime_mm[crime_mm$level_id == "att7:level1", ]
+crime_more_mm <- crime_mm[crime_mm$level_id == "att7:level2", ]
+
+## memo.md --------------------------------------------------------------------
+more_vs_less <- fit_amce("att7", "level2", "level1")
+less_vs_more <- fit_amce("att7", "level1", "level2")
+
+memo <- c(
+"# Reply to Reviewer",
+"",
+sprintf("The reviewer is right on the mechanics. An AMCE is a contrast against a named reference level, so re-baselining relabels which comparison earns a sign and a number. We reran the crime AMCE at both references (`sensitivity-table.md`): 20%% more crime vs. 20%% less crime is %.3f (95%% CI [%.3f, %.3f]); the reverse contrast is %.3f (95%% CI [%.3f, %.3f]). Crime is binary, so only a sign flip is possible; no third baseline exists to tell a different story. For a genuinely multi-level attribute (housing cost, 3 levels) the concern has more bite: each baseline reports 2 of the 3 pairwise contrasts, and which two — and how large they look — changes with the baseline, even though all three directed contrasts are themselves unchanged.", more_vs_less$estimate, more_vs_less$conf.low, more_vs_less$conf.high, less_vs_more$estimate, less_vs_more$conf.low, less_vs_more$conf.high),
+"",
+sprintf("That is a real constraint on how AMCEs should be read, but it does not make the headline finding an artifact. Marginal means carry no reference category at all: each is the modeled probability that a profile with a given level is chosen, averaged over the randomized distribution of every other attribute. The IRR-corrected MM for 20%% less crime is %.3f (95%% CI [%.3f, %.3f]); for 20%% more crime it is %.3f (95%% CI [%.3f, %.3f]) (`figures/sensitivity.png`). That roughly %.0f-point, baseline-free separation is the largest within-attribute MM range of the seven attributes (%.3f vs. %.3f for the runner-up, %s) — though that %.3f gap is narrow relative to either attribute's own uncertainty and is not a precise #1-vs-#2 ranking. A sharper, fully baseline-free rebuttal: since any AMCE is just a difference of two MMs, no re-baselining of any attribute can exceed crime's own range, so crime's position at or near the top is invariant to how the contrasts are coded.", crime_less_mm$estimate, crime_less_mm$conf.low, crime_less_mm$conf.high, crime_more_mm$estimate, crime_more_mm$conf.low, crime_more_mm$conf.high, 100 * (crime_less_mm$estimate - crime_more_mm$estimate), crime_range, next_range$estimate, next_range$short_name, crime_range - next_range$estimate),
+"",
+"The paper is not entitled to a precise cross-attribute importance ranking from AMCE or MM-range magnitudes, since attributes differ in level count and spacing and crime's edge over commuting time is not statistically sharp. The revised manuscript will say: respondents strongly prefer communities with lower violent crime, and crime is among the strongest drivers of choice here (on a par with commuting time, ahead of the rest) — a conclusion the MMs support and that reference recoding cannot disturb, though a given contrast's displayed sign still flips if its own baseline is swapped, as expected. It will report AMCEs only alongside their named reference and drop any claim that crime is uniquely or precisely the single most important attribute. The MM figure and table become the primary exhibit; the AMCE table stays as a secondary, explicitly-labeled robustness check."
+)
+writeLines(memo, "memo.md")
+
+message("Wrote sensitivity-table.md, figures/sensitivity.png, memo.md")

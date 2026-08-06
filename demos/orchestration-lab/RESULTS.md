@@ -2,6 +2,189 @@
 
 Single aggregation point: the walkthrough page copies numbers only from this file. Filled after each captured run from its `run-log.md`; scored against the reference answer keys and rubrics, with bands per `SCORING.md` (every brief is graded on six binary items — four core, one judgment, one completeness — so Pass = all core, Pass+ = core plus judgment, Distinction = all six).
 
+## 2026-07-19 — 46-orchestrate rerun, xhigh + Fable cross-vendor peer
+
+#### What changed in the skill, and why
+
+The `46-orchestrate` skill's own text has always described a decorrelated cross-vendor check on high-stakes calls, but until this session that text did not match the routing. The skill's high-stakes path only had a same-vendor Terra one-shot, no Claude peer at all. This session added `scripts/claude-peer.sh` to the skill (open-science-skills repo) so the Codex lead can actually call Claude. The first test run caught a real bug. The script used a bare `timeout` command, which macOS does not ship by default. The skill's sibling script, `codex-peer.sh`, already carried the correct guard for this. The fix was to copy that pattern.
+
+With the peer working, all six `46-orchestrate` lead tiers were rerun under corrected settings. `gpt-5.6-sol` ran at XHIGH effort (up from high), and the Claude peer was pinned to Fable 5, matching how the Claude-side orchestrators (fable-orchestrate, opus-orchestrate) already use `gpt-5.6-sol` as their own peer, flagship for flagship. All six sessions ran non-interactively, one `codex exec --json --dangerously-bypass-approvals-and-sandbox` command per tier, a combination not tested before this session. Nested out-of-band calls (Terra one-shots, the new Claude peer) turned out to succeed under the fully bypassed sandbox. That makes the whole lead arm scriptable and reproducible the same way the Claude arms already were, and each run produces its own auditable JSONL trace. Every tier's usage came from the JSONL's `turn.completed` event. The one exception, vhigh-lalonde, had its stdout cut off mid-write, so its token counts were recovered instead from Codex's own session rollout log. The numbers matched, confirmed through a different channel.
+
+The advisor (Codex) arm was also rerun, all six tiers, under corrected settings. `gpt-5.6-terra` ran at XHIGH (up from medium) for the solve/revise working session, and `gpt-5.6-sol` ran at XHIGH (unchanged, already the skill's policy) for the read-only consult.
+
+New captures live in `runs/46-sol-v2/` (46-orchestrate lead) and `runs/advisor-v2/` (advisor, Codex).
+
+#### Scores, advisor (Codex), xhigh rerun
+
+| Tier | Band | Item(s) missed |
+|---|---|---|
+| T1 — Describe | Distinction (6/6) | none |
+| T2 — Estimate | Pass+ (5/6) | completeness (report.md never states τ = 0.172 or the ×1.52 correction factor) |
+| T3 — Reviewer reply | Pass+ (5/6) | completeness (memo.md and sensitivity-table.md report the corrected 25.1pp only, never the uncorrected 16.5pp) |
+| High — IV replication | Distinction (6/6) | none |
+| Very high — Methods dispute | Pass (5/6, band capped) | judgment (memo never generalizes that pre-treatment-earnings conditioning is the necessary, decisive ingredient — only names which spec happened to land closest) |
+| Extreme — Staggered DiD | **Fail** | core item B, the sentinel-value trap — see below, a different mechanism than the prior Fail |
+
+Four of six tiers moved up at least one band from the prior medium-effort capture, on real, quotable catches from the Sol consult. T1's honest-balance-flag sentence and T3's direct statistical-tie confidence interval were both requested verbatim in `advice.md` and appear, verbatim or as the requested computation, in the revised deliverables. High-AJR's catch was larger. `advice.md` opens, "The submission is incomplete: `memo.md` is missing. Add the required roughly 400-word memo before anything else," confirmed by `briefing.md`'s pre-revision deliverables list, which shows only `robustness-table.md` and `script.R`. Without that catch, this tier would likely have failed the judgment and no-overclaim items outright for lack of any written adjudication.
+
+The Extreme tier is the one new and unresolved finding in this rerun, and it complicates the fix rather than validating it. The prior Fail (before this session's skill fix) did state the sentinel-trap awareness once, in its own tool-call log, but never carried it into any graded deliverable (see `SCORING.md`). This rerun's Fail is different. The awareness reached an actual graded deliverable, correctly, before the model lost it during revision. The pre-revision script, visible in `briefing.md`'s deliverables snapshot, used `staggered::staggered()` with the correct convention and carried an explicit code comment reading "The installed staggered-package documentation specifies Inf (not 0) for never-treated g." It also included a working `dat$g_staggered <- ifelse(dat$first.treat == 0, Inf, dat$first.treat)` line and reported a Roth-Sant'Anna ATT of −0.0471, in the correct range. That is exactly what core item B requires, present and correct, in a graded deliverable, before any consult ran.
+
+The Sol consult's `advice.md` then raised a substantively reasonable critique. It read, "Replace the Roth-Sant'Anna `staggered()` estimate with Sun-Abraham. `staggered()` is designed for randomized staggered rollouts, whereas minimum-wage adoption is observational. Treating it as an ordinary parallel-trends robustness estimator is the submission's main methodological weakness." The model complied. The final `script.R` has no `staggered` import and no `Inf` coding. It carries no trace of the estimator at all. The final `memo.md` never mentions that heterogeneity-robust packages use different never-treated sentinel conventions, in any form. A direct grep of the file for "sentinel," "staggered," and "convention" turns up only generic phrasing, "staggered adoption" and "staggered-TWFE," never the package name or the convention-difference point. The rubric's escape clause for skipping `staggered` (state the cross-package awareness in the memo instead) is not satisfied either. Item B is unmet in the graded product, so the band is Fail by the same non-compensatory rule already established in `SCORING.md`.
+
+This is worth stating plainly rather than smoothing over. A well-reasoned, defensible methodological correction from a cross-vendor consult cost this run the exact evidence its rubric was built to require. The consult was not wrong about `staggered()`'s assumptions. It was also not asked to weigh, and did not weigh, what removing that estimator would cost against this specific rubric's B item. That is a real limitation of a single-pass, read-only review. It can improve a submission by a real methodological standard and still degrade it against a specific evaluation criterion, because the two are not the same thing and nothing in the consult step checks for that tension.
+
+#### Scores, 46-orchestrate lead, xhigh + Fable rerun
+
+Scored independently against this lab's existing rubrics and answer keys. `SCORING.md` specifies four core items, one judgment item, one completeness item, six total, non-compensatory bands.
+
+| Tier | Band | Item(s) missed |
+|---|---|---|
+| T1 — Describe | Distinction (6/6) | none |
+| T2 — Estimate | Pass+ (5/6) | completeness (report.md never names the profile-level estimand or the IRR mechanism, τ = 0.172, ×1.52) |
+| T3 — Reviewer reply | Pass+ (5/6) | completeness (memo.md and sensitivity-table.md report the corrected 25.1pp only, never the uncorrected 16.5pp) |
+| High — IV replication | Distinction (6/6) | none |
+| Very high — Methods dispute | Distinction (6/6) | none |
+| Extreme — Staggered DiD | Distinction (6/6) | none |
+
+In total, four of six tiers reached Distinction and two reached Pass+. Both misses share one shape. Neither is a core or judgment miss. Both are the same completeness item. The run commits to one estimand or magnitude and does not also surface the other in the write-up.
+
+Per tier, T1 matched every core fact (400 respondents, 8 tasks, 2 profiles, 7 attributes at the correct level counts 3,3,4,2,4,6,2, with the repeated task correctly excluded from the 6,400-row primary count and narrated as such) and named Total Daily Driving Time as the lone imbalance rather than claiming perfect balance. It also reported the exact +1.9pp deviation. The Fable peer here made a real, adopted contribution. It caught four concrete figure-design defects (attribute-specific 1/K reference lines, `free_y` facet scaling, design-order level ordering, a dashed benchmark line), and the lead adopted all four. T2's four core items and its judgment item (an explicit "uncorrected AMCEs" label, disclosed as a deliberate choice) all held. The Fable peer independently re-derived all 17 estimates and returned a full pass, a confirmatory audit rather than a substantive catch here. Its three suggestions were cosmetic and correctly declined. T3 held all four core items (the baseline-relativity concession, the binary-invariance argument, marginal means 62.6/37.4 with the 25.1-point spread explicitly benchmarked against driving-time's 23.7 and housing's 19.8, and a claim ceiling that stops at "one of the largest" rather than "dominates") plus the judgment item. The Fable peer ran an independent cluster bootstrap (2,000 reps) and pushed for a *more* expansive claim than the lead's own, namely that crime, along with commute and housing, forms a statistically indistinguishable leading tier. The lead explicitly rejected this claim as unsupported by the brief's specified analysis. This was a real, adjudicated disagreement, decided against the peer. High-AJR reproduced the reference to three decimals (2SLS 0.944, OLS 0.522, first-stage −0.607, F = 22.95) across all four stress specs and flagged the Africa-only weak instrument (F = 0.30) explicitly. It also stated the asymmetric ceiling (weak rows neither confirm nor overturn). The Fable peer matched every digit independently and raised one caveat the lead weighed and declined as outside this brief's specified F ≈ 10 exercise. Very-high matched both anchors ($1,794 benchmark, −$8,498 naive) across eight specifications with a unified spec table and avoided reading CI overlap as equivalence. It landed the judgment item on "recovery only under favorable specifications." The Fable peer independently re-implemented all ten rows to the dollar and proposed two-way clustering in place of HC3 for the 1-NN rows. The lead actually tested the alternative rather than just discussing it. It slightly narrowed four intervals without changing the verdict, so the lead kept HC3, since MatchIt's own documentation presents it as standard.
+
+The Extreme tier is the key finding. All items held. Five ATT estimates fell in the correct range (−0.0365 to −0.0471). The Bacon decomposition shares matched the reference (86.28% treated-vs-untreated, 5.39% later-vs-earlier). A pre-trend check showed both leads' confidence intervals including zero, and the judgment item called the critique "real in principle... quantitatively minor... for this dataset, not staggered designs generally." The core item that matters most here is the sentinel trap. Never-treated units had to be recoded to `Inf` for the `staggered` package, with an explicit code comment explaining that `staggered`'s sentinel convention differs from `did`'s own. This is the exact trap that produced this project's only other documented Fail anywhere, the `advisor/extreme-stagdid-codex` arm, captured earlier under the old, unfixed skill, which skipped `staggered` entirely and never demonstrated the required cross-package awareness in any graded deliverable.
+
+What makes this run's Distinction different from a lucky pass is that the Fable peer independently named and empirically demonstrated the same trap, unprompted, before confirming the fix. Its review read, "The one genuine trap in this task is sentinel coding for `staggered::staggered`: leaving `first.treat=0` silently yields a garbage estimate of −0.370 with no error. Any deliverable that reports a `staggered()` ATT near −0.37 has fallen into it." The lead's script shows this exact awareness carried through into the graded deliverable. Of everything captured under the newly fixed cross-vendor peer, this is the clearest evidence that it does real, substantive work rather than cosmetic parity with the Claude-side orchestrators' own Codex peer.
+
+#### Token accounting, corrected methodology (second correction, 2026-07-19)
+
+This section has been wrong twice, in three different ways, and this is the third pass. Each mistake is stated plainly below rather than quietly overwritten. A reader deciding how much to trust the current numbers should be able to see the record.
+
+##### Mistake one
+
+Present from the start of this project. Claude's reported totals were `out_tokens`, output only, excluding input and all cache activity. Codex's reported totals came from a manual `/status` reading that excluded nearly all cached-input tokens. Both platforms were undercounted, in different ways.
+
+##### Mistake two
+
+Introduced earlier this same session while fixing mistake one. Claude's side was corrected to full cumulative usage (input + cache creation + cache reads + output), pulled from each run's own saved JSON envelope. Codex's side was not corrected the same way. The fix summed `input_tokens + output_tokens` from each run's own JSONL event and never added `cached_input_tokens`, so it still excluded Codex's cache activity while including Claude's. The resulting "1.7-2x, not 20-30x" finding, reported earlier in this file, was directionally right that the true gap is much smaller than the original 20-35x framing, but the specific 1.7-2x figure was itself downstream of an asymmetric measurement and understates the real gap.
+
+##### A third approach, tried and rejected, not just skipped
+
+Excluding cache activity entirely from both sides (`input + output`, no cache reads or cache creation at all), to remove any harness-overhead effect. That measure is *not* more accurate. It is differently distorted, because it rewards whichever platform's prompt cache happens to hit more often on a given call, which is an implementation detail of that CLI's context management, not a measure of how much reasoning the run actually required. Cache reads are also not free on either platform. Both vendors bill a steep-discount rate for them, not zero, so a "fresh tokens only" number understates real resource use on both sides, not just the side with the bigger cache-read count.
+
+The methodology that survives all three attempts is full cumulative usage, computed identically on both platforms, cache included, for every arm, not just the three this file previously covered.
+
+- **Claude** = `input_tokens + cache_creation_input_tokens + cache_read_input_tokens + output_tokens`, from each run's own saved JSON envelope. Advisor (Claude) sums the solve and revise envelopes.
+- **Codex** = `input_tokens + cached_input_tokens + output_tokens`, from each run's own JSONL `turn.completed` usage event. Advisor (Codex) sums the solve and revise steps. The Codex lead is one continuous session.
+
+| Tier | Fable | Opus | Codex lead | Advisor (Claude) | Advisor (Codex) |
+|---|---:|---:|---:|---:|---:|
+| T1 | 1,007,020 | 848,895 | 2,087,494 | 4,974,856 | 1,357,349 |
+| T2 | 487,678 | 1,193,409 | 2,365,500 | 4,113,544 | 2,538,453 |
+| T3 | 350,922 | 1,775,225 | 4,401,222 | 8,316,681 | 5,719,734 |
+| High-AJR | 1,079,493 | 853,224 | 2,656,984 | 2,896,039 | 1,040,712 |
+| Very-high | 3,021,233 | 1,185,025 | 6,976,372 | 4,739,756 | 5,179,597 |
+| Extreme | 554,858 | 1,709,463 | 5,740,216 | 3,539,709 | 2,966,792 |
+| **Total** | **6,501,204** | **7,565,241** | **24,227,788** | **28,580,585** | **18,802,637** |
+
+Advisor (Claude)'s T3 row is the solve step only — no `claude-envelope-2.json` exists for that tier's revise step on disk, so that one cell is not on equal footing with the rest of its own row. Everything else above is a complete solve+revise (or single-session) capture.
+
+The corrected gap is roughly 3-4x in aggregate, not 1.7-2x, and not the 10-60x a cache-excluded measure would suggest. Codex lead / Fable = 3.73x. Codex lead / Opus = 3.20x. The arm that uses the most tokens in this entire matrix is not a Codex arm at all. Advisor (Claude)'s 28.6M total is the largest of the five, ahead of Codex lead's 24.2M, because its two-call solve-then-revise protocol lets cache-read volume grow across a longer continuing conversation than any single-session arm reaches. That is a genuinely different finding from every earlier framing in this file, and it survived a from-scratch, symmetric recomputation, not a modeling assumption.
+
+Neither Codex total is a dollar figure. Both Codex arms ran under subscription CLI sessions, not per-token billing, so an estimated dollar total would describe money that was never actually spent. The three Claude arms' dollar costs, reported elsewhere in this file, come directly from the `claude -p` envelope and are real.
+
+##### What a token-per-item ratio measures, and what it does not
+
+Given that an arm was actually run on a brief, tokens-per-item tells you how much genuine work it took to reach whatever band it reached — a rate, conditional on the arm having attempted the task at all. It does not tell you whether that arm was the right tool for the task's *shape* in the first place. A token-efficient arm that cannot hold a wide multi-file context in one pass is not "efficient" at a task that needs one. It either cannot do it or produces something worse, and no ratio captures that, because the ratio is only defined for runs that completed and got scored. Read the numbers below as a second-order comparison within an already shape-appropriate choice, not a replacement for the task-fit judgment in the Recommendations section further down this file.
+
+| Arm | Items per 1M tokens (total items ÷ total tokens, all six briefs) |
+|---|---:|
+| Fable lead | 0.90 |
+| Opus lead | 0.75 |
+| Codex lead | 0.24 |
+| Advisor (Claude) | 0.20 |
+| Advisor (Codex) | 0.28 |
+
+Fable and Opus lead by a wide margin, unchanged in direction from every earlier version of this comparison. What changes is everything below them: Advisor (Codex) and Codex lead now rank *above* Advisor (Claude), not below it — the reverse of the superseded table further down this file. That table used `out_tokens` for the Claude side, which structurally favors any arm whose reasoning happens mostly in cache-served context rather than fresh output; Advisor (Claude)'s two-call solve-then-revise protocol accumulates the most cache-read volume of any arm (see the total above), and that volume was invisible to a measure built only from output tokens.
+
+#### Superseded, not deleted
+
+The interactive Sol-lead capture under `runs/46-sol/` (2026-07-13, `gpt-5.6-sol` at medium effort, no cross-vendor peer, hand-run across five separate interactive sessions because it could not run headless) is superseded for the "46-orchestrate lead" comparison by this rerun. Per this project's own convention, nothing under `runs/46-sol/` is deleted. It stays as the historical record of the pre-fix skill and the first evidence that cross-tier delegation could work in this arm at all (see the 2026-07-13 entry below). The current record for the 46-orchestrate lead arm is `runs/46-sol-v2/`.
+
+## 2026-07-17 — full ladder rerun (all six tiers, current settings) + new Extreme tier
+
+Everything below the 2026-07-13 entries was a mix of captures from three different dates under three different skill defaults (fable/opus-orchestrate's Codex peer changed terra→sol; the Codex lead's own effort changed medium→high). Rather than layer another partial re-run on top, all five historical briefs (T1, T2, T3, high-ajr, vhigh-lalonde) were re-run **today, in one sitting, under one consistent set of settings**, across all five captured arms (fable-orchestrate, opus-orchestrate, the Claude advisor consult, the 46-orchestrate headless fallback, and the 46-orchestrate Sol-lead interactive capture) — plus a **new sixth rung, Extreme**, built to test a specific hypothesis: that the ladder's top two rungs (AJR IV, LaLonde matching) are canonical, decades-old textbook disputes every model has memorized, so their Distinction-across-the-board result says nothing about whether frontier models actually pull ahead on harder work. See `EXTENSIONS.md` for the Extreme brief's design and the sentinel-value trap discovered while building its reference solution.
+
+**Full band matrix, six tiers × six arms.** The Codex-side advisor arm (`runs/advisor/*-codex/`: a plain `gpt-5.6-terra` solve, one read-only `gpt-5.6-sol` consult, a `gpt-5.6-terra` revise — the exact same three-step protocol as the Claude advisor arm, run entirely in the Codex CLI) was captured on 2026-07-17 alongside everything else and is a full primary-comparison arm, not a deferred afterthought — an earlier draft of this file wrongly called it deferred; that was a real omission, not a deliberate scoping choice, and it is fixed here:
+
+| Tier | Fable | Opus | Advisor (Claude) | Advisor (Codex) | 46 (Codex headless) | 46-sol (Codex Sol-lead) |
+|---|---|---|---|---|---|---|
+| T1 — Describe | Pass | Pass | Distinction | Pass | Pass | Pass |
+| T2 — Estimate | Pass+ | Distinction | Distinction | Pass+ | Pass+ | Pass+ |
+| T3 — Reviewer reply | Distinction | Distinction | Pass+ | Pass | Pass | Distinction |
+| High — IV replication | Distinction | Distinction | Distinction | Distinction | Pass | Distinction |
+| Very high — Methods dispute | Distinction | Distinction | Distinction | Distinction | Distinction (thin) | Distinction |
+| **Extreme — Staggered-DiD** | Distinction | Distinction | Distinction | **Fail** | Distinction | Distinction |
+
+**The T1 finding, corrected.** Independently re-graded against `reference/ANSWER-KEY.md`, today's fresh fable and opus captures both omit any explicit sentence naming the repeated/flipped reliability task, and the first scoring pass on 2026-07-17 read that omission as missing the "repeated task" core item outright, banding both runs a Fail. That was wrong, and the error is worth stating plainly rather than quietly fixing. `runs/fable/t1/script.R` and `runs/opus/t1/script.R` both correctly reference `choice1_repeated_flipped` as a separate outcome column from the eight primary `choice1..choice8` columns, and both `summary.md` files report 6,400 total rows — a number only reachable by correctly excluding the repeated task from the primary count, not inflating it to a 9th task. The design understanding is intact and verified in the code; what both arms omitted was one explanatory sentence in the write-up. The original rubric item conflated "handles it correctly" (a core, pass-blocking fact) with "narrates it explicitly" (a completeness nicety), and scoring the second as if it were the first overstated the defect. See `SCORING.md`'s 2026-07-17 correction note for the full reasoning; both arms now band **Pass** (4/6 core items), still missing the honest-balance-flag judgment item and the exact-max-deviation completeness item, the same two items the Codex arms also miss on this brief. That narrower finding is a real one worth keeping: on this brief, only the advisor arm's second read supplied the diagnostic thoroughness (the explicit imbalance flag, the exact deviation statistic) that every single-pass arm skipped.
+
+**The Extreme tier does show separation once the full six-arm matrix is counted, and it lands somewhere more specific than "smartest model wins."** Five of six arms reached Distinction, including the historical weak point (46 headless single-tier, which had been stuck at Pass on three of the five original briefs). The sixth, the Codex-side advisor arm, is a genuine Fail: it never engages with the brief's sentinel-value trap at all. It skips the `staggered` package entirely (a defensible choice the rubric explicitly allows) but then never states the awareness the rubric requires in exchange — that different heterogeneity-robust packages use different never-treated conventions, the whole point of the brief. This is not a mislabeled write-up gap like the T1 correction above; there is no downstream evidence (no code, no prose) that the awareness was ever present, so the miss is real, not an artifact of a compound rubric item. Two things explain the other five arms' convergence: (1) the packages they did reach for were used correctly, so the specific trap in front of them was avoided rather than caught-and-fixed; (2) every arm that ran the Goodman-Bacon decomposition landed the same calibrated middle judgment (the critique is real in general, empirically small in this dataset). So the finding is not "harder tasks fail to differentiate arms." It is narrower and, I think, more useful: a two-model orchestrated lead (fable, opus) or an interactive Codex Sol lead with real cross-tier delegation reliably reached for the right tool and used it correctly; a single Terra solve with one Sol consult, run entirely out-of-band with no orchestration structure around it, did not reach for the tool that mattered and its one read-only review didn't catch the gap either. That is a finding about what the orchestration structure buys, not about whether frontier models can handle recent methods.
+
+**Cost and token totals, six tiers, current captures:**
+
+| Tier | Fable | Opus | Advisor (Claude, solve+revise) | Advisor (Codex, solve+revise tokens) | 46-sol tokens (Sol lead + Terra) |
+|---|---:|---:|---:|---:|---:|
+| T1 | $1.17 (2.1 min) | $1.59 (6.2 min) | $4.99 | 79,562 tok | 160,932 tok |
+| T2 | $0.98 (1.1 min) | $2.81 (15.8 min) | $2.59 | 120,056 tok | 269,175 tok |
+| T3 | $2.60 (0.6 min) | $3.26 (14.5 min) | $3.97 | 117,522 tok | 261,606 tok |
+| High-AJR | $1.17 (5.0 min) | $2.00 (7.4 min) | $1.90 | 74,391 tok | 157,988 tok |
+| Very high | $1.98 (7.6 min) | $2.14 (11.1 min) | $2.93 | 165,389 tok | 254,723 tok |
+| **Extreme** | **$1.07 (5.8 min)** | **$2.79 (11.1 min)** | **$2.28** | **95,352 tok** | **373,731 tok** |
+| **Total** | **$10.99** | **$14.99** | **$18.66** | **652,272 tok** | **1,478,155 tok** |
+
+The Advisor (Codex) column sums two `tokens used` footers per tier (solve + revise), each piped directly from `codex exec` stdout to a log file — the same log-captured method as the Terra one-shots in the 46-sol column, not the interactive `/status` reading that makes up most of that column's total (see the operational caveat above).
+
+**No dollar figure for either Codex column, and this is a correction, not an oversight.** An earlier draft of this file modeled an estimated dollar cost for the two Codex arms from published OpenAI per-token rates. The owner pushed back, correctly, on two grounds: neither Codex arm was actually billed per token (both ran as interactive Codex CLI sessions under a subscription, so a dollar figure would describe money that was never spent), and the estimate itself required guessing an input/cached/output split from a single observed call, stretched across thirty different calls — worth dropping rather than continuing to hedge. What's reported above is only what's actually known: real token totals, taken directly from the CLI, no modeling. The Claude columns keep their real dollar figures because that platform reports one directly per call.
+
+**Is the GPT-5.6 family actually cheaper per token, then?** A fair question, and answerable directly from both vendors' published rate cards (2026-07-18) without needing to model anything about these specific runs:
+
+| Model | Input | Output |
+|---|---:|---:|
+| Claude Sonnet 5 (intro pricing, through Aug 2026) | $2.00 / M | $10.00 / M |
+| gpt-5.6-terra | $2.50 / M | $15.00 / M |
+| Claude Opus 4.8 | $5.00 / M | $25.00 / M |
+| gpt-5.6-sol | $5.00 / M | $30.00 / M |
+| Claude Fable 5 | $10.00 / M | $50.00 / M |
+
+Not uniformly, and not by a large margin either way. Sonnet is cheaper than Terra on both ends, not the other way around. Sol and Opus share the same input rate; Sol is *more* expensive on output. Terra only turns cheaper than the tier above it (Opus) by roughly half, the same ratio Fable sits above Opus. There is no vendor-wide discount here — model tier for model tier, the two families are close, and the huge token-volume gap seen in this lab's captures (Codex lead uses roughly 20-35x the tokens Fable does per brief) is not explained by GPT-5.6 being dramatically cheaper to run. It reflects how much more each arm actually generates, which the token-count table above already shows directly.
+
+**Token efficiency, all five arms, no dollar conversion needed.** Since token totals are real and reported for every arm, items-earned-per-100k-tokens is directly comparable without estimating anything:
+
+| Arm | Items per 100k tokens (mean across six briefs) |
+|---|---:|
+| Fable lead | 80.5 |
+| Opus lead | 15.9 |
+| Advisor (Claude) | 14.2 |
+| Advisor (Codex) | 5.0 |
+| Codex lead | 2.4 |
+
+This is the comparison that actually answers "is Codex efficient" without any modeling caveat attached: no, clearly not, on a pure tokens-per-rubric-item basis — both Codex arms sit well below their nearest Claude counterparts, and Codex lead is the least token-efficient arm in the matrix by a wide margin. That is a real finding, not an artifact of a shaky dollar estimate, since it never required one.
+
+**Superseded, 2026-07-19.** The table above used `out_tokens` for the three Claude rows and an undercounted Codex figure for the two Codex rows — the same asymmetric measurement corrected in the token-accounting section near the top of this file. Recomputed with a fully symmetric, cache-included measure on both platforms, the ranking above does not hold: Advisor (Claude) becomes the *least* token-efficient arm in the matrix, not the Codex arms. See "Token accounting, corrected methodology" above for the current numbers and the full explanation of why this table's ranking changed.
+
+The 46-headless fallback (single-tier, no Terra delegation — the arm that stays in the automated matrix since it needs no interactive session) is unchanged in method from the prior captures; its per-tier tokens are in the per-tier tables below and in `analysis/efficiency.R`.
+
+**What broke and was fixed during the rerun (methodology note, not a results caveat).** Three real capture bugs surfaced and were fixed live, all now documented so a future re-run avoids them: (1) rerunning into a leaf directory that still held the historical capture's files caused a model to stop and ask whether to overwrite rather than redo the work — fixed by clearing the leaf first; (2) `fable-orchestrate`'s fast-worker reliably (5/5 observed) deleted the pre-created cost-tracking JSON envelope as perceived scratch junk in its own working directory — fixed by writing the envelope to a path outside the model's visible working directory and copying it back after the process exits; (3) headless `claude -p` has a default 600-second ceiling on background-task waits, and three runs (fable high-ajr, fable vhigh-lalonde, opus T3) launched a blind parallel cross-check per the high-stakes routing rule, hit that ceiling mid-wait, and ended the turn with the check still pending and the memo never written — fixed with `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0`. None of these bugs affected a run that completed and is reported above; incomplete draws were discarded and re-captured, never partially graded.
+
+## Recommendations
+
+Standalone practitioner guidance, independent of the Substack write-up's longer version of the same argument. Route by task type, not by model preference.
+
+- **Computable work (cleaning, description, standard estimation with a checkable answer) → cheapest lean arm, no second read.** Every arm on this ladder converges here; a consult buys nothing when the task has a fixed right answer.
+- **A genuine judgment call (referee reply, adjudicating competing specifications, anything without a textbook answer) → pay for an advisor consult.** The one place a second read caught a real error this rerun (see "What each advisor consult caught" above) was exactly this regime.
+- **Cross-vendor confirmation before publishing a contested claim → use Advisor (Codex) alongside Advisor (Claude), not instead of it, and don't assume a consult only ever helps.** The current Extreme-tier Fail (2026-07-19 xhigh rerun; see that section above) is a cross-vendor consult raising a substantively reasonable critique that cost the run the one piece of evidence its rubric required — a real, additive check that can still cut the wrong way on a specific criterion, not a strictly-safer alternative to a same-vendor read.
+- **Work too large for one context (multi-file audit, broad migration, many-source survey) → an orchestrated lead (Fable or Opus).** Untested directly on this ladder — every brief here fits in one context — so this is an inference from the delegation design, not a measured result. Flagged as such rather than overstated.
+- **Cost-consciousness on a grant-funded pipeline → the consult/no-consult decision is a bigger lever than which model leads.** Within the Claude arms, Fable beats Opus on cost at matched-or-better quality across this ladder (see the cost gradient above), but that gap is smaller than the gap between routing a judgment-bearing step through a consult and not.
+- **On Codex cost specifically → don't ask for a dollar figure, because there isn't a real one.** Neither Codex arm was billed per token (interactive CLI sessions under a subscription), so no dollar total describes what actually happened. See the token-accounting section above (2026-07-19) for the current, fully symmetric tokens-per-item comparison across all five arms — the ranking there is not what the superseded table just below this section says; read the newer section as authoritative.
+
 ## 2026-07-13 recalibration — fable reason-in-place (v2.18.0) + rigor bar (v2.18.1)
 
 The earlier captures put the fable arm behind opus (26 vs 29 of 30), and the question was whether that reflected a real quality gap or a mis-calibrated skill. Two changes tested it; five independent Opus deep-reasoners re-graded each fable brief blind, quoting evidence from disk.
@@ -36,7 +219,7 @@ The interactive **Sol-lead** headline of `46-orchestrate` — `gpt-5.6-sol` at m
 | high-ajr | **Distinction (6/6)** | all six; numbers reproduced byte-identically | 148,788 |
 | vhigh | Distinction (6/6) | all six | 366,619 |
 
-Total **25/30** — the same as the reason-in-place fable lead (the opus lead stands at 29/30), and one rung above its own Terra-lead headless fallback on the IV replication (`46 / high-ajr` = Pass): the Sol lead reasons the calibrated-ceiling judgment (item D) that the single-tier Terra-lead drops. **Operational caveat (why it stays off the main matrix):** interactive-only, full-access required, and cross-tier delegation is fragile — the t1 run's first Terra one-shot self-invoked the advisor skill, was blocked by the worker sandbox, and needed a retry (the `46-sol-run.md` prompt was hardened afterward to forbid it). The page and the report present this Sol-lead capture as the Codex arm's headline results; the headless Terra fallback capture below remains the automated-matrix record. Token totals were read from each session's Codex `/status` and recorded in each leaf's `routing-log.md`.
+Total **25/30** — the same as the reason-in-place fable lead (the opus lead stands at 29/30), and one rung above its own Terra-lead headless fallback on the IV replication (`46 / high-ajr` = Pass): the Sol lead reasons the calibrated-ceiling judgment (item D) that the single-tier Terra-lead drops. **Operational caveat (why it stays off the main matrix):** interactive-only, full-access required, and cross-tier delegation is fragile — the t1 run's first Terra one-shot self-invoked the advisor skill, was blocked by the worker sandbox, and needed a retry (the `46-sol-run.md` prompt was hardened afterward to forbid it). The page and the report present this Sol-lead capture as the Codex arm's headline results; the headless Terra fallback capture below remains the automated-matrix record. Token provenance differs within each total: the Terra one-shot figure is piped directly from `codex exec` stdout to a `.log` file (log-captured — the T2 leaf's log even catches and overrides a wrong self-reported footer, see `runs/46-sol/t2/routing-log.md`); the Sol-lead figure has no equivalent redirected file, since the lead session is interactive — it is the owner's own `/status` reading, confirmed directly by the owner who ran these sessions, not an automated capture.
 
 ## 2026-07-13 re-run — fable + opus on the recalibrated v2.17.0 skills
 
@@ -69,6 +252,8 @@ _The page's charts cover the Anthropic arms (fable-orchestrate, opus-orchestrate
 
 ## T1 — mechanical
 
+> **Superseded by the 2026-07-17 full rerun** (see the band and cost/token tables at the top of this file for the current numbers). This table is retained as historical process detail — the delegation traces, friction logs, and figure-convention checks below are from the dated captures they describe and are not the current record.
+
 | Mode | Correct | Figure conventions | Tokens | Wall-clock | Delegations | Friction |
 |---|---|---|---|---|---|---|
 | fable-orchestrate | **Pass+ (5/6).** Facts ✓ (400/8/2, 7 attrs, all level counts). Flags Driving Time as largest deviation but as "not indicative of a randomization problem"; reports 3.08pp spread, not the 1.94pp max-dev (the missed completeness item); no χ². No "perfect balance" claim. | Okabe-Ito, 300 dpi, caption-not-title. No uniform-expectation line (reference has one). Clipped facet titles fixed in-cycle. | 361k in / 5.1k out · $1.88 | 205 s (3.4 min), 12 turns | 1 → Sonnet fast-worker (low): whole brief, one contract. Lead fixed the figure itself. | Native advisor tool unavailable; figure defect caught + fixed by lead. |
@@ -77,6 +262,8 @@ _The page's charts cover the Anthropic arms (fable-orchestrate, opus-orchestrate
 | 46-orchestrate (re-run) | **Pass (4/6).** Facts ✓ (400 / 8 + 1 flipped repeat / 2 / 6,400; all level counts). Full frequency table but no test, no flagged attribute, and the caption asserts "close to even … as expected under randomized profile construction" — misses the honest flag and the exact max deviation (both of which the superseded 2026-07-11 capture had reported). | Okabe-Ito, 320 dpi, caption-not-title. | 64,057 tok | 3.3 min | Light native-collab use; script written by the lead. | Run-to-run variance in thoroughness, not capability: the old capture reported 1.94pp max dev, this one reports none. |
 
 ## T2 — standard
+
+> **Superseded by the 2026-07-17 full rerun** (see the tables at the top of this file). Retained as historical process detail.
 
 | Mode | Correct | Figure conventions | Tokens | Wall-clock | Delegations | Friction |
 |---|---|---|---|---|---|---|
@@ -87,6 +274,8 @@ _The page's charts cover the Anthropic arms (fable-orchestrate, opus-orchestrate
 
 ## T3 — judgment
 
+> **Superseded by the 2026-07-17 full rerun** (see the tables at the top of this file). Retained as historical process detail.
+
 | Mode | Rubric items met | Figure conventions | Tokens | Wall-clock | Delegations | Friction |
 |---|---|---|---|---|---|---|
 | fable-orchestrate | **Pass (4/6).** A ✓ (Type-of-Place 0.158→0.115 rank-flip), B ✓ (binary ±25.1 invariant), C ✓ (MM .626/.374; crime .251 > commute .237 > housing .198), E ✓ (avoids "dominant"). Misses D — does not flag the ~1.4pp crime-commute gap as within noise; corrected magnitude only. | Okabe-Ito, 300 dpi, caption-not-title (two facets, vline at 0). | 875k in / 12.7k out · $4.13 | 790 s (13.2 min), 21 turns | 2 → Opus deep-reasoner (sensitivity, effort max) + blind gpt-5.6-terra @ xhigh Codex peer (parallel). Lead wrote memo. | One exploratory shell probe for `codex-peer.sh`. |
@@ -96,6 +285,8 @@ _The page's charts cover the Anthropic arms (fable-orchestrate, opus-orchestrate
 | advisor arm (Codex) | **Pass** (revised memo). B ✓, C ✓, D ✓ (flags crime not formally first, "comparable to commuting time"; no formal test run), E ✓. A thin (concedes via the invariant range rather than a shifting-AMCE number); corrected magnitude only. Consult caught an overclaim ("largest span" untested → softened) **and** an over-concession (range is reference-invariant — say so), fixed CI formatting, defined the comparison set. | 300 dpi, caption-not-title, base-R — **not Okabe-Ito** (custom teal/grey). | step1 115,348 + step3 111,520 tok | ~8 min (2 steps) | 1 consult (sol-advisor, gpt-5.6-terra · medium). Solve → consult → revise. | Step-1 solver's own advisor attempt blocked (nested advisory under the sandbox). |
 
 ## High — IV replication (AJR colonial origins)
+
+> **Superseded by the 2026-07-17 full rerun** (see the tables at the top of this file). Retained as historical process detail.
 
 Brief: `prompts/high-ajr.md` (replicate the 2SLS headline on `ivdoctr::colonial`, stress with four perturbations, flag weak instruments, ~400-word memo). Reference: baseline 2SLS 0.944 / OLS 0.522 / first-stage F 22.95; controls keep F > 10, dropping the neo-Europes pushes F to 8.65, Africa-only collapses to F = 0.30.
 
@@ -108,6 +299,8 @@ Brief: `prompts/high-ajr.md` (replicate the 2SLS headline on `ivdoctr::colonial`
 
 ## Very high — methods dispute (LaLonde: Dehejia-Wahba vs Smith-Todd)
 
+> **Superseded by the 2026-07-17 full rerun** (see the tables at the top of this file). Retained as historical process detail.
+
 Brief: `prompts/vhigh-lalonde.md` (compute the experimental benchmark, reconstruct from NSW treated + CPS controls, run the spec curve across covariate sets × estimator details, adjudicate in ~450 words). Reference anchors: benchmark +$1,794, naive −$8,498; demographics-only must fail, pre-earnings 1-NN must land near the benchmark, sensitivity must be shown.
 
 | Mode | Band + items | Tokens / cost | Wall-clock | Delegations | Friction |
@@ -116,6 +309,18 @@ Brief: `prompts/vhigh-lalonde.md` (compute the experimental benchmark, reconstru
 | opus-orchestrate | **Distinction (6/6).** Anchors exact; memo lands favorable-specification-only with the epistemics caveat ("we can check only because we already hold the experimental answer"). Reached the defensible SE machinery unaided: HC3 for stratification (refusing 5-cluster inference), reuse-aware clustering for 1-NN, no bootstrap. | 15.7k out · **$5.01** | 3.8 min, 12 turns | 2 → parallel blind audits: deep-reasoner (Opus) + codex-rescue (Codex), integrated before shipping. Wall-clock stays low because they ran in parallel; the envelope carries their burn. | None. |
 | advisor arm (Claude) | **Distinction (6/6), revised memo.** Consult reproduced every number to the cent, then caught **two SE-machinery defects** (NN clustering ignoring control reuse; cluster-robust on five strata — invalid few-cluster inference), a self-contradiction, and a garbled sentence; it also ran its own strata-sensitivity analysis (−$144 at 5 strata → +$660 at 10 → +$1,034 at 20), showing the fragility is partly a coarseness artifact. Revised memo names the Ashenfelter dip, disclosed coarseness, HC3 throughout, and flags the untested Smith-Todd sample axis. | 56.6k out · $1.87 solve + $1.49 revise = **$3.36** | ~18.3 min total (44 + 35 turns) | 1 consult (fable-advisor, Fable 5 · max). | None — deepest consult catch in the matrix: inference machinery, not arithmetic. |
 | 46-orchestrate | **Distinction (6/6).** Anchors exact ($1,794 [479, 3,109]; −$8,498; 185 + 15,992). Eight-spec grid: demographics-only −$2,798 to −$4,137 all fail; pre-earnings 1-NN $1,712 / $2,088, inside tolerance; five-strata sensitivity −$144 to +$1,266. HC3/Welch throughout, no bootstrap ("The 1-NN intervals are not ordinary bootstrap intervals"). Rejects both slogans and proximity-proves-ignorability; "the specification spread is itself substantive uncertainty that the row-wise intervals do not absorb." | 74,658 tok (no USD) | 3.6 min | 0 — inline (contrast with its own high-ajr route of three roles). | Spec-table label cells embed pipes and misrender as markdown (content complete; quality note, not an item failure). |
+
+## Extreme — reconcile modern staggered-adoption DiD estimators
+
+Brief: `prompts/extreme-stagdid.md` (estimate the ATT at least four ways on `did::mpdta`, a real 500-county staggered minimum-wage panel; run a Goodman-Bacon decomposition to check whether the classic TWFE negative-weighting critique actually bites; check pre-trends; adjudicate in ~350 words). Reference: five correctly-specified estimators cluster at −0.037 to −0.047 log points; only 5.4% of the naive TWFE's weight sits on the negative-weight-risk comparison type; the `staggered` package's never-treated sentinel is `Inf`, not the `0` that `mpdta` and `did::att_gt` use — reusing `0` produces a wrong-by-10x estimate (−0.37) with no error thrown.
+
+| Mode | Band + items | Cost / tokens | Wall-clock | What it did | Friction |
+|---|---|---|---|---|---|
+| fable-orchestrate | **Distinction (6/6).** Five estimators, all in range; correctly recoded the `staggered` sentinel to `Inf` on the first pass (avoided the trap cleanly); ran the Bacon decomposition and reported the exact 5.4% share with the correct inference; extended the event-study check to e=−3..+1 with the correct simultaneous-band correction, catching and resolving a pointwise-significant pre-period blip a naive reading would have flagged as a violation. | $1.07 · 10,765 out tok | 5.8 min | — | None. |
+| opus-orchestrate | **Distinction (6/6).** Same five-estimator convergence; independently added a genuinely novel observation beyond the rubric — the equal-weighted dynamic-overall ATT (−0.077) differs materially from the cohort-size-weighted simple ATT (−0.040), an aggregation-scheme sensitivity point neither the reference solution nor any other arm surfaced. | $2.79 · 45,078 out tok | 11.1 min | 1 blind Codex cross-check (structurally could not complete — nested `codex exec` from an unescalated session, a documented skill limitation, not a bug); deliverables did not depend on it. | Correctly and transparently handled the async-wait limitation by delivering complete work and noting the pending check rather than ending the turn early (contrast with the T3/high-ajr premature-exit failures below). |
+| advisor arm (Claude) | **Distinction (6/6), after one real catch.** The solve step's memo conflated `bacondecomp`'s "Earlier vs Later Treated" (8.3%, a clean not-yet-treated comparison) with "Later vs Earlier Treated" (5.4%, the actual negative-weight-risk type), reporting "13.7% contaminated" against the correct 5.4% — a genuine misreading of the package's own comparison-type labels, not a typo. The Fable consult caught it precisely, re-derived the correct weighted-average identity by hand, and also caught an incorrect "doubly robust" justification for the headline estimator choice (the specification uses no covariates, so DR machinery was never engaged). Both fixed in the revise step. | $2.28 (solve $0.72 + revise $1.56) | ~17.9 min total (solve 3.1 + consult 8.5 + revise 6.2) | 1 consult (fable-advisor, Fable 5 · max). | The clearest single quality-differentiator in this tier: a plain, unorchestrated solve made a real analytical error that an orchestrated lead (fable, opus) did not make on the first pass. |
+| 46-orchestrate (headless, Sol single-tier fallback) | **Distinction (6/6).** Correctly recoded the sentinel to `Inf`; Bacon share 5.39% (matches reference to the second decimal); extended dynamic estimates to e=−3..+3 with an omnibus pre-trend p-value (0.168); calibrated judgment language throughout. | 157,784 tokens (no USD) | ~8 min | Sol lead, single-tier (headless cannot cross-delegate to Terra). | None — notable since this is the same historical weak point that scored Pass on three of the five original briefs. |
+| 46-sol (Codex Sol-lead, interactive, with real Terra delegation) | **Distinction (6/6).** Same convergence; routing-log documents Sol reasoning the decomposition and judgment directly, delegating the R implementation and a verification pass to Terra out-of-band. | 373,731 tokens (no USD) | — | 1 Terra out-of-band one-shot for implementation + 1 for verification. | None. |
 
 ## Cross-cutting notes
 

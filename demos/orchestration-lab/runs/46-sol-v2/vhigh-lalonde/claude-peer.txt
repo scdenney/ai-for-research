@@ -1,0 +1,18 @@
+## Peer review — VHIGH LaLonde specification curve
+
+I independently re-implemented all ten rows from scratch in a scratch directory (same seed, same design choices) and every number in `spec-table.md` reproduces exactly — benchmark $1,794.3 [474.0, 3,114.7], naive −$8,497.5, and all eight adjusted estimates and CIs to the dollar.
+
+**(1) Pass/fail by deliverable**
+
+- **script.R — PASS.** Self-contained; Okabe-Ito palette and theme at top; seed before anything stochastic; sanity `stopifnot` blocks on data shape. Composite is correctly 185 NSW treated + 15,992 CPS controls (experimental controls discarded). 1-NN is `MatchIt` with `estimand = "ATT"`, `replace = TRUE`, ratio 1 on the logit score; stratification is 5 subclasses with ATT weights. Common support uses the initial logit score, is not re-estimated after trimming, and the script asserts all 185 treated survive — all as specified.
+- **figures/spec-curve.png — PASS.** 3360×1856 at 320 dpi, no in-plot title, dashed benchmark reference line, 95% bars, readable three-line x labels, colorblind-safe grouping by covariate set. Accurate against the table.
+- **spec-table.md — PASS.** Benchmark, naive, and all 8 specs with gap column; verified numerically. The eligible-vs-used-controls columns usefully expose why the demographics trim row is identical to no-trim (all 120 matched controls lie inside support).
+- **memo.md — PASS.** Every quoted number matches the table. It concedes what conditioning does and does not do, lands on favorable-specification-only, does not treat CI overlap as equivalence, and the balance point (SMD 0.075 misses badly, SMD ~0.40 recovers) is a genuinely good touch. Only nit: 398 words against "~450" — within tolerance.
+
+**(2) Material defects.** None. Interval choices are defensible: Welch for the two unadjusted contrasts; HC3 sandwich on the ATT-weighted outcome contrast for adjusted rows, explicitly labeled conditional on the estimated design; the ordinary bootstrap is correctly avoided per Abadie–Imbens (2008) and the table note says so.
+
+**(3) Verdict warranted?** Yes. Four of eight adjusted specs (all demographics-only) are significantly negative; earnings + 5 strata gives −$144 untrimmed vs $1,290 trimmed; only earnings + 1-NN lands within ~$100 of the benchmark. That is textbook Smith–Todd specification dependence, and "recovery only under favorable specifications" is the correct, appropriately hedged call. The memo neither says "matching works" nor "matching fails" unqualified, as the brief demands.
+
+**(4) Highest-value revision (optional, not blocking).** For the two 1-NN-with-replacement rows, 185 treated map to only 120/127 distinct controls, so control reuse induces dependence the weighted-lm HC3 does not fully capture; MatchIt's fuller recipe for replacement matching is `get_matches()` with SEs cluster-robust in both unit id and match stratum. Given the stated design decision (HC3 conditional-on-design, per the installed MatchIt guidance) the current choice is defensible and clearly labeled — but if one revision cycle is spent, spend it there, and note whether the 1-NN CIs widen enough to matter (they likely widen modestly without changing the verdict).
+
+**Bottom line: approve as-is.** The implementation is faithful to the brief, the numbers are exactly reproducible, and the favorable-specification-only adjudication is the evidence-supported conclusion.

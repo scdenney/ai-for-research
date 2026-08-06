@@ -1,0 +1,34 @@
+## Conclusion
+
+**Sentinels differ by package, and reusing `mpdta$first.treat` unchanged silently breaks `staggered::staggered` but not the other two (in this specific dataset).**
+
+| Package | Never-treated sentinel | Source of truth |
+|---|---|---|
+| `did::att_gt` | `gname == 0` | `?att_gt`: *"It should be 0 for the group..."*; `did:::pre_process_did` L62–63: `stop()` if any `g < 0`; L121–124 auto-coerces any `g > max(t)` (incl. `Inf`) down to `0` |
+| `staggered::staggered` | `g == Inf` | `?staggered`: *"g ... with `Inf` denoting never treated"* — pure documentation convention, **no code-level validation** in `staggered:::processDF` |
+| `fixest::sunab` | any cohort value **absent from the observed period range** | `?sunab` Details: *"any cohort that is not present in the period is considered as never treated ... so be careful"* |
+
+### Empirical check (`mpdta`, year range 2003–2007, `first.treat ∈ {0, 2004, 2006, 2007}`)
+
+- **`did::att_gt`** — identical `att_gt` output whether `first.treat` is left as `0` or manually recoded to `Inf`. Verified: internal logic explicitly remaps anything `> max(t)` back to `0`, and rejects negatives with a hard `stop()`. **Not silent** — either fails loudly or self-corrects.
+- **`fixest::sunab`** — identical ATT (`-0.0400`, se `0.0156`) whether `first.treat` is `0` or `Inf`, purely because `0 ∉ [2003, 2007]` so the "absent-from-period-range" rule coincidentally classifies it correctly. This is data-dependent luck, not a guarantee, and the help page flags exactly this fragility.
+- **`staggered::staggered`** (`estimand = "simple"`) — **silent divergence**, no error/warning either way:
+  - `g` recoded to `Inf` (correct): `estimate = -0.0471, se = 0.0116`
+  - `g` left as `0` (unchanged `first.treat`): `estimate = -0.3704, se = 0.1256`
+
+  That's a ~7.9× inflation in magnitude with no diagnostic. Root cause, confirmed in `staggered:::compute_g_level_summaries` (`g_list <- sort(unique(g))`) and `staggered:::create_A0_list`: `g_list` is sorted ascending and the code specially treats cohorts by *position* in that sort — the last position is the reference/control role that `Inf` naturally occupies. Coding never-treated as `0` sorts it to the *first* position instead, so it gets treated as an (impossibly early) treatment cohort with zero valid pre-periods (`t_list < 0` is always empty), corrupting the DiD comparison matrix rather than serving as the intended clean control.
+
+### Exact recoding needed
+
+```r
+mpdta$g <- ifelse(mpdta$first.treat == 0, Inf, mpdta$first.treat)  # for staggered::staggered
+# did::att_gt: no change needed, gname stays 0
+# fixest::sunab: works with 0 here by coincidence; Inf is the robust choice if reusing across packages
+```
+
+### Never-treated vs. not-yet-treated
+
+- **Never-treated**: sentinel-coded units (`0` in `did`, `Inf` in `staggered`) that never receive treatment in-sample.
+- **Not-yet-treated**: units with a real, finite `gname`/`g` value that *will* be treated later but haven't been as of period `t` — usable as a larger control pool via `did::att_gt(control_group = "notyettreated")` or `staggered(..., use_last_treated_only = FALSE)` (default). `fixest::sunab` has no analogous control-group switch; it only supports never-treated (plus anything named in `ref.c`) as the omitted reference.
+
+**Bottom line**: the sentinel is not portable across these three packages. `did::att_gt` is defensively coded against sentinel misuse (explicit `stop()`/auto-coercion); `staggered::staggered` is not — an unrecoded `first.treat` produces a materially wrong, unflagged estimate; `fixest::sunab` happens to survive on `mpdta` only because `0` falls outside the sample's year range, which is not a property to rely on with other datasets.

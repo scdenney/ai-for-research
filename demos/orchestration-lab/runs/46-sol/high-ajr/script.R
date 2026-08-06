@@ -1,84 +1,101 @@
 #!/usr/bin/env Rscript
 
-# Deterministic replication and robustness checks for the AJR colonial sample.
+# Deterministic robustness analysis of the AJR colonial-origins IV result.
 library(ivdoctr)
 library(AER)
 
 set.seed(2001)
 
+OUTCOME <- "logpgp95"
+ENDOGENOUS <- "avexpr"
+INSTRUMENT <- "logem4"
+NEO_EUROPES <- c("AUS", "CAN", "NZL", "USA")
+OUTPUT_FILE <- "robustness-table.md"
+ROUND_DIGITS <- 3L
+
 data(colonial, package = "ivdoctr")
 colonial <- as.data.frame(colonial)
 
-# The raw AJR base sample contains 27 African countries before missing-data removal.
-stopifnot(sum(colonial$africa == 1, na.rm = TRUE) == 27L)
-
 specifications <- list(
-  list(name = "Base", controls = character(), keep = function(d) rep(TRUE, nrow(d))),
-  list(name = "Latitude", controls = "lat_abst", keep = function(d) rep(TRUE, nrow(d))),
-  list(name = "Continent controls", controls = c("africa", "asia"), keep = function(d) rep(TRUE, nrow(d))),
-  list(name = "Drop neo-Europes", controls = character(), keep = function(d) !d$shortnam %in% c("AUS", "CAN", "NZL", "USA")),
-  list(name = "Africa only", controls = character(), keep = function(d) d$africa == 1)
+  list(name = "Bivariate full sample", controls = character(), filter = function(d) rep(TRUE, nrow(d))),
+  list(name = "Full sample + latitude", controls = "lat_abst", filter = function(d) rep(TRUE, nrow(d))),
+  list(name = "Full sample + Africa and Asia", controls = c("africa", "asia"), filter = function(d) rep(TRUE, nrow(d))),
+  list(name = "Bivariate, excluding neo-Europes", controls = character(), filter = function(d) !(d$shortnam %in% NEO_EUROPES)),
+  list(name = "Bivariate, Africa only", controls = character(), filter = function(d) d$africa == 1)
 )
 
-make_formula <- function(lhs, rhs_terms) {
-  rhs <- if (length(rhs_terms) == 0L) "1" else paste(rhs_terms, collapse = " + ")
-  stats::as.formula(paste(lhs, "~", rhs))
+make_formula <- function(lhs, rhs) {
+  stats::as.formula(paste(lhs, "~", paste(rhs, collapse = " + ")))
+}
+
+format_number <- function(x) {
+  formatC(x, format = "f", digits = ROUND_DIGITS)
 }
 
 estimate_specification <- function(spec, data) {
-  # Apply this specification's restriction, then complete cases for all model variables.
-  restricted <- data[spec$keep(data), , drop = FALSE]
-  required <- c("logpgp95", "avexpr", "logem4", spec$controls)
-  estimation_data <- restricted[stats::complete.cases(restricted[, required, drop = FALSE]), , drop = FALSE]
+  required <- c(OUTCOME, ENDOGENOUS, INSTRUMENT, spec$controls)
+  filtered <- data[spec$filter(data), , drop = FALSE]
+  sample <- filtered[stats::complete.cases(filtered[, required, drop = FALSE]), required, drop = FALSE]
 
-  ols_formula <- make_formula("logpgp95", c("avexpr", spec$controls))
-  first_stage_formula <- make_formula("avexpr", c("logem4", spec$controls))
-  restricted_first_stage_formula <- make_formula("avexpr", spec$controls)
-  iv_formula <- stats::as.formula(paste(
-    "logpgp95 ~", paste(c("avexpr", spec$controls), collapse = " + "),
-    "|", paste(c("logem4", spec$controls), collapse = " + ")
-  ))
+  structural_rhs <- c(ENDOGENOUS, spec$controls)
+  first_stage_rhs <- c(INSTRUMENT, spec$controls)
+  ols <- stats::lm(make_formula(OUTCOME, structural_rhs), data = sample)
+  first_stage <- stats::lm(make_formula(ENDOGENOUS, first_stage_rhs), data = sample)
+  restricted_first_stage <- stats::lm(
+    make_formula(ENDOGENOUS, if (length(spec$controls)) spec$controls else "1"),
+    data = sample
+  )
+  iv <- AER::ivreg(
+    stats::as.formula(paste(
+      OUTCOME, "~", paste(structural_rhs, collapse = " + "),
+      "|", paste(c(INSTRUMENT, spec$controls), collapse = " + ")
+    )),
+    data = sample
+  )
 
-  ols <- stats::lm(ols_formula, data = estimation_data)
-  # Use the required AER::ivreg path for two-stage least squares.
-  iv <- AER::ivreg(iv_formula, data = estimation_data)
-  unrestricted_first_stage <- stats::lm(first_stage_formula, data = estimation_data)
-  restricted_first_stage <- stats::lm(restricted_first_stage_formula, data = estimation_data)
-  first_stage_comparison <- stats::anova(restricted_first_stage, unrestricted_first_stage)
-  partial_f <- first_stage_comparison$F[2L]
+  # This nested-model test is the excluded-instrument partial F, not the overall F.
+  partial_f <- stats::anova(restricted_first_stage, first_stage)$F[2]
+  first_stage_t <- summary(first_stage)$coefficients[INSTRUMENT, "t value"]
+  stopifnot(isTRUE(all.equal(partial_f, unname(first_stage_t^2), tolerance = 1e-8)))
 
   data.frame(
     specification = spec$name,
-    n = nrow(estimation_data),
-    ols = unname(stats::coef(ols)["avexpr"]),
-    iv = unname(stats::coef(iv)["avexpr"]),
-    first_stage_logem4 = unname(stats::coef(unrestricted_first_stage)["logem4"]),
-    first_stage_f = partial_f,
-    identification = if (partial_f < 10) "Weak (F < 10)" else "Not weak (F >= 10)",
+    n = stats::nobs(ols),
+    ols = unname(stats::coef(ols)[ENDOGENOUS]),
+    iv = unname(stats::coef(iv)[ENDOGENOUS]),
+    first_stage = unname(stats::coef(first_stage)[INSTRUMENT]),
+    partial_f = unname(partial_f),
+    weak = partial_f < 10,
     stringsAsFactors = FALSE
   )
 }
 
 results <- do.call(rbind, lapply(specifications, estimate_specification, data = colonial))
-stopifnot(nrow(results) == 5L)
 
-table_lines <- c(
-  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | First-stage partial F | Identification status |",
-  "|---|---:|---:|---:|---:|---:|---|",
-  vapply(seq_len(nrow(results)), function(i) {
-    row <- results[i, ]
-    paste0(
-      "| ", row$specification,
-      " | ", row$n,
-      " | ", sprintf("%.3f", row$ols),
-      " | ", sprintf("%.3f", row$iv),
-      " | ", sprintf("%.3f", row$first_stage_logem4),
-      " | ", sprintf("%.2f", row$first_stage_f),
-      " | ", row$identification, " |"
-    )
-  }, character(1)),
+table_rows <- vapply(seq_len(nrow(results)), function(i) {
+  row <- results[i, ]
+  status <- if (row$weak) "Weak (F < 10; 2SLS not reliable)" else "Not weak"
+  paste(
+    "|", row$specification,
+    "|", row$n,
+    "|", format_number(row$ols),
+    "|", format_number(row$iv),
+    "|", format_number(row$first_stage),
+    "|", format_number(row$partial_f),
+    "|", status, "|"
+  )
+}, character(1))
+
+markdown <- c(
+  "# AJR IV robustness analysis",
   "",
-  "Notes: OLS and 2SLS use the identical complete-case sample within each specification. The first-stage partial F is the conventional excluded-instrument F from comparing first stages without and with `logem4`. Specifications with F < 10 are marked weak; their displayed IV point estimates are retained for transparency but are not reliable causal estimates. 2SLS is estimated with `AER::ivreg`."
+  "All estimates use `AER::ivreg` for 2SLS. Within each row, one complete-case sample (for `logpgp95`, `avexpr`, `logem4`, and that row's controls) is used consistently for OLS, IV, and both first-stage regressions.",
+  "",
+  "The reported first-stage F is the excluded-instrument partial F: the nested-model F comparison of a first stage without `logem4` against the otherwise identical first stage including `logem4`. With one excluded instrument, it equals the squared `logem4` t statistic (verified in `script.R`). Values below 10 are flagged; their 2SLS point estimates should not be treated as reliable.",
+  "",
+  "| Specification | N | OLS: avexpr | 2SLS: avexpr | First stage: logem4 | Partial F (logem4) | Identification status |",
+  "|---|---:|---:|---:|---:|---:|---|",
+  table_rows
 )
 
-writeLines(table_lines, "robustness-table.md", useBytes = TRUE)
+writeLines(markdown, OUTPUT_FILE)

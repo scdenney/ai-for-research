@@ -1,0 +1,29 @@
+Only `staggered::staggered` is silently wrong if given `did::mpdta$first.treat` unchanged.
+
+| Estimator | Never-treated coding | Reuse `mpdta$first.treat`? |
+|---|---|---|
+| `did::att_gt` | `0` | Yes—correct. |
+| `staggered::staggered` | `Inf` | No—silent misclassification. |
+| `fixest::sunab` | Any cohort value absent from the supplied calendar-period variable (commonly a future value such as `1000`) | Yes for `mpdta` specifically: `0` is not among years 2003–2007, so it is inferred as never-treated. |
+
+Exact recoding for `staggered`:
+
+```r
+g_staggered <- ifelse(mpdta$first.treat == 0, Inf, mpdta$first.treat)
+```
+
+For portable `sunab` code, I would make the convention explicit, although it is not required for `mpdta`:
+
+```r
+g_sunab <- ifelse(mpdta$first.treat == 0, max(mpdta$year) + 1L,
+                  mpdta$first.treat)
+# 2008 for mpdta
+```
+
+Evidence:
+
+- `att_gt` documents treated cohorts as positive and the untreated group as `0`; its vignette specifically says `mpdta$first.treat` is `0` for never-treated units. [Source](https://github.com/bcallaway11/did/blob/master/R/att_gt.R), [installed vignette](/opt/homebrew/lib/R/4.5/site-library/did/doc/did-basics.Rmd:262)
+- `staggered` explicitly requires `Inf` for never-treated units. Its source then constructs controls as cohorts with `g > max(g,t)` and treats cohorts satisfying `t >= g` as eligible targets. Thus `g=0` in the 2003–2007 `mpdta` panel is an earliest/always-treated cohort: never-treated units are omitted as controls and can enter the treated target/weights, without a sentinel-validation error. [Manual](https://www.rdocumentation.org/packages/staggered/versions/1.2.2/topics/staggered), [source control rule](https://rdrr.io/cran/staggered/src/R/compute_efficient_estimator_and_se.R)
+- `sunab` documents that, when relative time is constructed from calendar time, a cohort absent from the period variable is deemed never-treated; it warns that this rule would wrongly classify an actually always-treated cohort coded before the sample. Therefore `0` happens to work for `mpdta`, but is data-range-dependent. [Documentation](https://lrberge.github.io/fixest/reference/sunab.html)
+
+Never-treated is a unit’s permanent adoption status. Not-yet-treated is not a sentinel: it is an eventually treated unit with its actual cohort date `g > t`. In `att_gt(control_group = "notyettreated")`, these units are added to the controls for that period; never-treated units remain included. Do not recode future adopters to `0`, `Inf`, or a future fake cohort merely because they are untreated at a particular date.

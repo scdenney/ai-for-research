@@ -1,0 +1,13 @@
+Completed all deliverables.
+
+Key finding: the experimental benchmark is **$1,794.34**, versus a naive CPS estimate of **−$8,497.52**. Matching recovers the benchmark only under favorable earnings-adjusted 1-NN specifications ($1,712–$1,759); demographics-only and stratified alternatives diverge materially.
+
+Files:
+
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/vhigh-lalonde/script.R)
+- [spec-curve.png](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/vhigh-lalonde/figures/spec-curve.png)
+- [spec-table.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/vhigh-lalonde/spec-table.md)
+- [memo.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/vhigh-lalonde/memo.md)
+- [routing-log.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/vhigh-lalonde/routing-log.md)
+
+A clean `Rscript --vanilla script.R` rebuild passed. The single figure is 3360×1856 at 320 dpi, and Claude Fable independently reproduced every estimate and interval.

@@ -1,0 +1,36 @@
+You are a second-vendor statistical peer reviewing a LaLonde/Dehejia-Wahba vs Smith-Todd
+replication in this directory. Read script.R and spec-table.md (do NOT edit anything).
+
+Context. NSW experiment (causaldata::nsw_mixtape, 185 treated + 260 control) gives an
+unbiased benchmark: treated-control difference in re78. An observational composite replaces
+the 260 experimental controls with 15,992 CPS controls (causaldata::cps_mixtape). The
+question: does propensity-score matching on the composite recover the experimental benchmark?
+
+The R script already ran and produced:
+  - Experimental benchmark: +$1,794 (HC1 SE 671, 95% CI [480, 3109])
+  - Naive observational (raw treated-CPS): -$8,498
+  - S1 1-NN PSM, demographics only, no trim:        -$2,798  CI [-4866, -730]
+  - S2 1-NN PSM, demographics only, common-support: -$2,798  CI [-4866, -730]
+  - S3 Stratification (6 strata), demographics only:-$3,622  CI [-5417, -1826]
+  - S4 1-NN PSM, demographics+re74/re75, no trim:   +$1,712  CI [178, 3247]
+  - S5 1-NN PSM, demographics+re74/re75, common-sup:+$1,759  CI [221, 3296]
+  - S6 Stratification (6 strata), demographics+re74/re75: +$61  CI [-3108, 3229]
+Estimand ATT; 1-NN matching WITH replacement (logit PS); SEs cluster-robust on matched set
+(and reused-control id for NN), deliberately NOT the ordinary NN bootstrap (Abadie-Imbens 2008).
+
+Do two things and return them as two clearly separated sections:
+
+SECTION A — VALIDITY AUDIT. Independently check the setup for statistical errors or
+indefensible choices. Specifically judge: (1) is the composite (NSW treated + CPS controls,
+n=16177) and the ATT-with-replacement target correct for this recovery question? (2) is the
+cluster-robust SE (subclass + reused-control id for NN; subclass for stratification) a
+defensible variance given AI-2008 rules out the naive bootstrap, or is something better
+warranted? (3) any bug in how get_matches()/match.data() weights feed the outcome regression?
+(4) is S1==S2 to the dollar a red flag or explainable (does discard='both' drop anything on a
+coarse demographic score)? (5) anything about the 6-strata ATT estimator (S6) that explains
+its collapse to ~$0 with a wide CI? Flag anything you would change; if it is sound, say so.
+
+SECTION B — YOUR VERDICT. Independently decide, from these numbers alone, whether PSM
+recovers the +$1,794 benchmark ROBUSTLY, ONLY UNDER FAVORABLE SPECIFICATIONS, or NOT AT ALL.
+State what conditioning on re74/re75 is and is not doing, and one sentence on what a paper may
+and may not legitimately claim. Be concise and decisive; do not hedge into non-commitment.

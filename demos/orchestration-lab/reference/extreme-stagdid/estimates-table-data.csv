@@ -1,0 +1,7 @@
+"estimator","att","se"
+"Naive TWFE",-0.0365489366740674,0.013265155429339
+"Callaway-Sant'Anna (not-yet-treated)",-0.0397636256230444,0.0116622315533654
+"Callaway-Sant'Anna (never-treated)",-0.0399512751551772,0.0129474597768044
+"Sun-Abraham (fixest::sunab)",-0.0399512751551743,0.011796277441754
+"Roth-Sant'Anna (staggered, correct Inf coding)",-0.0470539142103026,0.0116138401080984
+"Roth-Sant'Anna (staggered, WRONG 0 coding — the trap)",-0.37043476961192,0.12563990857099

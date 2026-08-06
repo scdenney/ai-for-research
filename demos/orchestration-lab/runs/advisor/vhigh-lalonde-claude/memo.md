@@ -1,11 +1,54 @@
-# Memo: Does matching recover the LaLonde benchmark?
+# Adjudication: does propensity-score matching recover the LaLonde benchmark?
 
-The experimental benchmark (NSW treated − control, `re78`) is **$1,794** (SE $671, 95% CI [$479, $3,109]). The naive observational comparison — NSW treated vs. raw CPS controls — gives **−$8,498**, off by over $10,000 and 17.6 SEs. CPS respondents are not a valid comparison group on their face: NSW enrolled people with a specific pattern of labor-market disadvantage, and unconditional CPS earnings reflect a far more typically-employed population. (SE multiples below are each estimate's own SE, not the benchmark's $671.)
+The experimental benchmark — the treated–control difference in `re78` within
+the randomized NSW sample — is **+$1,794** (95% CI: $480, $3,109). Replacing
+the experimental controls with the full CPS comparison pool and taking a raw
+difference gives **–$8,498**: selection into the CPS sample is severe enough
+to flip the sign. That is the problem matching is supposed to solve.
 
-Conditioning on demographics alone (age, education, race, marital status, no-degree) does not fix this. Across three estimator variants, demographics-only matching gives **−$2,798 to −$4,137** — still 4.2 to 8.6 SEs from the benchmark. Demographics describe *who* a person is, not the labor-market trajectory that predicted NSW enrollment: conditioning on them balances static covariates but leaves unblocked the pre-treatment earnings dip (the "Ashenfelter dip") that drove both selection into NSW and low 1978 earnings for CPS look-alikes regardless of treatment. Most of the naive bias survives.
+Across eight specifications crossing covariate set (demographics only vs.
+demographics **plus** pre-treatment earnings `re74`/`re75`) with estimator
+detail (1-NN with/without trim; stratification coarse, trimmed, and finer),
+recovery is sharply **specification-dependent** — not robust, not absent.
 
-Adding `re74`/`re75` changes the picture, but only for one of the two estimators at that covariate set. 1-NN matching with demographics + pre-treatment earnings gives **$1,712** (untrimmed) and **$1,759** (trimmed) — gaps under a fifth of an SE, CIs excluding zero and sitting on the benchmark. Trimming discards thousands of extreme-propensity CPS units (3,286 demographics-only, 10,216 here) but moves the demo+earn estimate by at most **~$47** — the discards were never competitive nearest matches. Stratification on the *identical* covariates instead gives **−$144**, **2.9 SEs** from the benchmark, 95% CI [−$1,439, $1,152] excluding it. This is MatchIt's five-stratum default; finer stratification moves toward the benchmark (+$660 at 10, +$1,034 at 20 strata) because five strata dump 97.6% of CPS controls into one bottom bin — consistent with Dehejia-Wahba's own finer stratification recovering near $1,700. The miss is thus partly a coarseness artifact, not proof stratification cannot recover the benchmark — but at a researcher's likely default granularity, the estimator detail alone still separates confident recovery from confident miss, covariate set held fixed.
+**Demographics-only never recovers, under any estimator.** All three land
+between –$2,798 and –$4,137, CIs excluding the benchmark entirely. Age,
+education, race, marital status, and degree status describe *who* is
+unemployed, not *why*, and miss the transitory earnings shock that predicts
+NSW selection. (The two demographics 1-NN rows are identical by
+construction: with replacement under ATT, discarding controls that were
+never anyone's nearest neighbor changes nothing.)
 
-**Verdict: recovery is real but favorable-specification-only, not robust.** It is not absent — the best specification lands almost exactly on the benchmark — and not universal: demographics-only comparisons and default-granularity stratification are adjusted comparisons still confidently wrong, several SEs from the benchmark despite controlling for observables. This bears out Smith and Todd's covariate-set critique directly; their companion claim, that recovery also depends on the *analysis sample*, is untested here — the task fixes the Dehejia-Wahba subsample throughout. Credibility hinges on including pre-treatment earnings as a confounder proxy *and* on an estimator (matching, or fine-enough stratification) flexible enough to exploit local overlap; neither is guaranteed by "do propensity-score matching."
+**With `re74`/`re75`, 1-NN matching recovers.** Estimates of $1,712 (no trim)
+and $1,759 (trimmed) sit inside the benchmark's interval. Their SEs need
+two-way clustering — match pair *and* physical unit, since 1-NN with
+replacement reuses CPS controls across pairs — which widens the CIs to
+$178–$3,247 and $221–$3,296. Against SEs near $780, a $36–$82 point gap
+from the benchmark is sampling noise, not special accuracy.
 
-A paper may legitimately claim that a well-specified propensity model with pre-treatment earnings and 1-NN matching produced an estimate indistinguishable from the experimental benchmark here. It may not claim that matching robustly recovers experimental benchmarks in general, nor that matching is unable to — both overclaim relative to a curve that spans both outcomes under choices a researcher could defensibly make either way.
+**Stratification's apparent failure was an artifact of its weakest
+implementation, not the estimator.** The original spec pooled the full
+16,177-unit CPS sample into five untrimmed strata. Cluster-robust inference
+on five clusters is not defensible, so its SE also needs correcting to
+HC-robust, which sharpens the CI to $-1,433 to $1,146 — this now
+**excludes** the benchmark, a real failure. But adding common-support
+trimming alone, holding strata count at five, recovers it: $1,290, CI
+$17–$2,563. Finer stratification alone (10 untrimmed strata) helps less —
+$660, CI $-620–$1,940, technically spanning the benchmark but centered well
+below it. Trimming, not strata count, is the load-bearing fix: the original
+spec failed because it pooled thousands of near-zero-propensity CPS
+controls against low-propensity treated units, not because five strata is
+inherently too coarse.
+
+**Verdict:** the evidence supports Smith and Todd over an unqualified
+Dehejia-Wahba, but the mechanism is narrower than "1-NN succeeds,
+stratification fails." Recovery requires the richer covariate set and
+either a close estimator (1-NN) or a common-support-restricted one (trimmed
+stratification); coarse, untrimmed stratification over the mismatched full
+pool fails. A paper may legitimately claim matching *can* recover
+experimental benchmarks given favorable covariates and defensible
+common-support handling — not that it recovers generally, and not that
+stratification is intrinsically less reliable than nearest-neighbor
+matching once both get comparable care. One caveat left untested: Smith and
+Todd's second fragility axis, the analysis sample — `nsw_mixtape` is
+already the Dehejia-Wahba subsample most favorable to their result.

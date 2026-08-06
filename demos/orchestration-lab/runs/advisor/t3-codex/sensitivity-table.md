@@ -1,23 +1,21 @@
-# Reference-category sensitivity
+# Crime reference-category sensitivity
 
-Profile-level estimates are adjusted for within-respondent response unreliability estimated from the repeated profile task (tau = 0.172). All 95% confidence intervals use respondent-clustered standard errors.
+Estimates are measurement-error-corrected profile-level quantities from `projoint`; intervals are 95% confidence intervals. AMCEs are percentage-point differences in probability of selection.
 
-## Violent Crime Rate
-
-| Level | AMCE; reference = 20% less crime | AMCE; reference = 20% more crime | Marginal mean (95% CI) |
+| Quantity | 20% less crime as reference | 20% more crime as reference | Marginal mean (95% CI) |
 |---|---:|---:|---:|
-| 20% less crime than national average | Reference | +0.251 (95% CI [0.168, 0.334]) | 0.626 (95% CI [0.584, 0.667]) |
-| 20% more crime than national average | -0.251 (95% CI [-0.334, -0.168]) | Reference | 0.374 (95% CI [0.333, 0.416]) |
+| 20% less crime than national average | Reference | 0.251 ([0.168, 0.334]) | 0.626 ([0.584, 0.667]) |
+| 20% more crime than national average | -0.251 ([-0.334, -0.168]) | Reference | 0.374 ([0.333, 0.416]) |
 
-With two levels, re-referencing merely reverses the same 0.251 contrast. Marginal means do not use a reference category.
+The two AMCEs are exact sign reversals because crime has only two levels. For a multi-level contrast, Housing Cost changes displayed coefficients with the reference: 
 
-## Racial Composition
-
-| Level | Marginal mean (95% CI) |
+| Housing Cost contrast | AMCE (95% CI) |
 |---|---:|
-| 50% White, 50% Nonwhite | 0.500 (95% CI [0.456, 0.544]) |
-| 75% White, 25% Nonwhite | 0.537 (95% CI [0.492, 0.581]) |
-| 90% White, 10% Nonwhite | 0.477 (95% CI [0.437, 0.518]) |
-| 96% White, 4% Nonwhite | 0.488 (95% CI [0.442, 0.534]) |
+| 30% of pre-tax income vs. 15% of pre-tax income | -0.137 ([-0.208, -0.066]) |
+| 40% of pre-tax income vs. 15% of pre-tax income | -0.198 ([-0.274, -0.122]) |
+| 15% of pre-tax income vs. 30% of pre-tax income | 0.137 ([0.066, 0.208]) |
+| 40% of pre-tax income vs. 30% of pre-tax income | -0.061 ([-0.133, 0.011]) |
+| 15% of pre-tax income vs. 40% of pre-tax income | 0.198 ([0.122, 0.274]) |
+| 30% of pre-tax income vs. 40% of pre-tax income | 0.061 ([-0.011, 0.133]) |
 
-The invariant max–min range is 0.059 (0.537 minus 0.477); it is unchanged by reference coding.
+All marginal means (and the baseline-invariant max–min MM spans) are computed in `script.R`; the figure reports the crime MMs.

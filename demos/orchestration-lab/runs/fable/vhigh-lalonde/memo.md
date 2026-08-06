@@ -1,52 +1,15 @@
-# Does propensity-score matching recover the LaLonde benchmark?
+# Memo: does propensity-score matching recover the NSW benchmark?
 
-**The benchmark and the problem.** The NSW experiment puts the effect of the
-program on 1978 earnings at **+$1,794** (95% CI [479, 3,109]) — a clean
-treated-minus-control contrast that randomization makes unbiased. Discard the
-experimental controls, splice the 185 treated units onto 15,992 CPS
-respondents, and the raw contrast collapses to **-$8,498**: the CPS men are
-older, better educated, and far higher-earning, so selection swamps the effect
-more than fivefold and reverses its sign. The question Dehejia-Wahba and
-Smith-Todd fight over is whether conditioning on observed covariates repairs
-this.
+**Verdict: recovery only under favorable specifications — not robust, and not absent.**
 
-**What conditioning does, and does not, do.** It does a great deal — but
-unevenly. Adding the six demographics alone moves the estimate from -$8,498 to
-roughly -$2,800 (1-NN) or -$4,200 (stratification): most of the raw gap closes,
-yet every demographics-only estimate is still wrong-signed and its interval
-excludes the benchmark. The lever that matters is the pair of pre-program
-earnings, re74 and re75. With them in the score, 1-NN matching returns **+$1,712**
-and **+$1,759** (with common-support trimming), both statistically
-indistinguishable from +$1,794. What conditioning is doing is not magic; it is
-balancing the one dimension — earnings history — on which the CPS pool differs
-from the trainees in a way that predicts re78. What it is not doing is
-certifying that all confounding is observed; it cannot, and demographics-only
-balance is not enough.
+The NSW experiment puts the program's effect on 1978 earnings at **$1,794** [$479, $3,109]. Replacing the experimental controls with the 15,992 CPS observational controls and taking a raw difference gives **−$8,498** — a $10,292 miss, because CPS controls are a far more advantaged comparison population, chiefly on pre-treatment earnings. That gap is what propensity-score adjustment has to close.
 
-**Verdict: recovery only under favorable specifications.** Two independent
-reviews (Opus and a different-vendor GPT-5.6 peer), run blind, reached the same
-reading, and the specification curve makes it plain. Holding the covariate set
-at its best case, the estimator still decides the answer: 1-NN lands on the
-benchmark, but simple five-stratum subclassification on the *same* rich score
-gives **-$144** [-1,406, 1,119] — a null. So a benchmark-consistent number
-exists, but it requires jointly choosing the earnings covariates *and*
-nearest-neighbor matching. That joint dependence is precisely Smith-Todd's
-fragility, not Dehejia-Wahba's robust replication.
+It closes only for one combination of choices. Of six specifications, exactly two land near the benchmark: 1-NN matching (with replacement) on demographics **plus** `re74`/`re75`, giving $1,712 and $1,759 (gaps of −$82 and −$36, CIs covering $1,794). Every other specification misses badly and excludes the benchmark: demographics-only 1-NN gives −$2,798 (gap −$4,592); demographics-only stratification gives −$4,137 (gap −$5,931); and — the decisive fact — even the *same* rich covariate set under 5-stratum stratification instead of 1-NN gives −$144 (gap −$1,938, CI excluding $1,794). Trimming to common support changes nothing here; it discards only controls that were never a realized match.
 
-**What a paper may and may not claim.** It may claim that lagged earnings are
-*necessary* to approach the experimental target — demographics-only matching
-fails decisively — and that under a rich score a nearest-neighbor PS estimate is
-statistically indistinguishable from the experimental +$1,794, a qualified,
-conditional replication. It may **not** claim that PS methods robustly recover
-the benchmark, that the CPS is a validated control pool, or that matching
-delivers experimental credibility independent of specification: the same
-favorable covariates, run through a coarser estimator, return zero. "Matching
-works" and "matching fails" are both wrong. Matching recovers the benchmark
-under one defensible specification and misses it under others equally
-defensible; the honest claim is conditional, and the conditions must be stated.
+**What conditioning is doing, and what it isn't.** Adding `re74`/`re75` to demographics moves the 1-NN estimate by roughly $4,500, from −$2,798 to +$1,712 — essentially the entire correction. Demographics alone do almost none of it. Pre-treatment earnings evidently capture most of the selection into the NSW program (the population CPS draws from looks nothing like NSW applicants on prior earnings trajectories), and matching on them removes most of that composition bias. But this is not a general proof that selection is ignorable given observables: the same covariates, matched a different way, still miss by nearly $2,000, so the point estimate is riding on the matching algorithm as much as on the covariate set. The winning CI is also close to $3,150 wide — a with-replacement match on 185 treated units against a 16,000-unit pool has real matching variance, so "covers the benchmark" partly reflects low power, not tight agreement. And the whole exercise is checkable only because an experimental yardstick happens to exist; nothing here validates unconfoundedness in a setting without one.
 
-*Standard errors are HC2 (naive/benchmark), a cluster-robust approximation to
-the Abadie-Imbens (2006) matching variance for 1-NN — the nonparametric
-bootstrap being invalid here (Abadie-Imbens 2008) and the exact estimator
-unavailable without `Matching` — and analytic within-stratum variances for
-stratification.*
+**What a paper may claim:** that when pre-treatment earnings are included in the propensity score *and* nearest-neighbor matching (rather than coarse stratification) is used, the resulting ATT is statistically and quantitatively close to this experiment's benchmark. **What it may not claim:** that propensity-score matching "recovers the experimental benchmark," full stop, or that this exercise validates selection-on-observables as a general strategy. The evidence supports Smith and Todd's fragility critique more than Dehejia and Wahba's recovery claim — recovery is real but conditional on a conjunction of choices, not a property of the method.
+
+![Specification curve](figures/spec-curve.png)
+
+*Figure. Point estimates with 95% CIs across six specifications; the dashed line marks the experimental benchmark ($1,794). Orange = demographics only; blue = demographics + `re74`/`re75`.*

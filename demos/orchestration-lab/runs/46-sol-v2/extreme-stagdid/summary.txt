@@ -1,0 +1,11 @@
+Completed all requested deliverables:
+
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/extreme-stagdid/script.R)
+- [estimates-table.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/extreme-stagdid/estimates-table.md)
+- [event-study.png](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/extreme-stagdid/figures/event-study.png)
+- [memo.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/extreme-stagdid/memo.md)
+- [routing-log.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/extreme-stagdid/routing-log.md)
+
+Main finding: TWFE is −0.0365, versus roughly −0.040 across Callaway–Sant’Anna and Sun–Abraham and −0.0471 for Roth–Sant’Anna. Potentially contaminated later-vs-earlier comparisons receive only 5.39% of Bacon weight, compared with 86.28% for treated-vs-never comparisons. Pre-trends are not rejected (p = 0.168). The memo therefore reports an ATT near −0.040 log points—about a 4% employment decline—while limiting that conclusion to this dataset.
+
+Final QA passed: `Rscript script.R` exits successfully, Bacon reconstructs TWFE exactly, the memo is 350 words, and the figure is 2240×1440 at 320 dpi. Claude was invoked with `--model fable` as required.

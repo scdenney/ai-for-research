@@ -1,0 +1,47 @@
+Objective:
+Implement the fully specified conjoint sensitivity analysis for Task T3, producing the requested R analysis artifacts in the current directory.
+
+Inputs and authoritative paths:
+- ./BRIEF.md is authoritative for the task and constraints.
+- The installed R package projoint and its bundled exampleData1 are the only data source.
+- Work only in the current directory.
+
+In scope:
+- Write ./script.R, ./sensitivity-table.md, and ./figures/sensitivity.png.
+- You may also write ./analysis-diagnostics.txt with concise numerical checks for the lead.
+- Run script.R and leave all generated artifacts present.
+
+Out of scope:
+- Do not write memo.md or routing-log.md; the Sol lead owns interpretation and integration.
+- Do not access the web, install packages, commit, push, or write outside the current directory.
+
+Constraints and invariants:
+- Use Rscript and the exact data construction in BRIEF.md:
+  library(projoint); data(exampleData1); out <- reshape_projoint(exampleData1, .outcomes=c(paste0("choice",1:8), "choice1_repeated_flipped"))
+- Use conventional profile-level estimands throughout: projoint(..., .structure="profile_level", .estimand="mm" or "amce"). Use analytical SEs and the package's respondent clustering defaults.
+- Treat measurement-error-corrected estimates as primary, but retain the uncorrected results in sensitivity-table.md as a clearly labelled secondary panel.
+- Estimate MMs for every one of the 24 levels in all seven attributes using a single all-level MM model. Map IDs to readable attribute and level labels from out$labels.
+- Re-estimate pairwise profile-level AMCEs with set_qoi() under every possible reference level for att7 (Violent Crime Rate; two levels) and att5 (Total Daily Driving Time; four levels). For each reference, include the reference as an explicit zero row and estimate all other pairwise contrasts. Do not merely relabel a single fit.
+- sensitivity-table.md must show the two crime levels as rows and, side by side, corrected MM [95% CI], corrected AMCE when Less Crime is baseline [95% CI], and corrected AMCE when More Crime is baseline [95% CI]. Use percentage points with one decimal. Follow with the same layout for uncorrected estimates. State that baseline rows are fixed at zero by definition and do not have sampling intervals; corrected AMCE estimates may differ from differences of separately estimated corrected MMs by trivial numerical/model-fitting amounts.
+- Create exactly one requested figure at figures/sensitivity.png: all 24 corrected MMs and 95% CIs, with readable level labels and attribute grouping/faceting. No in-plot title and no in-plot caption. Include a vertical 0.50 reference line. Highlight crime with Okabe-Ito vermillion #D55E00 and driving time with Okabe-Ito blue #0072B2; use neutral dark gray for remaining attributes. Use a clean theme, no legend if the facet labels make highlighting clear, and save at 320 dpi or greater. Do not create any other figure file.
+- script.R must be self-contained, create figures/ if needed, regenerate sensitivity-table.md and sensitivity.png, set a seed, avoid absolute paths, and fail loudly on missing expected rows.
+- Add executable assertions/checks in script.R: 24 corrected MM rows; two crime levels; all alternative baselines estimated; the two corrected crime AMCEs have opposite signs and equal absolute magnitude to tight numerical tolerance; the same for uncorrected; every attribute's corrected MM range is computed; and output files exist.
+- Write analysis-diagnostics.txt containing: package version, respondent/profile counts, estimated IRR/tau if exposed, corrected and uncorrected MM ranges for all attributes sorted descending, crime AMCE under each baseline with CI, and for each of the four driving-time baselines the largest absolute corrected coefficient. Print the same key checks to stdout.
+- Expected numerical neighborhood from the lead's independent probe: corrected crime MMs approximately 0.626 (20% less) and 0.374 (20% more), corrected crime contrast approximately 25.1–25.2 percentage points; corrected driving-time MM range approximately 23.7 points; corrected housing range approximately 19.8 points. If materially different, stop and diagnose.
+- Use only installed packages. Do not fetch anything.
+
+Write ownership:
+- You exclusively own script.R, sensitivity-table.md, figures/sensitivity.png, and analysis-diagnostics.txt for this one-shot. Do not alter BRIEF.md or any other file. The workspace may change; reread files before writing.
+
+Expected artifact:
+- A directly runnable script.R plus the table, exactly one PNG figure, and concise diagnostics.
+
+Acceptance checks:
+- `Rscript script.R` exits 0 from the current directory.
+- Required artifacts exist and are nonempty.
+- Figure has no title, is 320+ dpi by construction, uses the stated colors, and contains all 24 corrected MMs.
+- Crime releveling flips sign only; multi-level driving-time coefficient magnitudes demonstrably depend on the reference.
+- Numerical results agree with the expected neighborhood.
+
+Return format:
+Conclusion, evidence/check outputs, changed files, and residual risk. Implement the deliverables directly; do not invoke any other skill, advisory consult, or sub-orchestration.

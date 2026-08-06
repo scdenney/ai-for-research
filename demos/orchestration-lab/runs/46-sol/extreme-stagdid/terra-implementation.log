@@ -1,0 +1,2095 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.5
+--------
+workdir: /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f7017-3982-7c00-851f-7fe42a0e5c5d
+--------
+user
+Objective: implement the bounded R computation and reproducible artifacts specified below. Inputs and authoritative paths: ./BRIEF.md and the installed local R package documentation only. In scope: create script.R, estimates-table.md, and figures/event-study.png; run the script successfully. Out of scope: memo.md, routing-log.md, web access, package installation, substantive adjudication, and files outside the current directory. Constraints and invariants: set.seed(4601) before anything stochastic; use unweighted mpdta with outcome lemp and no covariates across estimators; construct post_treated as first.treat greater than zero and year at least first.treat; naive TWFE via fixest feols with countyreal and year fixed effects and countyreal-clustered SE; did att_gt plus aggte simple for both notyettreated and nevertreated, xformla intercept only, panel true, county clustering, universal base period, multiplier bootstrap with 999 iterations and 95 percent inference; include Sun-Abraham via fixest sunab with a never-treated cohort sentinel outside 2003-2007 and county clustering, aggregated ATT; include Roth-SantAnna staggered simple as an extra row, converting only its g column from 0 to Inf and using its native se; run bacondecomp bacon on the exact naive TWFE treatment indicator and print type weight shares and weighted contributions, especially Later vs Earlier Treated and Treated vs Untreated; generate the event study from the nevertreated Callaway-SantAnna model for event times -3 through 3, with universal base period, pointwise 95 percent intervals, the normalized -1 point, and a vertical marker at event time 0. Declare an Okabe-Ito palette and a named plotting theme near the top of script.R. Save PNG at 7 by 4.5 inches and at least 300 dpi, no in-plot title. estimates-table.md must contain every five estimator rows, ATT, SE, and explicit control or comparison group. script.R must be self-contained from the current directory, create figures if needed, overwrite its generated outputs deterministically, and print the Bacon shares, dynamic estimates, joint pretrend p-value, and all ATT values for lead inspection. Do not create any other artifacts. Acceptance checks: Rscript script.R exits zero; table numbers match objects; Bacon weights sum to one and TWFE equals sum of estimate times weight within numerical tolerance; the dangerous category is exactly the Bacon label Later vs Earlier Treated; figure dimensions and dpi satisfy the brief; did never uses 0, staggered never uses Inf. Return format in the log: conclusion, evidence, changed files, residual risk. Implement the deliverables directly; do not invoke any other skill, advisory consult, or sub-orchestration.
+codex
+I’ll implement the requested R workflow strictly from the local brief and installed package documentation, then run it and verify the generated table and figure.
+exec
+/bin/zsh -lc "ls -la && sed -n '1,240p' BRIEF.md && find . -maxdepth 2 -type f -not -path './.git/*' | sort" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid
+ succeeded in 0ms:
+total 24
+drwxr-xr-x@ 4 scdenney  staff   128 Jul 17 14:39 .
+drwxr-xr-x@ 8 scdenney  staff   256 Jul 17 14:23 ..
+-rw-r--r--@ 1 scdenney  staff  4377 Jul 17 14:32 BRIEF.md
+-rw-r--r--@ 1 scdenney  staff  3290 Jul 17 14:40 terra-implementation.log
+# Task EXTREME — Reconcile modern staggered-adoption DiD estimators
+
+You are working in a project directory. Use R (`Rscript`); the `did`, `fixest`, `staggered`, and `bacondecomp` packages are installed.
+
+**Data.** The Callaway-Sant'Anna minimum-wage/teen-employment county panel, as shipped in the `did` package (their own worked example — 500 US counties, 2003–2007, employment and population in logs):
+
+```r
+library(did)
+data(mpdta)
+# columns: year countyreal lpop lemp first.treat treat
+# first.treat: the year a county's state first raised its minimum wage above the
+# federal floor (2004, 2006, or 2007); 0 = never treated in this window.
+```
+
+**Situation.** Two-way fixed-effects (TWFE) regression is the textbook difference-in-differences estimator, but under **staggered treatment timing with heterogeneous effects**, Goodman-Bacon (2021) shows TWFE implicitly averages many 2x2 comparisons — including ones where an **already-treated** unit serves as the "control" for a **later-treated** one. If effects change over time, those comparisons can carry **negative weight**, contaminating the pooled estimate. This is why Callaway & Sant'Anna (2021), Sun & Abraham (2021), and de Chaisemartin & D'Haultfœuille (2020) built heterogeneity-robust alternatives, and why "never use plain TWFE on staggered data" has become a reflexive rule of thumb in applied econometrics. Reflexive rules are not the same as checking whether the problem they guard against is actually present in a given dataset. Your job is to check, not recite.
+
+**Task.**
+
+1. **Estimate the ATT at least four ways**: (a) naive TWFE (a `post × ever-treated` dummy, county and year fixed effects, clustered by county), (b) Callaway-Sant'Anna (`did::att_gt` + `aggte(type="simple")`) under **both** `control_group = "notyettreated"` and `control_group = "nevertreated"`, and (c) **at least one** of Sun-Abraham (`fixest::sunab`) or the Roth-Sant'Anna estimator (`staggered::staggered`). Cluster or use the package's native county-level variance wherever an option exists.
+2. **Quantify whether the negative-weighting critique actually bites here.** Run a Goodman-Bacon decomposition (`bacondecomp::bacon`) on the naive TWFE and report what share of its identifying weight sits on "later vs. earlier treated" comparisons (the type that can carry negative weight) versus clean treated-vs-never-treated comparisons.
+3. **Check pre-trends.** Produce an event-study / dynamic-effects estimate (e.g. `aggte(type="dynamic")`) covering at least two pre-treatment periods and one post-treatment period, and state whether the parallel-trends assumption looks supported.
+4. **Adjudicate in `memo.md`** (~350 words): given (1)-(3), does the classic "TWFE is biased under staggered adoption" critique change the substantive conclusion for *this* dataset, or not — and why? State the ATT you'd actually report and its ballpark magnitude.
+
+**Produce, in the current working directory:**
+
+1. `script.R` — one self-contained script; Okabe-Ito palette and theme declared at the top if it produces a plot; `set.seed()` before anything stochastic.
+2. `estimates-table.md` — every estimator from step 1, its ATT, its standard error, and its control-group/comparison-group choice, in one table.
+3. `figures/event-study.png` — the dynamic/event-study estimates from step 3 with 95% intervals, a vertical line or shading marking the treatment period. 300+ dpi, no in-plot title.
+4. `memo.md` — the ~350-word adjudication from step 4.
+
+**Method note.** The packages you'll use encode "never treated" differently: `did::att_gt`'s `gname` column uses **0** for never-treated (as `mpdta$first.treat` already does); `staggered::staggered`'s `g` column uses **`Inf`** for never-treated. Read each package's own documentation for its convention before reusing a column across packages — do not assume one sentinel value carries over.
+
+**Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. No web access beyond what's needed to check a package's documentation/help pages already installed locally. Do not install packages (`did`, `fixest`, `staggered`, `bacondecomp` are already present). The memo must not overclaim: it is not "TWFE is always fine" or "always use the modern estimator" — the answer must be grounded in what steps 1–3 actually showed for *this* dataset.
+./BRIEF.md
+./terra-implementation.log
+
+exec
+/bin/zsh -lc "Rscript -e 'for (p in c(\"did\",\"fixest\",\"staggered\",\"bacondecomp\",\"ggplot2\")) { cat(\"PACKAGE\",p,\"\\n\"); print(packageVersion(p)); }; library(did); print(args(att_gt)); print(args(aggte)); library(fixest); print(args(feols)); print(args(sunab)); library(staggered); print(args(staggered)); library(bacondecomp); print(args(bacon))'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid
+ exited 1 in 687ms:
+function (yname, tname, idname = NULL, gname, xformla = NULL, 
+    data, panel = TRUE, allow_unbalanced_panel = FALSE, control_group = c("nevertreated", 
+        "notyettreated"), anticipation = 0, weightsname = NULL, 
+    fix_weights = NULL, alp = 0.05, bstrap = TRUE, cband = TRUE, 
+    biters = 1000, clustervars = NULL, est_method = "dr", base_period = "varying", 
+    faster_mode = TRUE, print_details = FALSE, pl = FALSE, cores = 1, 
+    compute_inffunc = TRUE, ...) 
+NULL
+function (MP, type = "group", balance_e = NULL, min_e = -Inf, 
+    max_e = Inf, na.rm = FALSE, bstrap = NULL, biters = NULL, 
+    cband = NULL, alp = NULL, clustervars = NULL) 
+NULL
+function (fml, data, vcov, weights, offset, subset, split, fsplit, 
+    split.keep, split.drop, cluster, se, ssc, panel.id, panel.time.step = NULL, 
+    panel.duplicate.method = "none", fixef, fixef.rm = "perfect_fit", 
+    fixef.tol = 1e-06, fixef.iter = 10000, fixef.algo = NULL, 
+    collin.tol = 1e-09, nthreads = getFixest_nthreads(), lean = FALSE, 
+    verbose = 0, warn = TRUE, notes = getFixest_notes(), only.coef = FALSE, 
+    data.save = FALSE, fixef.keep_names = NULL, demeaned = FALSE, 
+    mem.clean = FALSE, only.env = FALSE, env, ...) 
+NULL
+Error: object 'sunab' not found
+Execution halted
+
+exec
+/bin/zsh -lc "Rscript -e 'library(fixest); cat(paste(grep(\"sun\", getNamespaceExports(\"fixest\"), value=TRUE),collapse=\"\\n\"),\"\\n\"); print(utils::help(\"sunab\", package=\"fixest\")); library(staggered); print(args(staggered)); print(utils::help(\"staggered\", package=\"staggered\")); library(bacondecomp); print(utils::help(\"bacon\", package=\"bacondecomp\"))'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid
+ succeeded in 287ms:
+ 
+sunab                  package:fixest                  R Documentation
+
+_S_u_n _a_n_d _A_b_r_a_h_a_m _i_n_t_e_r_a_c_t_i_o_n_s
+
+_D_e_s_c_r_i_p_t_i_o_n:
+
+     User-level method to implement staggered difference-in-difference
+     estimations a la Sun and Abraham (Journal of Econometrics, 2021).
+
+_U_s_a_g_e:
+
+     sunab(
+       cohort,
+       period,
+       ref.c = NULL,
+       ref.p = -1,
+       bin,
+       bin.rel,
+       bin.c,
+       bin.p,
+       att = FALSE,
+       no_agg = FALSE
+     )
+     
+     sunab_att(cohort, period, ref.c = NULL, ref.p = -1)
+     
+_A_r_g_u_m_e_n_t_s:
+
+  cohort: A vector representing the cohort. It should represent the
+          period at which the treatment has been received (and thus be
+          fixed for each unit).
+
+  period: A vector representing the period. It can be either a relative
+          time period (with negative values representing the before the
+          treatment and positive values after the treatment), or a
+          regular time period. In the latter case, the relative time
+          period will be created from the cohort information (which
+          represents the time at which the treatment has been
+          received).
+
+   ref.c: A vector of references for the cohort. By default the never
+          treated cohorts are taken as reference and the always treated
+          are excluded from the estimation. You can add more references
+          with this argument, which means that dummies will not be
+          created for them (but they will remain in the estimation).
+
+   ref.p: A vector of references for the (relative!) period. By default
+          the first relative period (RP) before the treatment, i.e. -1,
+          is taken as reference. You can instead use your own
+          references (i.e. RPs for which dummies will not be created -
+          but these observations remain in the sample). Please note
+          that you will need at least two references. You can use the
+          special variables ‘.F’ and ‘.L’ to access the first and the
+          last relative periods.
+
+     bin: A list of values to be grouped, a vector, or the special
+          value ‘"bin::digit"’. The binning will be applied to both the
+          cohort and the period (to bin them separately, see ‘bin.c’
+          and ‘bin.p’). To create a new value from old values, use ‘bin
+          = list("new_value"=old_values)’ with ‘old_values’ a vector of
+          existing values. It accepts regular expressions, but they
+          must start with an ‘"@"’, like in ‘bin="@Aug|Dec"’. The names
+          of the list are the new names. If the new name is missing,
+          the first value matched becomes the new name. Feeding in a
+          vector is like using a list without name and only a single
+          element. If the vector is numeric, you can use the special
+          value ‘"bin::digit"’ to group every ‘digit’ element. For
+          example if ‘x’ represent years, using ‘bin="bin::2"’ create
+          bins of two years. Using ‘"!bin::digit"’ groups every digit
+          consecutive values starting from the first value. Using
+          ‘"!!bin::digit"’ is the same bu starting from the last value.
+          In both cases, ‘x’ is not required to be numeric.
+
+ bin.rel: A list or a vector defining which values to bin. Only applies
+          to the relative periods and _not_ the cohorts. Please refer
+          to the help of the argument ‘bin’ to understand the different
+          ways to do the binning (or look at the help of ‘bin’).
+
+   bin.c: A list or a vector defining which values to bin. Only applies
+          to the cohort. Please refer to the help of the argument ‘bin’
+          to understand the different ways to do the binning (or look
+          at the help of ‘bin’).
+
+   bin.p: A list or a vector defining which values to bin. Only applies
+          to the period. Please refer to the help of the argument ‘bin’
+          to understand the different ways to do the binning (or look
+          at the help of ‘bin’).
+
+     att: Logical, default is ‘FALSE’. If ‘TRUE’: then the total
+          average treatment effect for the treated is computed (instead
+          of the ATT for each relative period).
+
+  no_agg: Logical, default is ‘FALSE’. If ‘TRUE’: then there is no
+          aggregation, leading to the estimation of all cohort x time
+          to treatment coefficients.
+
+_D_e_t_a_i_l_s:
+
+     This function creates a matrix of cohort x relative_period
+     interactions, and if used within a ‘fixest’ estimation, the
+     coefficients will automatically be aggregated to obtain the ATT
+     for each relative period. In practice, the coefficients are
+     aggregated with the ‘aggregate.fixest’ function whose argument
+     ‘agg’ is automatically set to the appropriate value.
+
+     The SA method requires relative periods (negative/positive for
+     before/after the treatment). Either the user can compute the RP
+     (relative periods) by his/her own, either the RPs are computed on
+     the fly from the periods and the cohorts (which then should
+     represent the treatment period).
+
+     The never treated, which are the cohorts displaying only negative
+     RPs are used as references (i.e. no dummy will be constructed for
+     them). On the other hand, the always treated are removed from the
+     estimation, by means of adding NAs for each of their observations.
+
+     If the RPs have to be constructed on the fly, any cohort that is
+     not present in the period is considered as never treated. This
+     means that if the period ranges from 1995 to 2005, ‘cohort = 1994’
+     will be considered as never treated, although it should be
+     considered as always treated: so be careful.
+
+     If you construct your own relative periods, the controls cohorts
+     should have only negative RPs.
+
+_V_a_l_u_e:
+
+     If not used within a ‘fixest’ estimation, this function will
+     return a matrix of interacted coefficients.
+
+_B_i_n_n_i_n_g:
+
+     You can bin periods with the arguments ‘bin’, ‘bin.c’, ‘bin.p’
+     and/or ‘bin.rel’.
+
+     The argument ‘bin’ applies both to the original periods and
+     cohorts (the cohorts will also be binned!). This argument only
+     works when the ‘period’ represent "calendar" periods (not relative
+     ones!).
+
+     Alternatively you can bin the periods with ‘bin.p’ (either
+     "calendar" or relative); or the cohorts with ‘bin.c’.
+
+     The argument ‘bin.rel’ applies only to the relative periods (hence
+     not to the cohorts) once they have been created.
+
+     To understand how binning works, please have a look at the help
+     and examples of the function ‘bin’.
+
+     Binning can be done in many different ways: just remember that it
+     is not because it is possible that it does makes sense!
+
+_E_s_t_i_m_a_t_i_o_n _o_f _s_t_a_g_g_e_r_e_d _d_i_f_f_e_r_e_n_c_e-_i_n-_d_i_f_f_e_r_e_n_c_e _m_o_d_e_l_s:
+
+     Consider the following example of staggered
+     difference-in-difference. You have a panel of persons, or more
+     generically: 'units', who receive a treatment at different periods
+     and you are interested in finding out the effect of the treatment
+     on an outcome. Further, you also want the effet to be net of
+     individual differences and time differences.
+
+     To estimate this model, you would need to use the ‘sunab()’
+     function with unit and period fixed-effects. For example, with ‘y’
+     the outcome, ‘id’ the unit identifier, ‘year’ the period, and
+     ‘year_treated’ the year the treatment is received, the ‘fixest’
+     formula looks like:
+
+     ‘y ~ sunab(year_treated, year) | id + period’
+
+_A_u_t_h_o_r(_s):
+
+     Laurent Berge
+
+_E_x_a_m_p_l_e_s:
+
+     # Simple DiD example
+     data(base_stagg)
+     head(base_stagg)
+     
+     # Note that the year_treated is set to 1000 for the never treated
+     table(base_stagg$year_treated)
+     table(base_stagg$time_to_treatment)
+     
+     # The DiD estimation
+     res_sunab = feols(y ~ sunab(year_treated, year) | id + year, base_stagg)
+     etable(res_sunab)
+     
+     # By default the reference periods are the first year and the year before the treatment
+     # i.e. ref.p = c(-1, .F); where .F is a shortcut for the first period.
+     # Say you want to set as references the first three periods on top of -1
+     
+     res_sunab_3ref = feols(y ~ sunab(year_treated, year, ref.p = c(.F + 0:2, -1)) |
+                              id + year, base_stagg)
+     
+     # Display the two results
+     iplot(list(res_sunab, res_sunab_3ref))
+     
+     # ... + show all refs
+     iplot(list(res_sunab, res_sunab_3ref), ref = "all")
+     
+     
+     #
+     # ATT
+     #
+     
+     # To get the total ATT, you can use summary with the agg argument:
+     summary(res_sunab, agg = "ATT")
+     
+     # You can also look at the total effect per cohort
+     summary(res_sunab, agg = "cohort")
+     
+     
+     #
+     # Binning
+     #
+     
+     # Binning can be done in many different ways
+     
+     # binning the cohort
+     est_bin.c   = feols(y ~ sunab(year_treated, year, bin.c = 3:2) | id + year, base_stagg)
+     
+     # binning the period
+     est_bin.p   = feols(y ~ sunab(year_treated, year, bin.p = 3:1) | id + year, base_stagg)
+     
+     # binning both the cohort and the period
+     est_bin     = feols(y ~ sunab(year_treated, year, bin = 3:1) | id + year, base_stagg)
+     
+     # binning the relative period, grouping every two years
+     est_bin.rel = feols(y ~ sunab(year_treated, year, bin.rel = "bin::2") | id + year, base_stagg)
+     
+     etable(est_bin.c, est_bin.p, est_bin, est_bin.rel, keep = "year")
+     
+
+function (df, i = "i", t = "t", g = "g", y = "y", estimand = NULL, 
+    A_theta_list = NULL, A_0_list = NULL, eventTime = 0, beta = NULL, 
+    use_DiD_A0 = ifelse(is.null(A_0_list), TRUE, FALSE), return_full_vcv = FALSE, 
+    use_last_treated_only = FALSE, compute_fisher = FALSE, num_fisher_permutations = 500, 
+    skip_data_check = FALSE) 
+NULL
+staggered              package:staggered               R Documentation
+
+_C_a_l_c_u_l_a_t_e _t_h_e _e_f_f_i_c_i_e_n_t _a_d_j_u_s_t_e_d _e_s_t_i_m_a_t_o_r _i_n _s_t_a_g_g_e_r_e_d _r_o_l_l_o_u_t _d_e_s_i_g_n_s
+
+_D_e_s_c_r_i_p_t_i_o_n:
+
+     This functions calculates the efficient estimator for staggered
+     rollout designs proposed by Roth and Sant'Anna.
+
+_U_s_a_g_e:
+
+     staggered(
+       df,
+       i = "i",
+       t = "t",
+       g = "g",
+       y = "y",
+       estimand = NULL,
+       A_theta_list = NULL,
+       A_0_list = NULL,
+       eventTime = 0,
+       beta = NULL,
+       use_DiD_A0 = ifelse(is.null(A_0_list), TRUE, FALSE),
+       return_full_vcv = FALSE,
+       use_last_treated_only = FALSE,
+       compute_fisher = FALSE,
+       num_fisher_permutations = 500,
+       skip_data_check = FALSE
+     )
+     
+_A_r_g_u_m_e_n_t_s:
+
+      df: A data frame containing panel data with the variables y (an
+          outcome), i (an individual identifier), t (the period in
+          which the outcome is observe), g (the period in which i is
+          first treated, with Inf denoting never treated)
+
+       i: The name of column containing the individual (cross-sectional
+          unit) identifier. Default is "i".
+
+       t: The name of the column containing the time periods. Default
+          is "t".
+
+       g: The name of the column containing the first period when a
+          particular observation is treated, with Inf denoting never
+          treated. Default is "g".
+
+       y: The name of the column containing the outcome variable.
+          Default is "y".
+
+estimand: The estimand to be calculated: "simple" averages all treated
+          (t,g) combinations with weights proportional to N_g; "cohort"
+          averages the ATEs for each cohort g, and then takes an
+          N_g-weighted average across g; "calendar" averages ATEs for
+          each time period, weighted by N_g for treated units, and then
+          averages across time. "eventstudy" returns the average effect
+          at the ''event-time'' given in the parameter EventTime.  The
+          parameter can be left blank if a custom parameter is provided
+          in A_theta_list. The argument is not case-sensitive.
+
+A_theta_list: This parameter allows for specifying a custom estimand,
+          and should be left as NULL if estimand is specified. It is a
+          list of matrices A_theta_g so that the parameter of interest
+          is sum_g A_theta_g Ybar_g, where Ybar_g = 1/N sum_i Y_i(g)
+
+A_0_list: This parameter allow for specifying the matrices used to
+          construct the Xhat vector of pre-treatment differences. If
+          left NULL, the default is to use the scalar set of controls
+          used in Callaway and Sant'Anna. If use_DiD_A0 = FALSE, then
+          it uses the full vector possible comparisons of (g,g') in
+          periods t<g,g'.
+
+eventTime: If using estimand = "eventstudy", specify what eventTime you
+          want the event-study parameter for. The default is 0, the
+          period in which treatment occurs. If a vector is provided,
+          estimates are returned for all the event-times in the vector.
+
+    beta: A coefficient to use for covariate adjustment. If not
+          specified, the plug-in optimal coefficient is used. beta =0
+          corresponds with the simple difference-in-means. beta = 1
+          corresponds with the Callaway and Sant'Anna estimator when
+          using the default value of use_DiD_A0 = TRUE.
+
+use_DiD_A0: If this parameter is true, then Xhat corresponds with the
+          scalar used by Callaway and Sant'Anna, so the Callaway and
+          Sant'Anna estimator corresponds with beta=1. If it is false,
+          the Xhat is a vector with all possible comparisons of pairs
+          of cohorts before either is treated. The latter option should
+          only be used when the number of possible comparisons is small
+          relative to sample size.
+
+return_full_vcv: If this is true and estimand = "eventstudy", then the
+          function returns a list containing the full
+          variance-covariance matrix for the event-plot estimates in
+          addition to the usual dataframe with the estimates
+
+use_last_treated_only: If true, then A_0_list and A_theta_list are
+          created to only make comparisons with the last treated
+          cohorts (as suggested by Sun and Abraham), rather than using
+          not-yet-treated units as comparisons. If set to TRUE (and
+          use_DiD_A0 = TRUE), then beta=1 corresponds with the Sun and
+          Abraham estimator.
+
+compute_fisher: If true, computes a Fisher Randomization Test using the
+          studentized estimator.
+
+num_fisher_permutations: The number of permutations to use in the
+          Fisher Randomization Test (if compute_fisher = TRUE). Default
+          is 500.
+
+skip_data_check: If true, skips checks that the data is balanced and
+          contains the colums i,t,g,y. Used in internal recursive calls
+          to increase speed, but not recommended for end-user.
+
+_V_a_l_u_e:
+
+     resultsDF A data.frame containing: estimate (the point estimate),
+     se (the standard error), and se_neyman (the Neyman standard
+     error). If a vector-valued eventTime is provided, the data.frame
+     contains multiple rows for each eventTime and an eventTime column.
+     If return_full_vcv = TRUE and estimand = "eventstudy", the
+     function returns a list containing resultsDF and the full variance
+     covariance for the event-study estimates (vcv) as well as the
+     Neyman version of the covariance matrix (vcv_neyman).
+
+_R_e_f_e_r_e_n_c_e_s:
+
+     Roth, Jonatahan, and Sant'Anna, Pedro H. C. (2021), 'Efficient
+     Estimation for Staggered Rollout Designs', arXiv: 2102.01291,
+     <https://arxiv.org/abs/2102.01291>.
+
+_E_x_a_m_p_l_e_s:
+
+     set.seed(1234)
+     # load the officer data and subset it
+     df <- pj_officer_level_balanced
+     group_random <- sample(unique(df$assigned), 3)
+     df <- df[df$assigned %in% group_random,]
+     # Calculate efficient estimator for the simple weighted average
+     staggered(df = df,
+       i = "uid",
+       t = "period",
+       g = "first_trained",
+       y = "complaints",
+       estimand = "simple")
+     # Calculate efficient estimator for the cohort weighted average
+     staggered(df = df,
+       i = "uid",
+       t = "period",
+       g = "first_trained",
+       y = "complaints",
+       estimand = "cohort")
+     # Calculate efficient estimator for the calendar weighted average
+     staggered(df = df,
+       i = "uid",
+       t = "period",
+       g = "first_trained",
+       y = "complaints",
+       estimand = "calendar")
+     # Calculate event-study coefficients for the first 24 months
+     # (month 0 is instantaneous effect)
+     eventPlotResults <- staggered(df = df,
+       i = "uid",
+       t = "period",
+       g = "first_trained",
+       y = "complaints",
+       estimand = "eventstudy",
+       eventTime = 0:23)
+     head(eventPlotResults)
+     
+
+bacon               package:bacondecomp                R Documentation
+
+_G_o_o_d_m_a_n-_B_a_c_o_n _D_e_c_o_m_p_o_s_i_t_i_o_n
+
+_D_e_s_c_r_i_p_t_i_o_n:
+
+     bacon() is a function that performs the Goodman-Bacon
+     decomposition for differences-in-differences with variation in
+     treatment timing (with or without time-varying covariates).
+
+_U_s_a_g_e:
+
+     bacon(formula, data, id_var, time_var, quietly = F)
+     
+_A_r_g_u_m_e_n_t_s:
+
+ formula: an object of class "formula": a symbolic representation of
+          the model to be fitted. Must be of the form y ~ D + controls,
+          where y is the outcome variable, D is the binary treatment
+          indicator, and `controls` can be any additional control
+          variables. Do not include the fixed effects in the formula.
+          If using `.` notation must be of the form y ~ D + . - FE1 -
+          FE2
+
+    data: a data.frame containing the variables in the model.
+
+  id_var: character, the name of id variable for units.
+
+time_var: character, the name of time variable.
+
+ quietly: logical, default = FALSE, if set to TRUE then bacon() does
+          not print the summary of estimates/weights by type (e.g.
+          Treated vs Untreated)
+
+_V_a_l_u_e:
+
+     If control variables are included in the formula, then an object
+     of class "list" with three elements:
+
+   Omega: a number between 0 and 1, the weight of the within timing
+          group coefficient
+
+beta_hat_w: a number, the within timing group coefficient
+
+two_by_twos: a data.frame with the covariate adjusted 2x2 estimates and
+          weights
+
+     If not control variables are included then only the two_by_twos
+     data.frame is returned.
+
+_E_x_a_m_p_l_e_s:
+
+     # Castle Doctrine (Uncontrolled)
+     df_bacon <- bacon(l_homicide ~ post,
+                       data = bacondecomp::castle,
+                       id_var = "state",
+                       time_var = "year")
+     
+     # Castle Doctrine (Controlled)
+     ret_bacon <- bacon(l_homicide ~ post + l_pop + l_income,
+                        data = bacondecomp::castle,
+                        id_var = "state",
+                        time_var = "year")
+     
+
+
+apply patch
+patch: completed
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+diff --git a/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..2ec59b645fd121c30a8496a3e87eed9f0862f3ee
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+@@ -0,0 +1,141 @@
++#!/usr/bin/env Rscript
++
++# Reproducible staggered-adoption DiD estimates for did::mpdta.
++set.seed(4601)
++
++okabe_ito <- c(
++  orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++  yellow = "#F0E442", blue = "#0072B2", vermillion = "#D55E00",
++  reddish_purple = "#CC79A7", black = "#000000"
++)
++plot_theme <- ggplot2::theme_minimal(base_size = 11) +
++  ggplot2::theme(
++    panel.grid.minor = ggplot2::element_blank(),
++    panel.grid.major.x = ggplot2::element_blank(),
++    axis.title = ggplot2::element_text(colour = okabe_ito[["black"]])
++  )
++
++suppressPackageStartupMessages({
++  library(did)
++  library(fixest)
++  library(staggered)
++  library(bacondecomp)
++  library(ggplot2)
++})
++
++data("mpdta", package = "did")
++stopifnot(all(mpdta$first.treat %in% c(0, 2004, 2006, 2007)))
++
++# The treatment variable is deliberately shared by TWFE and Bacon.
++mpdta$post_treated <- as.integer(mpdta$first.treat > 0 & mpdta$year >= mpdta$first.treat)
++
++twfe <- feols(lemp ~ post_treated | countyreal + year, data = mpdta,
++              cluster = ~countyreal)
++twfe_att <- unname(coef(twfe)["post_treated"])
++twfe_se <- unname(se(twfe)["post_treated"])
++
++common_did <- list(
++  yname = "lemp", tname = "year", idname = "countyreal", gname = "first.treat",
++  xformla = ~1, data = mpdta, panel = TRUE, clustervars = "countyreal",
++  base_period = "universal", bstrap = TRUE, biters = 999, alp = 0.05,
++  cband = FALSE, cores = 1
++)
++cs_notyet <- do.call(att_gt, c(common_did, list(control_group = "notyettreated")))
++cs_never <- do.call(att_gt, c(common_did, list(control_group = "nevertreated")))
++cs_notyet_simple <- aggte(cs_notyet, type = "simple", bstrap = TRUE, biters = 999,
++                          cband = FALSE, alp = 0.05)
++cs_never_simple <- aggte(cs_never, type = "simple", bstrap = TRUE, biters = 999,
++                         cband = FALSE, alp = 0.05)
++
++# 9999 is outside the observed 2003--2007 periods, so fixest recognizes it as never treated.
++mpdta$sa_cohort <- ifelse(mpdta$first.treat == 0, 9999, mpdta$first.treat)
++sunab_fit <- feols(lemp ~ sunab(sa_cohort, year) | countyreal + year, data = mpdta,
++                   cluster = ~countyreal)
++sunab_att_summary <- summary(sunab_fit, agg = "ATT")
++sunab_att <- unname(coef(sunab_att_summary)[1])
++sunab_se <- unname(se(sunab_att_summary)[1])
++
++# staggered requires Inf, rather than did's 0, for never-treated cohorts.
++staggered_data <- data.frame(i = mpdta$countyreal, t = mpdta$year,
++                             g = ifelse(mpdta$first.treat == 0, Inf, mpdta$first.treat),
++                             y = mpdta$lemp)
++rs_simple <- staggered(staggered_data, i = "i", t = "t", g = "g", y = "y",
++                       estimand = "simple")
++rs_att <- rs_simple$estimate[1]
++rs_se <- rs_simple$se[1]
++
++# Bacon decomposition uses exactly post_treated, the binary regressor in twfe.
++bacon_out <- bacon(lemp ~ post_treated, data = mpdta, id_var = "countyreal",
++                   time_var = "year", quietly = TRUE)
++bacon_weight_sum <- sum(bacon_out$weight)
++bacon_reconstructed <- sum(bacon_out$estimate * bacon_out$weight)
++stopifnot(isTRUE(all.equal(bacon_weight_sum, 1, tolerance = 1e-8)))
++stopifnot(isTRUE(all.equal(bacon_reconstructed, twfe_att, tolerance = 1e-8)))
++bacon_by_type <- aggregate(cbind(weight, contribution = estimate * weight) ~ type,
++                           data = bacon_out, FUN = sum)
++
++# Dynamic effects from the never-treated C&S model, with a normalized -1 reference point.
++dynamic_never <- aggte(cs_never, type = "dynamic", min_e = -3, max_e = 3,
++                       bstrap = TRUE, biters = 999, cband = FALSE, alp = 0.05)
++dynamic <- data.frame(
++  event_time = dynamic_never$egt,
++  att = dynamic_never$att.egt,
++  se = dynamic_never$se.egt
++)
++dynamic <- dynamic[dynamic$event_time >= -3 & dynamic$event_time <= 3, ]
++if (!any(dynamic$event_time == -1)) {
++  dynamic <- rbind(dynamic, data.frame(event_time = -1, att = 0, se = 0))
++}
++dynamic <- dynamic[order(dynamic$event_time), ]
++dynamic$lower <- dynamic$att - qnorm(0.975) * dynamic$se
++dynamic$upper <- dynamic$att + qnorm(0.975) * dynamic$se
++pretrend_p <- dynamic_never$Wpval
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++event_plot <- ggplot(dynamic, aes(x = event_time, y = att)) +
++  geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.35) +
++  geom_vline(xintercept = 0, colour = okabe_ito[["vermillion"]], linetype = "dashed") +
++  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.09,
++                colour = okabe_ito[["blue"]]) +
++  geom_point(size = 2.1, colour = okabe_ito[["blue"]]) +
++  scale_x_continuous(breaks = -3:3) +
++  labs(x = "Event time", y = "ATT on log employment") + plot_theme
++ggsave("figures/event-study.png", event_plot, width = 7, height = 4.5,
++       units = "in", dpi = 320)
++
++estimates <- data.frame(
++  estimator = c("Naive TWFE", "Callaway-Sant'Anna (not-yet-treated)",
++                "Callaway-Sant'Anna (never-treated)", "Sun-Abraham", 
++                "Roth-Sant'Anna staggered"),
++  att = c(twfe_att, cs_notyet_simple$overall.att, cs_never_simple$overall.att,
++          sunab_att, rs_att),
++  se = c(twfe_se, cs_notyet_simple$overall.se, cs_never_simple$overall.se,
++         sunab_se, rs_se),
++  comparison_group = c(
++    "Post × ever-treated; county and year fixed effects",
++    "Not-yet-treated counties", "Never-treated counties",
++    "Never-treated cohort (sentinel 9999)",
++    "Native staggered comparison set; never-treated g = Inf"
++  )
++)
++
++table_lines <- c(
++  "| Estimator | ATT | SE | Control/comparison group |",
++  "|---|---:|---:|---|",
++  vapply(seq_len(nrow(estimates)), function(k) sprintf(
++    "| %s | %.6f | %.6f | %s |", estimates$estimator[k], estimates$att[k],
++    estimates$se[k], estimates$comparison_group[k]), character(1))
++)
++writeLines(table_lines, "estimates-table.md")
++
++cat("ATT estimates (ATT, SE):\n")
++for (k in seq_len(nrow(estimates))) {
++  cat(sprintf("%s: %.8f, %.8f\n", estimates$estimator[k], estimates$att[k], estimates$se[k]))
++}
++cat("\nBacon type shares and weighted contributions:\n")
++print(bacon_by_type, row.names = FALSE)
++cat(sprintf("Bacon weights sum: %.12f\n", bacon_weight_sum))
++cat(sprintf("Bacon weighted sum: %.12f; TWFE: %.12f\n", bacon_reconstructed, twfe_att))
++cat("\nNever-treated C&S dynamic estimates (pointwise 95% intervals):\n")
++print(dynamic, row.names = FALSE)
++cat(sprintf("Joint pretrend p-value: %.8f\n", pretrend_p))
+
+diff --git a/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..2ec59b645fd121c30a8496a3e87eed9f0862f3ee
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+@@ -0,0 +1,141 @@
++#!/usr/bin/env Rscript
++
++# Reproducible staggered-adoption DiD estimates for did::mpdta.
++set.seed(4601)
++
++okabe_ito <- c(
++  orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++  yellow = "#F0E442", blue = "#0072B2", vermillion = "#D55E00",
++  reddish_purple = "#CC79A7", black = "#000000"
++)
++plot_theme <- ggplot2::theme_minimal(base_size = 11) +
++  ggplot2::theme(
++    panel.grid.minor = ggplot2::element_blank(),
++    panel.grid.major.x = ggplot2::element_blank(),
++    axis.title = ggplot2::element_text(colour = okabe_ito[["black"]])
++  )
++
++suppressPackageStartupMessages({
++  library(did)
++  library(fixest)
++  library(staggered)
++  library(bacondecomp)
++  library(ggplot2)
++})
++
++data("mpdta", package = "did")
++stopifnot(all(mpdta$first.treat %in% c(0, 2004, 2006, 2007)))
++
++# The treatment variable is deliberately shared by TWFE and Bacon.
++mpdta$post_treated <- as.integer(mpdta$first.treat > 0 & mpdta$year >= mpdta$first.treat)
++
++twfe <- feols(lemp ~ post_treated | countyreal + year, data = mpdta,
++              cluster = ~countyreal)
++twfe_att <- unname(coef(twfe)["post_treated"])
++twfe_se <- unname(se(twfe)["post_treated"])
++
++common_did <- list(
++  yname = "lemp", tname = "year", idname = "countyreal", gname = "first.treat",
++  xformla = ~1, data = mpdta, panel = TRUE, clustervars = "countyreal",
++  base_period = "universal", bstrap = TRUE, biters = 999, alp = 0.05,
++  cband = FALSE, cores = 1
++)
++cs_notyet <- do.call(att_gt, c(common_did, list(control_group = "notyettreated")))
++cs_never <- do.call(att_gt, c(common_did, list(control_group = "nevertreated")))
++cs_notyet_simple <- aggte(cs_notyet, type = "simple", bstrap = TRUE, biters = 999,
++                          cband = FALSE, alp = 0.05)
++cs_never_simple <- aggte(cs_never, type = "simple", bstrap = TRUE, biters = 999,
++                         cband = FALSE, alp = 0.05)
++
++# 9999 is outside the observed 2003--2007 periods, so fixest recognizes it as never treated.
++mpdta$sa_cohort <- ifelse(mpdta$first.treat == 0, 9999, mpdta$first.treat)
++sunab_fit <- feols(lemp ~ sunab(sa_cohort, year) | countyreal + year, data = mpdta,
++                   cluster = ~countyreal)
++sunab_att_summary <- summary(sunab_fit, agg = "ATT")
++sunab_att <- unname(coef(sunab_att_summary)[1])
++sunab_se <- unname(se(sunab_att_summary)[1])
++
++# staggered requires Inf, rather than did's 0, for never-treated cohorts.
++staggered_data <- data.frame(i = mpdta$countyreal, t = mpdta$year,
++                             g = ifelse(mpdta$first.treat == 0, Inf, mpdta$first.treat),
++                             y = mpdta$lemp)
++rs_simple <- staggered(staggered_data, i = "i", t = "t", g = "g", y = "y",
++                       estimand = "simple")
++rs_att <- rs_simple$estimate[1]
++rs_se <- rs_simple$se[1]
++
++# Bacon decomposition uses exactly post_treated, the binary regressor in twfe.
++bacon_out <- bacon(lemp ~ post_treated, data = mpdta, id_var = "countyreal",
++                   time_var = "year", quietly = TRUE)
++bacon_weight_sum <- sum(bacon_out$weight)
++bacon_reconstructed <- sum(bacon_out$estimate * bacon_out$weight)
++stopifnot(isTRUE(all.equal(bacon_weight_sum, 1, tolerance = 1e-8)))
++stopifnot(isTRUE(all.equal(bacon_reconstructed, twfe_att, tolerance = 1e-8)))
++bacon_by_type <- aggregate(cbind(weight, contribution = estimate * weight) ~ type,
++                           data = bacon_out, FUN = sum)
++
++# Dynamic effects from the never-treated C&S model, with a normalized -1 reference point.
++dynamic_never <- aggte(cs_never, type = "dynamic", min_e = -3, max_e = 3,
++                       bstrap = TRUE, biters = 999, cband = FALSE, alp = 0.05)
++dynamic <- data.frame(
++  event_time = dynamic_never$egt,
++  att = dynamic_never$att.egt,
++  se = dynamic_never$se.egt
++)
++dynamic <- dynamic[dynamic$event_time >= -3 & dynamic$event_time <= 3, ]
++if (!any(dynamic$event_time == -1)) {
++  dynamic <- rbind(dynamic, data.frame(event_time = -1, att = 0, se = 0))
++}
++dynamic <- dynamic[order(dynamic$event_time), ]
++dynamic$lower <- dynamic$att - qnorm(0.975) * dynamic$se
++dynamic$upper <- dynamic$att + qnorm(0.975) * dynamic$se
++pretrend_p <- dynamic_never$Wpval
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++event_plot <- ggplot(dynamic, aes(x = event_time, y = att)) +
++  geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.35) +
++  geom_vline(xintercept = 0, colour = okabe_ito[["vermillion"]], linetype = "dashed") +
++  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.09,
++                colour = okabe_ito[["blue"]]) +
++  geom_point(size = 2.1, colour = okabe_ito[["blue"]]) +
++  scale_x_continuous(breaks = -3:3) +
++  labs(x = "Event time", y = "ATT on log employment") + plot_theme
++ggsave("figures/event-study.png", event_plot, width = 7, height = 4.5,
++       units = "in", dpi = 320)
++
++estimates <- data.frame(
++  estimator = c("Naive TWFE", "Callaway-Sant'Anna (not-yet-treated)",
++                "Callaway-Sant'Anna (never-treated)", "Sun-Abraham", 
++                "Roth-Sant'Anna staggered"),
++  att = c(twfe_att, cs_notyet_simple$overall.att, cs_never_simple$overall.att,
++          sunab_att, rs_att),
++  se = c(twfe_se, cs_notyet_simple$overall.se, cs_never_simple$overall.se,
++         sunab_se, rs_se),
++  comparison_group = c(
++    "Post × ever-treated; county and year fixed effects",
++    "Not-yet-treated counties", "Never-treated counties",
++    "Never-treated cohort (sentinel 9999)",
++    "Native staggered comparison set; never-treated g = Inf"
++  )
++)
++
++table_lines <- c(
++  "| Estimator | ATT | SE | Control/comparison group |",
++  "|---|---:|---:|---|",
++  vapply(seq_len(nrow(estimates)), function(k) sprintf(
++    "| %s | %.6f | %.6f | %s |", estimates$estimator[k], estimates$att[k],
++    estimates$se[k], estimates$comparison_group[k]), character(1))
++)
++writeLines(table_lines, "estimates-table.md")
++
++cat("ATT estimates (ATT, SE):\n")
++for (k in seq_len(nrow(estimates))) {
++  cat(sprintf("%s: %.8f, %.8f\n", estimates$estimator[k], estimates$att[k], estimates$se[k]))
++}
++cat("\nBacon type shares and weighted contributions:\n")
++print(bacon_by_type, row.names = FALSE)
++cat(sprintf("Bacon weights sum: %.12f\n", bacon_weight_sum))
++cat(sprintf("Bacon weighted sum: %.12f; TWFE: %.12f\n", bacon_reconstructed, twfe_att))
++cat("\nNever-treated C&S dynamic estimates (pointwise 95% intervals):\n")
++print(dynamic, row.names = FALSE)
++cat(sprintf("Joint pretrend p-value: %.8f\n", pretrend_p))
+
+codex
+The script now encodes all five estimators, the sentinel conventions, Bacon reconstruction checks, and the requested pointwise event study. I’m running it next to resolve any package-version-specific output details.
+exec
+/bin/zsh -lc 'Rscript script.R' in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid
+diff --git a/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..2ec59b645fd121c30a8496a3e87eed9f0862f3ee
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+@@ -0,0 +1,141 @@
++#!/usr/bin/env Rscript
++
++# Reproducible staggered-adoption DiD estimates for did::mpdta.
++set.seed(4601)
++
++okabe_ito <- c(
++  orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++  yellow = "#F0E442", blue = "#0072B2", vermillion = "#D55E00",
++  reddish_purple = "#CC79A7", black = "#000000"
++)
++plot_theme <- ggplot2::theme_minimal(base_size = 11) +
++  ggplot2::theme(
++    panel.grid.minor = ggplot2::element_blank(),
++    panel.grid.major.x = ggplot2::element_blank(),
++    axis.title = ggplot2::element_text(colour = okabe_ito[["black"]])
++  )
++
++suppressPackageStartupMessages({
++  library(did)
++  library(fixest)
++  library(staggered)
++  library(bacondecomp)
++  library(ggplot2)
++})
++
++data("mpdta", package = "did")
++stopifnot(all(mpdta$first.treat %in% c(0, 2004, 2006, 2007)))
++
++# The treatment variable is deliberately shared by TWFE and Bacon.
++mpdta$post_treated <- as.integer(mpdta$first.treat > 0 & mpdta$year >= mpdta$first.treat)
++
++twfe <- feols(lemp ~ post_treated | countyreal + year, data = mpdta,
++              cluster = ~countyreal)
++twfe_att <- unname(coef(twfe)["post_treated"])
++twfe_se <- unname(se(twfe)["post_treated"])
++
++common_did <- list(
++  yname = "lemp", tname = "year", idname = "countyreal", gname = "first.treat",
++  xformla = ~1, data = mpdta, panel = TRUE, clustervars = "countyreal",
++  base_period = "universal", bstrap = TRUE, biters = 999, alp = 0.05,
++  cband = FALSE, cores = 1
++)
++cs_notyet <- do.call(att_gt, c(common_did, list(control_group = "notyettreated")))
++cs_never <- do.call(att_gt, c(common_did, list(control_group = "nevertreated")))
++cs_notyet_simple <- aggte(cs_notyet, type = "simple", bstrap = TRUE, biters = 999,
++                          cband = FALSE, alp = 0.05)
++cs_never_simple <- aggte(cs_never, type = "simple", bstrap = TRUE, biters = 999,
++                         cband = FALSE, alp = 0.05)
++
++# 9999 is outside the observed 2003--2007 periods, so fixest recognizes it as never treated.
++mpdta$sa_cohort <- ifelse(mpdta$first.treat == 0, 9999, mpdta$first.treat)
++sunab_fit <- feols(lemp ~ sunab(sa_cohort, year) | countyreal + year, data = mpdta,
++                   cluster = ~countyreal)
++sunab_att_summary <- summary(sunab_fit, agg = "ATT")
++sunab_att <- unname(coef(sunab_att_summary)[1])
++sunab_se <- unname(se(sunab_att_summary)[1])
++
++# staggered requires Inf, rather than did's 0, for never-treated cohorts.
++staggered_data <- data.frame(i = mpdta$countyreal, t = mpdta$year,
++                             g = ifelse(mpdta$first.treat == 0, Inf, mpdta$first.treat),
++                             y = mpdta$lemp)
++rs_simple <- staggered(staggered_data, i = "i", t = "t", g = "g", y = "y",
++                       estimand = "simple")
++rs_att <- rs_simple$estimate[1]
++rs_se <- rs_simple$se[1]
++
++# Bacon decomposition uses exactly post_treated, the binary regressor in twfe.
++bacon_out <- bacon(lemp ~ post_treated, data = mpdta, id_var = "countyreal",
++                   time_var = "year", quietly = TRUE)
++bacon_weight_sum <- sum(bacon_out$weight)
++bacon_reconstructed <- sum(bacon_out$estimate * bacon_out$weight)
++stopifnot(isTRUE(all.equal(bacon_weight_sum, 1, tolerance = 1e-8)))
++stopifnot(isTRUE(all.equal(bacon_reconstructed, twfe_att, tolerance = 1e-8)))
++bacon_by_type <- aggregate(cbind(weight, contribution = estimate * weight) ~ type,
++                           data = bacon_out, FUN = sum)
++
++# Dynamic effects from the never-treated C&S model, with a normalized -1 reference point.
++dynamic_never <- aggte(cs_never, type = "dynamic", min_e = -3, max_e = 3,
++                       bstrap = TRUE, biters = 999, cband = FALSE, alp = 0.05)
++dynamic <- data.frame(
++  event_time = dynamic_never$egt,
++  att = dynamic_never$att.egt,
++  se = dynamic_never$se.egt
++)
++dynamic <- dynamic[dynamic$event_time >= -3 & dynamic$event_time <= 3, ]
++if (!any(dynamic$event_time == -1)) {
++  dynamic <- rbind(dynamic, data.frame(event_time = -1, att = 0, se = 0))
++}
++dynamic <- dynamic[order(dynamic$event_time), ]
++dynamic$lower <- dynamic$att - qnorm(0.975) * dynamic$se
++dynamic$upper <- dynamic$att + qnorm(0.975) * dynamic$se
++pretrend_p <- dynamic_never$Wpval
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++event_plot <- ggplot(dynamic, aes(x = event_time, y = att)) +
++  geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.35) +
++  geom_vline(xintercept = 0, colour = okabe_ito[["vermillion"]], linetype = "dashed") +
++  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.09,
++                colour = okabe_ito[["blue"]]) +
++  geom_point(size = 2.1, colour = okabe_ito[["blue"]]) +
++  scale_x_continuous(breaks = -3:3) +
++  labs(x = "Event time", y = "ATT on log employment") + plot_theme
++ggsave("figures/event-study.png", event_plot, width = 7, height = 4.5,
++       units = "in", dpi = 320)
++
++estimates <- data.frame(
++  estimator = c("Naive TWFE", "Callaway-Sant'Anna (not-yet-treated)",
++                "Callaway-Sant'Anna (never-treated)", "Sun-Abraham", 
++                "Roth-Sant'Anna staggered"),
++  att = c(twfe_att, cs_notyet_simple$overall.att, cs_never_simple$overall.att,
++          sunab_att, rs_att),
++  se = c(twfe_se, cs_notyet_simple$overall.se, cs_never_simple$overall.se,
++         sunab_se, rs_se),
++  comparison_group = c(
++    "Post × ever-treated; county and year fixed effects",
++    "Not-yet-treated counties", "Never-treated counties",
++    "Never-treated cohort (sentinel 9999)",
++    "Native staggered comparison set; never-treated g = Inf"
++  )
++)
++
++table_lines <- c(
++  "| Estimator | ATT | SE | Control/comparison group |",
++  "|---|---:|---:|---|",
++  vapply(seq_len(nrow(estimates)), function(k) sprintf(
++    "| %s | %.6f | %.6f | %s |", estimates$estimator[k], estimates$att[k],
++    estimates$se[k], estimates$comparison_group[k]), character(1))
++)
++writeLines(table_lines, "estimates-table.md")
++
++cat("ATT estimates (ATT, SE):\n")
++for (k in seq_len(nrow(estimates))) {
++  cat(sprintf("%s: %.8f, %.8f\n", estimates$estimator[k], estimates$att[k], estimates$se[k]))
++}
++cat("\nBacon type shares and weighted contributions:\n")
++print(bacon_by_type, row.names = FALSE)
++cat(sprintf("Bacon weights sum: %.12f\n", bacon_weight_sum))
++cat(sprintf("Bacon weighted sum: %.12f; TWFE: %.12f\n", bacon_reconstructed, twfe_att))
++cat("\nNever-treated C&S dynamic estimates (pointwise 95% intervals):\n")
++print(dynamic, row.names = FALSE)
++cat(sprintf("Joint pretrend p-value: %.8f\n", pretrend_p))
+
+ succeeded in 1390ms:
+ATT estimates (ATT, SE):
+Naive TWFE: -0.03654894, 0.01326516
+Callaway-Sant'Anna (not-yet-treated): -0.03976363, 0.01227120
+Callaway-Sant'Anna (never-treated): -0.03995128, 0.01190120
+Sun-Abraham: -0.03995128, 0.01179628
+Roth-Sant'Anna staggered: -0.04705391, 0.01161384
+
+Bacon type shares and weighted contributions:
+                     type     weight  contribution
+ Earlier vs Later Treated 0.08330135 -0.0016480188
+ Later vs Earlier Treated 0.05392423  0.0002482489
+     Treated vs Untreated 0.86277442 -0.0351491668
+Bacon weights sum: 1.000000000000
+Bacon weighted sum: -0.036548936674; TWFE: -0.036548936674
+
+Never-treated C&S dynamic estimates (pointwise 95% intervals):
+ event_time         att         se        lower        upper
+         -3  0.02502183 0.01886253 -0.011948052  0.061991711
+         -2  0.02445874 0.01453347 -0.004026336  0.052943826
+         -1  0.00000000         NA           NA           NA
+          0 -0.01993182 0.01232645 -0.044091212  0.004227578
+          1 -0.05095737 0.01749357 -0.085244139 -0.016670595
+          2 -0.13725874 0.03800979 -0.211756558 -0.062760920
+          3 -0.10081136 0.03753071 -0.174370198 -0.027252528
+
+exec
+/bin/zsh -lc "Rscript -e 'set.seed(4601); library(did); data(mpdta); x<-att_gt(yname=\"lemp\",tname=\"year\",idname=\"countyreal\",gname=\"first.treat\",xformla=~1,data=mpdta,panel=TRUE,control_group=\"nevertreated\",base_period=\"universal\",bstrap=TRUE,biters=999,clustervars=\"countyreal\",cband=FALSE,cores=1); z<-aggte(x,type=\"dynamic\",min_e=-3,max_e=3,bstrap=TRUE,biters=999,cband=FALSE); str(z, max.level=1); print(z)'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid
+diff --git a/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..2ec59b645fd121c30a8496a3e87eed9f0862f3ee
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+@@ -0,0 +1,141 @@
++#!/usr/bin/env Rscript
++
++# Reproducible staggered-adoption DiD estimates for did::mpdta.
++set.seed(4601)
++
++okabe_ito <- c(
++  orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++  yellow = "#F0E442", blue = "#0072B2", vermillion = "#D55E00",
++  reddish_purple = "#CC79A7", black = "#000000"
++)
++plot_theme <- ggplot2::theme_minimal(base_size = 11) +
++  ggplot2::theme(
++    panel.grid.minor = ggplot2::element_blank(),
++    panel.grid.major.x = ggplot2::element_blank(),
++    axis.title = ggplot2::element_text(colour = okabe_ito[["black"]])
++  )
++
++suppressPackageStartupMessages({
++  library(did)
++  library(fixest)
++  library(staggered)
++  library(bacondecomp)
++  library(ggplot2)
++})
++
++data("mpdta", package = "did")
++stopifnot(all(mpdta$first.treat %in% c(0, 2004, 2006, 2007)))
++
++# The treatment variable is deliberately shared by TWFE and Bacon.
++mpdta$post_treated <- as.integer(mpdta$first.treat > 0 & mpdta$year >= mpdta$first.treat)
++
++twfe <- feols(lemp ~ post_treated | countyreal + year, data = mpdta,
++              cluster = ~countyreal)
++twfe_att <- unname(coef(twfe)["post_treated"])
++twfe_se <- unname(se(twfe)["post_treated"])
++
++common_did <- list(
++  yname = "lemp", tname = "year", idname = "countyreal", gname = "first.treat",
++  xformla = ~1, data = mpdta, panel = TRUE, clustervars = "countyreal",
++  base_period = "universal", bstrap = TRUE, biters = 999, alp = 0.05,
++  cband = FALSE, cores = 1
++)
++cs_notyet <- do.call(att_gt, c(common_did, list(control_group = "notyettreated")))
++cs_never <- do.call(att_gt, c(common_did, list(control_group = "nevertreated")))
++cs_notyet_simple <- aggte(cs_notyet, type = "simple", bstrap = TRUE, biters = 999,
++                          cband = FALSE, alp = 0.05)
++cs_never_simple <- aggte(cs_never, type = "simple", bstrap = TRUE, biters = 999,
++                         cband = FALSE, alp = 0.05)
++
++# 9999 is outside the observed 2003--2007 periods, so fixest recognizes it as never treated.
++mpdta$sa_cohort <- ifelse(mpdta$first.treat == 0, 9999, mpdta$first.treat)
++sunab_fit <- feols(lemp ~ sunab(sa_cohort, year) | countyreal + year, data = mpdta,
++                   cluster = ~countyreal)
++sunab_att_summary <- summary(sunab_fit, agg = "ATT")
++sunab_att <- unname(coef(sunab_att_summary)[1])
++sunab_se <- unname(se(sunab_att_summary)[1])
++
++# staggered requires Inf, rather than did's 0, for never-treated cohorts.
++staggered_data <- data.frame(i = mpdta$countyreal, t = mpdta$year,
++                             g = ifelse(mpdta$first.treat == 0, Inf, mpdta$first.treat),
++                             y = mpdta$lemp)
++rs_simple <- staggered(staggered_data, i = "i", t = "t", g = "g", y = "y",
++                       estimand = "simple")
++rs_att <- rs_simple$estimate[1]
++rs_se <- rs_simple$se[1]
++
++# Bacon decomposition uses exactly post_treated, the binary regressor in twfe.
++bacon_out <- bacon(lemp ~ post_treated, data = mpdta, id_var = "countyreal",
++                   time_var = "year", quietly = TRUE)
++bacon_weight_sum <- sum(bacon_out$weight)
++bacon_reconstructed <- sum(bacon_out$estimate * bacon_out$weight)
++stopifnot(isTRUE(all.equal(bacon_weight_sum, 1, tolerance = 1e-8)))
++stopifnot(isTRUE(all.equal(bacon_reconstructed, twfe_att, tolerance = 1e-8)))
++bacon_by_type <- aggregate(cbind(weight, contribution = estimate * weight) ~ type,
++                           data = bacon_out, FUN = sum)
++
++# Dynamic effects from the never-treated C&S model, with a normalized -1 reference point.
++dynamic_never <- aggte(cs_never, type = "dynamic", min_e = -3, max_e = 3,
++                       bstrap = TRUE, biters = 999, cband = FALSE, alp = 0.05)
++dynamic <- data.frame(
++  event_time = dynamic_never$egt,
++  att = dynamic_never$att.egt,
++  se = dynamic_never$se.egt
++)
++dynamic <- dynamic[dynamic$event_time >= -3 & dynamic$event_time <= 3, ]
++if (!any(dynamic$event_time == -1)) {
++  dynamic <- rbind(dynamic, data.frame(event_time = -1, att = 0, se = 0))
++}
++dynamic <- dynamic[order(dynamic$event_time), ]
++dynamic$lower <- dynamic$att - qnorm(0.975) * dynamic$se
++dynamic$upper <- dynamic$att + qnorm(0.975) * dynamic$se
++pretrend_p <- dynamic_never$Wpval
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++event_plot <- ggplot(dynamic, aes(x = event_time, y = att)) +
++  geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.35) +
++  geom_vline(xintercept = 0, colour = okabe_ito[["vermillion"]], linetype = "dashed") +
++  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.09,
++                colour = okabe_ito[["blue"]]) +
++  geom_point(size = 2.1, colour = okabe_ito[["blue"]]) +
++  scale_x_continuous(breaks = -3:3) +
++  labs(x = "Event time", y = "ATT on log employment") + plot_theme
++ggsave("figures/event-study.png", event_plot, width = 7, height = 4.5,
++       units = "in", dpi = 320)
++
++estimates <- data.frame(
++  estimator = c("Naive TWFE", "Callaway-Sant'Anna (not-yet-treated)",
++                "Callaway-Sant'Anna (never-treated)", "Sun-Abraham", 
++                "Roth-Sant'Anna staggered"),
++  att = c(twfe_att, cs_notyet_simple$overall.att, cs_never_simple$overall.att,
++          sunab_att, rs_att),
++  se = c(twfe_se, cs_notyet_simple$overall.se, cs_never_simple$overall.se,
++         sunab_se, rs_se),
++  comparison_group = c(
++    "Post × ever-treated; county and year fixed effects",
++    "Not-yet-treated counties", "Never-treated counties",
++    "Never-treated cohort (sentinel 9999)",
++    "Native staggered comparison set; never-treated g = Inf"
++  )
++)
++
++table_lines <- c(
++  "| Estimator | ATT | SE | Control/comparison group |",
++  "|---|---:|---:|---|",
++  vapply(seq_len(nrow(estimates)), function(k) sprintf(
++    "| %s | %.6f | %.6f | %s |", estimates$estimator[k], estimates$att[k],
++    estimates$se[k], estimates$comparison_group[k]), character(1))
++)
++writeLines(table_lines, "estimates-table.md")
++
++cat("ATT estimates (ATT, SE):\n")
++for (k in seq_len(nrow(estimates))) {
++  cat(sprintf("%s: %.8f, %.8f\n", estimates$estimator[k], estimates$att[k], estimates$se[k]))
++}
++cat("\nBacon type shares and weighted contributions:\n")
++print(bacon_by_type, row.names = FALSE)
++cat(sprintf("Bacon weights sum: %.12f\n", bacon_weight_sum))
++cat(sprintf("Bacon weighted sum: %.12f; TWFE: %.12f\n", bacon_reconstructed, twfe_att))
++cat("\nNever-treated C&S dynamic estimates (pointwise 95% intervals):\n")
++print(dynamic, row.names = FALSE)
++cat(sprintf("Joint pretrend p-value: %.8f\n", pretrend_p))
+
+ succeeded in 703ms:
+List of 13
+ $ overall.att : num -0.0772
+ $ overall.se  : num 0.0214
+ $ type        : chr "dynamic"
+ $ egt         : num [1:7] -3 -2 -1 0 1 2 3
+ $ att.egt     : num [1:7] 0.025 0.0245 0 -0.0199 -0.051 ...
+ $ se.egt      : num [1:7] 0.0185 0.0151 NA 0.0114 0.0174 ...
+ $ crit.val.egt: num 1.96
+ $ inf.function:List of 2
+ $ min_e       : num -3
+ $ max_e       : num 3
+ $ balance_e   : NULL
+ $ call        : language aggte(MP = x, type = "dynamic", min_e = -3, max_e = 3, bstrap = TRUE, biters = 999,      cband = FALSE)
+ $ DIDparams   :List of 41
+  ..- attr(*, "class")= chr "DIDparams"
+ - attr(*, "class")= chr "AGGTEobj"
+
+Call:
+aggte(MP = x, type = "dynamic", min_e = -3, max_e = 3, bstrap = TRUE, 
+    biters = 999, cband = FALSE)
+
+Reference: Callaway, Brantly and Pedro H.C. Sant'Anna.  "Difference-in-Differences with Multiple Time Periods." Journal of Econometrics, Vol. 225, No. 2, pp. 200-230, 2021. <https://doi.org/10.1016/j.jeconom.2020.12.001>, <https://arxiv.org/abs/1803.09015> 
+
+
+Overall summary of ATT's based on event-study/dynamic aggregation:  
+     ATT    Std. Error     [ 95%  Conf. Int.]  
+ -0.0772        0.0214    -0.1191     -0.0353 *
+
+
+Dynamic Effects:
+ Event time Estimate Std. Error [95% Pointwise  Conf. Band]  
+         -3   0.0250     0.0185         -0.0113      0.0613  
+         -2   0.0245     0.0151         -0.0052      0.0541  
+         -1   0.0000         NA              NA          NA  
+          0  -0.0199     0.0114         -0.0423      0.0024  
+          1  -0.0510     0.0174         -0.0851     -0.0168 *
+          2  -0.1373     0.0387         -0.2130     -0.0615 *
+          3  -0.1008     0.0361         -0.1716     -0.0300 *
+---
+Signif. codes: `*' confidence band does not cover 0
+
+Control Group:  Never Treated,  Anticipation Periods:  0
+Estimation Method:  Doubly Robust
+
+exec
+/bin/zsh -lc "Rscript -e 'library(did); data(mpdta); set.seed(4601); x<-att_gt(yname=\"lemp\",tname=\"year\",idname=\"countyreal\",gname=\"first.treat\",xformla=~1,data=mpdta,panel=TRUE,control_group=\"nevertreated\",base_period=\"universal\",bstrap=TRUE,biters=999,clustervars=\"countyreal\",cband=FALSE,cores=1); print(names(x)); str(x, max.level=1)'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid
+diff --git a/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..2ec59b645fd121c30a8496a3e87eed9f0862f3ee
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+@@ -0,0 +1,141 @@
++#!/usr/bin/env Rscript
++
++# Reproducible staggered-adoption DiD estimates for did::mpdta.
++set.seed(4601)
++
++okabe_ito <- c(
++  orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++  yellow = "#F0E442", blue = "#0072B2", vermillion = "#D55E00",
++  reddish_purple = "#CC79A7", black = "#000000"
++)
++plot_theme <- ggplot2::theme_minimal(base_size = 11) +
++  ggplot2::theme(
++    panel.grid.minor = ggplot2::element_blank(),
++    panel.grid.major.x = ggplot2::element_blank(),
++    axis.title = ggplot2::element_text(colour = okabe_ito[["black"]])
++  )
++
++suppressPackageStartupMessages({
++  library(did)
++  library(fixest)
++  library(staggered)
++  library(bacondecomp)
++  library(ggplot2)
++})
++
++data("mpdta", package = "did")
++stopifnot(all(mpdta$first.treat %in% c(0, 2004, 2006, 2007)))
++
++# The treatment variable is deliberately shared by TWFE and Bacon.
++mpdta$post_treated <- as.integer(mpdta$first.treat > 0 & mpdta$year >= mpdta$first.treat)
++
++twfe <- feols(lemp ~ post_treated | countyreal + year, data = mpdta,
++              cluster = ~countyreal)
++twfe_att <- unname(coef(twfe)["post_treated"])
++twfe_se <- unname(se(twfe)["post_treated"])
++
++common_did <- list(
++  yname = "lemp", tname = "year", idname = "countyreal", gname = "first.treat",
++  xformla = ~1, data = mpdta, panel = TRUE, clustervars = "countyreal",
++  base_period = "universal", bstrap = TRUE, biters = 999, alp = 0.05,
++  cband = FALSE, cores = 1
++)
++cs_notyet <- do.call(att_gt, c(common_did, list(control_group = "notyettreated")))
++cs_never <- do.call(att_gt, c(common_did, list(control_group = "nevertreated")))
++cs_notyet_simple <- aggte(cs_notyet, type = "simple", bstrap = TRUE, biters = 999,
++                          cband = FALSE, alp = 0.05)
++cs_never_simple <- aggte(cs_never, type = "simple", bstrap = TRUE, biters = 999,
++                         cband = FALSE, alp = 0.05)
++
++# 9999 is outside the observed 2003--2007 periods, so fixest recognizes it as never treated.
++mpdta$sa_cohort <- ifelse(mpdta$first.treat == 0, 9999, mpdta$first.treat)
++sunab_fit <- feols(lemp ~ sunab(sa_cohort, year) | countyreal + year, data = mpdta,
++                   cluster = ~countyreal)
++sunab_att_summary <- summary(sunab_fit, agg = "ATT")
++sunab_att <- unname(coef(sunab_att_summary)[1])
++sunab_se <- unname(se(sunab_att_summary)[1])
++
++# staggered requires Inf, rather than did's 0, for never-treated cohorts.
++staggered_data <- data.frame(i = mpdta$countyreal, t = mpdta$year,
++                             g = ifelse(mpdta$first.treat == 0, Inf, mpdta$first.treat),
++                             y = mpdta$lemp)
++rs_simple <- staggered(staggered_data, i = "i", t = "t", g = "g", y = "y",
++                       estimand = "simple")
++rs_att <- rs_simple$estimate[1]
++rs_se <- rs_simple$se[1]
++
++# Bacon decomposition uses exactly post_treated, the binary regressor in twfe.
++bacon_out <- bacon(lemp ~ post_treated, data = mpdta, id_var = "countyreal",
++                   time_var = "year", quietly = TRUE)
++bacon_weight_sum <- sum(bacon_out$weight)
++bacon_reconstructed <- sum(bacon_out$estimate * bacon_out$weight)
++stopifnot(isTRUE(all.equal(bacon_weight_sum, 1, tolerance = 1e-8)))
++stopifnot(isTRUE(all.equal(bacon_reconstructed, twfe_att, tolerance = 1e-8)))
++bacon_by_type <- aggregate(cbind(weight, contribution = estimate * weight) ~ type,
++                           data = bacon_out, FUN = sum)
++
++# Dynamic effects from the never-treated C&S model, with a normalized -1 reference point.
++dynamic_never <- aggte(cs_never, type = "dynamic", min_e = -3, max_e = 3,
++                       bstrap = TRUE, biters = 999, cband = FALSE, alp = 0.05)
++dynamic <- data.frame(
++  event_time = dynamic_never$egt,
++  att = dynamic_never$att.egt,
++  se = dynamic_never$se.egt
++)
++dynamic <- dynamic[dynamic$event_time >= -3 & dynamic$event_time <= 3, ]
++if (!any(dynamic$event_time == -1)) {
++  dynamic <- rbind(dynamic, data.frame(event_time = -1, att = 0, se = 0))
++}
++dynamic <- dynamic[order(dynamic$event_time), ]
++dynamic$lower <- dynamic$att - qnorm(0.975) * dynamic$se
++dynamic$upper <- dynamic$att + qnorm(0.975) * dynamic$se
++pretrend_p <- dynamic_never$Wpval
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++event_plot <- ggplot(dynamic, aes(x = event_time, y = att)) +
++  geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.35) +
++  geom_vline(xintercept = 0, colour = okabe_ito[["vermillion"]], linetype = "dashed") +
++  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.09,
++                colour = okabe_ito[["blue"]]) +
++  geom_point(size = 2.1, colour = okabe_ito[["blue"]]) +
++  scale_x_continuous(breaks = -3:3) +
++  labs(x = "Event time", y = "ATT on log employment") + plot_theme
++ggsave("figures/event-study.png", event_plot, width = 7, height = 4.5,
++       units = "in", dpi = 320)
++
++estimates <- data.frame(
++  estimator = c("Naive TWFE", "Callaway-Sant'Anna (not-yet-treated)",
++                "Callaway-Sant'Anna (never-treated)", "Sun-Abraham", 
++                "Roth-Sant'Anna staggered"),
++  att = c(twfe_att, cs_notyet_simple$overall.att, cs_never_simple$overall.att,
++          sunab_att, rs_att),
++  se = c(twfe_se, cs_notyet_simple$overall.se, cs_never_simple$overall.se,
++         sunab_se, rs_se),
++  comparison_group = c(
++    "Post × ever-treated; county and year fixed effects",
++    "Not-yet-treated counties", "Never-treated counties",
++    "Never-treated cohort (sentinel 9999)",
++    "Native staggered comparison set; never-treated g = Inf"
++  )
++)
++
++table_lines <- c(
++  "| Estimator | ATT | SE | Control/comparison group |",
++  "|---|---:|---:|---|",
++  vapply(seq_len(nrow(estimates)), function(k) sprintf(
++    "| %s | %.6f | %.6f | %s |", estimates$estimator[k], estimates$att[k],
++    estimates$se[k], estimates$comparison_group[k]), character(1))
++)
++writeLines(table_lines, "estimates-table.md")
++
++cat("ATT estimates (ATT, SE):\n")
++for (k in seq_len(nrow(estimates))) {
++  cat(sprintf("%s: %.8f, %.8f\n", estimates$estimator[k], estimates$att[k], estimates$se[k]))
++}
++cat("\nBacon type shares and weighted contributions:\n")
++print(bacon_by_type, row.names = FALSE)
++cat(sprintf("Bacon weights sum: %.12f\n", bacon_weight_sum))
++cat(sprintf("Bacon weighted sum: %.12f; TWFE: %.12f\n", bacon_reconstructed, twfe_att))
++cat("\nNever-treated C&S dynamic estimates (pointwise 95% intervals):\n")
++print(dynamic, row.names = FALSE)
++cat(sprintf("Joint pretrend p-value: %.8f\n", pretrend_p))
+
+ succeeded in 677ms:
+ [1] "group"        "t"            "att"          "V_analytical" "se"          
+ [6] "c"            "inffunc"      "n"            "W"            "Wpval"       
+[11] "aggte"        "alp"          "DIDparams"    "call"        
+List of 14
+ $ group       : num [1:15] 2004 2004 2004 2004 2004 ...
+ $ t           : num [1:15] 2003 2004 2005 2006 2007 ...
+ $ att         : num [1:15] 0 -0.0105 -0.0704 -0.1373 -0.1008 ...
+ $ V_analytical:Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+ $ se          : num [1:15] NA 0.0242 0.0316 0.0378 0.0352 ...
+ $ c           : num 1.96
+ $ inffunc     :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+ $ n           : int 500
+ $ W           : num [1, 1] 7.79
+ $ Wpval       : num [1, 1] 0.168
+ $ aggte       : NULL
+ $ alp         : num 0.05
+ $ DIDparams   :List of 42
+  ..- attr(*, "class")= chr "DIDparams"
+ $ call        : language att_gt(yname = "lemp", tname = "year", idname = "countyreal", gname = "first.treat",      xformla = ~1, data = mp| __truncated__ ...
+ - attr(*, "class")= chr "MP"
+
+apply patch
+patch: completed
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+diff --git a/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5eb4961608e01a91c76f80f14de784140c9d71af
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+@@ -0,0 +1,144 @@
++#!/usr/bin/env Rscript
++
++# Reproducible staggered-adoption DiD estimates for did::mpdta.
++set.seed(4601)
++
++okabe_ito <- c(
++  orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++  yellow = "#F0E442", blue = "#0072B2", vermillion = "#D55E00",
++  reddish_purple = "#CC79A7", black = "#000000"
++)
++plot_theme <- ggplot2::theme_minimal(base_size = 11) +
++  ggplot2::theme(
++    panel.grid.minor = ggplot2::element_blank(),
++    panel.grid.major.x = ggplot2::element_blank(),
++    axis.title = ggplot2::element_text(colour = okabe_ito[["black"]])
++  )
++
++suppressPackageStartupMessages({
++  library(did)
++  library(fixest)
++  library(staggered)
++  library(bacondecomp)
++  library(ggplot2)
++})
++
++data("mpdta", package = "did")
++stopifnot(all(mpdta$first.treat %in% c(0, 2004, 2006, 2007)))
++
++# The treatment variable is deliberately shared by TWFE and Bacon.
++mpdta$post_treated <- as.integer(mpdta$first.treat > 0 & mpdta$year >= mpdta$first.treat)
++
++twfe <- feols(lemp ~ post_treated | countyreal + year, data = mpdta,
++              cluster = ~countyreal)
++twfe_att <- unname(coef(twfe)["post_treated"])
++twfe_se <- unname(se(twfe)["post_treated"])
++
++common_did <- list(
++  yname = "lemp", tname = "year", idname = "countyreal", gname = "first.treat",
++  xformla = ~1, data = mpdta, panel = TRUE, clustervars = "countyreal",
++  base_period = "universal", bstrap = TRUE, biters = 999, alp = 0.05,
++  cband = FALSE, cores = 1
++)
++cs_notyet <- do.call(att_gt, c(common_did, list(control_group = "notyettreated")))
++cs_never <- do.call(att_gt, c(common_did, list(control_group = "nevertreated")))
++cs_notyet_simple <- aggte(cs_notyet, type = "simple", bstrap = TRUE, biters = 999,
++                          cband = FALSE, alp = 0.05)
++cs_never_simple <- aggte(cs_never, type = "simple", bstrap = TRUE, biters = 999,
++                         cband = FALSE, alp = 0.05)
++
++# 9999 is outside the observed 2003--2007 periods, so fixest recognizes it as never treated.
++mpdta$sa_cohort <- ifelse(mpdta$first.treat == 0, 9999, mpdta$first.treat)
++sunab_fit <- feols(lemp ~ sunab(sa_cohort, year) | countyreal + year, data = mpdta,
++                   cluster = ~countyreal)
++sunab_att_summary <- summary(sunab_fit, agg = "ATT")
++sunab_att <- unname(coef(sunab_att_summary)[1])
++sunab_se <- unname(se(sunab_att_summary)[1])
++
++# staggered requires Inf, rather than did's 0, for never-treated cohorts.
++staggered_data <- data.frame(i = mpdta$countyreal, t = mpdta$year,
++                             g = ifelse(mpdta$first.treat == 0, Inf, mpdta$first.treat),
++                             y = mpdta$lemp)
++rs_simple <- staggered(staggered_data, i = "i", t = "t", g = "g", y = "y",
++                       estimand = "simple")
++rs_att <- rs_simple$estimate[1]
++rs_se <- rs_simple$se[1]
++
++# Bacon decomposition uses exactly post_treated, the binary regressor in twfe.
++bacon_out <- bacon(lemp ~ post_treated, data = mpdta, id_var = "countyreal",
++                   time_var = "year", quietly = TRUE)
++bacon_weight_sum <- sum(bacon_out$weight)
++bacon_reconstructed <- sum(bacon_out$estimate * bacon_out$weight)
++stopifnot(isTRUE(all.equal(bacon_weight_sum, 1, tolerance = 1e-8)))
++stopifnot(isTRUE(all.equal(bacon_reconstructed, twfe_att, tolerance = 1e-8)))
++bacon_by_type <- aggregate(cbind(weight, contribution = estimate * weight) ~ type,
++                           data = bacon_out, FUN = sum)
++
++# Dynamic effects from the never-treated C&S model, with a normalized -1 reference point.
++dynamic_never <- aggte(cs_never, type = "dynamic", min_e = -3, max_e = 3,
++                       bstrap = TRUE, biters = 999, cband = FALSE, alp = 0.05)
++dynamic <- data.frame(
++  event_time = dynamic_never$egt,
++  att = dynamic_never$att.egt,
++  se = dynamic_never$se.egt
++)
++dynamic <- dynamic[dynamic$event_time >= -3 & dynamic$event_time <= 3, ]
++if (!any(dynamic$event_time == -1)) {
++  dynamic <- rbind(dynamic, data.frame(event_time = -1, att = 0, se = 0))
++} else {
++  # did records the universal-base reference as 0 with an undefined SE.
++  dynamic[dynamic$event_time == -1, c("att", "se")] <- c(0, 0)
++}
++dynamic <- dynamic[order(dynamic$event_time), ]
++dynamic$lower <- dynamic$att - dynamic_never$crit.val.egt * dynamic$se
++dynamic$upper <- dynamic$att + dynamic_never$crit.val.egt * dynamic$se
++pretrend_p <- cs_never$Wpval[1, 1]
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++event_plot <- ggplot(dynamic, aes(x = event_time, y = att)) +
++  geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.35) +
++  geom_vline(xintercept = 0, colour = okabe_ito[["vermillion"]], linetype = "dashed") +
++  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.09,
++                colour = okabe_ito[["blue"]]) +
++  geom_point(size = 2.1, colour = okabe_ito[["blue"]]) +
++  scale_x_continuous(breaks = -3:3) +
++  labs(x = "Event time", y = "ATT on log employment") + plot_theme
++ggsave("figures/event-study.png", event_plot, width = 7, height = 4.5,
++       units = "in", dpi = 320)
++
++estimates <- data.frame(
++  estimator = c("Naive TWFE", "Callaway-Sant'Anna (not-yet-treated)",
++                "Callaway-Sant'Anna (never-treated)", "Sun-Abraham", 
++                "Roth-Sant'Anna staggered"),
++  att = c(twfe_att, cs_notyet_simple$overall.att, cs_never_simple$overall.att,
++          sunab_att, rs_att),
++  se = c(twfe_se, cs_notyet_simple$overall.se, cs_never_simple$overall.se,
++         sunab_se, rs_se),
++  comparison_group = c(
++    "Post × ever-treated; county and year fixed effects",
++    "Not-yet-treated counties", "Never-treated counties",
++    "Never-treated cohort (sentinel 9999)",
++    "Native staggered comparison set; never-treated g = Inf"
++  )
++)
++
++table_lines <- c(
++  "| Estimator | ATT | SE | Control/comparison group |",
++  "|---|---:|---:|---|",
++  vapply(seq_len(nrow(estimates)), function(k) sprintf(
++    "| %s | %.6f | %.6f | %s |", estimates$estimator[k], estimates$att[k],
++    estimates$se[k], estimates$comparison_group[k]), character(1))
++)
++writeLines(table_lines, "estimates-table.md")
++
++cat("ATT estimates (ATT, SE):\n")
++for (k in seq_len(nrow(estimates))) {
++  cat(sprintf("%s: %.8f, %.8f\n", estimates$estimator[k], estimates$att[k], estimates$se[k]))
++}
++cat("\nBacon type shares and weighted contributions:\n")
++print(bacon_by_type, row.names = FALSE)
++cat(sprintf("Bacon weights sum: %.12f\n", bacon_weight_sum))
++cat(sprintf("Bacon weighted sum: %.12f; TWFE: %.12f\n", bacon_reconstructed, twfe_att))
++cat("\nNever-treated C&S dynamic estimates (pointwise 95% intervals):\n")
++print(dynamic, row.names = FALSE)
++cat(sprintf("Joint pretrend p-value: %.8f\n", pretrend_p))
+
+diff --git a/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5eb4961608e01a91c76f80f14de784140c9d71af
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+@@ -0,0 +1,144 @@
++#!/usr/bin/env Rscript
++
++# Reproducible staggered-adoption DiD estimates for did::mpdta.
++set.seed(4601)
++
++okabe_ito <- c(
++  orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++  yellow = "#F0E442", blue = "#0072B2", vermillion = "#D55E00",
++  reddish_purple = "#CC79A7", black = "#000000"
++)
++plot_theme <- ggplot2::theme_minimal(base_size = 11) +
++  ggplot2::theme(
++    panel.grid.minor = ggplot2::element_blank(),
++    panel.grid.major.x = ggplot2::element_blank(),
++    axis.title = ggplot2::element_text(colour = okabe_ito[["black"]])
++  )
++
++suppressPackageStartupMessages({
++  library(did)
++  library(fixest)
++  library(staggered)
++  library(bacondecomp)
++  library(ggplot2)
++})
++
++data("mpdta", package = "did")
++stopifnot(all(mpdta$first.treat %in% c(0, 2004, 2006, 2007)))
++
++# The treatment variable is deliberately shared by TWFE and Bacon.
++mpdta$post_treated <- as.integer(mpdta$first.treat > 0 & mpdta$year >= mpdta$first.treat)
++
++twfe <- feols(lemp ~ post_treated | countyreal + year, data = mpdta,
++              cluster = ~countyreal)
++twfe_att <- unname(coef(twfe)["post_treated"])
++twfe_se <- unname(se(twfe)["post_treated"])
++
++common_did <- list(
++  yname = "lemp", tname = "year", idname = "countyreal", gname = "first.treat",
++  xformla = ~1, data = mpdta, panel = TRUE, clustervars = "countyreal",
++  base_period = "universal", bstrap = TRUE, biters = 999, alp = 0.05,
++  cband = FALSE, cores = 1
++)
++cs_notyet <- do.call(att_gt, c(common_did, list(control_group = "notyettreated")))
++cs_never <- do.call(att_gt, c(common_did, list(control_group = "nevertreated")))
++cs_notyet_simple <- aggte(cs_notyet, type = "simple", bstrap = TRUE, biters = 999,
++                          cband = FALSE, alp = 0.05)
++cs_never_simple <- aggte(cs_never, type = "simple", bstrap = TRUE, biters = 999,
++                         cband = FALSE, alp = 0.05)
++
++# 9999 is outside the observed 2003--2007 periods, so fixest recognizes it as never treated.
++mpdta$sa_cohort <- ifelse(mpdta$first.treat == 0, 9999, mpdta$first.treat)
++sunab_fit <- feols(lemp ~ sunab(sa_cohort, year) | countyreal + year, data = mpdta,
++                   cluster = ~countyreal)
++sunab_att_summary <- summary(sunab_fit, agg = "ATT")
++sunab_att <- unname(coef(sunab_att_summary)[1])
++sunab_se <- unname(se(sunab_att_summary)[1])
++
++# staggered requires Inf, rather than did's 0, for never-treated cohorts.
++staggered_data <- data.frame(i = mpdta$countyreal, t = mpdta$year,
++                             g = ifelse(mpdta$first.treat == 0, Inf, mpdta$first.treat),
++                             y = mpdta$lemp)
++rs_simple <- staggered(staggered_data, i = "i", t = "t", g = "g", y = "y",
++                       estimand = "simple")
++rs_att <- rs_simple$estimate[1]
++rs_se <- rs_simple$se[1]
++
++# Bacon decomposition uses exactly post_treated, the binary regressor in twfe.
++bacon_out <- bacon(lemp ~ post_treated, data = mpdta, id_var = "countyreal",
++                   time_var = "year", quietly = TRUE)
++bacon_weight_sum <- sum(bacon_out$weight)
++bacon_reconstructed <- sum(bacon_out$estimate * bacon_out$weight)
++stopifnot(isTRUE(all.equal(bacon_weight_sum, 1, tolerance = 1e-8)))
++stopifnot(isTRUE(all.equal(bacon_reconstructed, twfe_att, tolerance = 1e-8)))
++bacon_by_type <- aggregate(cbind(weight, contribution = estimate * weight) ~ type,
++                           data = bacon_out, FUN = sum)
++
++# Dynamic effects from the never-treated C&S model, with a normalized -1 reference point.
++dynamic_never <- aggte(cs_never, type = "dynamic", min_e = -3, max_e = 3,
++                       bstrap = TRUE, biters = 999, cband = FALSE, alp = 0.05)
++dynamic <- data.frame(
++  event_time = dynamic_never$egt,
++  att = dynamic_never$att.egt,
++  se = dynamic_never$se.egt
++)
++dynamic <- dynamic[dynamic$event_time >= -3 & dynamic$event_time <= 3, ]
++if (!any(dynamic$event_time == -1)) {
++  dynamic <- rbind(dynamic, data.frame(event_time = -1, att = 0, se = 0))
++} else {
++  # did records the universal-base reference as 0 with an undefined SE.
++  dynamic[dynamic$event_time == -1, c("att", "se")] <- c(0, 0)
++}
++dynamic <- dynamic[order(dynamic$event_time), ]
++dynamic$lower <- dynamic$att - dynamic_never$crit.val.egt * dynamic$se
++dynamic$upper <- dynamic$att + dynamic_never$crit.val.egt * dynamic$se
++pretrend_p <- cs_never$Wpval[1, 1]
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++event_plot <- ggplot(dynamic, aes(x = event_time, y = att)) +
++  geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.35) +
++  geom_vline(xintercept = 0, colour = okabe_ito[["vermillion"]], linetype = "dashed") +
++  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.09,
++                colour = okabe_ito[["blue"]]) +
++  geom_point(size = 2.1, colour = okabe_ito[["blue"]]) +
++  scale_x_continuous(breaks = -3:3) +
++  labs(x = "Event time", y = "ATT on log employment") + plot_theme
++ggsave("figures/event-study.png", event_plot, width = 7, height = 4.5,
++       units = "in", dpi = 320)
++
++estimates <- data.frame(
++  estimator = c("Naive TWFE", "Callaway-Sant'Anna (not-yet-treated)",
++                "Callaway-Sant'Anna (never-treated)", "Sun-Abraham", 
++                "Roth-Sant'Anna staggered"),
++  att = c(twfe_att, cs_notyet_simple$overall.att, cs_never_simple$overall.att,
++          sunab_att, rs_att),
++  se = c(twfe_se, cs_notyet_simple$overall.se, cs_never_simple$overall.se,
++         sunab_se, rs_se),
++  comparison_group = c(
++    "Post × ever-treated; county and year fixed effects",
++    "Not-yet-treated counties", "Never-treated counties",
++    "Never-treated cohort (sentinel 9999)",
++    "Native staggered comparison set; never-treated g = Inf"
++  )
++)
++
++table_lines <- c(
++  "| Estimator | ATT | SE | Control/comparison group |",
++  "|---|---:|---:|---|",
++  vapply(seq_len(nrow(estimates)), function(k) sprintf(
++    "| %s | %.6f | %.6f | %s |", estimates$estimator[k], estimates$att[k],
++    estimates$se[k], estimates$comparison_group[k]), character(1))
++)
++writeLines(table_lines, "estimates-table.md")
++
++cat("ATT estimates (ATT, SE):\n")
++for (k in seq_len(nrow(estimates))) {
++  cat(sprintf("%s: %.8f, %.8f\n", estimates$estimator[k], estimates$att[k], estimates$se[k]))
++}
++cat("\nBacon type shares and weighted contributions:\n")
++print(bacon_by_type, row.names = FALSE)
++cat(sprintf("Bacon weights sum: %.12f\n", bacon_weight_sum))
++cat(sprintf("Bacon weighted sum: %.12f; TWFE: %.12f\n", bacon_reconstructed, twfe_att))
++cat("\nNever-treated C&S dynamic estimates (pointwise 95% intervals):\n")
++print(dynamic, row.names = FALSE)
++cat(sprintf("Joint pretrend p-value: %.8f\n", pretrend_p))
+
+exec
+/bin/zsh -lc "Rscript script.R && file figures/event-study.png && identify -format '%w %h %x %y\\n' figures/event-study.png 2>/dev/null || true && sed -n '1,20p' estimates-table.md && git status --short" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid
+diff --git a/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5eb4961608e01a91c76f80f14de784140c9d71af
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+@@ -0,0 +1,144 @@
++#!/usr/bin/env Rscript
++
++# Reproducible staggered-adoption DiD estimates for did::mpdta.
++set.seed(4601)
++
++okabe_ito <- c(
++  orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++  yellow = "#F0E442", blue = "#0072B2", vermillion = "#D55E00",
++  reddish_purple = "#CC79A7", black = "#000000"
++)
++plot_theme <- ggplot2::theme_minimal(base_size = 11) +
++  ggplot2::theme(
++    panel.grid.minor = ggplot2::element_blank(),
++    panel.grid.major.x = ggplot2::element_blank(),
++    axis.title = ggplot2::element_text(colour = okabe_ito[["black"]])
++  )
++
++suppressPackageStartupMessages({
++  library(did)
++  library(fixest)
++  library(staggered)
++  library(bacondecomp)
++  library(ggplot2)
++})
++
++data("mpdta", package = "did")
++stopifnot(all(mpdta$first.treat %in% c(0, 2004, 2006, 2007)))
++
++# The treatment variable is deliberately shared by TWFE and Bacon.
++mpdta$post_treated <- as.integer(mpdta$first.treat > 0 & mpdta$year >= mpdta$first.treat)
++
++twfe <- feols(lemp ~ post_treated | countyreal + year, data = mpdta,
++              cluster = ~countyreal)
++twfe_att <- unname(coef(twfe)["post_treated"])
++twfe_se <- unname(se(twfe)["post_treated"])
++
++common_did <- list(
++  yname = "lemp", tname = "year", idname = "countyreal", gname = "first.treat",
++  xformla = ~1, data = mpdta, panel = TRUE, clustervars = "countyreal",
++  base_period = "universal", bstrap = TRUE, biters = 999, alp = 0.05,
++  cband = FALSE, cores = 1
++)
++cs_notyet <- do.call(att_gt, c(common_did, list(control_group = "notyettreated")))
++cs_never <- do.call(att_gt, c(common_did, list(control_group = "nevertreated")))
++cs_notyet_simple <- aggte(cs_notyet, type = "simple", bstrap = TRUE, biters = 999,
++                          cband = FALSE, alp = 0.05)
++cs_never_simple <- aggte(cs_never, type = "simple", bstrap = TRUE, biters = 999,
++                         cband = FALSE, alp = 0.05)
++
++# 9999 is outside the observed 2003--2007 periods, so fixest recognizes it as never treated.
++mpdta$sa_cohort <- ifelse(mpdta$first.treat == 0, 9999, mpdta$first.treat)
++sunab_fit <- feols(lemp ~ sunab(sa_cohort, year) | countyreal + year, data = mpdta,
++                   cluster = ~countyreal)
++sunab_att_summary <- summary(sunab_fit, agg = "ATT")
++sunab_att <- unname(coef(sunab_att_summary)[1])
++sunab_se <- unname(se(sunab_att_summary)[1])
++
++# staggered requires Inf, rather than did's 0, for never-treated cohorts.
++staggered_data <- data.frame(i = mpdta$countyreal, t = mpdta$year,
++                             g = ifelse(mpdta$first.treat == 0, Inf, mpdta$first.treat),
++                             y = mpdta$lemp)
++rs_simple <- staggered(staggered_data, i = "i", t = "t", g = "g", y = "y",
++                       estimand = "simple")
++rs_att <- rs_simple$estimate[1]
++rs_se <- rs_simple$se[1]
++
++# Bacon decomposition uses exactly post_treated, the binary regressor in twfe.
++bacon_out <- bacon(lemp ~ post_treated, data = mpdta, id_var = "countyreal",
++                   time_var = "year", quietly = TRUE)
++bacon_weight_sum <- sum(bacon_out$weight)
++bacon_reconstructed <- sum(bacon_out$estimate * bacon_out$weight)
++stopifnot(isTRUE(all.equal(bacon_weight_sum, 1, tolerance = 1e-8)))
++stopifnot(isTRUE(all.equal(bacon_reconstructed, twfe_att, tolerance = 1e-8)))
++bacon_by_type <- aggregate(cbind(weight, contribution = estimate * weight) ~ type,
++                           data = bacon_out, FUN = sum)
++
++# Dynamic effects from the never-treated C&S model, with a normalized -1 reference point.
++dynamic_never <- aggte(cs_never, type = "dynamic", min_e = -3, max_e = 3,
++                       bstrap = TRUE, biters = 999, cband = FALSE, alp = 0.05)
++dynamic <- data.frame(
++  event_time = dynamic_never$egt,
++  att = dynamic_never$att.egt,
++  se = dynamic_never$se.egt
++)
++dynamic <- dynamic[dynamic$event_time >= -3 & dynamic$event_time <= 3, ]
++if (!any(dynamic$event_time == -1)) {
++  dynamic <- rbind(dynamic, data.frame(event_time = -1, att = 0, se = 0))
++} else {
++  # did records the universal-base reference as 0 with an undefined SE.
++  dynamic[dynamic$event_time == -1, c("att", "se")] <- c(0, 0)
++}
++dynamic <- dynamic[order(dynamic$event_time), ]
++dynamic$lower <- dynamic$att - dynamic_never$crit.val.egt * dynamic$se
++dynamic$upper <- dynamic$att + dynamic_never$crit.val.egt * dynamic$se
++pretrend_p <- cs_never$Wpval[1, 1]
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++event_plot <- ggplot(dynamic, aes(x = event_time, y = att)) +
++  geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.35) +
++  geom_vline(xintercept = 0, colour = okabe_ito[["vermillion"]], linetype = "dashed") +
++  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.09,
++                colour = okabe_ito[["blue"]]) +
++  geom_point(size = 2.1, colour = okabe_ito[["blue"]]) +
++  scale_x_continuous(breaks = -3:3) +
++  labs(x = "Event time", y = "ATT on log employment") + plot_theme
++ggsave("figures/event-study.png", event_plot, width = 7, height = 4.5,
++       units = "in", dpi = 320)
++
++estimates <- data.frame(
++  estimator = c("Naive TWFE", "Callaway-Sant'Anna (not-yet-treated)",
++                "Callaway-Sant'Anna (never-treated)", "Sun-Abraham", 
++                "Roth-Sant'Anna staggered"),
++  att = c(twfe_att, cs_notyet_simple$overall.att, cs_never_simple$overall.att,
++          sunab_att, rs_att),
++  se = c(twfe_se, cs_notyet_simple$overall.se, cs_never_simple$overall.se,
++         sunab_se, rs_se),
++  comparison_group = c(
++    "Post × ever-treated; county and year fixed effects",
++    "Not-yet-treated counties", "Never-treated counties",
++    "Never-treated cohort (sentinel 9999)",
++    "Native staggered comparison set; never-treated g = Inf"
++  )
++)
++
++table_lines <- c(
++  "| Estimator | ATT | SE | Control/comparison group |",
++  "|---|---:|---:|---|",
++  vapply(seq_len(nrow(estimates)), function(k) sprintf(
++    "| %s | %.6f | %.6f | %s |", estimates$estimator[k], estimates$att[k],
++    estimates$se[k], estimates$comparison_group[k]), character(1))
++)
++writeLines(table_lines, "estimates-table.md")
++
++cat("ATT estimates (ATT, SE):\n")
++for (k in seq_len(nrow(estimates))) {
++  cat(sprintf("%s: %.8f, %.8f\n", estimates$estimator[k], estimates$att[k], estimates$se[k]))
++}
++cat("\nBacon type shares and weighted contributions:\n")
++print(bacon_by_type, row.names = FALSE)
++cat(sprintf("Bacon weights sum: %.12f\n", bacon_weight_sum))
++cat(sprintf("Bacon weighted sum: %.12f; TWFE: %.12f\n", bacon_reconstructed, twfe_att))
++cat("\nNever-treated C&S dynamic estimates (pointwise 95% intervals):\n")
++print(dynamic, row.names = FALSE)
++cat(sprintf("Joint pretrend p-value: %.8f\n", pretrend_p))
+
+ succeeded in 1240ms:
+ATT estimates (ATT, SE):
+Naive TWFE: -0.03654894, 0.01326516
+Callaway-Sant'Anna (not-yet-treated): -0.03976363, 0.01227120
+Callaway-Sant'Anna (never-treated): -0.03995128, 0.01190120
+Sun-Abraham: -0.03995128, 0.01179628
+Roth-Sant'Anna staggered: -0.04705391, 0.01161384
+
+Bacon type shares and weighted contributions:
+                     type     weight  contribution
+ Earlier vs Later Treated 0.08330135 -0.0016480188
+ Later vs Earlier Treated 0.05392423  0.0002482489
+     Treated vs Untreated 0.86277442 -0.0351491668
+Bacon weights sum: 1.000000000000
+Bacon weighted sum: -0.036548936674; TWFE: -0.036548936674
+
+Never-treated C&S dynamic estimates (pointwise 95% intervals):
+ event_time         att         se        lower        upper
+         -3  0.02502183 0.01886253 -0.011948052  0.061991711
+         -2  0.02445874 0.01453347 -0.004026336  0.052943826
+         -1  0.00000000 0.00000000  0.000000000  0.000000000
+          0 -0.01993182 0.01232645 -0.044091212  0.004227578
+          1 -0.05095737 0.01749357 -0.085244139 -0.016670595
+          2 -0.13725874 0.03800979 -0.211756558 -0.062760920
+          3 -0.10081136 0.03753071 -0.174370198 -0.027252528
+Joint pretrend p-value: 0.16812000
+figures/event-study.png: PNG image data, 2240 x 1440, 8-bit/color RGB, non-interlaced
+2240 1440 125.98000000000000398 125.98000000000000398
+| Estimator | ATT | SE | Control/comparison group |
+|---|---:|---:|---|
+| Naive TWFE | -0.036549 | 0.013265 | Post × ever-treated; county and year fixed effects |
+| Callaway-Sant'Anna (not-yet-treated) | -0.039764 | 0.012271 | Not-yet-treated counties |
+| Callaway-Sant'Anna (never-treated) | -0.039951 | 0.011901 | Never-treated counties |
+| Sun-Abraham | -0.039951 | 0.011796 | Never-treated cohort (sentinel 9999) |
+| Roth-Sant'Anna staggered | -0.047054 | 0.011614 | Native staggered comparison set; never-treated g = Inf |
+ M ../../../EXTENSIONS.md
+ M ../../../README.md
+ M ../../../SCORING.md
+ M ../../../data/README.md
+ M ../../../prompts/46-sol-run.md
+ M ../../opus/SESSION-PROTOCOL.md
+ M ../../../../../docs/orchestration-lab/index.html
+?? ../../../prompts/extreme-stagdid.md
+?? ../../../reference/extreme-stagdid/
+?? ./
+?? ../../46/extreme-stagdid/
+?? ../../advisor/extreme-stagdid-claude/
+?? ../../fable/extreme-stagdid/
+?? ../../opus/extreme-stagdid/
+
+codex
+Conclusion: Implemented and successfully ran the bounded R workflow.
+
+Evidence: `Rscript script.R` exits 0. Bacon weights sum to 1 and reconstruct TWFE exactly; Later vs Earlier Treated share is 0.053924. Event-study PNG is 2240×1440 (7×4.5 in at 320 dpi).
+
+Changed files:
+
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R)
+- [estimates-table.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid/estimates-table.md)
+- [event-study.png](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid/figures/event-study.png)
+
+Residual risk: Bootstrap estimates are deterministically seeded; results depend on the installed package versions as required.
+diff --git a/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..5eb4961608e01a91c76f80f14de784140c9d71af
+--- /dev/null
++++ b/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R
+@@ -0,0 +1,144 @@
++#!/usr/bin/env Rscript
++
++# Reproducible staggered-adoption DiD estimates for did::mpdta.
++set.seed(4601)
++
++okabe_ito <- c(
++  orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
++  yellow = "#F0E442", blue = "#0072B2", vermillion = "#D55E00",
++  reddish_purple = "#CC79A7", black = "#000000"
++)
++plot_theme <- ggplot2::theme_minimal(base_size = 11) +
++  ggplot2::theme(
++    panel.grid.minor = ggplot2::element_blank(),
++    panel.grid.major.x = ggplot2::element_blank(),
++    axis.title = ggplot2::element_text(colour = okabe_ito[["black"]])
++  )
++
++suppressPackageStartupMessages({
++  library(did)
++  library(fixest)
++  library(staggered)
++  library(bacondecomp)
++  library(ggplot2)
++})
++
++data("mpdta", package = "did")
++stopifnot(all(mpdta$first.treat %in% c(0, 2004, 2006, 2007)))
++
++# The treatment variable is deliberately shared by TWFE and Bacon.
++mpdta$post_treated <- as.integer(mpdta$first.treat > 0 & mpdta$year >= mpdta$first.treat)
++
++twfe <- feols(lemp ~ post_treated | countyreal + year, data = mpdta,
++              cluster = ~countyreal)
++twfe_att <- unname(coef(twfe)["post_treated"])
++twfe_se <- unname(se(twfe)["post_treated"])
++
++common_did <- list(
++  yname = "lemp", tname = "year", idname = "countyreal", gname = "first.treat",
++  xformla = ~1, data = mpdta, panel = TRUE, clustervars = "countyreal",
++  base_period = "universal", bstrap = TRUE, biters = 999, alp = 0.05,
++  cband = FALSE, cores = 1
++)
++cs_notyet <- do.call(att_gt, c(common_did, list(control_group = "notyettreated")))
++cs_never <- do.call(att_gt, c(common_did, list(control_group = "nevertreated")))
++cs_notyet_simple <- aggte(cs_notyet, type = "simple", bstrap = TRUE, biters = 999,
++                          cband = FALSE, alp = 0.05)
++cs_never_simple <- aggte(cs_never, type = "simple", bstrap = TRUE, biters = 999,
++                         cband = FALSE, alp = 0.05)
++
++# 9999 is outside the observed 2003--2007 periods, so fixest recognizes it as never treated.
++mpdta$sa_cohort <- ifelse(mpdta$first.treat == 0, 9999, mpdta$first.treat)
++sunab_fit <- feols(lemp ~ sunab(sa_cohort, year) | countyreal + year, data = mpdta,
++                   cluster = ~countyreal)
++sunab_att_summary <- summary(sunab_fit, agg = "ATT")
++sunab_att <- unname(coef(sunab_att_summary)[1])
++sunab_se <- unname(se(sunab_att_summary)[1])
++
++# staggered requires Inf, rather than did's 0, for never-treated cohorts.
++staggered_data <- data.frame(i = mpdta$countyreal, t = mpdta$year,
++                             g = ifelse(mpdta$first.treat == 0, Inf, mpdta$first.treat),
++                             y = mpdta$lemp)
++rs_simple <- staggered(staggered_data, i = "i", t = "t", g = "g", y = "y",
++                       estimand = "simple")
++rs_att <- rs_simple$estimate[1]
++rs_se <- rs_simple$se[1]
++
++# Bacon decomposition uses exactly post_treated, the binary regressor in twfe.
++bacon_out <- bacon(lemp ~ post_treated, data = mpdta, id_var = "countyreal",
++                   time_var = "year", quietly = TRUE)
++bacon_weight_sum <- sum(bacon_out$weight)
++bacon_reconstructed <- sum(bacon_out$estimate * bacon_out$weight)
++stopifnot(isTRUE(all.equal(bacon_weight_sum, 1, tolerance = 1e-8)))
++stopifnot(isTRUE(all.equal(bacon_reconstructed, twfe_att, tolerance = 1e-8)))
++bacon_by_type <- aggregate(cbind(weight, contribution = estimate * weight) ~ type,
++                           data = bacon_out, FUN = sum)
++
++# Dynamic effects from the never-treated C&S model, with a normalized -1 reference point.
++dynamic_never <- aggte(cs_never, type = "dynamic", min_e = -3, max_e = 3,
++                       bstrap = TRUE, biters = 999, cband = FALSE, alp = 0.05)
++dynamic <- data.frame(
++  event_time = dynamic_never$egt,
++  att = dynamic_never$att.egt,
++  se = dynamic_never$se.egt
++)
++dynamic <- dynamic[dynamic$event_time >= -3 & dynamic$event_time <= 3, ]
++if (!any(dynamic$event_time == -1)) {
++  dynamic <- rbind(dynamic, data.frame(event_time = -1, att = 0, se = 0))
++} else {
++  # did records the universal-base reference as 0 with an undefined SE.
++  dynamic[dynamic$event_time == -1, c("att", "se")] <- c(0, 0)
++}
++dynamic <- dynamic[order(dynamic$event_time), ]
++dynamic$lower <- dynamic$att - dynamic_never$crit.val.egt * dynamic$se
++dynamic$upper <- dynamic$att + dynamic_never$crit.val.egt * dynamic$se
++pretrend_p <- cs_never$Wpval[1, 1]
++
++dir.create("figures", showWarnings = FALSE, recursive = TRUE)
++event_plot <- ggplot(dynamic, aes(x = event_time, y = att)) +
++  geom_hline(yintercept = 0, colour = "grey55", linewidth = 0.35) +
++  geom_vline(xintercept = 0, colour = okabe_ito[["vermillion"]], linetype = "dashed") +
++  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.09,
++                colour = okabe_ito[["blue"]]) +
++  geom_point(size = 2.1, colour = okabe_ito[["blue"]]) +
++  scale_x_continuous(breaks = -3:3) +
++  labs(x = "Event time", y = "ATT on log employment") + plot_theme
++ggsave("figures/event-study.png", event_plot, width = 7, height = 4.5,
++       units = "in", dpi = 320)
++
++estimates <- data.frame(
++  estimator = c("Naive TWFE", "Callaway-Sant'Anna (not-yet-treated)",
++                "Callaway-Sant'Anna (never-treated)", "Sun-Abraham", 
++                "Roth-Sant'Anna staggered"),
++  att = c(twfe_att, cs_notyet_simple$overall.att, cs_never_simple$overall.att,
++          sunab_att, rs_att),
++  se = c(twfe_se, cs_notyet_simple$overall.se, cs_never_simple$overall.se,
++         sunab_se, rs_se),
++  comparison_group = c(
++    "Post × ever-treated; county and year fixed effects",
++    "Not-yet-treated counties", "Never-treated counties",
++    "Never-treated cohort (sentinel 9999)",
++    "Native staggered comparison set; never-treated g = Inf"
++  )
++)
++
++table_lines <- c(
++  "| Estimator | ATT | SE | Control/comparison group |",
++  "|---|---:|---:|---|",
++  vapply(seq_len(nrow(estimates)), function(k) sprintf(
++    "| %s | %.6f | %.6f | %s |", estimates$estimator[k], estimates$att[k],
++    estimates$se[k], estimates$comparison_group[k]), character(1))
++)
++writeLines(table_lines, "estimates-table.md")
++
++cat("ATT estimates (ATT, SE):\n")
++for (k in seq_len(nrow(estimates))) {
++  cat(sprintf("%s: %.8f, %.8f\n", estimates$estimator[k], estimates$att[k], estimates$se[k]))
++}
++cat("\nBacon type shares and weighted contributions:\n")
++print(bacon_by_type, row.names = FALSE)
++cat(sprintf("Bacon weights sum: %.12f\n", bacon_weight_sum))
++cat(sprintf("Bacon weighted sum: %.12f; TWFE: %.12f\n", bacon_reconstructed, twfe_att))
++cat("\nNever-treated C&S dynamic estimates (pointwise 95% intervals):\n")
++print(dynamic, row.names = FALSE)
++cat(sprintf("Joint pretrend p-value: %.8f\n", pretrend_p))
+
+tokens used
+28,409
+Conclusion: Implemented and successfully ran the bounded R workflow.
+
+Evidence: `Rscript script.R` exits 0. Bacon weights sum to 1 and reconstruct TWFE exactly; Later vs Earlier Treated share is 0.053924. Event-study PNG is 2240×1440 (7×4.5 in at 320 dpi).
+
+Changed files:
+
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid/script.R)
+- [estimates-table.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid/estimates-table.md)
+- [event-study.png](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/extreme-stagdid/figures/event-study.png)
+
+Residual risk: Bootstrap estimates are deterministically seeded; results depend on the installed package versions as required.

@@ -1,0 +1,392 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.6
+--------
+workdir: /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor-v2/vhigh-lalonde-codex
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 019f799a-1322-7083-ae82-01a32b041071
+--------
+user
+You are consulted as an independent GPT-5.6 advisor for one specific decision point — not a co-implementer. Read the self-contained briefing supplied on stdin (the task, what has been done so far, the current approach or findings, and the specific question). You have no access to the original conversation beyond this briefing, so if it seems to be missing something you need, say what is missing rather than guessing. Give direct, decisive advice on the specific question asked. If you disagree with the stated approach, say so plainly and explain the specific failure mode, do not hedge into a survey of options. Do not edit any files — you are read-only advisory only. Return only your advice, no preamble.
+
+<stdin>
+=== ORIGINAL BRIEF ===
+# Task VHIGH — Adjudicate a methods dispute (very-high tier)
+
+You are working in a project directory. Use R (`Rscript`); the `causaldata` package is installed.
+
+**Data.** The LaLonde National Supported Work (NSW) experiment plus the CPS comparison sample:
+
+```r
+library(causaldata)
+nsw <- causaldata::nsw_mixtape   # 445 obs = 185 treated + 260 control (experimental)
+cps <- causaldata::cps_mixtape   # 15,992 CPS controls (observational comparison pool)
+# columns (both): data_id treat age educ black hisp marr nodegree re74 re75 re78
+```
+
+**Situation.** The NSW experiment gives an unbiased estimate of the program's effect on 1978 earnings (`re78`): the treated−control difference in `nsw_mixtape` (about **+$1,794** — compute it, do not trust the figure). Dehejia and Wahba (1999, 2002) claim propensity-score methods **recover** this experimental benchmark when the experimental controls are discarded and replaced by CPS observational controls (`cps_mixtape`). Smith and Todd (2005) reply that the recovered estimate is **fragile** to the covariate set and the analysis sample. Your job is to run the specification curve and decide which claim the evidence supports.
+
+**Task.**
+
+1. Compute the **experimental benchmark** (treated − control difference in `re78`, within `nsw_mixtape`).
+2. Construct the **observational composite** — NSW **treated** units plus CPS **controls** — and estimate the treatment effect on `re78` (a) **naively** (raw treated−control difference) and (b) by **propensity-score matching** under **at least four** specifications. Vary two axes: the **covariate set** (demographics only vs demographics **+ `re74`/`re75`** pre-treatment earnings) and an **estimator detail** (with/without trimming to common support; 1-NN matching vs simple score stratification).
+3. Lay the estimates **against the benchmark** in a specification table.
+4. **Adjudicate** in `memo.md` (~450 words): does matching recover the benchmark **robustly**, **only under favorable specifications**, or **not at all** — and what may a paper legitimately claim?
+
+**Produce, in the current working directory:**
+
+1. `script.R` — one self-contained script; conventions as in T1/T2 (Okabe-Ito palette and theme at the top; `set.seed()` before anything stochastic).
+2. `figures/spec-curve.png` — exactly ONE figure: the estimates with 95% intervals across specifications, the experimental benchmark drawn as a horizontal reference line. 300+ dpi, no in-plot title.
+3. `spec-table.md` — every specification's estimate laid against the benchmark (a gap column, or the benchmark side-by-side), plus the naive observational estimate.
+4. `memo.md` — the ~450-word adjudication: concede what conditioning on the covariates is and is not doing, state whether recovery is robust / favorable-specification-only / absent, and say precisely what a paper may and may not claim.
+
+**Method note.** `MatchIt` is installed; `Matching` is not. If you use `MatchIt`, target the ATT with replacement (`estimand = "ATT"`, `replace = TRUE`) so it matches the estimand here; if neither package were installed you would hand-roll it (a logit propensity model, 1-NN on the score, with replacement). Choose a **defensible standard error** for each estimator — note that the ordinary nonparametric bootstrap is **not** valid for nearest-neighbor matching variances (Abadie-Imbens 2008).
+
+**Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. No web access. Do not install packages. The memo must not overclaim: if recovery is specification-dependent, say so plainly — neither "matching works" nor "matching fails" unqualified.
+
+=== PRODUCED DELIVERABLES ===
+--- memo.md ---
+# Adjudication: matching the NSW treated to CPS controls
+
+**Bottom line: recovery is only under favorable specifications, not robustly.** The randomized NSW contrast is an estimate of the program's ATT among its 185 treated participants: $1,794. Replacing the randomized controls with CPS controls produces a raw contrast of $-8,498, a gap of $-10,292. That failure is unsurprising. CPS members and NSW trainees enter the comparison with sharply different observed profiles and may differ in unmeasured earnings prospects. The raw CPS comparison is not a credible counterfactual.
+
+Conditioning on the listed covariates changes the comparison to CPS people with similar *observed* age, schooling, race/ethnicity, marital status, degree status, and, in the richer model, prior earnings. The score is a device for balancing those measured variables; matching or stratifying on it does not randomize CPS membership, repair mismeasured histories, or remove selection on unobserved employability, motivation, local labor markets, and program referral. Nor does agreement validate omitted functional forms or extrapolation from rare high-score CPS cases. The relevant identifying claim remains conditional exchangeability plus overlap, neither of which is created by a logit model.
+
+The eight adjusted estimates span $-4,046 to $2,088. The closest is the 1-nn matching specification with demographics + prior earnings and common-support trimming = No: $1,712 (gap $-82). Only 3 of 8 adjusted 95% intervals cover the experimental point estimate. That is not the stability one would expect if the CPS adjustment were validating a generally reliable recovery procedure. In this data, trimming retains every NSW treated unit because the CPS score range covers them; it only removes out-of-range CPS controls. It can therefore change a stratified control mean, but it does not turn the CPS comparison into an experiment.
+
+The uncertainty display is intentionally conservative about its scope. For fixed-one-nearest-neighbour matching with replacement, it uses an Abadie--Imbens-style analytic variance with control-reuse counts rather than an ordinary bootstrap, which is not valid for this nonsmooth estimator. The stratified rows use fixed-strata sampling variances. Neither interval includes uncertainty from choosing and fitting the propensity model, so visual agreement with the benchmark is a diagnostic, not a formal proof of identification.
+
+A paper may claim that some specified propensity-score adjustments move the CPS comparison markedly toward the randomized NSW benchmark, and may report the particular specifications that do so. It may not claim, without qualification, that propensity-score matching recovers the experimental effect, that balancing observables establishes ignorability, or that one favorable estimate validates the procedure for another comparison sample. The appropriate conclusion is specification-dependent corroboration: the Dehejia--Wahba-style success is possible, while the Smith--Todd warning about sensitivity to covariates and analysis choices is the better description of the full curve.
+
+
+--- spec-table.md ---
+# NSW--CPS specification table
+
+Experimental benchmark (randomized NSW treated minus NSW control): **$1,794** (SE $671; 95% CI [$479, $3,109]).
+
+| Covariate set | Estimator | Common support | Treated N | CPS-control candidates N | Estimate (USD) | SE | 95% CI | Gap from benchmark |
+|---|---|:---:|---:|---:|---:|---:|---:|---:|
+| None | Raw observational difference | No | 185 | 15992 | $-8,498 | $583 | [$-9,641, $-7,354] | $-10,292 |
+| Demographics | 1-NN matching | No | 185 | 15992 | $-2,798 | $1,139 | [$-5,030, $-566] | $-4,592 |
+| Demographics | Score stratification | No | 185 | 15992 | $-4,046 | $667 | [$-5,352, $-2,740] | $-5,840 |
+| Demographics | 1-NN matching | Yes | 185 | 12706 | $-2,972 | $1,016 | [$-4,962, $-982] | $-4,766 |
+| Demographics | Score stratification | Yes | 185 | 12706 | $-3,791 | $686 | [$-5,135, $-2,448] | $-5,586 |
+| Demographics + prior earnings | 1-NN matching | No | 185 | 15992 | $1,712 | $810 | [$125, $3,300] | $-82 |
+| Demographics + prior earnings | Score stratification | No | 185 | 15992 | $-181 | $644 | [$-1,444, $1,082] | $-1,975 |
+| Demographics + prior earnings | 1-NN matching | Yes | 185 | 5776 | $2,088 | $786 | [$547, $3,629] | $294 |
+| Demographics + prior earnings | Score stratification | Yes | 185 | 5776 | $1,249 | $645 | [$-16, $2,513] | $-545 |
+
+Common support is the intersection of the fitted propensity-score ranges for NSW treated and CPS controls, estimated separately for each covariate set. All 185 treated observations were inside that intersection in both models; trimming therefore only removes CPS controls. The displayed CPS N is the candidate pool, not the number of distinct controls selected by matching.
+
+For 1-NN rows, MatchIt forms ATT matches with replacement. Standard errors use an Abadie--Imbens-style analytic conditional-variance estimator with three same-arm nearest neighbours for local outcome variances and control reuse counts; no ordinary bootstrap is used. Stratification uses five score strata defined by treated-score quintiles and a fixed-strata sampling variance. These intervals do not propagate uncertainty from estimating the propensity-score model.
+
+--- script.R ---
+# LaLonde NSW--CPS specification curve
+# Reproduces spec-table.md, memo.md, and figures/spec-curve.png.
+
+# Okabe--Ito palette and a shared, accessible plotting theme
+okabe_ito <- c(
+  orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
+  yellow = "#F0E442", blue = "#0072B2", vermillion = "#D55E00",
+  reddish_purple = "#CC79A7", black = "#000000"
+)
+theme_lab <- ggplot2::theme_minimal(base_size = 11) +
+  ggplot2::theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major.x = ggplot2::element_blank(),
+    axis.title.x = ggplot2::element_blank(),
+    axis.text.x = ggplot2::element_text(angle = 35, hjust = 1),
+    plot.margin = ggplot2::margin(8, 18, 8, 8)
+  )
+
+# Set before any operation that could use randomized tie handling.
+set.seed(20260719)
+
+suppressPackageStartupMessages({
+  library(causaldata)
+  library(MatchIt)
+  library(ggplot2)
+})
+
+dir.create("figures", showWarnings = FALSE, recursive = TRUE)
+
+# Format values without making the numerical objects themselves character strings.
+money <- function(x, digits = 0) {
+  formatC(x, format = "f", digits = digits, big.mark = ",")
+}
+
+# Difference in means and the usual independent-samples standard error.
+diff_in_means <- function(y, z) {
+  y1 <- y[z == 1]
+  y0 <- y[z == 0]
+  est <- mean(y1) - mean(y0)
+  se <- sqrt(stats::var(y1) / length(y1) + stats::var(y0) / length(y0))
+  c(estimate = est, se = se)
+}
+
+# Abadie--Imbens local estimator of Var(Y_w | e(X)). For each unit, estimate
+# its conditional outcome variance from J nearest units in its own treatment
+# arm. This supports analytic matching inference and deliberately does not use
+# the ordinary nonparametric bootstrap, which is invalid for fixed-M NN
+# matching (Abadie and Imbens 2008).
+ai_local_variance <- function(score, outcome, treatment, J = 3L) {
+  out <- numeric(length(outcome))
+  for (w in c(0L, 1L)) {
+    index <- which(treatment == w)
+    if (length(index) <= J) stop("Too few observations for local variance estimation.")
+    for (i in index) {
+      candidates <- index[index != i]
+      nearest <- candidates[order(abs(score[candidates] - score[i]), candidates)][seq_len(J)]
+      # J/(J + 1) corrects the variance of Y_i minus the mean of J neighbours.
+      out[i] <- J / (J + 1) * (outcome[i] - mean(outcome[nearest]))^2
+    }
+  }
+  out
+}
+
+# ATT 1-NN matching on a supplied propensity score. MatchIt performs the
+# replacement matching; the standard error is the Abadie--Imbens analytic
+# conditional variance for the resulting fixed-M matching estimator.
+nn_att <- function(d, covariates) {
+  d <- as.data.frame(d)
+  fml <- stats::reformulate(covariates, response = "treat")
+  fit <- stats::glm(fml, data = d, family = stats::binomial())
+  d$score <- stats::fitted(fit)
+  rownames(d) <- d$unit_id
+
+  matched <- MatchIt::matchit(
+    fml, data = d, method = "nearest", distance = d$score,
+    estimand = "ATT", replace = TRUE, m.order = "data"
+  )
+  match_matrix <- matched$match.matrix
+  treated_index <- match(rownames(match_matrix), rownames(d))
+  control_index <- match(match_matrix[, 1], rownames(d))
+  if (anyNA(treated_index) || anyNA(control_index)) stop("Could not recover MatchIt pairs.")
+
+  estimate <- mean(d$re78[treated_index] - d$re78[control_index])
+  reuse_count <- tabulate(control_index, nbins = nrow(d))
+  conditional_variance <- ai_local_variance(d$score, d$re78, d$treat, J = 3L)
+  n_treated <- length(treated_index)
+  variance <- (
+    sum(conditional_variance[treated_index]) +
+      sum((reuse_count^2) * conditional_variance)
+  ) / n_treated^2
+
+  c(estimate = estimate, se = sqrt(variance), n_treated = n_treated,
+    n_controls = sum(d$treat == 0), score_low = min(d$score), score_high = max(d$score))
+}
+
+# ATT score-stratification estimator. Strata are score quintiles of the
+# treated group; treated stratum shares supply ATT weights. Its standard error
+# is the closed-form, independent-samples variance of this fixed-strata
+# estimator. Unlike NN matching, no bootstrap warning applies here; neither
+# estimator's interval propagates propensity-score model uncertainty.
+stratified_att <- function(d, covariates, n_strata = 5L) {
+  fml <- stats::reformulate(covariates, response = "treat")
+  fit <- stats::glm(fml, data = d, family = stats::binomial())
+  d$score <- stats::fitted(fit)
+  treated_scores <- d$score[d$treat == 1]
+  cutpoints <- stats::quantile(
+    treated_scores, probs = seq(0, 1, length.out = n_strata + 1),
+    names = FALSE, type = 8
+  )
+  if (anyDuplicated(cutpoints[-c(1, length(cutpoints))])) {
+    stop("Tied score quantiles prevent the requested fixed stratification.")
+  }
+  d$stratum <- cut(
+    d$score, breaks = c(-Inf, cutpoints[2:n_strata], Inf),
+    include.lowest = TRUE, ordered_result = TRUE
+  )
+  groups <- split(d, d$stratum, drop = TRUE)
+  n_treated <- sum(d$treat == 1)
+  pieces <- lapply(groups, function(g) {
+    y1 <- g$re78[g$treat == 1]
+    y0 <- g$re78[g$treat == 0]
+    if (length(y1) == 0 || length(y0) == 0) stop("A propensity-score stratum lacks one arm.")
+    weight <- length(y1) / n_treated
+    c(weight = weight, difference = mean(y1) - mean(y0),
+      variance = stats::var(y1) / length(y1) + stats::var(y0) / length(y0))
+  })
+  piece_matrix <- do.call(rbind, pieces)
+  estimate <- sum(piece_matrix[, "weight"] * piece_matrix[, "difference"])
+  se <- sqrt(sum(piece_matrix[, "weight"]^2 * piece_matrix[, "variance"]))
+  c(estimate = estimate, se = se, n_treated = n_treated,
+    n_controls = sum(d$treat == 0), score_low = min(d$score), score_high = max(d$score))
+}
+
+# Apply a common-support rule to a fixed propensity score. This retains only
+# scores in the observed intersection of the treatment and control ranges.
+common_support <- function(d, covariates) {
+  fml <- stats::reformulate(covariates, response = "treat")
+  score <- stats::fitted(stats::glm(fml, data = d, family = stats::binomial()))
+  lower <- max(min(score[d$treat == 1]), min(score[d$treat == 0]))
+  upper <- min(max(score[d$treat == 1]), max(score[d$treat == 0]))
+  keep <- score >= lower & score <= upper
+  list(data = d[keep, , drop = FALSE], lower = lower, upper = upper,
+       n_treated = sum(d$treat == 1 & keep), n_controls = sum(d$treat == 0 & keep))
+}
+
+# Data: randomized NSW comparison and observational NSW-treated/CPS-control composite.
+nsw <- causaldata::nsw_mixtape
+cps <- causaldata::cps_mixtape
+experimental <- nsw
+observational <- rbind(nsw[nsw$treat == 1, , drop = FALSE], cps)
+observational$unit_id <- sprintf("unit_%05d", seq_len(nrow(observational)))
+
+benchmark <- diff_in_means(experimental$re78, experimental$treat)
+naive <- diff_in_means(observational$re78, observational$treat)
+
+covariate_sets <- list(
+  "Demographics" = c("age", "educ", "black", "hisp", "marr", "nodegree"),
+  "Demographics + prior earnings" = c("age", "educ", "black", "hisp", "marr", "nodegree", "re74", "re75")
+)
+
+# 2 covariate sets x 2 estimators x 2 support choices = 8 specifications.
+results <- list()
+for (covariate_label in names(covariate_sets)) {
+  covariates <- covariate_sets[[covariate_label]]
+  support <- common_support(observational, covariates)
+  analysis_samples <- list("No" = observational, "Yes" = support$data)
+  for (support_label in names(analysis_samples)) {
+    d <- analysis_samples[[support_label]]
+    for (estimator in c("1-NN matching", "Score stratification")) {
+      fit <- if (estimator == "1-NN matching") nn_att(d, covariates) else stratified_att(d, covariates)
+      results[[length(results) + 1L]] <- data.frame(
+        covariates = covariate_label,
+        estimator = estimator,
+        common_support = support_label,
+        n_treated = unname(fit["n_treated"]),
+        n_controls = unname(fit["n_controls"]),
+        estimate = unname(fit["estimate"]),
+        se = unname(fit["se"]),
+        support_lower = if (support_label == "Yes") support$lower else NA_real_,
+        support_upper = if (support_label == "Yes") support$upper else NA_real_,
+        stringsAsFactors = FALSE
+      )
+    }
+  }
+}
+specifications <- do.call(rbind, results)
+specifications$ci_low <- specifications$estimate - 1.96 * specifications$se
+specifications$ci_high <- specifications$estimate + 1.96 * specifications$se
+specifications$gap_from_benchmark <- specifications$estimate - benchmark["estimate"]
+
+# Add the raw observational contrast as a displayed comparison, but retain
+# the eight estimators above as the actual specification grid.
+naive_row <- data.frame(
+  covariates = "None", estimator = "Raw observational difference", common_support = "No",
+  n_treated = sum(observational$treat == 1), n_controls = sum(observational$treat == 0),
+  estimate = unname(naive["estimate"]), se = unname(naive["se"]),
+  support_lower = NA_real_, support_upper = NA_real_, stringsAsFactors = FALSE
+)
+naive_row$ci_low <- naive_row$estimate - 1.96 * naive_row$se
+naive_row$ci_high <- naive_row$estimate + 1.96 * naive_row$se
+naive_row$gap_from_benchmark <- naive_row$estimate - benchmark["estimate"]
+display_results <- rbind(naive_row, specifications)
+
+# Markdown specification table.
+table_lines <- c(
+  "# NSW--CPS specification table",
+  "",
+  sprintf("Experimental benchmark (randomized NSW treated minus NSW control): **$%s** (SE $%s; 95%% CI [$%s, $%s]).", money(benchmark["estimate"]), money(benchmark["se"]), money(benchmark["estimate"] - 1.96 * benchmark["se"]), money(benchmark["estimate"] + 1.96 * benchmark["se"])),
+  "",
+  "| Covariate set | Estimator | Common support | Treated N | CPS-control candidates N | Estimate (USD) | SE | 95% CI | Gap from benchmark |",
+  "|---|---|:---:|---:|---:|---:|---:|---:|---:|"
+)
+for (i in seq_len(nrow(display_results))) {
+  x <- display_results[i, ]
+  table_lines <- c(table_lines, sprintf(
+    "| %s | %s | %s | %d | %d | $%s | $%s | [$%s, $%s] | $%s |",
+    x$covariates, x$estimator, x$common_support, x$n_treated, x$n_controls,
+    money(x$estimate), money(x$se), money(x$ci_low), money(x$ci_high),
+    money(x$gap_from_benchmark)
+  ))
+}
+table_lines <- c(
+  table_lines, "",
+  "Common support is the intersection of the fitted propensity-score ranges for NSW treated and CPS controls, estimated separately for each covariate set. All 185 treated observations were inside that intersection in both models; trimming therefore only removes CPS controls. The displayed CPS N is the candidate pool, not the number of distinct controls selected by matching.",
+  "",
+  "For 1-NN rows, MatchIt forms ATT matches with replacement. Standard errors use an Abadie--Imbens-style analytic conditional-variance estimator with three same-arm nearest neighbours for local outcome variances and control reuse counts; no ordinary bootstrap is used. Stratification uses five score strata defined by treated-score quintiles and a fixed-strata sampling variance. These intervals do not propagate uncertainty from estimating the propensity-score model."
+)
+writeLines(table_lines, "spec-table.md")
+
+# One specification-curve/coefficient figure, with no in-plot title.
+plot_data <- display_results
+plot_data$label <- ifelse(
+  plot_data$estimator == "Raw observational difference", "Naive observational",
+  paste0(ifelse(plot_data$covariates == "Demographics", "Demog", "Demog + earnings"), " / ",
+         ifelse(plot_data$estimator == "1-NN matching", "1-NN", "Stratified"), " / ",
+         ifelse(plot_data$common_support == "Yes", "Trimmed", "Untrimmed"))
+)
+plot_data$method_family <- ifelse(plot_data$estimator == "Raw observational difference", "Naive",
+                                  ifelse(plot_data$estimator == "1-NN matching", "1-NN matching", "Score stratification"))
+plot_data$label <- factor(plot_data$label, levels = unique(plot_data$label))
+plot_data$method_family <- factor(plot_data$method_family, levels = c("Naive", "1-NN matching", "Score stratification"))
+benchmark_label <- data.frame(
+  label = factor("Naive observational", levels = levels(plot_data$label)),
+  estimate = unname(benchmark["estimate"])
+)
+
+p <- ggplot(plot_data, aes(x = label, y = estimate, colour = method_family, shape = method_family)) +
+  geom_hline(yintercept = unname(benchmark["estimate"]), colour = okabe_ito["black"], linewidth = 0.7) +
+  geom_text(data = benchmark_label, aes(x = label, y = estimate), inherit.aes = FALSE,
+            label = "Experimental benchmark", hjust = 0, vjust = -0.65,
+            size = 3.1, colour = okabe_ito["black"]) +
+  geom_errorbar(aes(ymin = ci_low, ymax = ci_high), width = 0, linewidth = 0.55) +
+  geom_point(size = 2.7) +
+  scale_colour_manual(values = c("Naive" = unname(okabe_ito["vermillion"]), "1-NN matching" = unname(okabe_ito["blue"]), "Score stratification" = unname(okabe_ito["bluish_green"]))) +
+  scale_shape_manual(values = c("Naive" = 15, "1-NN matching" = 16, "Score stratification" = 17)) +
+  scale_y_continuous(labels = function(x) paste0("$", formatC(x, format = "f", digits = 0, big.mark = ",")), expand = expansion(mult = c(0.08, 0.13))) +
+  labs(y = "Estimated ATT on 1978 earnings (USD)", colour = NULL, shape = NULL) +
+  coord_cartesian(clip = "off") +
+  theme_lab +
+  theme(legend.position = "top", legend.justification = "left")
+ggsave("figures/spec-curve.png", p, width = 11, height = 6.5, units = "in", dpi = 320, bg = "white")
+
+# A data-driven, deliberately qualified interpretation.
+closest <- specifications[which.min(abs(specifications$gap_from_benchmark)), ]
+range_low <- min(specifications$estimate)
+range_high <- max(specifications$estimate)
+inside_benchmark_ci <- sum(specifications$ci_low <= benchmark["estimate"] & specifications$ci_high >= benchmark["estimate"])
+
+memo_paragraphs <- c(
+  "**Bottom line: recovery is only under favorable specifications, not robustly.** The randomized NSW contrast is an estimate of the program's ATT among its 185 treated participants: $", money(benchmark["estimate"]), ". Replacing the randomized controls with CPS controls produces a raw contrast of $", money(naive["estimate"]), ", a gap of $", money(naive_row$gap_from_benchmark), ". That failure is unsurprising. CPS members and NSW trainees enter the comparison with sharply different observed profiles and may differ in unmeasured earnings prospects. The raw CPS comparison is not a credible counterfactual.",
+  "",
+  "Conditioning on the listed covariates changes the comparison to CPS people with similar *observed* age, schooling, race/ethnicity, marital status, degree status, and, in the richer model, prior earnings. The score is a device for balancing those measured variables; matching or stratifying on it does not randomize CPS membership, repair mismeasured histories, or remove selection on unobserved employability, motivation, local labor markets, and program referral. Nor does agreement validate omitted functional forms or extrapolation from rare high-score CPS cases. The relevant identifying claim remains conditional exchangeability plus overlap, neither of which is created by a logit model.",
+  "",
+  "The eight adjusted estimates span $", money(range_low), " to $", money(range_high), ". The closest is the ", tolower(closest$estimator), " specification with ", tolower(closest$covariates), " and common-support trimming = ", closest$common_support, ": $", money(closest$estimate), " (gap $", money(closest$gap_from_benchmark), "). Only ", inside_benchmark_ci, " of 8 adjusted 95% intervals cover the experimental point estimate. That is not the stability one would expect if the CPS adjustment were validating a generally reliable recovery procedure. In this data, trimming retains every NSW treated unit because the CPS score range covers them; it only removes out-of-range CPS controls. It can therefore change a stratified control mean, but it does not turn the CPS comparison into an experiment.",
+  "",
+  "The uncertainty display is intentionally conservative about its scope. For fixed-one-nearest-neighbour matching with replacement, it uses an Abadie--Imbens-style analytic variance with control-reuse counts rather than an ordinary bootstrap, which is not valid for this nonsmooth estimator. The stratified rows use fixed-strata sampling variances. Neither interval includes uncertainty from choosing and fitting the propensity model, so visual agreement with the benchmark is a diagnostic, not a formal proof of identification.",
+  "",
+  "A paper may claim that some specified propensity-score adjustments move the CPS comparison markedly toward the randomized NSW benchmark, and may report the particular specifications that do so. It may not claim, without qualification, that propensity-score matching recovers the experimental effect, that balancing observables establishes ignorability, or that one favorable estimate validates the procedure for another comparison sample. The appropriate conclusion is specification-dependent corroboration: the Dehejia--Wahba-style success is possible, while the Smith--Todd warning about sensitivity to covariates and analysis choices is the better description of the full curve."
+)
+block_id <- cumsum(c(1L, as.integer(head(memo_paragraphs, -1L) == "")))
+keep_text <- memo_paragraphs != ""
+memo_blocks <- vapply(
+  split(memo_paragraphs[keep_text], block_id[keep_text]),
+  paste0, collapse = "", FUN.VALUE = character(1)
+)
+memo_output <- as.vector(rbind(memo_blocks, ""))
+writeLines(c("# Adjudication: matching the NSW treated to CPS controls", "", memo_output), "memo.md")
+
+message(sprintf("Benchmark: %.3f; naive observational contrast: %.3f", benchmark["estimate"], naive["estimate"]))
+
+=== QUESTION ===
+This is a completed submission against the brief above. What would you change?
+</stdin>
+codex
+Keep the “favorable specifications only” conclusion, but rerun the analysis after three changes:
+
+1. Fix the trimming comparison. The script estimates the score, trims on it, then refits a new score model inside the trimmed sample. This conflates trimming with propensity-model re-estimation. Estimate each propensity score once on the full composite, retain that score for both trimmed and untrimmed estimators, and regenerate all results. Alternatively, label the current rows “trim and refit,” but they would no longer isolate common-support trimming.
+
+2. Add post-adjustment balance diagnostics. The memo currently says conditioning produces CPS controls with similar observed characteristics without demonstrating that it does. Add maximum absolute standardized mean difference, the number of covariates exceeding 0.10, and—especially for replacement matching—the number and effective sample size of distinct matched controls. Five-score stratification may leave substantial residual imbalance; without these diagnostics, apparent estimator sensitivity could partly be failed balance.
+
+3. Remove “only 3 of 8 intervals cover the benchmark” as inferential evidence. Every observational estimate and the experimental benchmark share the same NSW-treated outcome mean, so their uncertainties are correlated. For a direct recovery test, form the gap and its standard error; the shared treated component cancels, leaving comparison between the adjusted CPS control mean and randomized NSW control mean. Otherwise discuss interval coverage explicitly as visual description only.
+
+I would also soften “ATT among its 185 treated participants” to “experimental benchmark for the NSW treated sample” and call the nearest-neighbor variance a “conditional Abadie–Imbens-style approximation,” since it omits propensity-score estimation uncertainty. After these corrections, the substantive adjudication will probably remain unchanged, but it will rest on a cleaner specification comparison and defensible evidence about recovery.
+tokens used
+17,324

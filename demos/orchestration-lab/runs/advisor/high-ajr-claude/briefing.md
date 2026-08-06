@@ -1,5 +1,4 @@
-You are reviewing a completed analysis before it ships. The brief was:
-
+=== ORIGINAL BRIEF ===
 # Task H — Replicate and stress a famous IV result (high-complexity tier)
 
 You are working in a project directory. Use R (`Rscript`); the `ivdoctr`, `AER`, and `car` packages are installed.
@@ -30,54 +29,190 @@ Key columns: `logpgp95` (log PPP GDP per capita, 1995 — the outcome); `avexpr`
 
 **Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. No web access. Do not install packages. For 2SLS use `AER::ivreg` if it is available; otherwise estimate explicit two-stage least squares via two `lm` stages and note that the second-stage standard errors are approximate (uncorrected for the generated regressor). Say which path you took.
 
----
+=== PRODUCED: robustness-table.md ===
+# Robustness table: AJR (2001) headline IV result
 
-The produced memo.md:
+2SLS path: `AER::ivreg` (available on this system) used for every specification;
+reported first-stage F is on the excluded instrument (`logem4`) from a `car::linearHypothesis` F-test.
 
-# Memo: what the AJR replication can and cannot support
+| Spec | N | OLS (avexpr) | 2SLS (avexpr) | 1st-stage coef (logem4) | 1st-stage F | Weak instrument (F<10)? |
+|---|---|---|---|---|---|---|
+| Headline (bivariate) | 64 | 0.522 | 0.944 | -0.607 | 22.95 | No |
+| (a) + latitude | 64 | 0.468 | 0.996 | -0.510 | 13.09 | No |
+| (b) + continent dummies | 64 | 0.434 | 0.839 | -0.533 | 11.01 | No |
+| (c) drop neo-Europes | 60 | 0.487 | 1.281 | -0.391 | 8.65 | **YES** |
+| (d) Africa only | 27 | 0.302 | 2.400 | -0.108 | 0.30 | **YES** |
 
-The headline replicates. On the 64-country base sample, OLS of `logpgp95` on
-`avexpr` gives 0.52 (se 0.06); instrumenting `avexpr` with `logem4` gives a
-2SLS coefficient of 0.94 (se 0.16) — close to AJR's published estimate and,
-as advertised, well above OLS. The first stage is strong here: `avexpr` falls
-0.61 points for every log-point of settler mortality, with F = 23, comfortably
-above the weak-instrument threshold. Adding latitude (spec 2, F = 13) or
-continent dummies (spec 3, F = 11) leaves the story qualitatively intact — the
-2SLS coefficient stays in the 0.8–1.0 range and the instrument remains
-(barely, for spec 3) above the conventional F = 10 cutoff. So the core claim —
-that institutions instrumented by settler mortality predict long-run income,
-with 2SLS exceeding OLS — survives the two "add plausible controls" stress
-tests.
+Notes: Outcome is `logpgp95`; endogenous regressor is `avexpr`; excluded instrument is `logem4`.
+Spec (a) adds `lat_abst`; (b) adds `africa` and `asia`; (c) drops AUS/CAN/NZL/USA (`shortnam`);
+(d) restricts to `africa == 1`. Rule of thumb: first-stage F below ~10 flags a weak instrument;
+2SLS point estimates in flagged rows should not be read as reliable.
 
-It does not survive the two sample-restriction stress tests, for a diagnostic
-reason rather than a substantive one: the instrument itself weakens. Dropping
-the four neo-Europes (AUS, CAN, NZL, USA) drops the first-stage F to 8.65 —
-already below the rule-of-thumb threshold — and the 2SLS point estimate jumps
-to 1.28 with a much wider SE (0.36 vs. 0.16). Restricting to Africa is worse:
-the first-stage coefficient on `logem4` shrinks to -0.11 and F collapses to
-0.30, essentially no instrument power. The resulting 2SLS "estimate" of 2.40
-(se 3.99) is not a more localized version of the headline effect — it is the
-output of a regression with no working instrument, and the huge SE is the
-honest signal that nothing can be learned from it. Under weak identification,
-2SLS is biased toward OLS and its SEs/CIs are invalid, so this number should
-not be quoted, compared to the baseline, or read as evidence the effect is
-larger or smaller in Africa specifically.
+=== PRODUCED: memo.md ===
+# Memo: What the AJR replication is entitled to claim
 
-**What the manuscript may claim:** the settler-mortality instrument for
-institutions produces a 2SLS estimate that exceeds OLS and is robust to
-adding latitude and continent controls, on the AJR base sample of 64
-countries. That is a genuine, reproducible finding.
+**The headline replicates.** On the 64-country base sample, OLS of `logpgp95` on
+`avexpr` gives 0.522; instrumenting `avexpr` with `logem4` gives a 2SLS coefficient
+of 0.944 — nearly double OLS, matching AJR's original qualitative pattern of a
+2SLS estimate well above its OLS counterpart. The first stage is strong: `avexpr`
+falls 0.607 points per log-point of settler mortality, with F = 22.95, comfortably
+above the weak-instrument threshold of 10. On this evidence, the manuscript can
+claim that settler mortality is a relevant instrument for institutions in the base
+sample, and that the 2SLS coefficient on institutions substantially exceeds OLS.
 
-**What it may not claim:** that this result is confirmed, or overturned,
-within Africa, or that it is robust to excluding the neo-Europes. Both of
-those specifications are weakly identified — the instrument loses power
-precisely in the subsamples with the least variation in settler mortality —
-so neither a large nor a small 2SLS coefficient there is informative. The
-correct statement is that the four neo-Europe countries and the mortality
-gradient across continents are doing much of the identifying work in the
-full sample, and the paper cannot speak to whether the effect holds within
-more homogeneous subpopulations without a stronger or different instrument.
+**Adding controls holds up, barely.** Adding latitude (spec a) leaves both the
+first stage (F = 13.09) and the 2SLS estimate (0.996) intact — if anything the IV
+coefficient grows. Adding continent dummies (spec b) pushes the first-stage F down
+to 11.01, just above the conventional threshold, while the 2SLS estimate (0.839)
+stays in the same range as the headline. Both are still usable, but continent
+dummies are already eating into instrument strength — this is a specification to
+flag as border, not to lean on for a stronger causal claim than the headline
+itself.
 
----
+**Two stress tests break the instrument.** Dropping the four neo-Europes (AUS,
+CAN, NZL, USA) cuts the first-stage F to 8.65 — below 10 — and the 2SLS estimate
+jumps to 1.281. Restricting to Africa collapses the first stage almost entirely
+(F = 0.30): settler mortality has essentially no power to predict institutions
+within that subsample, and the resulting 2SLS estimate of 2.400 is not a credible
+causal estimate of anything — it is what a weak instrument produces when the
+denominator of the IV ratio is close to zero. Neither of these two large 2SLS
+coefficients is evidence that the true effect is bigger than the headline
+suggests. A collapsed first stage cannot confirm a stronger effect, and by the
+same logic it cannot be used to overturn the headline either — the specification
+simply cannot identify the causal parameter in that subsample.
 
-The full artifact set (script.R, robustness-table.md, memo.md) is in the current directory. What would you change before this ships? Verify the numbers if you can.
+**What the manuscript may claim:** that AJR's headline pattern (2SLS > OLS, with a
+first-stage F well above 10) reproduces in the base sample and survives adding
+latitude, and survives — marginally — adding continent controls. **What it may
+not claim:** that the effect is even larger among non-neo-Europe countries or
+within Africa specifically. Those two specifications should be reported as
+diagnostic (instrument strength has failed), not as robustness checks that
+strengthen the headline number. The paper's causal claim rests on the full,
+latitude-controlled sample; it does not extend to African-only identification
+with this instrument.
+
+=== PRODUCED: script.R ===
+#!/usr/bin/env Rscript
+## Task H: Replicate and stress-test the AJR (2001) IV result
+##
+## Packages and palette declared up front per house convention.
+suppressPackageStartupMessages({
+  library(ivdoctr)
+  library(AER)   # ivreg() available -> used for all 2SLS specs below
+  library(car)   # linearHypothesis() for first-stage F where needed
+})
+
+## Okabe-Ito palette (used only if a figure is produced)
+okabe_ito <- c(
+  orange    = "#E69F00",
+  skyblue   = "#56B4E9",
+  bluegreen = "#009E73",
+  yellow    = "#F0E442",
+  blue      = "#0072B2",
+  vermilion = "#D55E00",
+  purple    = "#CC79A7",
+  black     = "#000000"
+)
+
+set.seed(1)  # OLS/2SLS here are deterministic; set per house convention anyway
+
+data(colonial, package = "ivdoctr")
+colonial <- as.data.frame(colonial)
+
+neo_europes <- c("AUS", "CAN", "NZL", "USA")
+
+## ---------------------------------------------------------------------
+## Helper: fit OLS + 2SLS (AER::ivreg) for a given sample/control set,
+## and pull the first-stage coefficient + F-stat on the excluded instrument.
+## ---------------------------------------------------------------------
+run_spec <- function(label, df, extra_controls = character(0)) {
+  rhs <- paste(c("avexpr", extra_controls), collapse = " + ")
+  fs_rhs <- paste(c("logem4", extra_controls), collapse = " + ")
+
+  ols_formula <- as.formula(paste("logpgp95 ~", rhs))
+  ols_fit <- lm(ols_formula, data = df)
+  ols_coef <- coef(ols_fit)["avexpr"]
+
+  iv_formula <- as.formula(paste("logpgp95 ~", rhs, "|", fs_rhs))
+  iv_fit <- ivreg(iv_formula, data = df)
+  iv_coef <- coef(iv_fit)["avexpr"]
+
+  fs_formula <- as.formula(paste("avexpr ~", fs_rhs))
+  fs_fit <- lm(fs_formula, data = df)
+  fs_coef <- coef(fs_fit)["logem4"]
+
+  fs_test <- linearHypothesis(fs_fit, "logem4 = 0", test = "F")
+  fs_f <- fs_test$F[2]
+
+  list(
+    label = label,
+    n = nrow(df),
+    ols_coef = unname(ols_coef),
+    iv_coef = unname(iv_coef),
+    fs_coef = unname(fs_coef),
+    fs_f = unname(fs_f),
+    weak = fs_f < 10
+  )
+}
+
+## ---------------------------------------------------------------------
+## 1. Headline replication: bivariate 2SLS / OLS, full base sample
+## ---------------------------------------------------------------------
+spec_headline <- run_spec("Headline (bivariate)", colonial)
+
+## ---------------------------------------------------------------------
+## 2. Stress tests
+## ---------------------------------------------------------------------
+spec_lat   <- run_spec("(a) + latitude", colonial, extra_controls = "lat_abst")
+spec_cont  <- run_spec("(b) + continent dummies", colonial, extra_controls = c("africa", "asia"))
+spec_noeur <- run_spec("(c) drop neo-Europes", colonial[!colonial$shortnam %in% neo_europes, ])
+spec_afr   <- run_spec("(d) Africa only", colonial[colonial$africa == 1, ])
+
+specs <- list(spec_headline, spec_lat, spec_cont, spec_noeur, spec_afr)
+
+## ---------------------------------------------------------------------
+## Console report
+## ---------------------------------------------------------------------
+cat("2SLS path: AER::ivreg (available) — used for all specifications.\n\n")
+
+for (s in specs) {
+  cat(sprintf(
+    "%-28s n=%2d  OLS=%.3f  2SLS=%.3f  1st-stage coef=%.3f  F=%.2f%s\n",
+    s$label, s$n, s$ols_coef, s$iv_coef, s$fs_coef, s$fs_f,
+    if (s$weak) "  [WEAK INSTRUMENT]" else ""
+  ))
+}
+
+## ---------------------------------------------------------------------
+## Write robustness-table.md
+## ---------------------------------------------------------------------
+tbl_lines <- c(
+  "# Robustness table: AJR (2001) headline IV result",
+  "",
+  "2SLS path: `AER::ivreg` (available on this system) used for every specification;",
+  "reported first-stage F is on the excluded instrument (`logem4`) from a `car::linearHypothesis` F-test.",
+  "",
+  "| Spec | N | OLS (avexpr) | 2SLS (avexpr) | 1st-stage coef (logem4) | 1st-stage F | Weak instrument (F<10)? |",
+  "|---|---|---|---|---|---|---|"
+)
+
+for (s in specs) {
+  tbl_lines <- c(tbl_lines, sprintf(
+    "| %s | %d | %.3f | %.3f | %.3f | %.2f | %s |",
+    s$label, s$n, s$ols_coef, s$iv_coef, s$fs_coef, s$fs_f,
+    if (s$weak) "**YES**" else "No"
+  ))
+}
+
+tbl_lines <- c(tbl_lines, "",
+  "Notes: Outcome is `logpgp95`; endogenous regressor is `avexpr`; excluded instrument is `logem4`.",
+  "Spec (a) adds `lat_abst`; (b) adds `africa` and `asia`; (c) drops AUS/CAN/NZL/USA (`shortnam`);",
+  "(d) restricts to `africa == 1`. Rule of thumb: first-stage F below ~10 flags a weak instrument;",
+  "2SLS point estimates in flagged rows should not be read as reliable."
+)
+
+writeLines(tbl_lines, "robustness-table.md")
+cat("\nWrote robustness-table.md\n")
+
+=== QUESTION ===
+This is a completed submission against the brief above. What would you change?

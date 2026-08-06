@@ -1,0 +1,1397 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.5
+--------
+workdir: /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t1-codex
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f706a-b81b-73d0-9b40-2b5d949eee09
+--------
+user
+Revise the deliverables in this directory per the attached advice. Advice: Make one revision:
+
+- Report the task structure unambiguously: **8 primary randomized tasks + 1 repeated reliability task = 9 administered choice tasks per respondent**. Keep 6,400 as the balance-check denominator because the repeated task reuses task-1 profiles and adds no new randomized profiles.
+- Compute tasks per respondent and profiles per respondent-task directly, then assert they are constant; the current code counts globally unique task/profile IDs.
+- Add the equal-allocation benchmark or percentage-point deviation to the balance table. That turns the frequency listing into an explicit balance check without adding an inappropriate significance test.
+- Replace the slightly inaccurate caption claim that each facet is “scaled.” Suggested caption: “Observed shares of the 6,400 randomized profiles assigned to each attribute level; percentages sum to 100 within each facet.”
+
+Everything else satisfies the brief: human-readable labels, one figure, no in-plot title, 320 dpi, declared theme and Okabe–Ito palette, deterministic script, and correct exclusion of the repeated task from balance counts.
+codex
+I’ll update the reporting script and rendered deliverables, while preserving the stated 6,400-profile balance denominator. I’m also consulting the project’s required advisory workflow before making the revisions.
+exec
+/bin/zsh -lc "sed -n '1,240p' /Users/scdenney/Documents/github/resources/open-science-skills/codex/advisor/SKILL.md && rg --files -g '"'!*'"\\.png' -g '"'!*'"\\.pdf'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t1-codex
+ succeeded in 0ms:
+---
+name: advisor
+description: Consult this library's independent GPT-5.6 advisor before committing to a substantive interpretation, approach, or final result. Always gpt-5.6-sol at xhigh (Extra high) effort — the flagship 5.6 tier at its strongest routine tier, not a cheaper one. Read-only advisory only; it never edits files.
+---
+
+# Advisor (GPT-5.6)
+
+This is the Codex-native advisor maintained in this library. It is a single-turn, independent, read-only consult — not delegated implementation and not a substitute for the lead's judgment.
+
+<p align="center"><img src="assets/architecture.svg" alt="Codex advisor: a working GPT-5.6 session sends a self-contained briefing to a Sol high advisor; the advisor returns one decisive read-only review" width="900"></p>
+
+## Default
+
+| Advisor | Effort | Use when |
+|---|---|---|
+| `gpt-5.6-sol` | `xhigh` (Extra high) | A substantive interpretation, approach, draft, analysis, or completion check needs an independent review. |
+
+Do **not** match the calling session's effort. This skill has an owned, predictable policy: Sol/xhigh, always. Do not use Max or Ultra (they consume usage limits faster for no established benefit here). Pass `--model gpt-5.6-terra` explicitly only if cost is a hard constraint for a routine, low-stakes consult — the default is the flagship tier at its strongest routine effort because this is meant to be a stronger reviewer, not a cheap one.
+
+Luna is not an advisor tier. It is appropriate only for tightly specified mechanical work with objective acceptance checks, not for judgment or synthesis.
+
+## When to consult
+
+- Before committing to a substantive interpretation, writing/analysis strategy, or change of approach.
+- When stuck: repeated errors, a non-converging approach, or results that do not fit.
+- Before declaring a multi-step task complete, after the deliverable is durable.
+- Before high-impact decisions that are hard to verify cheaply.
+
+Do not consult for simple orientation or routine, cheaply verifiable work. On longer work, use one focused consultation before committing to the approach and one before final sign-off when the residual risk warrants it.
+
+## Sandbox constraint
+
+[`scripts/sol-advisor.sh`](scripts/sol-advisor.sh) launches a nested `codex exec`. It works only from an unsandboxed or escalated interactive parent session. A nested call from a sandboxed or headless `codex exec` fails structurally; do not retry it indefinitely or pretend that a self-review was independent.
+
+- In an interactive session, request escalation for this one command if needed.
+- In a headless/non-interactive session, report that the independent consult is unavailable and ask whether to continue without it or restart in an interactive session.
+
+## Run a consult
+
+1. Write a self-contained briefing: task, key evidence and paths, current approach or claim, alternatives considered, exact question, and any irreversible or high-impact consequences. The advisor has no access to the original conversation.
+2. Make any deliverable durable before a completion review.
+3. Run the Sol/xhigh default:
+
+   ```bash
+   scripts/sol-advisor.sh --prompt-file <briefing-path> --out <output-path> -C "$PWD" --model gpt-5.6-sol --effort xhigh
+   ```
+
+4. Read the output, verify factual claims where possible, and record why you follow or decline any material recommendation.
+
+The spawned session is `--sandbox read-only` and `--ephemeral`; it must not edit files. `scripts/sol-advisor.sh --check` verifies that the Codex CLI is available.
+
+## Decision rules
+
+- Ask one decision-focused question per consult; do not turn the advisor into an unbounded co-worker.
+- Treat advice as evidence, not authority. Primary evidence and direct checks outrank confidence or rhetoric.
+- If the advisor identifies an unresolved material conflict, run one focused follow-up consult rather than broadening the first prompt.
+- If the advisor's recommendation conflicts with authoritative evidence, state the conflict and follow the evidence.
+- If high-impact uncertainty remains after a consult, stop and ask the human rather than manufacturing certainty.
+exec-step1.log
+advice.md
+exec-step3.log
+briefing.md
+summary.md
+script.R
+
+exec
+/bin/zsh -lc "sed -n '1,260p' script.R; printf '\\n--- advice ---\\n'; sed -n '1,220p' advice.md; printf '\\n--- briefing ---\\n'; sed -n '1,200p' briefing.md; printf '\\n--- summary ---\\n'; sed -n '1,240p' summary.md; printf '\\n--- status ---\\n'; git status --short" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t1-codex
+ succeeded in 0ms:
+# Task T1: descriptive design summary for projoint::exampleData1
+# This script writes summary.md and figures/level-frequencies.png.
+
+set.seed(20260717)
+
+library(projoint)
+library(ggplot2)
+
+# Plot settings: a restrained theme and the color-blind-safe Okabe-Ito palette.
+theme_design <- theme_minimal(base_size = 11) +
+  theme(
+    panel.grid.major.y = element_line(colour = "grey85", linewidth = 0.3),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(face = "bold"),
+    axis.title.y = element_text(margin = margin(r = 8)),
+    plot.margin = margin(8, 12, 8, 8)
+  )
+okabe_ito <- c(
+  orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
+  yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
+  reddish_purple = "#CC79A7", black = "#000000"
+)
+
+data(exampleData1)
+out <- reshape_projoint(
+  exampleData1,
+  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
+)
+
+dat <- out$data
+labels <- out$labels
+attribute_ids <- paste0("att", 1:7)
+
+# Recover display labels and count each randomized level in the long data.
+level_lookup <- labels[, c("attribute_id", "attribute", "level_id", "level")]
+names(level_lookup) <- c("attribute_id", "attribute", "level_id", "level")
+
+frequency_rows <- lapply(attribute_ids, function(attribute_id) {
+  lookup <- level_lookup[level_lookup$attribute_id == attribute_id, ]
+  observed <- table(factor(as.character(dat[[attribute_id]]), levels = lookup$level_id))
+  data.frame(
+    attribute_id = attribute_id,
+    attribute = lookup$attribute,
+    level_id = lookup$level_id,
+    level = lookup$level,
+    n = as.integer(observed),
+    stringsAsFactors = FALSE
+  )
+})
+frequencies <- do.call(rbind, frequency_rows)
+frequencies$percent <- 100 * frequencies$n / ave(frequencies$n, frequencies$attribute_id, FUN = sum)
+frequencies$level <- factor(frequencies$level, levels = rev(unique(frequencies$level)))
+frequencies$attribute <- factor(
+  frequencies$attribute,
+  levels = unique(level_lookup$attribute[match(attribute_ids, level_lookup$attribute_id)])
+)
+
+# One descriptive plot: observed frequencies of each randomized attribute level.
+dir.create("figures", showWarnings = FALSE, recursive = TRUE)
+frequency_plot <- ggplot(frequencies, aes(x = percent, y = level, fill = attribute)) +
+  geom_col(width = 0.72, show.legend = FALSE) +
+  geom_text(aes(label = sprintf("%.1f%%", percent)), hjust = -0.12, size = 3) +
+  facet_wrap(~ attribute, scales = "free_y", ncol = 1) +
+  scale_fill_manual(values = unname(rep(okabe_ito[c("blue", "bluish_green", "orange", "vermilion")], length.out = 7))) +
+  scale_x_continuous("Profile-level frequency", limits = c(0, max(frequencies$percent) + 8),
+                     breaks = seq(0, 50, 10), labels = function(x) paste0(x, "%")) +
+  scale_y_discrete(NULL) +
+  theme_design +
+  theme(axis.text.y = element_text(size = 8))
+ggsave("figures/level-frequencies.png", frequency_plot,
+       width = 12, height = 16, units = "in", dpi = 320, bg = "white")
+
+# Design counts and Markdown tables.
+n_respondents <- length(unique(dat$id))
+n_tasks <- length(unique(dat$task))
+n_profiles <- length(unique(dat$profile))
+attribute_summary <- unique(level_lookup[, c("attribute_id", "attribute")])
+attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(id) {
+  sum(level_lookup$attribute_id == id)
+}, integer(1))
+attribute_summary <- attribute_summary[match(attribute_ids, attribute_summary$attribute_id), ]
+
+attribute_lines <- paste0("| `", attribute_summary$attribute_id, "` | ",
+                          attribute_summary$attribute, " | ", attribute_summary$n_levels, " |")
+balance_lines <- paste0("| ", frequencies$attribute, " | ", frequencies$level,
+                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent), " |")
+
+summary_lines <- c(
+  "# Community-choice conjoint: design summary", "",
+  "## Design", "",
+  "| Component | Value |", "|---|---:|",
+  paste0("| Respondents | ", n_respondents, " |"),
+  paste0("| Choice tasks per respondent | ", n_tasks, " |"),
+  paste0("| Profiles per task | ", n_profiles, " |"),
+  paste0("| Profile rows used for balance checks | ", nrow(dat), " |"), "",
+  "The reshaped data contain the eight original choice tasks. The repeated, flipped first task is available as a separate repeated-choice outcome and is not counted as a ninth randomized task.", "",
+  "## Attributes and levels", "",
+  "| ID | Attribute | Levels |", "|---|---|---:|", attribute_lines, "",
+  "## Randomization balance check", "",
+  "Each row below is a profile-level count (6,400 profiles total); within an attribute, percentages sum to 100%. The observed frequencies are close to the equal-allocation expectation for their respective numbers of levels.", "",
+  "| Attribute | Level | Profiles | Frequency |", "|---|---|---:|---:|", balance_lines, "",
+  "![Attribute-level frequencies](figures/level-frequencies.png)", "",
+  "*Figure 1. Observed profile-level frequencies of every randomized attribute level across the 6,400 profile records; each facet is scaled to show its attribute's levels clearly.*", ""
+)
+writeLines(summary_lines, "summary.md")
+
+--- advice ---
+Make one revision:
+
+- Report the task structure unambiguously: **8 primary randomized tasks + 1 repeated reliability task = 9 administered choice tasks per respondent**. Keep 6,400 as the balance-check denominator because the repeated task reuses task-1 profiles and adds no new randomized profiles.
+- Compute tasks per respondent and profiles per respondent-task directly, then assert they are constant; the current code counts globally unique task/profile IDs.
+- Add the equal-allocation benchmark or percentage-point deviation to the balance table. That turns the frequency listing into an explicit balance check without adding an inappropriate significance test.
+- Replace the slightly inaccurate caption claim that each facet is “scaled.” Suggested caption: “Observed shares of the 6,400 randomized profiles assigned to each attribute level; percentages sum to 100 within each facet.”
+
+Everything else satisfies the brief: human-readable labels, one figure, no in-plot title, 320 dpi, declared theme and Okabe–Ito palette, deterministic script, and correct exclusion of the repeated task from balance counts.
+--- briefing ---
+=== ORIGINAL BRIEF ===
+# Task T1 — Describe the design (mechanical tier)
+
+You are working in a project directory. Use R (`Rscript`) for all analysis; the `projoint` package is installed.
+
+**Data.** The `projoint` R package's built-in `exampleData1`: a wide-format Qualtrics export from a community-choice conjoint — 400 respondents, 8 choice tasks, 2 profiles per task, 7 attributes, plus one repeated task for reliability checks. Load and reshape:
+
+```r
+library(projoint)
+data(exampleData1)
+out <- reshape_projoint(exampleData1,
+  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
+```
+
+`out$data` is the analysis-ready long format; `out$labels` maps attribute ids (`att1`…`att7`) to their human-readable names and levels.
+
+**Produce, in the current working directory:**
+
+1. `script.R` — one self-contained script that does everything below. Declare the plotting theme and an Okabe-Ito palette at the top. `set.seed()` before anything stochastic.
+2. `summary.md` — a tidy design summary: respondents, tasks per respondent, profiles per task, the seven attributes with their level counts (human-readable names from `out$labels`), and a randomization balance check (level frequencies within each attribute).
+3. `figures/level-frequencies.png` — ONE descriptive figure of attribute-level frequencies, 300+ dpi. No in-plot title: the figure's one-sentence caption goes under the figure reference in `summary.md`.
+
+**Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. Do not fetch anything from the web. Do not install packages.
+
+=== PRODUCED DELIVERABLES ===
+--- summary.md ---
+# Community-choice conjoint: design summary
+
+## Design
+
+| Component | Value |
+|---|---:|
+| Respondents | 400 |
+| Choice tasks per respondent | 8 |
+| Profiles per task | 2 |
+| Profile rows used for balance checks | 6400 |
+
+The reshaped data contain the eight original choice tasks. The repeated, flipped first task is available as a separate repeated-choice outcome and is not counted as a ninth randomized task.
+
+## Attributes and levels
+
+| ID | Attribute | Levels |
+|---|---|---:|
+| `att1` | Housing Cost | 3 |
+| `att2` | Presidential Vote (2020) | 3 |
+| `att3` | Racial Composition | 4 |
+| `att4` | School Quality | 2 |
+| `att5` | Total Daily Driving Time for Commuting and Errands | 4 |
+| `att6` | Type of Place | 6 |
+| `att7` | Violent Crime Rate (Vs National Rate) | 2 |
+
+## Randomization balance check
+
+Each row below is a profile-level count (6,400 profiles total); within an attribute, percentages sum to 100%. The observed frequencies are close to the equal-allocation expectation for their respective numbers of levels.
+
+| Attribute | Level | Profiles | Frequency |
+|---|---|---:|---:|
+| Housing Cost | 15% of pre-tax income | 2114 | 33.0% |
+| Housing Cost | 30% of pre-tax income | 2155 | 33.7% |
+| Housing Cost | 40% of pre-tax income | 2131 | 33.3% |
+| Presidential Vote (2020) | 30% Democrat, 70% Republican | 2144 | 33.5% |
+| Presidential Vote (2020) | 50% Democrat, 50% Republican | 2147 | 33.5% |
+| Presidential Vote (2020) | 70% Democrat, 30% Republican | 2109 | 33.0% |
+| Racial Composition | 50% White, 50% Nonwhite | 1618 | 25.3% |
+| Racial Composition | 75% White, 25% Nonwhite | 1600 | 25.0% |
+| Racial Composition | 90% White, 10% Nonwhite | 1605 | 25.1% |
+| Racial Composition | 96% White, 4% Nonwhite | 1577 | 24.6% |
+| School Quality | 5 out of 10 | 3178 | 49.7% |
+| School Quality | 9 out of 10 | 3222 | 50.3% |
+| Total Daily Driving Time for Commuting and Errands | 10 min | 1601 | 25.0% |
+| Total Daily Driving Time for Commuting and Errands | 25 min | 1724 | 26.9% |
+| Total Daily Driving Time for Commuting and Errands | 45 min | 1527 | 23.9% |
+| Total Daily Driving Time for Commuting and Errands | 75 min | 1548 | 24.2% |
+| Type of Place | City – downtown, with a mix of offices, apartments, and shops | 1047 | 16.4% |
+| Type of Place | City, more residential area | 1032 | 16.1% |
+| Type of Place | Rural area | 1117 | 17.5% |
+| Type of Place | Small town | 1092 | 17.1% |
+| Type of Place | Suburban neighborhood with houses only | 1045 | 16.3% |
+| Type of Place | Suburban neighborhood with mix of shops, houses, businesses | 1067 | 16.7% |
+| Violent Crime Rate (Vs National Rate) | 20% Less Crime Than National Average | 3225 | 50.4% |
+| Violent Crime Rate (Vs National Rate) | 20% More Crime Than National Average | 3175 | 49.6% |
+
+![Attribute-level frequencies](figures/level-frequencies.png)
+
+*Figure 1. Observed profile-level frequencies of every randomized attribute level across the 6,400 profile records; each facet is scaled to show its attribute's levels clearly.*
+
+
+--- script.R ---
+# Task T1: descriptive design summary for projoint::exampleData1
+# This script writes summary.md and figures/level-frequencies.png.
+
+set.seed(20260717)
+
+library(projoint)
+library(ggplot2)
+
+# Plot settings: a restrained theme and the color-blind-safe Okabe-Ito palette.
+theme_design <- theme_minimal(base_size = 11) +
+  theme(
+    panel.grid.major.y = element_line(colour = "grey85", linewidth = 0.3),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(face = "bold"),
+    axis.title.y = element_text(margin = margin(r = 8)),
+    plot.margin = margin(8, 12, 8, 8)
+  )
+okabe_ito <- c(
+  orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
+  yellow = "#F0E442", blue = "#0072B2", vermilion = "#D55E00",
+  reddish_purple = "#CC79A7", black = "#000000"
+)
+
+data(exampleData1)
+out <- reshape_projoint(
+  exampleData1,
+  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
+)
+
+dat <- out$data
+labels <- out$labels
+attribute_ids <- paste0("att", 1:7)
+
+# Recover display labels and count each randomized level in the long data.
+level_lookup <- labels[, c("attribute_id", "attribute", "level_id", "level")]
+names(level_lookup) <- c("attribute_id", "attribute", "level_id", "level")
+
+frequency_rows <- lapply(attribute_ids, function(attribute_id) {
+  lookup <- level_lookup[level_lookup$attribute_id == attribute_id, ]
+  observed <- table(factor(as.character(dat[[attribute_id]]), levels = lookup$level_id))
+  data.frame(
+    attribute_id = attribute_id,
+    attribute = lookup$attribute,
+    level_id = lookup$level_id,
+    level = lookup$level,
+    n = as.integer(observed),
+    stringsAsFactors = FALSE
+  )
+})
+frequencies <- do.call(rbind, frequency_rows)
+frequencies$percent <- 100 * frequencies$n / ave(frequencies$n, frequencies$attribute_id, FUN = sum)
+frequencies$level <- factor(frequencies$level, levels = rev(unique(frequencies$level)))
+frequencies$attribute <- factor(
+  frequencies$attribute,
+  levels = unique(level_lookup$attribute[match(attribute_ids, level_lookup$attribute_id)])
+)
+
+# One descriptive plot: observed frequencies of each randomized attribute level.
+dir.create("figures", showWarnings = FALSE, recursive = TRUE)
+frequency_plot <- ggplot(frequencies, aes(x = percent, y = level, fill = attribute)) +
+  geom_col(width = 0.72, show.legend = FALSE) +
+  geom_text(aes(label = sprintf("%.1f%%", percent)), hjust = -0.12, size = 3) +
+  facet_wrap(~ attribute, scales = "free_y", ncol = 1) +
+  scale_fill_manual(values = unname(rep(okabe_ito[c("blue", "bluish_green", "orange", "vermilion")], length.out = 7))) +
+  scale_x_continuous("Profile-level frequency", limits = c(0, max(frequencies$percent) + 8),
+                     breaks = seq(0, 50, 10), labels = function(x) paste0(x, "%")) +
+  scale_y_discrete(NULL) +
+  theme_design +
+  theme(axis.text.y = element_text(size = 8))
+ggsave("figures/level-frequencies.png", frequency_plot,
+       width = 12, height = 16, units = "in", dpi = 320, bg = "white")
+
+# Design counts and Markdown tables.
+n_respondents <- length(unique(dat$id))
+n_tasks <- length(unique(dat$task))
+n_profiles <- length(unique(dat$profile))
+attribute_summary <- unique(level_lookup[, c("attribute_id", "attribute")])
+attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(id) {
+  sum(level_lookup$attribute_id == id)
+}, integer(1))
+attribute_summary <- attribute_summary[match(attribute_ids, attribute_summary$attribute_id), ]
+
+attribute_lines <- paste0("| `", attribute_summary$attribute_id, "` | ",
+                          attribute_summary$attribute, " | ", attribute_summary$n_levels, " |")
+balance_lines <- paste0("| ", frequencies$attribute, " | ", frequencies$level,
+                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent), " |")
+
+summary_lines <- c(
+  "# Community-choice conjoint: design summary", "",
+  "## Design", "",
+  "| Component | Value |", "|---|---:|",
+  paste0("| Respondents | ", n_respondents, " |"),
+  paste0("| Choice tasks per respondent | ", n_tasks, " |"),
+  paste0("| Profiles per task | ", n_profiles, " |"),
+  paste0("| Profile rows used for balance checks | ", nrow(dat), " |"), "",
+  "The reshaped data contain the eight original choice tasks. The repeated, flipped first task is available as a separate repeated-choice outcome and is not counted as a ninth randomized task.", "",
+  "## Attributes and levels", "",
+  "| ID | Attribute | Levels |", "|---|---|---:|", attribute_lines, "",
+  "## Randomization balance check", "",
+  "Each row below is a profile-level count (6,400 profiles total); within an attribute, percentages sum to 100%. The observed frequencies are close to the equal-allocation expectation for their respective numbers of levels.", "",
+  "| Attribute | Level | Profiles | Frequency |", "|---|---|---:|---:|", balance_lines, "",
+  "![Attribute-level frequencies](figures/level-frequencies.png)", "",
+  "*Figure 1. Observed profile-level frequencies of every randomized attribute level across the 6,400 profile records; each facet is scaled to show its attribute's levels clearly.*", ""
+)
+writeLines(summary_lines, "summary.md")
+
+=== QUESTION ===
+This is a completed submission against the brief above. What would you change?
+
+--- summary ---
+# Community-choice conjoint: design summary
+
+## Design
+
+| Component | Value |
+|---|---:|
+| Respondents | 400 |
+| Choice tasks per respondent | 8 |
+| Profiles per task | 2 |
+| Profile rows used for balance checks | 6400 |
+
+The reshaped data contain the eight original choice tasks. The repeated, flipped first task is available as a separate repeated-choice outcome and is not counted as a ninth randomized task.
+
+## Attributes and levels
+
+| ID | Attribute | Levels |
+|---|---|---:|
+| `att1` | Housing Cost | 3 |
+| `att2` | Presidential Vote (2020) | 3 |
+| `att3` | Racial Composition | 4 |
+| `att4` | School Quality | 2 |
+| `att5` | Total Daily Driving Time for Commuting and Errands | 4 |
+| `att6` | Type of Place | 6 |
+| `att7` | Violent Crime Rate (Vs National Rate) | 2 |
+
+## Randomization balance check
+
+Each row below is a profile-level count (6,400 profiles total); within an attribute, percentages sum to 100%. The observed frequencies are close to the equal-allocation expectation for their respective numbers of levels.
+
+| Attribute | Level | Profiles | Frequency |
+|---|---|---:|---:|
+| Housing Cost | 15% of pre-tax income | 2114 | 33.0% |
+| Housing Cost | 30% of pre-tax income | 2155 | 33.7% |
+| Housing Cost | 40% of pre-tax income | 2131 | 33.3% |
+| Presidential Vote (2020) | 30% Democrat, 70% Republican | 2144 | 33.5% |
+| Presidential Vote (2020) | 50% Democrat, 50% Republican | 2147 | 33.5% |
+| Presidential Vote (2020) | 70% Democrat, 30% Republican | 2109 | 33.0% |
+| Racial Composition | 50% White, 50% Nonwhite | 1618 | 25.3% |
+| Racial Composition | 75% White, 25% Nonwhite | 1600 | 25.0% |
+| Racial Composition | 90% White, 10% Nonwhite | 1605 | 25.1% |
+| Racial Composition | 96% White, 4% Nonwhite | 1577 | 24.6% |
+| School Quality | 5 out of 10 | 3178 | 49.7% |
+| School Quality | 9 out of 10 | 3222 | 50.3% |
+| Total Daily Driving Time for Commuting and Errands | 10 min | 1601 | 25.0% |
+| Total Daily Driving Time for Commuting and Errands | 25 min | 1724 | 26.9% |
+| Total Daily Driving Time for Commuting and Errands | 45 min | 1527 | 23.9% |
+| Total Daily Driving Time for Commuting and Errands | 75 min | 1548 | 24.2% |
+| Type of Place | City – downtown, with a mix of offices, apartments, and shops | 1047 | 16.4% |
+| Type of Place | City, more residential area | 1032 | 16.1% |
+| Type of Place | Rural area | 1117 | 17.5% |
+| Type of Place | Small town | 1092 | 17.1% |
+| Type of Place | Suburban neighborhood with houses only | 1045 | 16.3% |
+| Type of Place | Suburban neighborhood with mix of shops, houses, businesses | 1067 | 16.7% |
+| Violent Crime Rate (Vs National Rate) | 20% Less Crime Than National Average | 3225 | 50.4% |
+| Violent Crime Rate (Vs National Rate) | 20% More Crime Than National Average | 3175 | 49.6% |
+
+![Attribute-level frequencies](figures/level-frequencies.png)
+
+*Figure 1. Observed profile-level frequencies of every randomized attribute level across the 6,400 profile records; each facet is scaled to show its attribute's levels clearly.*
+
+
+--- status ---
+ M ../../../EXTENSIONS.md
+ M ../../../README.md
+ M ../../../SCORING.md
+ M ../../../data/README.md
+ M ../../../prompts/46-sol-run.md
+ M ../../46-sol/high-ajr/memo.md
+ M ../../46-sol/high-ajr/robustness-table.md
+ M ../../46-sol/high-ajr/routing-log.md
+ M ../../46-sol/high-ajr/script.R
+ D ../../46-sol/high-ajr/sol-session.log
+ M ../../46-sol/high-ajr/terra-implementation.log
+ M ../../46-sol/high-ajr/terra-verification.log
+ M ../../46-sol/t1/figures/level-frequencies.png
+ M ../../46-sol/t1/routing-log.md
+ M ../../46-sol/t1/script.R
+ D ../../46-sol/t1/sol-session.log
+ M ../../46-sol/t1/summary.md
+ D ../../46-sol/t1/terra-implementation-retry.log
+ M ../../46-sol/t1/terra-implementation.log
+ M ../../46-sol/t2/figures/amce-dotwhisker.png
+ M ../../46-sol/t2/report.md
+ M ../../46-sol/t2/routing-log.md
+ M ../../46-sol/t2/script.R
+ D ../../46-sol/t2/sol-session.log
+ D ../../46-sol/t2/terra-implementation.log
+ D ../../46-sol/t2/verification-rscript.log
+ D ../../46-sol/t2/verification-values.log
+ M ../../46-sol/t3/figures/sensitivity.png
+ M ../../46-sol/t3/memo.md
+ M ../../46-sol/t3/routing-log.md
+ M ../../46-sol/t3/script.R
+ M ../../46-sol/t3/sensitivity-table.md
+ D ../../46-sol/t3/sol-session.log
+ D ../../46-sol/t3/terra-implementation.log
+ D ../../46-sol/t3/terra-inventory.log
+ D ../../46-sol/t3/terra-inventory.md
+ D ../../46-sol/t3/verification-rscript.log
+ M ../../46-sol/vhigh-lalonde/figures/spec-curve.png
+ M ../../46-sol/vhigh-lalonde/lead-rscript.log
+ M ../../46-sol/vhigh-lalonde/memo.md
+ M ../../46-sol/vhigh-lalonde/routing-log.md
+ M ../../46-sol/vhigh-lalonde/script.R
+ D ../../46-sol/vhigh-lalonde/sol-session.log
+ M ../../46-sol/vhigh-lalonde/spec-table.md
+ M ../../46-sol/vhigh-lalonde/terra-implementation.log
+ M ../../46-sol/vhigh-lalonde/terra-verification.log
+ M ../high-ajr-claude/SHA256SUMS
+ M ../high-ajr-claude/advice.md
+ M ../high-ajr-claude/briefing.md
+ M ../high-ajr-claude/claude-envelope-1.json
+ M ../high-ajr-claude/claude-envelope-2.json
+ D ../high-ajr-claude/estimates-by-spec.png
+ M ../high-ajr-claude/memo.md
+ M ../high-ajr-claude/robustness-table.md
+ D ../high-ajr-claude/run-log.md
+ M ../high-ajr-claude/script.R
+ D ../t1-claude/SHA256SUMS
+ D ../t1-claude/advice.md
+ D ../t1-claude/briefing.md
+ D ../t1-claude/claude-envelope-1.json
+ D ../t1-claude/claude-envelope-2.json
+ D ../t1-claude/figures/level-frequencies.png
+ D ../t1-claude/run-log.md
+ D ../t1-claude/script.R
+ D ../t1-claude/summary.md
+ M ../t2-claude/SHA256SUMS
+ M ../t2-claude/advice.md
+ M ../t2-claude/briefing.md
+ M ../t2-claude/claude-envelope-1.json
+ M ../t2-claude/claude-envelope-2.json
+ M ../t2-claude/figures/amce-dotwhisker.png
+ M ../t2-claude/report.md
+ D ../t2-claude/run-log.md
+ M ../t2-claude/script.R
+ M ../t3-claude/SHA256SUMS
+ M ../t3-claude/advice.md
+ M ../t3-claude/briefing.md
+ M ../t3-claude/claude-envelope-1.json
+ D ../t3-claude/claude-envelope-2.json
+ M ../t3-claude/figures/sensitivity.png
+ M ../t3-claude/memo.md
+ M ../t3-claude/run-log.md
+ M ../t3-claude/script.R
+ M ../t3-claude/sensitivity-table.md
+ D ../t3-codex/SHA256SUMS
+ D ../t3-codex/advice.md
+ D ../t3-codex/briefing.md
+ D ../t3-codex/exec-step1.log
+ D ../t3-codex/exec-step3.log
+ D ../t3-codex/figures/sensitivity.png
+ D ../t3-codex/memo.md
+ D ../t3-codex/run-log.md
+ D ../t3-codex/script.R
+ D ../t3-codex/sensitivity-table.md
+ M ../vhigh-lalonde-claude/SHA256SUMS
+ M ../vhigh-lalonde-claude/advice.md
+ M ../vhigh-lalonde-claude/briefing.md
+ M ../vhigh-lalonde-claude/claude-envelope-1.json
+ M ../vhigh-lalonde-claude/claude-envelope-2.json
+ M ../vhigh-lalonde-claude/figures/spec-curve.png
+ M ../vhigh-lalonde-claude/memo.md
+ D ../vhigh-lalonde-claude/run-log.md
+ M ../vhigh-lalonde-claude/script.R
+ M ../vhigh-lalonde-claude/spec-table.md
+ M ../../fable/high-ajr/claude-envelope.json
+ D ../../fable/high-ajr/figures/first-stage.png
+ M ../../fable/high-ajr/memo.md
+ M ../../fable/high-ajr/robustness-table.md
+ M ../../fable/high-ajr/script.R
+ M ../../fable/t1/claude-envelope.json
+ M ../../fable/t1/figures/level-frequencies.png
+ M ../../fable/t1/script.R
+ M ../../fable/t1/summary.md
+ M ../../fable/t2/claude-envelope.json
+ D ../../fable/t2/estimates.csv
+ M ../../fable/t2/figures/amce-dotwhisker.png
+ M ../../fable/t2/report.md
+ M ../../fable/t2/script.R
+ M ../../fable/t3/claude-envelope.json
+ M ../../fable/t3/figures/sensitivity.png
+ M ../../fable/t3/memo.md
+ M ../../fable/t3/script.R
+ M ../../fable/t3/sensitivity-table.md
+ M ../../fable/vhigh-lalonde/claude-envelope.json
+ M ../../fable/vhigh-lalonde/figures/spec-curve.png
+ M ../../fable/vhigh-lalonde/memo.md
+ M ../../fable/vhigh-lalonde/script.R
+ M ../../fable/vhigh-lalonde/spec-table.md
+ M ../../opus/SESSION-PROTOCOL.md
+ M ../../opus/high-ajr/SHA256SUMS
+ M ../../opus/high-ajr/claude-envelope.json
+ M ../../opus/high-ajr/memo.md
+ D ../../opus/high-ajr/results.csv
+ D ../../opus/high-ajr/robustness-figure.png
+ M ../../opus/high-ajr/robustness-table.md
+ D ../../opus/high-ajr/run-log.md
+ M ../../opus/high-ajr/script.R
+ D ../../opus/t1/SHA256SUMS
+ M ../../opus/t1/claude-envelope.json
+ M ../../opus/t1/figures/level-frequencies.png
+ D ../../opus/t1/run-log.md
+ M ../../opus/t1/script.R
+ M ../../opus/t1/summary.md
+ M ../../opus/t2/SHA256SUMS
+ M ../../opus/t2/claude-envelope.json
+ M ../../opus/t2/figures/amce-dotwhisker.png
+ M ../../opus/t2/report.md
+ D ../../opus/t2/run-log.md
+ M ../../opus/t2/script.R
+ M ../../opus/t3/SHA256SUMS
+ M ../../opus/t3/claude-envelope.json
+ M ../../opus/t3/figures/sensitivity.png
+ M ../../opus/t3/memo.md
+ D ../../opus/t3/run-log.md
+ M ../../opus/t3/script.R
+ M ../../opus/t3/sensitivity-table.md
+ M ../../opus/vhigh-lalonde/SHA256SUMS
+ M ../../opus/vhigh-lalonde/claude-envelope.json
+ M ../../opus/vhigh-lalonde/figures/spec-curve.png
+ M ../../opus/vhigh-lalonde/memo.md
+ D ../../opus/vhigh-lalonde/run-log.md
+ M ../../opus/vhigh-lalonde/script.R
+ M ../../opus/vhigh-lalonde/spec-table.md
+ M ../../../../../docs/orchestration-lab/index.html
+?? ../../../prompts/extreme-stagdid.md
+?? ../../../reference/extreme-stagdid/
+?? ../../46-sol/extreme-stagdid/
+?? ../../46-sol/high-ajr/SHA256SUMS
+?? ../../46-sol/t1/SHA256SUMS
+?? ../../46-sol/t2/SHA256SUMS
+?? ../../46-sol/t2/terra-implement.log
+?? ../../46-sol/t2/terra-verify.log
+?? ../../46-sol/t3/analysis-diagnostics.txt
+?? ../../46-sol/t3/terra-analysis.log
+?? ../../46-sol/t3/terra-analysis.prompt
+?? ../../46-sol/vhigh-lalonde/SHA256SUMS
+?? ../../46/extreme-stagdid/
+?? ../extreme-stagdid-claude/
+?? ../extreme-stagdid-codex/
+?? ../high-ajr-claude/run-err-1.log
+?? ../high-ajr-claude/run-err-2.log
+?? ../rerun-codex-advisor.sh
+?? ./
+?? ../t2-claude/run-err-1.log
+?? ../t2-claude/run-err-2.log
+?? ../t3-claude/run-err-1.log
+?? ../vhigh-lalonde-claude/run-err-1.log
+?? ../vhigh-lalonde-claude/run-err-2.log
+?? ../../claude-direct/
+?? ../../fable/extreme-stagdid/
+?? ../../fable/high-ajr/SHA256SUMS
+?? ../../fable/t1/SHA256SUMS
+?? ../../fable/t2/SHA256SUMS
+?? ../../fable/t3/SHA256SUMS
+?? ../../fable/vhigh-lalonde/SHA256SUMS
+?? ../../opus/extreme-stagdid/
+?? ../../opus/high-ajr/run-err.log
+?? ../../opus/t1/run-err.log
+?? ../../opus/t2/run-err.log
+?? ../../opus/t3/run-err.log
+?? ../../opus/vhigh-lalonde/codex-crosscheck.log
+?? ../../opus/vhigh-lalonde/codex-prompt.txt
+?? ../../opus/vhigh-lalonde/run-err.log
+
+apply patch
+patch: completed
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+diff --git a/demos/orchestration-lab/runs/advisor/t1-codex/script.R b/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+index 765aa6df1efd5ec6638e065754af926ad57f779c..e67fbb50499ba3353170e0354339c8d548f7053c
+--- a/demos/orchestration-lab/runs/advisor/t1-codex/script.R
++++ b/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+@@ -50,6 +50,8 @@
+ })
+ frequencies <- do.call(rbind, frequency_rows)
+ frequencies$percent <- 100 * frequencies$n / ave(frequencies$n, frequencies$attribute_id, FUN = sum)
++frequencies$benchmark_percent <- 100 / ave(frequencies$n, frequencies$attribute_id, FUN = length)
++frequencies$deviation_pp <- frequencies$percent - frequencies$benchmark_percent
+ frequencies$level <- factor(frequencies$level, levels = rev(unique(frequencies$level)))
+ frequencies$attribute <- factor(
+   frequencies$attribute,
+@@ -71,10 +73,18 @@
+ ggsave("figures/level-frequencies.png", frequency_plot,
+        width = 12, height = 16, units = "in", dpi = 320, bg = "white")
+ 
+-# Design counts and Markdown tables.
++# Design counts and Markdown tables.  These are calculated within respondent,
++# rather than from globally reused task/profile identifiers.
+ n_respondents <- length(unique(dat$id))
+-n_tasks <- length(unique(dat$task))
+-n_profiles <- length(unique(dat$profile))
++tasks_by_respondent <- table(dat$id, dat$task) > 0
++primary_tasks_per_respondent <- rowSums(tasks_by_respondent)
++profiles_per_respondent_task <- as.vector(table(interaction(dat$id, dat$task, drop = TRUE)))
++stopifnot(length(unique(primary_tasks_per_respondent)) == 1L)
++stopifnot(length(unique(profiles_per_respondent_task)) == 1L)
++n_primary_tasks <- unname(primary_tasks_per_respondent[1])
++n_reliability_tasks <- 1L
++n_administered_tasks <- n_primary_tasks + n_reliability_tasks
++n_profiles_per_task <- unique(profiles_per_respondent_task)
+ attribute_summary <- unique(level_lookup[, c("attribute_id", "attribute")])
+ attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(id) {
+   sum(level_lookup$attribute_id == id)
+@@ -84,23 +94,27 @@
+ attribute_lines <- paste0("| `", attribute_summary$attribute_id, "` | ",
+                           attribute_summary$attribute, " | ", attribute_summary$n_levels, " |")
+ balance_lines <- paste0("| ", frequencies$attribute, " | ", frequencies$level,
+-                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent), " |")
++                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent),
++                        " | ", sprintf("%.1f%%", frequencies$benchmark_percent),
++                        " | ", sprintf("%+.1f pp", frequencies$deviation_pp), " |")
+ 
+ summary_lines <- c(
+   "# Community-choice conjoint: design summary", "",
+   "## Design", "",
+   "| Component | Value |", "|---|---:|",
+   paste0("| Respondents | ", n_respondents, " |"),
+-  paste0("| Choice tasks per respondent | ", n_tasks, " |"),
+-  paste0("| Profiles per task | ", n_profiles, " |"),
++  paste0("| Primary randomized choice tasks per respondent | ", n_primary_tasks, " |"),
++  paste0("| Repeated reliability task per respondent | ", n_reliability_tasks, " |"),
++  paste0("| Administered choice tasks per respondent | ", n_administered_tasks, " |"),
++  paste0("| Profiles per respondent-task | ", n_profiles_per_task, " |"),
+   paste0("| Profile rows used for balance checks | ", nrow(dat), " |"), "",
+-  "The reshaped data contain the eight original choice tasks. The repeated, flipped first task is available as a separate repeated-choice outcome and is not counted as a ninth randomized task.", "",
++  "Each respondent receives 8 primary randomized tasks plus 1 repeated reliability task, for 9 administered choice tasks. The repeated task reuses task-1 profiles, so it adds no new randomized profiles and is excluded from the 6,400-profile balance checks.", "",
+   "## Attributes and levels", "",
+   "| ID | Attribute | Levels |", "|---|---|---:|", attribute_lines, "",
+   "## Randomization balance check", "",
+   "Each row below is a profile-level count (6,400 profiles total); within an attribute, percentages sum to 100%. The observed frequencies are close to the equal-allocation expectation for their respective numbers of levels.", "",
+-  "| Attribute | Level | Profiles | Frequency |", "|---|---|---:|---:|", balance_lines, "",
++  "| Attribute | Level | Profiles | Observed | Equal-allocation benchmark | Deviation |", "|---|---|---:|---:|---:|---:|", balance_lines, "",
+   "![Attribute-level frequencies](figures/level-frequencies.png)", "",
+-  "*Figure 1. Observed profile-level frequencies of every randomized attribute level across the 6,400 profile records; each facet is scaled to show its attribute's levels clearly.*", ""
++  "*Figure 1. Observed shares of the 6,400 randomized profiles assigned to each attribute level; percentages sum to 100 within each facet.*", ""
+ )
+ writeLines(summary_lines, "summary.md")
+
+diff --git a/demos/orchestration-lab/runs/advisor/t1-codex/script.R b/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+index 765aa6df1efd5ec6638e065754af926ad57f779c..e67fbb50499ba3353170e0354339c8d548f7053c
+--- a/demos/orchestration-lab/runs/advisor/t1-codex/script.R
++++ b/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+@@ -50,6 +50,8 @@
+ })
+ frequencies <- do.call(rbind, frequency_rows)
+ frequencies$percent <- 100 * frequencies$n / ave(frequencies$n, frequencies$attribute_id, FUN = sum)
++frequencies$benchmark_percent <- 100 / ave(frequencies$n, frequencies$attribute_id, FUN = length)
++frequencies$deviation_pp <- frequencies$percent - frequencies$benchmark_percent
+ frequencies$level <- factor(frequencies$level, levels = rev(unique(frequencies$level)))
+ frequencies$attribute <- factor(
+   frequencies$attribute,
+@@ -71,10 +73,18 @@
+ ggsave("figures/level-frequencies.png", frequency_plot,
+        width = 12, height = 16, units = "in", dpi = 320, bg = "white")
+ 
+-# Design counts and Markdown tables.
++# Design counts and Markdown tables.  These are calculated within respondent,
++# rather than from globally reused task/profile identifiers.
+ n_respondents <- length(unique(dat$id))
+-n_tasks <- length(unique(dat$task))
+-n_profiles <- length(unique(dat$profile))
++tasks_by_respondent <- table(dat$id, dat$task) > 0
++primary_tasks_per_respondent <- rowSums(tasks_by_respondent)
++profiles_per_respondent_task <- as.vector(table(interaction(dat$id, dat$task, drop = TRUE)))
++stopifnot(length(unique(primary_tasks_per_respondent)) == 1L)
++stopifnot(length(unique(profiles_per_respondent_task)) == 1L)
++n_primary_tasks <- unname(primary_tasks_per_respondent[1])
++n_reliability_tasks <- 1L
++n_administered_tasks <- n_primary_tasks + n_reliability_tasks
++n_profiles_per_task <- unique(profiles_per_respondent_task)
+ attribute_summary <- unique(level_lookup[, c("attribute_id", "attribute")])
+ attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(id) {
+   sum(level_lookup$attribute_id == id)
+@@ -84,23 +94,27 @@
+ attribute_lines <- paste0("| `", attribute_summary$attribute_id, "` | ",
+                           attribute_summary$attribute, " | ", attribute_summary$n_levels, " |")
+ balance_lines <- paste0("| ", frequencies$attribute, " | ", frequencies$level,
+-                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent), " |")
++                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent),
++                        " | ", sprintf("%.1f%%", frequencies$benchmark_percent),
++                        " | ", sprintf("%+.1f pp", frequencies$deviation_pp), " |")
+ 
+ summary_lines <- c(
+   "# Community-choice conjoint: design summary", "",
+   "## Design", "",
+   "| Component | Value |", "|---|---:|",
+   paste0("| Respondents | ", n_respondents, " |"),
+-  paste0("| Choice tasks per respondent | ", n_tasks, " |"),
+-  paste0("| Profiles per task | ", n_profiles, " |"),
++  paste0("| Primary randomized choice tasks per respondent | ", n_primary_tasks, " |"),
++  paste0("| Repeated reliability task per respondent | ", n_reliability_tasks, " |"),
++  paste0("| Administered choice tasks per respondent | ", n_administered_tasks, " |"),
++  paste0("| Profiles per respondent-task | ", n_profiles_per_task, " |"),
+   paste0("| Profile rows used for balance checks | ", nrow(dat), " |"), "",
+-  "The reshaped data contain the eight original choice tasks. The repeated, flipped first task is available as a separate repeated-choice outcome and is not counted as a ninth randomized task.", "",
++  "Each respondent receives 8 primary randomized tasks plus 1 repeated reliability task, for 9 administered choice tasks. The repeated task reuses task-1 profiles, so it adds no new randomized profiles and is excluded from the 6,400-profile balance checks.", "",
+   "## Attributes and levels", "",
+   "| ID | Attribute | Levels |", "|---|---|---:|", attribute_lines, "",
+   "## Randomization balance check", "",
+   "Each row below is a profile-level count (6,400 profiles total); within an attribute, percentages sum to 100%. The observed frequencies are close to the equal-allocation expectation for their respective numbers of levels.", "",
+-  "| Attribute | Level | Profiles | Frequency |", "|---|---|---:|---:|", balance_lines, "",
++  "| Attribute | Level | Profiles | Observed | Equal-allocation benchmark | Deviation |", "|---|---|---:|---:|---:|---:|", balance_lines, "",
+   "![Attribute-level frequencies](figures/level-frequencies.png)", "",
+-  "*Figure 1. Observed profile-level frequencies of every randomized attribute level across the 6,400 profile records; each facet is scaled to show its attribute's levels clearly.*", ""
++  "*Figure 1. Observed shares of the 6,400 randomized profiles assigned to each attribute level; percentages sum to 100 within each facet.*", ""
+ )
+ writeLines(summary_lines, "summary.md")
+
+codex
+The revision now computes task and profile counts at the respondent level, adds an explicit equal-allocation comparison, and states the 8+1 task structure plainly. I’m regenerating the Markdown and figure to verify the assertions against the data.
+exec
+/bin/zsh -lc "Rscript script.R && sed -n '1,220p' summary.md && file figures/level-frequencies.png" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t1-codex
+diff --git a/demos/orchestration-lab/runs/advisor/t1-codex/script.R b/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+index 765aa6df1efd5ec6638e065754af926ad57f779c..e67fbb50499ba3353170e0354339c8d548f7053c
+--- a/demos/orchestration-lab/runs/advisor/t1-codex/script.R
++++ b/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+@@ -50,6 +50,8 @@
+ })
+ frequencies <- do.call(rbind, frequency_rows)
+ frequencies$percent <- 100 * frequencies$n / ave(frequencies$n, frequencies$attribute_id, FUN = sum)
++frequencies$benchmark_percent <- 100 / ave(frequencies$n, frequencies$attribute_id, FUN = length)
++frequencies$deviation_pp <- frequencies$percent - frequencies$benchmark_percent
+ frequencies$level <- factor(frequencies$level, levels = rev(unique(frequencies$level)))
+ frequencies$attribute <- factor(
+   frequencies$attribute,
+@@ -71,10 +73,18 @@
+ ggsave("figures/level-frequencies.png", frequency_plot,
+        width = 12, height = 16, units = "in", dpi = 320, bg = "white")
+ 
+-# Design counts and Markdown tables.
++# Design counts and Markdown tables.  These are calculated within respondent,
++# rather than from globally reused task/profile identifiers.
+ n_respondents <- length(unique(dat$id))
+-n_tasks <- length(unique(dat$task))
+-n_profiles <- length(unique(dat$profile))
++tasks_by_respondent <- table(dat$id, dat$task) > 0
++primary_tasks_per_respondent <- rowSums(tasks_by_respondent)
++profiles_per_respondent_task <- as.vector(table(interaction(dat$id, dat$task, drop = TRUE)))
++stopifnot(length(unique(primary_tasks_per_respondent)) == 1L)
++stopifnot(length(unique(profiles_per_respondent_task)) == 1L)
++n_primary_tasks <- unname(primary_tasks_per_respondent[1])
++n_reliability_tasks <- 1L
++n_administered_tasks <- n_primary_tasks + n_reliability_tasks
++n_profiles_per_task <- unique(profiles_per_respondent_task)
+ attribute_summary <- unique(level_lookup[, c("attribute_id", "attribute")])
+ attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(id) {
+   sum(level_lookup$attribute_id == id)
+@@ -84,23 +94,27 @@
+ attribute_lines <- paste0("| `", attribute_summary$attribute_id, "` | ",
+                           attribute_summary$attribute, " | ", attribute_summary$n_levels, " |")
+ balance_lines <- paste0("| ", frequencies$attribute, " | ", frequencies$level,
+-                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent), " |")
++                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent),
++                        " | ", sprintf("%.1f%%", frequencies$benchmark_percent),
++                        " | ", sprintf("%+.1f pp", frequencies$deviation_pp), " |")
+ 
+ summary_lines <- c(
+   "# Community-choice conjoint: design summary", "",
+   "## Design", "",
+   "| Component | Value |", "|---|---:|",
+   paste0("| Respondents | ", n_respondents, " |"),
+-  paste0("| Choice tasks per respondent | ", n_tasks, " |"),
+-  paste0("| Profiles per task | ", n_profiles, " |"),
++  paste0("| Primary randomized choice tasks per respondent | ", n_primary_tasks, " |"),
++  paste0("| Repeated reliability task per respondent | ", n_reliability_tasks, " |"),
++  paste0("| Administered choice tasks per respondent | ", n_administered_tasks, " |"),
++  paste0("| Profiles per respondent-task | ", n_profiles_per_task, " |"),
+   paste0("| Profile rows used for balance checks | ", nrow(dat), " |"), "",
+-  "The reshaped data contain the eight original choice tasks. The repeated, flipped first task is available as a separate repeated-choice outcome and is not counted as a ninth randomized task.", "",
++  "Each respondent receives 8 primary randomized tasks plus 1 repeated reliability task, for 9 administered choice tasks. The repeated task reuses task-1 profiles, so it adds no new randomized profiles and is excluded from the 6,400-profile balance checks.", "",
+   "## Attributes and levels", "",
+   "| ID | Attribute | Levels |", "|---|---|---:|", attribute_lines, "",
+   "## Randomization balance check", "",
+   "Each row below is a profile-level count (6,400 profiles total); within an attribute, percentages sum to 100%. The observed frequencies are close to the equal-allocation expectation for their respective numbers of levels.", "",
+-  "| Attribute | Level | Profiles | Frequency |", "|---|---|---:|---:|", balance_lines, "",
++  "| Attribute | Level | Profiles | Observed | Equal-allocation benchmark | Deviation |", "|---|---|---:|---:|---:|---:|", balance_lines, "",
+   "![Attribute-level frequencies](figures/level-frequencies.png)", "",
+-  "*Figure 1. Observed profile-level frequencies of every randomized attribute level across the 6,400 profile records; each facet is scaled to show its attribute's levels clearly.*", ""
++  "*Figure 1. Observed shares of the 6,400 randomized profiles assigned to each attribute level; percentages sum to 100 within each facet.*", ""
+ )
+ writeLines(summary_lines, "summary.md")
+
+ succeeded in 1552ms:
+# Community-choice conjoint: design summary
+
+## Design
+
+| Component | Value |
+|---|---:|
+| Respondents | 400 |
+| Primary randomized choice tasks per respondent | 8 |
+| Repeated reliability task per respondent | 1 |
+| Administered choice tasks per respondent | 9 |
+| Profiles per respondent-task | 2 |
+| Profile rows used for balance checks | 6400 |
+
+Each respondent receives 8 primary randomized tasks plus 1 repeated reliability task, for 9 administered choice tasks. The repeated task reuses task-1 profiles, so it adds no new randomized profiles and is excluded from the 6,400-profile balance checks.
+
+## Attributes and levels
+
+| ID | Attribute | Levels |
+|---|---|---:|
+| `att1` | Housing Cost | 3 |
+| `att2` | Presidential Vote (2020) | 3 |
+| `att3` | Racial Composition | 4 |
+| `att4` | School Quality | 2 |
+| `att5` | Total Daily Driving Time for Commuting and Errands | 4 |
+| `att6` | Type of Place | 6 |
+| `att7` | Violent Crime Rate (Vs National Rate) | 2 |
+
+## Randomization balance check
+
+Each row below is a profile-level count (6,400 profiles total); within an attribute, percentages sum to 100%. The observed frequencies are close to the equal-allocation expectation for their respective numbers of levels.
+
+| Attribute | Level | Profiles | Observed | Equal-allocation benchmark | Deviation |
+|---|---|---:|---:|---:|---:|
+| Housing Cost | 15% of pre-tax income | 2114 | 33.0% | 33.3% | -0.3 pp |
+| Housing Cost | 30% of pre-tax income | 2155 | 33.7% | 33.3% | +0.3 pp |
+| Housing Cost | 40% of pre-tax income | 2131 | 33.3% | 33.3% | -0.0 pp |
+| Presidential Vote (2020) | 30% Democrat, 70% Republican | 2144 | 33.5% | 33.3% | +0.2 pp |
+| Presidential Vote (2020) | 50% Democrat, 50% Republican | 2147 | 33.5% | 33.3% | +0.2 pp |
+| Presidential Vote (2020) | 70% Democrat, 30% Republican | 2109 | 33.0% | 33.3% | -0.4 pp |
+| Racial Composition | 50% White, 50% Nonwhite | 1618 | 25.3% | 25.0% | +0.3 pp |
+| Racial Composition | 75% White, 25% Nonwhite | 1600 | 25.0% | 25.0% | +0.0 pp |
+| Racial Composition | 90% White, 10% Nonwhite | 1605 | 25.1% | 25.0% | +0.1 pp |
+| Racial Composition | 96% White, 4% Nonwhite | 1577 | 24.6% | 25.0% | -0.4 pp |
+| School Quality | 5 out of 10 | 3178 | 49.7% | 50.0% | -0.3 pp |
+| School Quality | 9 out of 10 | 3222 | 50.3% | 50.0% | +0.3 pp |
+| Total Daily Driving Time for Commuting and Errands | 10 min | 1601 | 25.0% | 25.0% | +0.0 pp |
+| Total Daily Driving Time for Commuting and Errands | 25 min | 1724 | 26.9% | 25.0% | +1.9 pp |
+| Total Daily Driving Time for Commuting and Errands | 45 min | 1527 | 23.9% | 25.0% | -1.1 pp |
+| Total Daily Driving Time for Commuting and Errands | 75 min | 1548 | 24.2% | 25.0% | -0.8 pp |
+| Type of Place | City – downtown, with a mix of offices, apartments, and shops | 1047 | 16.4% | 16.7% | -0.3 pp |
+| Type of Place | City, more residential area | 1032 | 16.1% | 16.7% | -0.5 pp |
+| Type of Place | Rural area | 1117 | 17.5% | 16.7% | +0.8 pp |
+| Type of Place | Small town | 1092 | 17.1% | 16.7% | +0.4 pp |
+| Type of Place | Suburban neighborhood with houses only | 1045 | 16.3% | 16.7% | -0.3 pp |
+| Type of Place | Suburban neighborhood with mix of shops, houses, businesses | 1067 | 16.7% | 16.7% | +0.0 pp |
+| Violent Crime Rate (Vs National Rate) | 20% Less Crime Than National Average | 3225 | 50.4% | 50.0% | +0.4 pp |
+| Violent Crime Rate (Vs National Rate) | 20% More Crime Than National Average | 3175 | 49.6% | 50.0% | -0.4 pp |
+
+![Attribute-level frequencies](figures/level-frequencies.png)
+
+*Figure 1. Observed shares of the 6,400 randomized profiles assigned to each attribute level; percentages sum to 100 within each facet.*
+
+figures/level-frequencies.png: PNG image data, 3840 x 5120, 8-bit/color RGB, non-interlaced
+
+exec
+/bin/zsh -lc "git diff -- script.R summary.md --stat && git diff --check && git diff -- script.R | sed -n '1,260p'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t1-codex
+ exited 2 in 0ms:
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:63: trailing whitespace.
++[1] "shortnam" "africa"   "lat_abst" "rich4"    "avexpr"   "logpgp95" "logem4"  
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:842: trailing whitespace.
+++[1] "shortnam" "africa"   "lat_abst" "rich4"    "avexpr"   "logpgp95" "logem4"  
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:844: trailing whitespace.
+++ [1] "id"                "task"              "profile"          
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:846: trailing whitespace.
+++ [4] "att4"              "att7"              "att3"             
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:848: trailing whitespace.
+++ [7] "att1"              "att2"              "att5"             
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:850: trailing whitespace.
+++[13] "agree"            
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:852: trailing whitespace.
+++   attribute                level                        attribute_id level_id  
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:854: trailing whitespace.
+++   <chr>                    <chr>                        <chr>        <chr>     
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:856: trailing whitespace.
+++                                    class 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:858: trailing whitespace.
+++                                 "factor" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:860: trailing whitespace.
+++                                   levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:862: trailing whitespace.
+++"att1:level1 | att1:level2 | att1:level3" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:864: trailing whitespace.
+++                                    class 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:866: trailing whitespace.
+++                                 "factor" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:868: trailing whitespace.
+++                                   levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:870: trailing whitespace.
+++"att2:level1 | att2:level2 | att2:level3" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:872: trailing whitespace.
+++                                                  class 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:874: trailing whitespace.
+++                                               "factor" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:876: trailing whitespace.
+++                                                 levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:878: trailing whitespace.
+++"att3:level1 | att3:level2 | att3:level3 | att3:level4" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:880: trailing whitespace.
+++                      class                      levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:882: trailing whitespace.
+++                   "factor" "att4:level1 | att4:level2" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:884: trailing whitespace.
+++                                                  class 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:886: trailing whitespace.
+++                                               "factor" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:888: trailing whitespace.
+++                                                 levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:890: trailing whitespace.
+++"att5:level1 | att5:level2 | att5:level3 | att5:level4" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:892: trailing whitespace.
+++                                                                              class 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:894: trailing whitespace.
+++                                                                           "factor" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:896: trailing whitespace.
+++                                                                             levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:898: trailing whitespace.
+++"att6:level1 | att6:level2 | att6:level3 | att6:level4 | att6:level5 | att6:level6" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:900: trailing whitespace.
+++                      class                      levels 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:902: trailing whitespace.
+++                   "factor" "att7:level1 | att7:level2" 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:904: trailing whitespace.
+++   attribute                level                        attribute_id level_id  
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:906: trailing whitespace.
+++   <chr>                    <chr>                        <chr>        <chr>     
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:908: trailing whitespace.
+++data's fill values. 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-implementation.log:910: trailing whitespace.
+++data's fill values. 
+demos/orchestration-lab/runs/46-sol/high-ajr/terra-verification.log:256: new blank line at EOF.
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:131: trailing whitespace.
++ [1] "id"                "task"              "profile"          
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:132: trailing whitespace.
++ [4] "att4"              "att7"              "att3"             
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:133: trailing whitespace.
++ [7] "att1"              "att2"              "att5"             
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:135: trailing whitespace.
++[13] "agree"            
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:142: trailing whitespace.
++   attribute                level                        attribute_id level_id  
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:143: trailing whitespace.
++   <chr>                    <chr>                        <chr>        <chr>     
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:166: trailing whitespace.
++                                    class 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:167: trailing whitespace.
++                                 "factor" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:168: trailing whitespace.
++                                   levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:169: trailing whitespace.
++"att1:level1 | att1:level2 | att1:level3" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:172: trailing whitespace.
++                                    class 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:173: trailing whitespace.
++                                 "factor" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:174: trailing whitespace.
++                                   levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:175: trailing whitespace.
++"att2:level1 | att2:level2 | att2:level3" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:178: trailing whitespace.
++                                                  class 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:179: trailing whitespace.
++                                               "factor" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:180: trailing whitespace.
++                                                 levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:181: trailing whitespace.
++"att3:level1 | att3:level2 | att3:level3 | att3:level4" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:184: trailing whitespace.
++                      class                      levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:185: trailing whitespace.
++                   "factor" "att4:level1 | att4:level2" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:188: trailing whitespace.
++                                                  class 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:189: trailing whitespace.
++                                               "factor" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:190: trailing whitespace.
++                                                 levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:191: trailing whitespace.
++"att5:level1 | att5:level2 | att5:level3 | att5:level4" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:194: trailing whitespace.
++                                                                              class 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:195: trailing whitespace.
++                                                                           "factor" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:196: trailing whitespace.
++                                                                             levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:197: trailing whitespace.
++"att6:level1 | att6:level2 | att6:level3 | att6:level4 | att6:level5 | att6:level6" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:200: trailing whitespace.
++                      class                      levels 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:201: trailing whitespace.
++                   "factor" "att7:level1 | att7:level2" 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:211: trailing whitespace.
++   attribute                level                        attribute_id level_id  
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:212: trailing whitespace.
++   <chr>                    <chr>                        <chr>        <chr>     
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:521: trailing whitespace.
++data's fill values. 
+demos/orchestration-lab/runs/46-sol/t1/terra-implementation.log:523: trailing whitespace.
++data's fill values. 
+demos/orchestration-lab/runs/46-sol/t3/sensitivity-table.md:20: new blank line at EOF.
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/lead-rscript.log:2: trailing whitespace.
++Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/lead-rscript.log:3: trailing whitespace.
++Adjusted estimate range: -4025.224574 to 2786.752100 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/lead-rscript.log:5: trailing whitespace.
++Acceptance: 9 observational rows; one 320 dpi PNG; memo words: 441 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/memo.md:12: new blank line at EOF.
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:92: trailing whitespace.
++ [1] "1794.3423818501" "185"             "260"             "15992"          
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:93: trailing whitespace.
++ [5] "data_id"         "treat"           "age"             "educ"           
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:94: trailing whitespace.
++ [9] "black"           "hisp"            "marr"            "nodegree"       
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:95: trailing whitespace.
++[13] "re74"            "re75"            "re78"           
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:594: trailing whitespace.
++ℹ Please use the `orientation` argument of `geom_errorbar()` instead. 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:598: trailing whitespace.
++data's colour values. 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:600: trailing whitespace.
++data's colour values. 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:602: trailing whitespace.
++data's colour values. 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:604: trailing whitespace.
++Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:605: trailing whitespace.
++Estimate range: -8497.516148 to 2786.752100 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:607: trailing whitespace.
++Acceptance: 9 observational rows; one 320 dpi PNG; memo words: 439 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:1504: trailing whitespace.
++Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:1505: trailing whitespace.
++Estimate range: -8497.516148 to 2786.752100 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:1507: trailing whitespace.
++Acceptance: 9 observational rows; one 320 dpi PNG; memo words: 439 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:1682: trailing whitespace.
++Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:1683: trailing whitespace.
++Estimate range: -8497.516148 to 2786.752100 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-implementation.log:1685: trailing whitespace.
++Acceptance: 9 observational rows; one 320 dpi PNG; memo words: 439 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:270: trailing whitespace.
++34: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:273: trailing whitespace.
++37: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:277: trailing whitespace.
++41: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:283: trailing whitespace.
++47: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:289: trailing whitespace.
++53: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:299: trailing whitespace.
++63: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:341: trailing whitespace.
++151: 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:567: trailing whitespace.
++./lead-rscript.log:2:Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:569: trailing whitespace.
++./terra-implementation.log:92: [1] "1794.3423818501" "185"             "260"             "15992"          
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:573: trailing whitespace.
++./terra-implementation.log:604:Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:578: trailing whitespace.
++./terra-implementation.log:1504:Benchmark: 1794.342382 
+demos/orchestration-lab/runs/46-sol/vhigh-lalonde/terra-verification.log:580: trailing whitespace.
++./terra-implementation.log:1682:Benchmark: 1794.342382 
+demos/orchestration-lab/runs/opus/t1/summary.md:89: new blank line at EOF.
+
+diff --git a/demos/orchestration-lab/runs/advisor/t1-codex/script.R b/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+index 765aa6df1efd5ec6638e065754af926ad57f779c..e67fbb50499ba3353170e0354339c8d548f7053c
+--- a/demos/orchestration-lab/runs/advisor/t1-codex/script.R
++++ b/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+@@ -50,6 +50,8 @@
+ })
+ frequencies <- do.call(rbind, frequency_rows)
+ frequencies$percent <- 100 * frequencies$n / ave(frequencies$n, frequencies$attribute_id, FUN = sum)
++frequencies$benchmark_percent <- 100 / ave(frequencies$n, frequencies$attribute_id, FUN = length)
++frequencies$deviation_pp <- frequencies$percent - frequencies$benchmark_percent
+ frequencies$level <- factor(frequencies$level, levels = rev(unique(frequencies$level)))
+ frequencies$attribute <- factor(
+   frequencies$attribute,
+@@ -71,10 +73,18 @@
+ ggsave("figures/level-frequencies.png", frequency_plot,
+        width = 12, height = 16, units = "in", dpi = 320, bg = "white")
+ 
+-# Design counts and Markdown tables.
++# Design counts and Markdown tables.  These are calculated within respondent,
++# rather than from globally reused task/profile identifiers.
+ n_respondents <- length(unique(dat$id))
+-n_tasks <- length(unique(dat$task))
+-n_profiles <- length(unique(dat$profile))
++tasks_by_respondent <- table(dat$id, dat$task) > 0
++primary_tasks_per_respondent <- rowSums(tasks_by_respondent)
++profiles_per_respondent_task <- as.vector(table(interaction(dat$id, dat$task, drop = TRUE)))
++stopifnot(length(unique(primary_tasks_per_respondent)) == 1L)
++stopifnot(length(unique(profiles_per_respondent_task)) == 1L)
++n_primary_tasks <- unname(primary_tasks_per_respondent[1])
++n_reliability_tasks <- 1L
++n_administered_tasks <- n_primary_tasks + n_reliability_tasks
++n_profiles_per_task <- unique(profiles_per_respondent_task)
+ attribute_summary <- unique(level_lookup[, c("attribute_id", "attribute")])
+ attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(id) {
+   sum(level_lookup$attribute_id == id)
+@@ -84,23 +94,27 @@
+ attribute_lines <- paste0("| `", attribute_summary$attribute_id, "` | ",
+                           attribute_summary$attribute, " | ", attribute_summary$n_levels, " |")
+ balance_lines <- paste0("| ", frequencies$attribute, " | ", frequencies$level,
+-                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent), " |")
++                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent),
++                        " | ", sprintf("%.1f%%", frequencies$benchmark_percent),
++                        " | ", sprintf("%+.1f pp", frequencies$deviation_pp), " |")
+ 
+ summary_lines <- c(
+   "# Community-choice conjoint: design summary", "",
+   "## Design", "",
+   "| Component | Value |", "|---|---:|",
+   paste0("| Respondents | ", n_respondents, " |"),
+-  paste0("| Choice tasks per respondent | ", n_tasks, " |"),
+-  paste0("| Profiles per task | ", n_profiles, " |"),
++  paste0("| Primary randomized choice tasks per respondent | ", n_primary_tasks, " |"),
++  paste0("| Repeated reliability task per respondent | ", n_reliability_tasks, " |"),
++  paste0("| Administered choice tasks per respondent | ", n_administered_tasks, " |"),
++  paste0("| Profiles per respondent-task | ", n_profiles_per_task, " |"),
+   paste0("| Profile rows used for balance checks | ", nrow(dat), " |"), "",
+-  "The reshaped data contain the eight original choice tasks. The repeated, flipped first task is available as a separate repeated-choice outcome and is not counted as a ninth randomized task.", "",
++  "Each respondent receives 8 primary randomized tasks plus 1 repeated reliability task, for 9 administered choice tasks. The repeated task reuses task-1 profiles, so it adds no new randomized profiles and is excluded from the 6,400-profile balance checks.", "",
+   "## Attributes and levels", "",
+   "| ID | Attribute | Levels |", "|---|---|---:|", attribute_lines, "",
+   "## Randomization balance check", "",
+   "Each row below is a profile-level count (6,400 profiles total); within an attribute, percentages sum to 100%. The observed frequencies are close to the equal-allocation expectation for their respective numbers of levels.", "",
+-  "| Attribute | Level | Profiles | Frequency |", "|---|---|---:|---:|", balance_lines, "",
++  "| Attribute | Level | Profiles | Observed | Equal-allocation benchmark | Deviation |", "|---|---|---:|---:|---:|---:|", balance_lines, "",
+   "![Attribute-level frequencies](figures/level-frequencies.png)", "",
+-  "*Figure 1. Observed profile-level frequencies of every randomized attribute level across the 6,400 profile records; each facet is scaled to show its attribute's levels clearly.*", ""
++  "*Figure 1. Observed shares of the 6,400 randomized profiles assigned to each attribute level; percentages sum to 100 within each facet.*", ""
+ )
+ writeLines(summary_lines, "summary.md")
+
+diff --git a/demos/orchestration-lab/runs/advisor/t1-codex/script.R b/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+index 765aa6df1efd5ec6638e065754af926ad57f779c..e67fbb50499ba3353170e0354339c8d548f7053c
+--- a/demos/orchestration-lab/runs/advisor/t1-codex/script.R
++++ b/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+@@ -50,6 +50,8 @@
+ })
+ frequencies <- do.call(rbind, frequency_rows)
+ frequencies$percent <- 100 * frequencies$n / ave(frequencies$n, frequencies$attribute_id, FUN = sum)
++frequencies$benchmark_percent <- 100 / ave(frequencies$n, frequencies$attribute_id, FUN = length)
++frequencies$deviation_pp <- frequencies$percent - frequencies$benchmark_percent
+ frequencies$level <- factor(frequencies$level, levels = rev(unique(frequencies$level)))
+ frequencies$attribute <- factor(
+   frequencies$attribute,
+@@ -71,10 +73,18 @@
+ ggsave("figures/level-frequencies.png", frequency_plot,
+        width = 12, height = 16, units = "in", dpi = 320, bg = "white")
+ 
+-# Design counts and Markdown tables.
++# Design counts and Markdown tables.  These are calculated within respondent,
++# rather than from globally reused task/profile identifiers.
+ n_respondents <- length(unique(dat$id))
+-n_tasks <- length(unique(dat$task))
+-n_profiles <- length(unique(dat$profile))
++tasks_by_respondent <- table(dat$id, dat$task) > 0
++primary_tasks_per_respondent <- rowSums(tasks_by_respondent)
++profiles_per_respondent_task <- as.vector(table(interaction(dat$id, dat$task, drop = TRUE)))
++stopifnot(length(unique(primary_tasks_per_respondent)) == 1L)
++stopifnot(length(unique(profiles_per_respondent_task)) == 1L)
++n_primary_tasks <- unname(primary_tasks_per_respondent[1])
++n_reliability_tasks <- 1L
++n_administered_tasks <- n_primary_tasks + n_reliability_tasks
++n_profiles_per_task <- unique(profiles_per_respondent_task)
+ attribute_summary <- unique(level_lookup[, c("attribute_id", "attribute")])
+ attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(id) {
+   sum(level_lookup$attribute_id == id)
+@@ -84,23 +94,27 @@
+ attribute_lines <- paste0("| `", attribute_summary$attribute_id, "` | ",
+                           attribute_summary$attribute, " | ", attribute_summary$n_levels, " |")
+ balance_lines <- paste0("| ", frequencies$attribute, " | ", frequencies$level,
+-                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent), " |")
++                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent),
++                        " | ", sprintf("%.1f%%", frequencies$benchmark_percent),
++                        " | ", sprintf("%+.1f pp", frequencies$deviation_pp), " |")
+ 
+ summary_lines <- c(
+   "# Community-choice conjoint: design summary", "",
+   "## Design", "",
+   "| Component | Value |", "|---|---:|",
+   paste0("| Respondents | ", n_respondents, " |"),
+-  paste0("| Choice tasks per respondent | ", n_tasks, " |"),
+-  paste0("| Profiles per task | ", n_profiles, " |"),
++  paste0("| Primary randomized choice tasks per respondent | ", n_primary_tasks, " |"),
++  paste0("| Repeated reliability task per respondent | ", n_reliability_tasks, " |"),
++  paste0("| Administered choice tasks per respondent | ", n_administered_tasks, " |"),
++  paste0("| Profiles per respondent-task | ", n_profiles_per_task, " |"),
+   paste0("| Profile rows used for balance checks | ", nrow(dat), " |"), "",
+-  "The reshaped data contain the eight original choice tasks. The repeated, flipped first task is available as a separate repeated-choice outcome and is not counted as a ninth randomized task.", "",
++  "Each respondent receives 8 primary randomized tasks plus 1 repeated reliability task, for 9 administered choice tasks. The repeated task reuses task-1 profiles, so it adds no new randomized profiles and is excluded from the 6,400-profile balance checks.", "",
+   "## Attributes and levels", "",
+   "| ID | Attribute | Levels |", "|---|---|---:|", attribute_lines, "",
+   "## Randomization balance check", "",
+   "Each row below is a profile-level count (6,400 profiles total); within an attribute, percentages sum to 100%. The observed frequencies are close to the equal-allocation expectation for their respective numbers of levels.", "",
+-  "| Attribute | Level | Profiles | Frequency |", "|---|---|---:|---:|", balance_lines, "",
++  "| Attribute | Level | Profiles | Observed | Equal-allocation benchmark | Deviation |", "|---|---|---:|---:|---:|---:|", balance_lines, "",
+   "![Attribute-level frequencies](figures/level-frequencies.png)", "",
+-  "*Figure 1. Observed profile-level frequencies of every randomized attribute level across the 6,400 profile records; each facet is scaled to show its attribute's levels clearly.*", ""
++  "*Figure 1. Observed shares of the 6,400 randomized profiles assigned to each attribute level; percentages sum to 100 within each facet.*", ""
+ )
+ writeLines(summary_lines, "summary.md")
+
+codex
+Revised and regenerated the deliverables.
+
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t1-codex/script.R) now calculates respondent-level task/profile counts and asserts they are constant.
+- [summary.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t1-codex/summary.md) now reports 8 primary + 1 reliability = 9 administered tasks, retains 6,400 randomized profiles for balance checks, and includes equal-allocation benchmarks plus percentage-point deviations.
+- [level-frequencies.png](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t1-codex/figures/level-frequencies.png) was regenerated at 320 dpi; the caption now uses the requested wording.
+
+Verified successfully with `Rscript script.R`.
+diff --git a/demos/orchestration-lab/runs/advisor/t1-codex/script.R b/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+index 765aa6df1efd5ec6638e065754af926ad57f779c..e67fbb50499ba3353170e0354339c8d548f7053c
+--- a/demos/orchestration-lab/runs/advisor/t1-codex/script.R
++++ b/demos/orchestration-lab/runs/advisor/t1-codex/script.R
+@@ -50,6 +50,8 @@
+ })
+ frequencies <- do.call(rbind, frequency_rows)
+ frequencies$percent <- 100 * frequencies$n / ave(frequencies$n, frequencies$attribute_id, FUN = sum)
++frequencies$benchmark_percent <- 100 / ave(frequencies$n, frequencies$attribute_id, FUN = length)
++frequencies$deviation_pp <- frequencies$percent - frequencies$benchmark_percent
+ frequencies$level <- factor(frequencies$level, levels = rev(unique(frequencies$level)))
+ frequencies$attribute <- factor(
+   frequencies$attribute,
+@@ -71,10 +73,18 @@
+ ggsave("figures/level-frequencies.png", frequency_plot,
+        width = 12, height = 16, units = "in", dpi = 320, bg = "white")
+ 
+-# Design counts and Markdown tables.
++# Design counts and Markdown tables.  These are calculated within respondent,
++# rather than from globally reused task/profile identifiers.
+ n_respondents <- length(unique(dat$id))
+-n_tasks <- length(unique(dat$task))
+-n_profiles <- length(unique(dat$profile))
++tasks_by_respondent <- table(dat$id, dat$task) > 0
++primary_tasks_per_respondent <- rowSums(tasks_by_respondent)
++profiles_per_respondent_task <- as.vector(table(interaction(dat$id, dat$task, drop = TRUE)))
++stopifnot(length(unique(primary_tasks_per_respondent)) == 1L)
++stopifnot(length(unique(profiles_per_respondent_task)) == 1L)
++n_primary_tasks <- unname(primary_tasks_per_respondent[1])
++n_reliability_tasks <- 1L
++n_administered_tasks <- n_primary_tasks + n_reliability_tasks
++n_profiles_per_task <- unique(profiles_per_respondent_task)
+ attribute_summary <- unique(level_lookup[, c("attribute_id", "attribute")])
+ attribute_summary$n_levels <- vapply(attribute_summary$attribute_id, function(id) {
+   sum(level_lookup$attribute_id == id)
+@@ -84,23 +94,27 @@
+ attribute_lines <- paste0("| `", attribute_summary$attribute_id, "` | ",
+                           attribute_summary$attribute, " | ", attribute_summary$n_levels, " |")
+ balance_lines <- paste0("| ", frequencies$attribute, " | ", frequencies$level,
+-                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent), " |")
++                        " | ", frequencies$n, " | ", sprintf("%.1f%%", frequencies$percent),
++                        " | ", sprintf("%.1f%%", frequencies$benchmark_percent),
++                        " | ", sprintf("%+.1f pp", frequencies$deviation_pp), " |")
+ 
+ summary_lines <- c(
+   "# Community-choice conjoint: design summary", "",
+   "## Design", "",
+   "| Component | Value |", "|---|---:|",
+   paste0("| Respondents | ", n_respondents, " |"),
+-  paste0("| Choice tasks per respondent | ", n_tasks, " |"),
+-  paste0("| Profiles per task | ", n_profiles, " |"),
++  paste0("| Primary randomized choice tasks per respondent | ", n_primary_tasks, " |"),
++  paste0("| Repeated reliability task per respondent | ", n_reliability_tasks, " |"),
++  paste0("| Administered choice tasks per respondent | ", n_administered_tasks, " |"),
++  paste0("| Profiles per respondent-task | ", n_profiles_per_task, " |"),
+   paste0("| Profile rows used for balance checks | ", nrow(dat), " |"), "",
+-  "The reshaped data contain the eight original choice tasks. The repeated, flipped first task is available as a separate repeated-choice outcome and is not counted as a ninth randomized task.", "",
++  "Each respondent receives 8 primary randomized tasks plus 1 repeated reliability task, for 9 administered choice tasks. The repeated task reuses task-1 profiles, so it adds no new randomized profiles and is excluded from the 6,400-profile balance checks.", "",
+   "## Attributes and levels", "",
+   "| ID | Attribute | Levels |", "|---|---|---:|", attribute_lines, "",
+   "## Randomization balance check", "",
+   "Each row below is a profile-level count (6,400 profiles total); within an attribute, percentages sum to 100%. The observed frequencies are close to the equal-allocation expectation for their respective numbers of levels.", "",
+-  "| Attribute | Level | Profiles | Frequency |", "|---|---|---:|---:|", balance_lines, "",
++  "| Attribute | Level | Profiles | Observed | Equal-allocation benchmark | Deviation |", "|---|---|---:|---:|---:|---:|", balance_lines, "",
+   "![Attribute-level frequencies](figures/level-frequencies.png)", "",
+-  "*Figure 1. Observed profile-level frequencies of every randomized attribute level across the 6,400 profile records; each facet is scaled to show its attribute's levels clearly.*", ""
++  "*Figure 1. Observed shares of the 6,400 randomized profiles assigned to each attribute level; percentages sum to 100 within each facet.*", ""
+ )
+ writeLines(summary_lines, "summary.md")
+
+tokens used
+42,740
+Revised and regenerated the deliverables.
+
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t1-codex/script.R) now calculates respondent-level task/profile counts and asserts they are constant.
+- [summary.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t1-codex/summary.md) now reports 8 primary + 1 reliability = 9 administered tasks, retains 6,400 randomized profiles for balance checks, and includes equal-allocation benchmarks plus percentage-point deviations.
+- [level-frequencies.png](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t1-codex/figures/level-frequencies.png) was regenerated at 320 dpi; the caption now uses the requested wording.
+
+Verified successfully with `Rscript script.R`.

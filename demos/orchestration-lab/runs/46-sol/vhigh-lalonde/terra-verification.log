@@ -1,37 +1,28 @@
 Reading additional input from stdin...
-OpenAI Codex v0.144.1
+OpenAI Codex v0.144.5
 --------
-workdir: ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
+workdir: /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
 model: gpt-5.6-terra
 provider: openai
 approval: never
 sandbox: read-only
 reasoning effort: medium
 reasoning summaries: none
-session id: 019f5b11-ddb6-7653-9142-1457f8ac5b1a
+session id: 019f705f-1467-7d41-b3fe-555f44ced95c
 --------
 user
-Objective: Independently audit the final LaLonde deliverables against BRIEF.md without changing any file. Inputs and authoritative paths: ./BRIEF.md, ./script.R, ./spec-table.md, ./memo.md, ./figures/spec-curve.png, and installed local R packages/data only. In scope: read all artifacts; run Rscript script.R only if read-only sandbox permits the script output writes to existing paths, otherwise inspect and run non-writing R checks; independently recompute the experimental benchmark and naive difference; verify the full 2 covariate x 2 support x 2 estimator grid plus naive row; check ATT matching with replacement, trimming definition/counts, subclassification weighting, interval methods and absence of ordinary NN bootstrap; check table arithmetic and memo claims; inspect PNG dimensions/DPI, exactly-one-figure condition, benchmark and zero reference lines, no in-plot title, and Okabe-Ito colors. Out of scope: editing, package installation, web access, invoking any other skill/advisor/subagent, committing, or accessing files outside this current directory. Constraints and invariants: treat artifacts as final; do not write or revise them; report exact numeric evidence and distinguish errors from limitations. Write ownership: none; only this command shell writes terra-verification.log. Expected artifact: a concise audit in stdout captured to terra-verification.log. Acceptance checks: state PASS or FAIL for each requested deliverable and overall; identify any unsupported inference or arithmetic mismatch; end with residual risk and the exact tokens-used count exposed by the session. Return format: conclusion, checks with evidence, changed files (must be none), residual risk, tokens used.
+Objective: Independently audit the completed LaLonde deliverables against BRIEF.md without editing any file. Inputs and authoritative paths: ./BRIEF.md, ./script.R, ./spec-table.md, ./memo.md, ./figures/spec-curve.png, and the installed causaldata, MatchIt, ggplot2, sandwich packages. In scope: read all artifacts; independently recompute or run read-only R checks for the experimental benchmark, naive contrast, all eight adjusted estimates and intervals, row counts, ATT settings, trimming behavior, unique control counts, effective sample sizes, figure orientation/reference line/palette/no-title/resolution, memo word count, numerical consistency, and whether the adjudication is warranted and appropriately qualified. Check that the covariate and estimator axes meet the brief, that ordinary bootstrap is not used for NN, and that HC2 weighted-regression uncertainty is described with its limitations. Out of scope: any file write, web access, package installation, redesign, commits, or fixes. Constraints and invariants: remain read-only; do not rely on worker claims; use independent calculations where feasible; distinguish substantive violations from optional polish. Write ownership: none. Expected artifact: stdout only, captured by the caller in terra-verification.log. Acceptance checks: report PASS or FAIL for each required deliverable and constraint; quote exact recomputed benchmark and adjusted estimate range; identify every mismatch with file and location; state whether the conclusion robust recovery, favorable-specification-only recovery, or no recovery follows from the point estimates. Return format: conclusion, evidence, per-artifact checks, defects ordered by severity, and residual risk. Implement the deliverables directly; do not invoke any other skill, advisory consult, or sub-orchestration.
 codex
-I’ll perform a read-only, independent audit of the specified final artifacts and report only the findings—no files will be changed.
+I’ll independently inspect the specified artifacts and rerun read-only checks against the brief, then report only the audit findings.
 exec
-/bin/zsh -lc "pwd && rg --files -g 'BRIEF.md' -g 'script.R' -g 'spec-table.md' -g 'memo.md' -g 'spec-curve.png' && ls -l BRIEF.md script.R spec-table.md memo.md figures/spec-curve.png" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
+/bin/zsh -lc "pwd && rg --files -g 'BRIEF.md' -g 'script.R' -g 'spec-table.md' -g 'memo.md' -g 'spec-curve.png' && sed -n '1,260p' BRIEF.md && sed -n '1,320p' script.R && sed -n '1,260p' spec-table.md && sed -n '1,300p' memo.md" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
  succeeded in 0ms:
-~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
 memo.md
 BRIEF.md
 figures/spec-curve.png
 script.R
 spec-table.md
--rw-r--r--@ 1 scdenney  staff    3665 Jul 13 12:00 BRIEF.md
--rw-r--r--@ 1 scdenney  staff  285891 Jul 13 12:41 figures/spec-curve.png
--rw-r--r--@ 1 scdenney  staff    3207 Jul 13 12:41 memo.md
--rw-r--r--@ 1 scdenney  staff   13200 Jul 13 12:41 script.R
--rw-r--r--@ 1 scdenney  staff    2426 Jul 13 12:41 spec-table.md
-
-exec
-/bin/zsh -lc "sed -n '1,240p' BRIEF.md && sed -n '1,280p' script.R && sed -n '1,260p' spec-table.md && sed -n '1,300p' memo.md" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
- succeeded in 0ms:
 # Task VHIGH — Adjudicate a methods dispute (very-high tier)
 
 You are working in a project directory. Use R (`Rscript`); the `causaldata` package is installed.
@@ -64,661 +55,595 @@ cps <- causaldata::cps_mixtape   # 15,992 CPS controls (observational comparison
 **Method note.** `MatchIt` is installed; `Matching` is not. If you use `MatchIt`, target the ATT with replacement (`estimand = "ATT"`, `replace = TRUE`) so it matches the estimand here; if neither package were installed you would hand-roll it (a logit propensity model, 1-NN on the score, with replacement). Choose a **defensible standard error** for each estimator — note that the ordinary nonparametric bootstrap is **not** valid for nearest-neighbor matching variances (Abadie-Imbens 2008).
 
 **Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. No web access. Do not install packages. The memo must not overclaim: if recovery is specification-dependent, say so plainly — neither "matching works" nor "matching fails" unqualified.
-# Fixed LaLonde specification-curve analysis
-# Recreates spec-table.md, memo.md, and figures/spec-curve.png from installed packages.
+#!/usr/bin/env Rscript
 
-# Okabe-Ito palette and base-graphics theme constants
-OI_ORANGE <- "#E69F00"
-OI_SKY_BLUE <- "#56B4E9"
-OI_BLUE <- "#0072B2"
-OI_GREEN <- "#009E73"
-OI_VERMILLION <- "#D55E00"
-OI_PURPLE <- "#CC79A7"
-THEME_FG <- "#222222"
-THEME_GRID <- "#D9D9D9"
-FIG_WIDTH <- 11
-FIG_HEIGHT <- 6
-FIG_DPI <- 320
+# Fixed LaLonde specification-curve analysis.
+# The uncertainty intervals condition on the estimated propensity score/match.
 
-set.seed(20260713)
+library(causaldata)
+library(MatchIt)
+library(ggplot2)
+library(sandwich)
 
-required <- c("causaldata", "MatchIt", "sandwich", "lmtest", "estimatr")
-missing <- required[!vapply(required, requireNamespace, logical(1), quietly = TRUE)]
-if (length(missing)) stop("Required package(s) unavailable: ", paste(missing, collapse = ", "))
+set.seed(4601)
 
-dir.create("figures", showWarnings = FALSE, recursive = TRUE)
+# Okabe-Ito palette and a compact, legible plotting theme.
+oi <- c(orange = "#E69F00", sky_blue = "#56B4E9", bluish_green = "#009E73",
+        yellow = "#F0E442", blue = "#0072B2", vermillion = "#D55E00",
+        reddish_purple = "#CC79A7", black = "#000000")
+theme_spec <- theme_minimal(base_size = 11) +
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.title.y = element_blank(),
+        plot.title = element_blank(),
+        plot.caption = element_text(hjust = 0, colour = "#333333"))
+
+fmt_dollar <- function(x) paste0("$", format(round(x), big.mark = ",", trim = TRUE))
+fmt_ci <- function(lo, hi) paste0("[", fmt_dollar(lo), ", ", fmt_dollar(hi), "]")
+
+fit_effect <- function(dat, weighted = FALSE) {
+  fit <- if (weighted) lm(re78 ~ treat, data = dat, weights = weights) else lm(re78 ~ treat, data = dat)
+  est <- unname(coef(fit)["treat"])
+  se <- sqrt(unname(vcovHC(fit, type = "HC2")["treat", "treat"]))
+  z <- qnorm(0.975)
+  c(estimate = est, se = se, lower = est - z * se, upper = est + z * se)
+}
 
 nsw <- as.data.frame(causaldata::nsw_mixtape)
 cps <- as.data.frame(causaldata::cps_mixtape)
-treated <- nsw[nsw$treat == 1, , drop = FALSE]
-controls <- cps[cps$treat == 0, , drop = FALSE]
-if (nrow(treated) != 185L || nrow(controls) != 15992L) {
-  stop("Unexpected input composition: expected 185 NSW treated and 15,992 CPS controls.")
-}
-treated$unit_id <- sprintf("nsw_t_%03d", seq_len(nrow(treated)))
-controls$unit_id <- sprintf("cps_c_%05d", seq_len(nrow(controls)))
+
+# Experimental treated-minus-control benchmark, deliberately estimated rather than entered.
+benchmark_fit <- fit_effect(nsw)
+benchmark <- benchmark_fit["estimate"]
+
+treated <- nsw[nsw$treat == 1, ]
+controls <- cps[cps$treat == 0, ]
 obs <- rbind(treated, controls)
-rownames(obs) <- obs$unit_id
+obs$u74 <- as.integer(obs$re74 == 0)
+obs$u75 <- as.integer(obs$re75 == 0)
 
-benchmark <- with(nsw, mean(re78[treat == 1]) - mean(re78[treat == 0]))
-z975 <- qnorm(0.975)
-
-make_row <- function(label, estimate, se, covariates, support, estimator,
-                     n_treated, n_control, critical = z975) {
-  data.frame(
-    specification = label,
-    estimate = estimate,
-    se = se,
-    lower = estimate - critical * se,
-    upper = estimate + critical * se,
-    benchmark = benchmark,
-    gap = estimate - benchmark,
-    covariates = covariates,
-    support = support,
-    estimator = estimator,
-    retained_treated_n = as.integer(n_treated),
-    retained_control_n = as.integer(n_control),
-    stringsAsFactors = FALSE
-  )
-}
-
-naive_t <- obs$re78[obs$treat == 1]
-naive_c <- obs$re78[obs$treat == 0]
-naive_est <- mean(naive_t) - mean(naive_c)
-naive_se <- sqrt(var(naive_t) / length(naive_t) + var(naive_c) / length(naive_c))
-naive_df <- naive_se^4 / (
-  (var(naive_t) / length(naive_t))^2 / (length(naive_t) - 1) +
-    (var(naive_c) / length(naive_c))^2 / (length(naive_c) - 1)
-)
-results <- list(make_row(
-  "Naive composite difference", naive_est, naive_se, "None", "Untrimmed", "Welch difference",
-  length(naive_t), length(naive_c), stats::qt(0.975, df = naive_df)
-))
-
-match_att <- function(dat, score, label, cov_label, support_label) {
-  # Fixed-score 1-NN ATT matching with replacement, implemented by MatchIt.
-  fit <- MatchIt::matchit(
-    treat ~ 1, data = dat, method = "nearest", distance = score,
-    estimand = "ATT", replace = TRUE, ratio = 1
-  )
-  mm <- fit$match.matrix
-  if (is.null(mm) || ncol(mm) != 1L || nrow(mm) != sum(dat$treat == 1)) {
-    stop("MatchIt did not return one matched control per retained treated unit.")
-  }
-  treated_ids <- rownames(mm)
-  control_ids <- as.character(mm[, 1])
-  if (anyNA(control_ids) || any(!treated_ids %in% rownames(dat)) || any(!control_ids %in% rownames(dat))) {
-    stop("Matching matrix has missing or unrecognized original unit IDs.")
-  }
-  d <- dat[treated_ids, "re78"] - dat[control_ids, "re78"]
-  # Approximate matching interval conditional on fitted scores. CR1 clusters
-  # pair differences by original matched control, allowing control reuse.
-  pair_fit <- stats::lm(d ~ 1)
-  vc <- sandwich::vcovCL(pair_fit, cluster = control_ids, type = "HC1", cadjust = TRUE)
-  se <- sqrt(vc[1, 1])
-  n_clusters <- length(unique(control_ids))
-  if (n_clusters < 2L) stop("Matching variance requires at least two reused-control clusters.")
-  make_row(label, mean(d), se, cov_label, support_label,
-           "1-NN PS match (replacement; CR1 approximate)",
-           length(d), sum(dat$treat == 0), stats::qt(0.975, df = n_clusters - 1L))
-}
-
-strat_att <- function(dat, score, label, cov_label, support_label) {
-  tr_scores <- score[dat$treat == 1]
-  treated_breaks <- unique(as.numeric(stats::quantile(tr_scores, probs = seq(0, 1, 0.2), type = 7, names = FALSE)))
-  if (length(treated_breaks) != 6L) stop("Treated-score quintile cutpoints are not unique; cannot form five strata.")
-  # The four interior cutpoints define treated-score quintiles; infinite endpoints
-  # retain untrimmed controls whose fitted scores fall outside treated extrema.
-  breaks <- c(-Inf, treated_breaks[2:5], Inf)
-  stratum <- cut(score, breaks = breaks, include.lowest = TRUE, labels = FALSE)
-  if (anyNA(stratum)) stop("A retained unit could not be assigned to a treated-score quintile.")
-  diffs <- vars <- weights <- numeric(5)
-  for (h in seq_len(5)) {
-    y1 <- dat$re78[dat$treat == 1 & stratum == h]
-    y0 <- dat$re78[dat$treat == 0 & stratum == h]
-    if (!length(y1) || !length(y0)) stop("Stratum ", h, " lacks a treated or control arm.")
-    diffs[h] <- mean(y1) - mean(y0)
-    weights[h] <- length(y1) / sum(dat$treat == 1)
-    vars[h] <- weights[h]^2 * (var(y1) / length(y1) + var(y0) / length(y0))
-  }
-  make_row(label, sum(weights * diffs), sqrt(sum(vars)), cov_label, support_label,
-           "Five-stratum PS subclassification (Neyman fixed-strata)",
-           sum(dat$treat == 1), sum(dat$treat == 0))
-}
-
-cov_sets <- list(
-  "Demographics" = c("age", "educ", "black", "hisp", "marr", "nodegree"),
-  "Demographics + earnings" = c("age", "educ", "black", "hisp", "marr", "nodegree", "re74", "re75")
+formulas <- list(
+  Demographics = treat ~ age + I(age^2) + educ + I(educ^2) + black + hisp + marr + nodegree,
+  Earnings = treat ~ age + I(age^2) + educ + I(educ^2) + black + hisp + marr + nodegree +
+    re74 + re75 + I(re74^2) + I(re75^2) + u74 + u75
 )
 
-for (cov_label in names(cov_sets)) {
-  covars <- cov_sets[[cov_label]]
-  ps_formula <- stats::reformulate(covars, response = "treat")
-  ps_fit <- stats::glm(ps_formula, data = obs, family = stats::binomial())
-  full_score <- stats::fitted(ps_fit) # Same full-composite scores used under both supports.
-  tr_range <- range(full_score[obs$treat == 1])
-  co_range <- range(full_score[obs$treat == 0])
-  lo <- max(tr_range[1], co_range[1])
-  hi <- min(tr_range[2], co_range[2])
-  if (lo > hi) stop("No common fitted-score support for covariate set: ", cov_label)
-  supports <- list(
-    "Untrimmed" = rep(TRUE, nrow(obs)),
-    "Trimmed to full-score intersection" = full_score >= lo & full_score <= hi
-  )
-  for (support_label in names(supports)) {
-    keep <- supports[[support_label]]
-    dat <- obs[keep, , drop = FALSE]
-    score <- full_score[keep]
-    if (!sum(dat$treat == 1) || !sum(dat$treat == 0)) stop("Support restriction removed an arm.")
-    prefix <- paste(cov_label, if (support_label == "Untrimmed") "untrimmed" else "trimmed", sep = "; ")
-    results[[length(results) + 1L]] <- match_att(
-      dat, score, paste(prefix, "1-NN matching", sep = "; "), cov_label, support_label
-    )
-    results[[length(results) + 1L]] <- strat_att(
-      dat, score, paste(prefix, "five-stratum subclassification", sep = "; "), cov_label, support_label
-    )
+results <- list()
+naive <- fit_effect(obs)
+results[[1]] <- data.frame(
+  specification = "Naive raw difference", estimator = "Raw difference", covariates = "None",
+  support = "No trim", estimate = naive["estimate"], se = naive["se"],
+  lower = naive["lower"], upper = naive["upper"], benchmark = benchmark,
+  gap = naive["estimate"] - benchmark, treated_n = sum(obs$treat == 1),
+  control_n = sum(obs$treat == 0), control_ess = sum(obs$treat == 0), stringsAsFactors = FALSE
+)
+
+for (cov_name in names(formulas)) {
+  for (support_name in c("No trim", "Common support")) {
+    discard_value <- if (support_name == "No trim") "none" else "both"
+    reestimate_value <- support_name == "Common support"
+    for (estimator_name in c("1-NN replacement", "5 strata")) {
+      if (estimator_name == "1-NN replacement") {
+        m <- matchit(formulas[[cov_name]], data = obs, method = "nearest", distance = "glm",
+                     estimand = "ATT", replace = TRUE, ratio = 1, m.order = "closest",
+                     discard = discard_value, reestimate = reestimate_value)
+      } else {
+        m <- matchit(formulas[[cov_name]], data = obs, method = "subclass", distance = "glm",
+                     estimand = "ATT", subclass = 5, discard = discard_value,
+                     reestimate = reestimate_value)
+      }
+      md <- match.data(m, drop.unmatched = TRUE)
+      effect <- fit_effect(md, weighted = TRUE)
+      control_weights <- md$weights[md$treat == 0]
+      results[[length(results) + 1]] <- data.frame(
+        specification = paste(cov_name, support_name, estimator_name, sep = " — "),
+        estimator = estimator_name, covariates = cov_name, support = support_name,
+        estimate = effect["estimate"], se = effect["se"], lower = effect["lower"],
+        upper = effect["upper"], benchmark = benchmark, gap = effect["estimate"] - benchmark,
+        treated_n = sum(md$treat == 1), control_n = sum(md$treat == 0),
+        control_ess = sum(control_weights)^2 / sum(control_weights^2), stringsAsFactors = FALSE
+      )
+    }
   }
 }
 
-specs <- do.call(rbind, results)
-if (nrow(specs) != 9L) stop("Internal error: specification curve must have exactly nine rows.")
-if (sum(specs$estimator != "Welch difference") != 8L) stop("Internal error: eight adjusted specifications required.")
+res <- do.call(rbind, results)
+res$specification <- factor(res$specification, levels = res$specification)
 
-money <- function(x) paste0("$", format(round(x), big.mark = ",", trim = TRUE, scientific = FALSE))
-int_money <- function(lo, hi) paste0("[", money(lo), ", ", money(hi), "]")
+# Markdown specification table.
 table_lines <- c(
   "# Fixed LaLonde specification curve",
   "",
-  "Outcome: 1978 earnings (USD). The experimental NSW treated-minus-control benchmark is recomputed from the NSW sample. The naive interval is Welch; matching intervals are approximate CR1 intervals conditional on fitted scores; subclassification intervals are Neyman fixed-strata intervals.",
+  "All amounts are 1978 dollars. The benchmark is the NSW experimental treated-minus-control contrast.",
   "",
-  "| Specification | Estimate | SE | 95% CI | Benchmark | Gap | Covariates | Support | Estimator | Retained treated N | Eligible control N |",
-  "|---|---:|---:|---:|---:|---:|---|---|---|---:|---:|"
+  "| Estimator | Covariates | Support | Estimate | 95% CI | Benchmark | Gap | Treated N | Control N | Control ESS |",
+  "|---|---|---|---:|---|---:|---:|---:|---:|---:|"
 )
-for (i in seq_len(nrow(specs))) {
-  x <- specs[i, ]
-  table_lines <- c(table_lines, sprintf(
-    "| %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %d |",
-    x$specification, money(x$estimate), money(x$se), int_money(x$lower, x$upper),
-    money(x$benchmark), money(x$gap), x$covariates, x$support, x$estimator,
-    x$retained_treated_n, x$retained_control_n
-  ))
+for (i in seq_len(nrow(res))) {
+  r <- res[i, ]
+  table_lines <- c(table_lines, paste0("| ", r$estimator, " | ", r$covariates, " | ", r$support,
+    " | ", fmt_dollar(r$estimate), " | ", fmt_ci(r$lower, r$upper),
+    " | ", fmt_dollar(r$benchmark), " | ", fmt_dollar(r$gap), " | ",
+    r$treated_n, " | ", r$control_n, " | ", format(round(r$control_ess), big.mark = ",", trim = TRUE), " |"))
 }
+table_lines <- c(table_lines, "", "## Methods", "",
+  "The observational composite contains all 185 NSW treated units and all 15,992 CPS controls. The naive row is an unweighted `lm(re78 ~ treat)`. Each adjusted row uses a propensity-score logit fit by MatchIt with ATT targeting and `distance = \"glm\"`; 1-NN uses replacement, ratio 1, and closest-first matching, while stratification uses exactly five subclasses. No-trim specifications set `discard = \"none\"` and `reestimate = FALSE`; common-support specifications set `discard = \"both\"` and `reestimate = TRUE`. Matched data retain only matched observations. Estimates come from `lm(re78 ~ treat)` using MatchIt weights, with HC2 sandwich standard errors and normal 95% intervals. Control N is the number of unique retained controls; control ESS is sum(w)^2/sum(w^2). These intervals condition on estimated scores and matches; they do not bootstrap nearest-neighbor matching.")
 writeLines(table_lines, "spec-table.md")
 
-# Base-R coefficient plot: no in-plot title; caption lives in the table/memo.
-png("figures/spec-curve.png", width = FIG_WIDTH, height = FIG_HEIGHT, units = "in", res = FIG_DPI)
-op <- par(mar = c(5.1, 22.1, 1.1, 1.2), las = 1, family = "sans", fg = THEME_FG, col.axis = THEME_FG, col.lab = THEME_FG)
-y <- rev(seq_len(nrow(specs)))
-xrange <- range(c(specs$lower, specs$upper, benchmark, 0))
-pad <- diff(xrange) * 0.08
-plot(NA, xlim = xrange + c(-pad, pad), ylim = c(0.5, nrow(specs) + 0.5), yaxt = "n", xlab = "Estimated ATT on 1978 earnings (USD)", ylab = "", bty = "n")
-abline(v = pretty(xrange + c(-pad, pad)), col = THEME_GRID, lwd = 0.8)
-abline(v = 0, col = "#777777", lty = 3, lwd = 1)
-abline(v = benchmark, col = OI_VERMILLION, lty = 2, lwd = 2)
-segments(specs$lower, y, specs$upper, y, col = OI_BLUE, lwd = 2)
-points(specs$estimate, y, pch = 21, bg = OI_SKY_BLUE, col = OI_BLUE, cex = 1.25)
-axis(2, at = y, labels = specs$specification, tick = FALSE, cex.axis = 0.70, las = 1)
-mtext("Experimental benchmark", side = 3, at = benchmark, line = -0.55, col = OI_VERMILLION, cex = 0.75)
-par(op)
-dev.off()
+# The sole figure: all observational estimates and their conditional 95% intervals.
+plot_labels <- c("Naive", "Demo / no trim / 1-NN", "Demo / no trim / 5 strata",
+  "Demo / common support / 1-NN", "Demo / common support / 5 strata",
+  "Earnings / no trim / 1-NN", "Earnings / no trim / 5 strata",
+  "Earnings / common support / 1-NN", "Earnings / common support / 5 strata")
+plot_dat <- res
+plot_dat$label <- factor(plot_labels, levels = rev(plot_labels))
+plot_dat$family <- ifelse(plot_dat$covariates == "Earnings", "Earnings covariates",
+                          ifelse(plot_dat$covariates == "Demographics", "Demographic covariates", "Naive"))
+p <- ggplot(plot_dat, aes(x = estimate, y = label, colour = family)) +
+  geom_vline(xintercept = benchmark, linewidth = 0.7, colour = oi["black"], linetype = "dashed") +
+  geom_errorbar(aes(xmin = lower, xmax = upper), orientation = "y", width = 0.18, linewidth = 0.65) +
+  geom_point(size = 2.4) +
+  scale_colour_manual(values = c("Naive" = unname(oi["orange"]),
+                                 "Demographic covariates" = unname(oi["sky_blue"]),
+                                 "Earnings covariates" = unname(oi["bluish_green"])), name = NULL) +
+  labs(x = "Estimated ATT on 1978 earnings (dollars)",
+       caption = paste0("Points are estimates; bars are HC2 normal 95% intervals. Dashed line: NSW experimental benchmark (", fmt_dollar(benchmark), ").")) +
+  theme_spec + theme(legend.position = "top", axis.text.y = element_text(size = 9))
+dir.create("figures", showWarnings = FALSE, recursive = TRUE)
+ggsave("figures/spec-curve.png", p, width = 9, height = 5.6, dpi = 320, bg = "white")
 
-adjusted <- specs[-1, , drop = FALSE]
-closest <- adjusted[which.min(abs(adjusted$gap)), ]
-within_benchmark_ci <- adjusted$lower <= benchmark & adjusted$upper >= benchmark
-memo_lines <- c(
-  "# Adjudication of the fixed specification curve",
-  "",
-  sprintf("The NSW experiment yields a treated-minus-control benchmark of %s in 1978 earnings (95%% CI not used as the reference here). Replacing its controls with all 15,992 CPS controls produces a naive observational difference of %s (95%% CI %s), a gap of %s from the experimental result. Thus the raw CPS comparison is not a credible substitute for the randomized control group.", money(benchmark), money(specs$estimate[1]), int_money(specs$lower[1], specs$upper[1]), money(specs$gap[1])),
-  "",
-  sprintf("The eight adjusted estimates do not deliver robust recovery. Across the fixed curve, estimates range from %s to %s, and their gaps from the benchmark range from %s to %s. %d of 8 adjusted 95%% intervals include the experimental benchmark. The closest point estimate is the %s specification (%s; gap %s; 95%% CI %s). That pattern is best described as favorable-specification-only recovery rather than a general success or a blanket failure of propensity-score adjustment.", money(min(adjusted$estimate)), money(max(adjusted$estimate)), money(min(adjusted$gap)), money(max(adjusted$gap)), sum(within_benchmark_ci), closest$specification, money(closest$estimate), money(closest$gap), int_money(closest$lower, closest$upper)),
-  "",
-  "The design details matter substantively. Each propensity score is a main-effects logit fitted once on the full NSW-treated/CPS-control composite. The trimmed specifications retain only observations in the intersection of the treated and control ranges of those already-fitted scores. Trimming can therefore change the ATT target if it removes treated units; in this run it removed only controls, leaving all 185 treated participants and the realized treated target unchanged. Nearest-neighbor estimates use replacement, while subclassification contrasts five treated-score quintiles and weights them by treated counts. Their intervals use different transparent approximations: a control-reuse CR1 interval conditional on fitted scores and a Neyman fixed-strata interval. Neither repairs bias from a bad comparison group.",
-  "",
-  "The support counts make that point concrete. Demographics-only trimming leaves 12,706 eligible CPS controls; the earnings specification leaves 5,776. The identical trimmed and untrimmed demographics 1-NN estimates show that excluded controls were never nearest matches. By contrast, earnings-based subclassification moves from $-144 without trimming to $1,290 after trimming. Even with the treated target held fixed, the support rule changes the comparison group enough to change the answer.",
-  "",
-  "A paper may therefore say that some prespecified combinations of earnings covariates, support restriction, and propensity-score estimator bring the CPS comparison closer to the experimental result. It may not say, without qualification, that propensity-score methods recover the experimental effect. Conditional ignorability is an untestable assumption here: observed demographics and prior earnings can balance measured composition, but cannot rule out unobserved labor-market history, motivation, local conditions, or selection into the CPS pool. Moreover, trimming can make a closer estimate apply only to treated people in common fitted-score support, not necessarily to all NSW participants. The curve supports Smith and Todd's fragility concern: apparent recovery depends on analytic choices and should be reported as sensitivity evidence, not as validation of the observational design."
-)
-writeLines(memo_lines, "memo.md")
+# Results-bound memo, kept within the requested 430--500-word range.
+min_est <- min(res$estimate)
+max_est <- max(res$estimate)
+closest <- res[which.min(abs(res$gap)), ]
+overlap_n <- sum(res$lower <= benchmark & res$upper >= benchmark)
+memo <- paste0(
+"# Memo: What the fixed specification curve shows\n\n",
+"The evidence supports favorable-specification-only recovery, not robust recovery. The experimental NSW benchmark, estimated within the randomized sample by the same regression contrast used throughout, is ", fmt_dollar(benchmark), ". In the observational composite of all 185 NSW participants and 15,992 CPS controls, the raw difference is ", fmt_dollar(res$estimate[1]), ", a gap of ", fmt_dollar(res$gap[1]), ". Across the eight prespecified propensity-score analyses, estimates range from ", fmt_dollar(min_est), " to ", fmt_dollar(max_est), ". The closest adjusted result is ", closest$specification, " at ", fmt_dollar(closest$estimate), ", with a gap of ", fmt_dollar(closest$gap), ". That pattern is not a stable recovery of the experimental contrast across reasonable fixed choices.\n\n",
+"Conditioning on the listed pre-treatment covariates makes CPS controls more comparable to NSW treated units on those measured features. The propensity score summarizes those observed predictors for the matching or subclassification step, and the weighted outcome regression then estimates an ATT contrast in the retained, weighted sample. It does not make treatment assignment randomized in CPS, balance unmeasured determinants by assumption alone, or identify the experimental effect when selection remains related to potential 1978 earnings after conditioning. Consequently, agreement with the benchmark in one cell is diagnostic evidence about that specification, not proof that propensity-score matching has generally removed observational bias.\n\n",
+"Sensitivity is material on all three requested axes. Adding lagged earnings and zero-earnings indicators changes the adjustment set; matching with replacement and five-score subclassification form different counterfactual comparisons; and common-support trimming changes the analysis population as well as the available controls. In particular, a trimmed estimate targets the ATT for treated units retained after the overlap rule, not necessarily the ATT for all 185 NSW treated units. The control counts and effective sample sizes in the table make clear that nominal CPS abundance does not by itself guarantee the same comparison information under every design.\n\n",
+"Exact benchmark recovery and interval overlap are distinct standards. An estimate can miss ", fmt_dollar(benchmark), " exactly while its conditional 95% interval includes it; here ", overlap_n, " of the nine observational intervals include the benchmark. Conversely, interval overlap is not a demonstration of unbiased recovery, especially because these HC2 intervals condition on the estimated propensity scores and selected matches. They do not incorporate score-estimation or matching-design uncertainty, and nearest-neighbor matching has not been bootstrapped.\n\n",
+"A paper may claim that specified observed-covariate adjustments can yield estimates compatible with the NSW benchmark in this application, and it may report the full curve and its ATT targets. It may not claim unqualified recovery, causal identification from CPS controls, or robustness to covariate, support, and estimator decisions. The defensible conclusion is narrower: favorable specifications can align with the experiment, but the fixed curve shows that alignment is specification-dependent.\n")
+writeLines(memo, "memo.md")
 
-message("Benchmark: ", round(benchmark, 2), "; wrote 9 specification rows and figures/spec-curve.png")
+stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
+cat("Conclusion: favorable-specification-only recovery.\n")
+cat("Benchmark:", sprintf("%.6f", benchmark), "\n")
+cat("Estimate range:", sprintf("%.6f", min_est), "to", sprintf("%.6f", max_est), "\n")
+cat("Artifacts: script.R, figures/spec-curve.png, spec-table.md, memo.md\n")
+cat("Acceptance: 9 observational rows; one 320 dpi PNG; memo words:", length(strsplit(gsub("[#`]|\\n", " ", memo), "\\s+")[[1]]), "\n")
 # Fixed LaLonde specification curve
 
-Outcome: 1978 earnings (USD). The experimental NSW treated-minus-control benchmark is recomputed from the NSW sample. The naive interval is Welch; matching intervals are approximate CR1 intervals conditional on fitted scores; subclassification intervals are Neyman fixed-strata intervals.
+All amounts are 1978 dollars. The benchmark is the NSW experimental treated-minus-control contrast.
 
-| Specification | Estimate | SE | 95% CI | Benchmark | Gap | Covariates | Support | Estimator | Retained treated N | Eligible control N |
-|---|---:|---:|---:|---:|---:|---|---|---|---:|---:|
-| Naive composite difference | $-8,498 | $583 | [$-9,648, $-7,347] | $1,794 | $-10,292 | None | Untrimmed | Welch difference | 185 | 15992 |
-| Demographics; untrimmed; 1-NN matching | $-2,798 | $1,015 | [$-4,808, $-788] | $1,794 | $-4,592 | Demographics | Untrimmed | 1-NN PS match (replacement; CR1 approximate) | 185 | 15992 |
-| Demographics; untrimmed; five-stratum subclassification | $-4,162 | $678 | [$-5,491, $-2,833] | $1,794 | $-5,956 | Demographics | Untrimmed | Five-stratum PS subclassification (Neyman fixed-strata) | 185 | 15992 |
-| Demographics; trimmed; 1-NN matching | $-2,798 | $1,015 | [$-4,808, $-788] | $1,794 | $-4,592 | Demographics | Trimmed to full-score intersection | 1-NN PS match (replacement; CR1 approximate) | 185 | 12706 |
-| Demographics; trimmed; five-stratum subclassification | $-4,028 | $682 | [$-5,364, $-2,693] | $1,794 | $-5,823 | Demographics | Trimmed to full-score intersection | Five-stratum PS subclassification (Neyman fixed-strata) | 185 | 12706 |
-| Demographics + earnings; untrimmed; 1-NN matching | $1,712 | $799 | [$131, $3,293] | $1,794 | $-82 | Demographics + earnings | Untrimmed | 1-NN PS match (replacement; CR1 approximate) | 185 | 15992 |
-| Demographics + earnings; untrimmed; five-stratum subclassification | $-144 | $644 | [$-1,406, $1,119] | $1,794 | $-1,938 | Demographics + earnings | Untrimmed | Five-stratum PS subclassification (Neyman fixed-strata) | 185 | 15992 |
-| Demographics + earnings; trimmed; 1-NN matching | $1,759 | $801 | [$174, $3,343] | $1,794 | $-36 | Demographics + earnings | Trimmed to full-score intersection | 1-NN PS match (replacement; CR1 approximate) | 185 | 5776 |
-| Demographics + earnings; trimmed; five-stratum subclassification | $1,290 | $645 | [$25, $2,555] | $1,794 | $-505 | Demographics + earnings | Trimmed to full-score intersection | Five-stratum PS subclassification (Neyman fixed-strata) | 185 | 5776 |
-# Adjudication of the fixed specification curve
+| Estimator | Covariates | Support | Estimate | 95% CI | Benchmark | Gap | Treated N | Control N | Control ESS |
+|---|---|---|---:|---|---:|---:|---:|---:|---:|
+| Raw difference | None | No trim | $-8,498 | [$-9,641, $-7,354] | $1,794 | $-10,292 | 185 | 15992 | 15,992 |
+| 1-NN replacement | Demographics | No trim | $-2,655 | [$-4,749, $-561] | $1,794 | $-4,449 | 185 | 121 | 79 |
+| 5 strata | Demographics | No trim | $-4,025 | [$-5,366, $-2,684] | $1,794 | $-5,820 | 185 | 15992 | 444 |
+| 1-NN replacement | Demographics | Common support | $-2,951 | [$-5,027, $-875] | $1,794 | $-4,746 | 184 | 120 | 83 |
+| 5 strata | Demographics | Common support | $-3,730 | [$-5,069, $-2,390] | $1,794 | $-5,524 | 184 | 8755 | 453 |
+| 1-NN replacement | Earnings | No trim | $2,787 | [$1,213, $4,360] | $1,794 | $992 | 185 | 118 | 63 |
+| 5 strata | Earnings | No trim | $-1 | [$-1,499, $1,498] | $1,794 | $-1,795 | 185 | 15992 | 138 |
+| 1-NN replacement | Earnings | Common support | $1,773 | [$-105, $3,651] | $1,794 | $-22 | 181 | 114 | 62 |
+| 5 strata | Earnings | Common support | $1,269 | [$-166, $2,703] | $1,794 | $-526 | 181 | 4544 | 152 |
 
-The NSW experiment yields a treated-minus-control benchmark of $1,794 in 1978 earnings (95% CI not used as the reference here). Replacing its controls with all 15,992 CPS controls produces a naive observational difference of $-8,498 (95% CI [$-9,648, $-7,347]), a gap of $-10,292 from the experimental result. Thus the raw CPS comparison is not a credible substitute for the randomized control group.
+## Methods
 
-The eight adjusted estimates do not deliver robust recovery. Across the fixed curve, estimates range from $-4,162 to $1,759, and their gaps from the benchmark range from $-5,956 to $-36. 3 of 8 adjusted 95% intervals include the experimental benchmark. The closest point estimate is the Demographics + earnings; trimmed; 1-NN matching specification ($1,759; gap $-36; 95% CI [$174, $3,343]). That pattern is best described as favorable-specification-only recovery rather than a general success or a blanket failure of propensity-score adjustment.
+The observational composite contains all 185 NSW treated units and all 15,992 CPS controls. The naive row is an unweighted `lm(re78 ~ treat)`. Each adjusted row uses a propensity-score logit fit by MatchIt with ATT targeting and `distance = "glm"`; 1-NN uses replacement, ratio 1, and closest-first matching, while stratification uses exactly five subclasses. No-trim specifications set `discard = "none"` and `reestimate = FALSE`; common-support specifications set `discard = "both"` and `reestimate = TRUE`. Matched data retain only matched observations. Estimates come from `lm(re78 ~ treat)` using MatchIt weights, with HC2 sandwich standard errors and normal 95% intervals. Control N is the number of unique retained controls; control ESS is sum(w)^2/sum(w^2). These intervals condition on estimated scores and matches; they do not bootstrap nearest-neighbor matching.
+# Memo: What the fixed specification curve shows
 
-The design details matter substantively. Each propensity score is a main-effects logit fitted once on the full NSW-treated/CPS-control composite. The trimmed specifications retain only observations in the intersection of the treated and control ranges of those already-fitted scores. Trimming can therefore change the ATT target if it removes treated units; in this run it removed only controls, leaving all 185 treated participants and the realized treated target unchanged. Nearest-neighbor estimates use replacement, while subclassification contrasts five treated-score quintiles and weights them by treated counts. Their intervals use different transparent approximations: a control-reuse CR1 interval conditional on fitted scores and a Neyman fixed-strata interval. Neither repairs bias from a bad comparison group.
+The evidence supports favorable-specification-only recovery, not robust recovery. The experimental NSW benchmark, estimated within the randomized sample by the same regression contrast used throughout, is $1,794. In the observational composite of all 185 NSW participants and 15,992 CPS controls, the raw difference is $-8,498, a gap of $-10,292. Across the eight prespecified propensity-score analyses, estimates range from $-8,498 to $2,787. The closest adjusted result is Earnings — Common support — 1-NN replacement at $1,773, with a gap of $-22. That pattern is not a stable recovery of the experimental contrast across reasonable fixed choices.
 
-The support counts make that point concrete. Demographics-only trimming leaves 12,706 eligible CPS controls; the earnings specification leaves 5,776. The identical trimmed and untrimmed demographics 1-NN estimates show that excluded controls were never nearest matches. By contrast, earnings-based subclassification moves from $-144 without trimming to $1,290 after trimming. Even with the treated target held fixed, the support rule changes the comparison group enough to change the answer.
+Conditioning on the listed pre-treatment covariates makes CPS controls more comparable to NSW treated units on those measured features. The propensity score summarizes those observed predictors for the matching or subclassification step, and the weighted outcome regression then estimates an ATT contrast in the retained, weighted sample. It does not make treatment assignment randomized in CPS, balance unmeasured determinants by assumption alone, or identify the experimental effect when selection remains related to potential 1978 earnings after conditioning. Consequently, agreement with the benchmark in one cell is diagnostic evidence about that specification, not proof that propensity-score matching has generally removed observational bias.
 
-A paper may therefore say that some prespecified combinations of earnings covariates, support restriction, and propensity-score estimator bring the CPS comparison closer to the experimental result. It may not say, without qualification, that propensity-score methods recover the experimental effect. Conditional ignorability is an untestable assumption here: observed demographics and prior earnings can balance measured composition, but cannot rule out unobserved labor-market history, motivation, local conditions, or selection into the CPS pool. Moreover, trimming can make a closer estimate apply only to treated people in common fitted-score support, not necessarily to all NSW participants. The curve supports Smith and Todd's fragility concern: apparent recovery depends on analytic choices and should be reported as sensitivity evidence, not as validation of the observational design.
+Sensitivity is material on all three requested axes. Adding lagged earnings and zero-earnings indicators changes the adjustment set; matching with replacement and five-score subclassification form different counterfactual comparisons; and common-support trimming changes the analysis population as well as the available controls. In particular, a trimmed estimate targets the ATT for treated units retained after the overlap rule, not necessarily the ATT for all 185 NSW treated units. The control counts and effective sample sizes in the table make clear that nominal CPS abundance does not by itself guarantee the same comparison information under every design.
+
+Exact benchmark recovery and interval overlap are distinct standards. An estimate can miss $1,794 exactly while its conditional 95% interval includes it; here 3 of the nine observational intervals include the benchmark. Conversely, interval overlap is not a demonstration of unbiased recovery, especially because these HC2 intervals condition on the estimated propensity scores and selected matches. They do not incorporate score-estimation or matching-design uncertainty, and nearest-neighbor matching has not been bootstrapped.
+
+A paper may claim that specified observed-covariate adjustments can yield estimates compatible with the NSW benchmark in this application, and it may report the full curve and its ATT targets. It may not claim unqualified recovery, causal identification from CPS controls, or robustness to covariate, support, and estimator decisions. The defensible conclusion is narrower: favorable specifications can align with the experiment, but the fixed curve shows that alignment is specification-dependent.
+
 
 codex
-The artifacts contain the intended nine-row curve. I’m now independently recomputing the data quantities without sourcing the write-producing script, then checking the rendered figure’s metadata and visual elements.
+The read-only sandbox prevents R from creating its temporary session files, so I cannot execute a fresh R calculation here. I can still audit the recorded computations line-by-line, inspect the supplied PNG, and distinguish that residual verification limit explicitly.
 exec
-/bin/zsh -lc "Rscript - <<'RS'
-suppressPackageStartupMessages({library(causaldata); library(MatchIt); library(sandwich)})
-nsw <- as.data.frame(nsw_mixtape); cps <- as.data.frame(cps_mixtape)
-tr <- nsw[nsw"'$treat==1,]; co <- cps[cps$treat==0,]
-tr$unit_id <- sprintf('"'nsw_t_%03d', seq_len(nrow(tr))); co"'$unit_id <- sprintf('"'cps_c_%05d', seq_len(nrow(co)))
-obs <- rbind(tr,co); rownames(obs)<-obs"'$unit_id
-bench <- with(nsw,mean(re78[treat==1])-mean(re78[treat==0])); naive<-with(obs,mean(re78[treat==1])-mean(re78[treat==0]))
-cat(sprintf('"'N NSW=%d treated=%d control=%d; CPS controls=%d\\nbenchmark=%.12f naive=%.12f\\n',nrow(nsw),sum(nsw"'$treat==1),sum(nsw$treat==0),sum(cps$treat==0),bench,naive))
-sets <- list(Demographics=c('"'age','educ','black','hisp','marr','nodegree'), 'Demographics + earnings'=c('age','educ','black','hisp','marr','nodegree','re74','re75'))
-for(nm in names(sets)){
- s <- fitted(glm(reformulate(sets[[nm]],response='treat'),data=obs,family=binomial()))
- lo<-max(min(s[obs"'$treat==1]),min(s[obs$treat==0])); hi<-min(max(s[obs$treat==1]),max(s[obs$treat==0]))
- for(sp in c('"'Untrimmed','Trimmed')){
-  k<-if(sp=='Untrimmed') rep(TRUE,nrow(obs)) else s>=lo&s<=hi; d<-obs[k,]; z<-s[k]
-  fit<-matchit(treat~1,data=d,method='nearest',distance=z,estimand='ATT',replace=TRUE,ratio=1)
-  m<-fit"'$match.matrix; ids<-rownames(m); cids<-as.character(m[,1]); dd<-d[ids,'"'re78']-d[cids,'re78']
-  pf<-lm(dd~1); se<-sqrt(vcovCL(pf,cluster=cids,type='HC1',cadjust=TRUE)[1,1]); ci<-mean(dd)+c(-1,1)*qt(.975,df=length(unique(cids))-1)*se
-  br<-unique(as.numeric(quantile(z[d"'$treat==1],probs=seq(0,1,.2),type=7))); st<-cut(z,c(-Inf,br[2:5],Inf),include.lowest=TRUE,labels=FALSE)
-  dif<-vapply(1:5,function(h) mean(d$re78[d$treat==1&st==h])-mean(d$re78[d$treat==0&st==h]),0.0); w<-vapply(1:5,function(h) sum(d$treat==1&st==h)/sum(d$treat==1),0.0); vv<-vapply(1:5,function(h) {y1<-d$re78[d$treat==1&st==h];y0<-d$re78[d$treat==0&st==h]; w[h]''^2*(var(y1)/length(y1)+var(y0)/length(y0))},0.0); est<-sum(w*dif); ses<-sqrt(sum(vv)); cis<-est+c(-1,1)*qnorm(.975)*ses
-  cat(sprintf('"'%s | %s | N=%d/%d | NN=%.12f SE=%.12f CI=[%.12f,%.12f] | STRAT=%.12f SE=%.12f CI=[%.12f,%.12f]\\n',nm,sp,sum(d"'$treat==1),sum(d$treat==0),mean(dd),se,ci[1],ci[2],est,ses,cis[1],cis[2]))
- }
-}
-RS
-file figures/spec-curve.png
-sips -g pixelWidth -g pixelHeight -g dpiWidth -g dpiHeight figures/spec-curve.png 2>&1
-' in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
+/bin/zsh -lc 'rg -n "''^(#|The evidence|Conditioning|Sensitivity|Exact benchmark|A paper)|estimate|benchmark|matchit|discard|reestimate|estimand|replace|subclass|ggsave|geom_vline|geom_errorbar|scale_colour|writeLines|bootstrap|HC2|range" script.R spec-table.md memo.md && mdls -name kMDItemPixelWidth -name kMDItemPixelHeight figures/spec-curve.png || true && (identify -verbose figures/spec-curve.png 2>/dev/null | rg -n '"'Geometry|Resolution|Units|Colorspace' || true)" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
+ succeeded in 3037ms:
+7:  Geometry: 2880x1792+0+0
+8:  Resolution: 125.98x125.98
+10:  Units: PixelsPerCentimeter
+11:  Colorspace: sRGB
+
+exec
+/bin/zsh -lc "wc -w memo.md && awk 'NR>=7&&NR<=15 {print NR \": \" "'$0}'"' spec-table.md && awk 'NR>=34&&NR<=91 {print NR \": \" "'$0}'"' script.R && awk 'NR>=138&&NR<=156 {print NR \": \" "'$0}'"' script.R" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
  succeeded in 0ms:
-zsh:1: can't create temp file for here document: operation not permitted
-figures/spec-curve.png: PNG image data, 3520 x 1920, 8-bit/color RGBA, non-interlaced
-~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde/figures/spec-curve.png
-  pixelWidth: 3520
-  pixelHeight: 1920
-  dpiWidth: 72.000
-  dpiHeight: 72.000
+     439 memo.md
+7: | Raw difference | None | No trim | $-8,498 | [$-9,641, $-7,354] | $1,794 | $-10,292 | 185 | 15992 | 15,992 |
+8: | 1-NN replacement | Demographics | No trim | $-2,655 | [$-4,749, $-561] | $1,794 | $-4,449 | 185 | 121 | 79 |
+9: | 5 strata | Demographics | No trim | $-4,025 | [$-5,366, $-2,684] | $1,794 | $-5,820 | 185 | 15992 | 444 |
+10: | 1-NN replacement | Demographics | Common support | $-2,951 | [$-5,027, $-875] | $1,794 | $-4,746 | 184 | 120 | 83 |
+11: | 5 strata | Demographics | Common support | $-3,730 | [$-5,069, $-2,390] | $1,794 | $-5,524 | 184 | 8755 | 453 |
+12: | 1-NN replacement | Earnings | No trim | $2,787 | [$1,213, $4,360] | $1,794 | $992 | 185 | 118 | 63 |
+13: | 5 strata | Earnings | No trim | $-1 | [$-1,499, $1,498] | $1,794 | $-1,795 | 185 | 15992 | 138 |
+14: | 1-NN replacement | Earnings | Common support | $1,773 | [$-105, $3,651] | $1,794 | $-22 | 181 | 114 | 62 |
+15: | 5 strata | Earnings | Common support | $1,269 | [$-166, $2,703] | $1,794 | $-526 | 181 | 4544 | 152 |
+34: 
+35: nsw <- as.data.frame(causaldata::nsw_mixtape)
+36: cps <- as.data.frame(causaldata::cps_mixtape)
+37: 
+38: # Experimental treated-minus-control benchmark, deliberately estimated rather than entered.
+39: benchmark_fit <- fit_effect(nsw)
+40: benchmark <- benchmark_fit["estimate"]
+41: 
+42: treated <- nsw[nsw$treat == 1, ]
+43: controls <- cps[cps$treat == 0, ]
+44: obs <- rbind(treated, controls)
+45: obs$u74 <- as.integer(obs$re74 == 0)
+46: obs$u75 <- as.integer(obs$re75 == 0)
+47: 
+48: formulas <- list(
+49:   Demographics = treat ~ age + I(age^2) + educ + I(educ^2) + black + hisp + marr + nodegree,
+50:   Earnings = treat ~ age + I(age^2) + educ + I(educ^2) + black + hisp + marr + nodegree +
+51:     re74 + re75 + I(re74^2) + I(re75^2) + u74 + u75
+52: )
+53: 
+54: results <- list()
+55: naive <- fit_effect(obs)
+56: results[[1]] <- data.frame(
+57:   specification = "Naive raw difference", estimator = "Raw difference", covariates = "None",
+58:   support = "No trim", estimate = naive["estimate"], se = naive["se"],
+59:   lower = naive["lower"], upper = naive["upper"], benchmark = benchmark,
+60:   gap = naive["estimate"] - benchmark, treated_n = sum(obs$treat == 1),
+61:   control_n = sum(obs$treat == 0), control_ess = sum(obs$treat == 0), stringsAsFactors = FALSE
+62: )
+63: 
+64: for (cov_name in names(formulas)) {
+65:   for (support_name in c("No trim", "Common support")) {
+66:     discard_value <- if (support_name == "No trim") "none" else "both"
+67:     reestimate_value <- support_name == "Common support"
+68:     for (estimator_name in c("1-NN replacement", "5 strata")) {
+69:       if (estimator_name == "1-NN replacement") {
+70:         m <- matchit(formulas[[cov_name]], data = obs, method = "nearest", distance = "glm",
+71:                      estimand = "ATT", replace = TRUE, ratio = 1, m.order = "closest",
+72:                      discard = discard_value, reestimate = reestimate_value)
+73:       } else {
+74:         m <- matchit(formulas[[cov_name]], data = obs, method = "subclass", distance = "glm",
+75:                      estimand = "ATT", subclass = 5, discard = discard_value,
+76:                      reestimate = reestimate_value)
+77:       }
+78:       md <- match.data(m, drop.unmatched = TRUE)
+79:       effect <- fit_effect(md, weighted = TRUE)
+80:       control_weights <- md$weights[md$treat == 0]
+81:       results[[length(results) + 1]] <- data.frame(
+82:         specification = paste(cov_name, support_name, estimator_name, sep = " — "),
+83:         estimator = estimator_name, covariates = cov_name, support = support_name,
+84:         estimate = effect["estimate"], se = effect["se"], lower = effect["lower"],
+85:         upper = effect["upper"], benchmark = benchmark, gap = effect["estimate"] - benchmark,
+86:         treated_n = sum(md$treat == 1), control_n = sum(md$treat == 0),
+87:         control_ess = sum(control_weights)^2 / sum(control_weights^2), stringsAsFactors = FALSE
+88:       )
+89:     }
+90:   }
+91: }
+138: # Results-bound memo, kept within the requested 430--500-word range.
+139: min_est <- min(res$estimate)
+140: max_est <- max(res$estimate)
+141: closest <- res[which.min(abs(res$gap)), ]
+142: overlap_n <- sum(res$lower <= benchmark & res$upper >= benchmark)
+143: memo <- paste0(
+144: "# Memo: What the fixed specification curve shows\n\n",
+145: "The evidence supports favorable-specification-only recovery, not robust recovery. The experimental NSW benchmark, estimated within the randomized sample by the same regression contrast used throughout, is ", fmt_dollar(benchmark), ". In the observational composite of all 185 NSW participants and 15,992 CPS controls, the raw difference is ", fmt_dollar(res$estimate[1]), ", a gap of ", fmt_dollar(res$gap[1]), ". Across the eight prespecified propensity-score analyses, estimates range from ", fmt_dollar(min_est), " to ", fmt_dollar(max_est), ". The closest adjusted result is ", closest$specification, " at ", fmt_dollar(closest$estimate), ", with a gap of ", fmt_dollar(closest$gap), ". That pattern is not a stable recovery of the experimental contrast across reasonable fixed choices.\n\n",
+146: "Conditioning on the listed pre-treatment covariates makes CPS controls more comparable to NSW treated units on those measured features. The propensity score summarizes those observed predictors for the matching or subclassification step, and the weighted outcome regression then estimates an ATT contrast in the retained, weighted sample. It does not make treatment assignment randomized in CPS, balance unmeasured determinants by assumption alone, or identify the experimental effect when selection remains related to potential 1978 earnings after conditioning. Consequently, agreement with the benchmark in one cell is diagnostic evidence about that specification, not proof that propensity-score matching has generally removed observational bias.\n\n",
+147: "Sensitivity is material on all three requested axes. Adding lagged earnings and zero-earnings indicators changes the adjustment set; matching with replacement and five-score subclassification form different counterfactual comparisons; and common-support trimming changes the analysis population as well as the available controls. In particular, a trimmed estimate targets the ATT for treated units retained after the overlap rule, not necessarily the ATT for all 185 NSW treated units. The control counts and effective sample sizes in the table make clear that nominal CPS abundance does not by itself guarantee the same comparison information under every design.\n\n",
+148: "Exact benchmark recovery and interval overlap are distinct standards. An estimate can miss ", fmt_dollar(benchmark), " exactly while its conditional 95% interval includes it; here ", overlap_n, " of the nine observational intervals include the benchmark. Conversely, interval overlap is not a demonstration of unbiased recovery, especially because these HC2 intervals condition on the estimated propensity scores and selected matches. They do not incorporate score-estimation or matching-design uncertainty, and nearest-neighbor matching has not been bootstrapped.\n\n",
+149: "A paper may claim that specified observed-covariate adjustments can yield estimates compatible with the NSW benchmark in this application, and it may report the full curve and its ATT targets. It may not claim unqualified recovery, causal identification from CPS controls, or robustness to covariate, support, and estimator decisions. The defensible conclusion is narrower: favorable specifications can align with the experiment, but the fixed curve shows that alignment is specification-dependent.\n")
+150: writeLines(memo, "memo.md")
+151: 
+152: stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
+153: cat("Conclusion: favorable-specification-only recovery.\n")
+154: cat("Benchmark:", sprintf("%.6f", benchmark), "\n")
+155: cat("Estimate range:", sprintf("%.6f", min_est), "to", sprintf("%.6f", max_est), "\n")
+156: cat("Artifacts: script.R, figures/spec-curve.png, spec-table.md, memo.md\n")
 
 exec
-/bin/zsh -lc "Rscript -e 'suppressPackageStartupMessages({library(causaldata);library(MatchIt);library(sandwich)});nsw<-as.data.frame(nsw_mixtape);cps<-as.data.frame(cps_mixtape);tr<-nsw[nsw"'$treat==1,];co<-cps[cps$treat==0,];tr$unit_id<-sprintf("nsw_t_%03d",seq_len(nrow(tr)));co$unit_id<-sprintf("cps_c_%05d",seq_len(nrow(co)));obs<-rbind(tr,co);rownames(obs)<-obs$unit_id;bench<-with(nsw,mean(re78[treat==1])-mean(re78[treat==0]));naive<-with(obs,mean(re78[treat==1])-mean(re78[treat==0]));cat(sprintf("N NSW=%d treated=%d control=%d; CPS controls=%d'"\\\\nbenchmark=%.12f naive=%.12f\\\\n\",nrow(nsw),sum(nsw"'$treat==1),sum(nsw$treat==0),sum(cps$treat==0),bench,naive));sets<-list("Demographics"=c("age","educ","black","hisp","marr","nodegree"),"Demographics + earnings"=c("age","educ","black","hisp","marr","nodegree","re74","re75"));for(nm in names(sets)){s<-fitted(glm(reformulate(sets[[nm]],response="treat"),data=obs,family=binomial()));lo<-max(min(s[obs$treat==1]),min(s[obs$treat==0]));hi<-min(max(s[obs$treat==1]),max(s[obs$treat==0]));for(sp in c("Untrimmed","Trimmed")){k<-if(sp=="Untrimmed")rep(TRUE,nrow(obs)) else s>=lo&s<=hi;d<-obs[k,];z<-s[k];fit<-matchit(treat~1,data=d,method="nearest",distance=z,estimand="ATT",replace=TRUE,ratio=1);m<-fit$match.matrix;ids<-rownames(m);cids<-as.character(m[,1]);dd<-d[ids,"re78"]-d[cids,"re78"];pf<-lm(dd~1);se<-sqrt(vcovCL(pf,cluster=cids,type="HC1",cadjust=TRUE)[1,1]);ci<-mean(dd)+c(-1,1)*qt(.975,df=length(unique(cids))-1)*se;br<-unique(as.numeric(quantile(z[d$treat==1],probs=seq(0,1,.2),type=7)));st<-cut(z,c(-Inf,br[2:5],Inf),include.lowest=TRUE,labels=FALSE);di<-vapply(1:5,function(h)mean(d$re78[d$treat==1&st==h])-mean(d$re78[d$treat==0&st==h]),0.0);w<-vapply(1:5,function(h)sum(d$treat==1&st==h)/sum(d$treat==1),0.0);v<-vapply(1:5,function(h){y1<-d$re78[d$treat==1&st==h];y0<-d$re78[d$treat==0&st==h];w[h]''^2*(var(y1)/length(y1)+var(y0)/length(y0))},0.0);e<-sum(w*di);ss<-sqrt(sum(v));cs<-e+c(-1,1)*qnorm(.975)*ss;cat(sprintf("%s | %s | N=%d/%d | NN=%.12f SE=%.12f CI=[%.12f,%.12f] | STRAT=%.12f SE=%.12f CI=[%.12f,%.12f]'"\\\\n\",nm,sp,sum(d"'$treat==1),sum(d$treat==0),mean(dd),se,ci[1],ci[2],e,ss,cs[1],cs[2]))}}'"'" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
- exited 2 in 0ms:
-Fatal error: creating temporary file for '-e' failed
-
-exec
-/bin/zsh -lc "rg -n 'bootstrap|matchit\\(|estimand|replace|support|lo <-|hi <-|vcovCL|Neyman|png\\(|abline\\(v = 0|abline\\(v = benchmark|OI_' script.R && find figures -maxdepth 1 -type f -print && md5 figures/spec-curve.png && (command -v identify >/dev/null && identify -verbose figures/spec-curve.png | rg -i 'Geometry|Resolution|Units|Format|Colorspace' || true)" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
- succeeded in 4166ms:
-  Format: PNG (Portable Network Graphics)
-  Geometry: 3520x1920+0+0
-  Units: Undefined
-  Colorspace: sRGB
-  Page geometry: 3520x1920+0+0
-
-exec
-/bin/zsh -lc "xxd -l 256 figures/spec-curve.png && wc -w memo.md && rg -n '"'^'"\\| ' spec-table.md | wc -l && git status --short 2>/dev/null || true" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
+/bin/zsh -lc "find . -maxdepth 2 -type f -print | sort && git status --short 2>/dev/null || true && rg -n --glob '"'!script.R'"' --glob '"'!spec-table.md'"' --glob '"'!memo.md'"' '1794|2787|4025|8498' . 2>/dev/null || true" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
  succeeded in 0ms:
-00000000: 8950 4e47 0d0a 1a0a 0000 000d 4948 4452  .PNG........IHDR
-00000010: 0000 0dc0 0000 0780 0806 0000 0053 b715  .............S..
-00000020: e200 0004 0e69 4343 506b 4347 436f 6c6f  .....iCCPkCGColo
-00000030: 7253 7061 6365 4765 6e65 7269 6352 4742  rSpaceGenericRGB
-00000040: 0000 388d 8d55 5d68 1c55 143e 9bb9 b32b  ..8..U]h.U.>...+
-00000050: 24ce 83d4 a6a6 920e fe35 94b4 6c52 d184  $........5..lR..
-00000060: dae8 fe65 b36d dc2c 936c b441 90c9 ecdd  ...e.m.,.l.A....
-00000070: 9d69 2633 e3fc a469 293e 1441 10c1 a8e0  .i&3...i)>.A....
-00000080: 93e0 ff5b c127 216a abed 8b2d a2b4 50a2  ...[.'!j...-..P.
-00000090: 0483 28f8 d0fa 47a1 d217 09eb b933 b3bb  ..(...G......3..
-000000a0: 93b8 6bbd cbdc f9e6 9cef 7ee7 de73 eede  ..k.......~..s..
-000000b0: 0b90 b82c 5b96 de25 022c 1aae 2de5 d3e2  ...,[..%.,..-...
-000000c0: b3c7 e6c4 c43a 74c1 7dd0 0d7d d02d 2b8e  .....:t.}..}.-+.
-000000d0: 952a 9526 011b e3c2 bfda edef 20c6 ded7  .*.&........ ...
-000000e0: f6b7 f7ff 67eb ae50 4701 88dd 85d8 ac38  ....g..PG......8
-000000f0: ca22 e265 00fe 15c5 b25d 8004 41fb c809  .".e.....]..A...
-     448 memo.md
-      10
- M ../t1/sol-session.log
+./BRIEF.md
+./figures/spec-curve.png
+./lead-rscript.log
+./memo.md
+./script.R
+./spec-table.md
+./terra-implementation.log
+./terra-verification.log
+ M ../../../EXTENSIONS.md
+ M ../../../README.md
+ M ../../../SCORING.md
+ M ../../../data/README.md
+ M ../../../prompts/46-sol-run.md
+ M ../high-ajr/memo.md
+ M ../high-ajr/robustness-table.md
+ M ../high-ajr/routing-log.md
+ M ../high-ajr/script.R
+ D ../high-ajr/sol-session.log
+ M ../high-ajr/terra-implementation.log
+ M ../high-ajr/terra-verification.log
+ M ../t1/figures/level-frequencies.png
+ M ../t1/routing-log.md
+ M ../t1/script.R
+ D ../t1/sol-session.log
+ M ../t1/summary.md
+ D ../t1/terra-implementation-retry.log
  M ../t1/terra-implementation.log
- D ../../fable/high-ajr/SHA256SUMS
+ M ../t2/figures/amce-dotwhisker.png
+ M ../t2/report.md
+ M ../t2/routing-log.md
+ M ../t2/script.R
+ D ../t2/sol-session.log
+ D ../t2/terra-implementation.log
+ D ../t2/verification-rscript.log
+ D ../t2/verification-values.log
+ M ../t3/figures/sensitivity.png
+ M ../t3/memo.md
+ M ../t3/routing-log.md
+ M ../t3/script.R
+ M ../t3/sensitivity-table.md
+ D ../t3/sol-session.log
+ D ../t3/terra-implementation.log
+ D ../t3/terra-inventory.log
+ D ../t3/terra-inventory.md
+ D ../t3/verification-rscript.log
+ M figures/spec-curve.png
+ M lead-rscript.log
+ M memo.md
+ D routing-log.md
+ M script.R
+ D sol-session.log
+ M spec-table.md
+ M terra-implementation.log
+ M terra-verification.log
+ D ../../advisor/high-ajr-claude/SHA256SUMS
+ M ../../advisor/high-ajr-claude/advice.md
+ M ../../advisor/high-ajr-claude/briefing.md
+ M ../../advisor/high-ajr-claude/claude-envelope-1.json
+ D ../../advisor/high-ajr-claude/claude-envelope-2.json
+ D ../../advisor/high-ajr-claude/estimates-by-spec.png
+ M ../../advisor/high-ajr-claude/memo.md
+ M ../../advisor/high-ajr-claude/robustness-table.md
+ D ../../advisor/high-ajr-claude/run-log.md
+ M ../../advisor/high-ajr-claude/script.R
+ D ../../advisor/t1-claude/SHA256SUMS
+ D ../../advisor/t1-claude/advice.md
+ D ../../advisor/t1-claude/briefing.md
+ D ../../advisor/t1-claude/claude-envelope-1.json
+ D ../../advisor/t1-claude/claude-envelope-2.json
+ D ../../advisor/t1-claude/figures/level-frequencies.png
+ D ../../advisor/t1-claude/run-log.md
+ D ../../advisor/t1-claude/script.R
+ D ../../advisor/t1-claude/summary.md
+ M ../../advisor/t2-claude/SHA256SUMS
+ M ../../advisor/t2-claude/advice.md
+ M ../../advisor/t2-claude/briefing.md
+ M ../../advisor/t2-claude/claude-envelope-1.json
+ M ../../advisor/t2-claude/claude-envelope-2.json
+ M ../../advisor/t2-claude/figures/amce-dotwhisker.png
+ M ../../advisor/t2-claude/report.md
+ D ../../advisor/t2-claude/run-log.md
+ M ../../advisor/t2-claude/script.R
+ M ../../advisor/t3-claude/SHA256SUMS
+ M ../../advisor/t3-claude/advice.md
+ M ../../advisor/t3-claude/briefing.md
+ M ../../advisor/t3-claude/claude-envelope-1.json
+ D ../../advisor/t3-claude/claude-envelope-2.json
+ M ../../advisor/t3-claude/figures/sensitivity.png
+ M ../../advisor/t3-claude/memo.md
+ M ../../advisor/t3-claude/run-log.md
+ M ../../advisor/t3-claude/script.R
+ M ../../advisor/t3-claude/sensitivity-table.md
+ D ../../advisor/t3-codex/SHA256SUMS
+ D ../../advisor/t3-codex/advice.md
+ D ../../advisor/t3-codex/briefing.md
+ D ../../advisor/t3-codex/exec-step1.log
+ D ../../advisor/t3-codex/exec-step3.log
+ D ../../advisor/t3-codex/figures/sensitivity.png
+ D ../../advisor/t3-codex/memo.md
+ D ../../advisor/t3-codex/run-log.md
+ D ../../advisor/t3-codex/script.R
+ D ../../advisor/t3-codex/sensitivity-table.md
+ M ../../advisor/vhigh-lalonde-claude/SHA256SUMS
+ M ../../advisor/vhigh-lalonde-claude/advice.md
+ M ../../advisor/vhigh-lalonde-claude/briefing.md
+ M ../../advisor/vhigh-lalonde-claude/claude-envelope-1.json
+ M ../../advisor/vhigh-lalonde-claude/claude-envelope-2.json
+ M ../../advisor/vhigh-lalonde-claude/figures/spec-curve.png
+ M ../../advisor/vhigh-lalonde-claude/memo.md
+ D ../../advisor/vhigh-lalonde-claude/run-log.md
+ M ../../advisor/vhigh-lalonde-claude/script.R
+ M ../../advisor/vhigh-lalonde-claude/spec-table.md
  M ../../fable/high-ajr/claude-envelope.json
+ D ../../fable/high-ajr/figures/first-stage.png
  M ../../fable/high-ajr/memo.md
  M ../../fable/high-ajr/robustness-table.md
- D ../../fable/high-ajr/run-log.md
  M ../../fable/high-ajr/script.R
- D ../../fable/t1/SHA256SUMS
  M ../../fable/t1/claude-envelope.json
  M ../../fable/t1/figures/level-frequencies.png
- D ../../fable/t1/run-log.md
  M ../../fable/t1/script.R
  M ../../fable/t1/summary.md
- D ../../fable/t2/SHA256SUMS
  M ../../fable/t2/claude-envelope.json
  D ../../fable/t2/estimates.csv
  M ../../fable/t2/figures/amce-dotwhisker.png
  M ../../fable/t2/report.md
- D ../../fable/t2/run-log.md
  M ../../fable/t2/script.R
- D ../../fable/t3/SHA256SUMS
  M ../../fable/t3/claude-envelope.json
  M ../../fable/t3/figures/sensitivity.png
  M ../../fable/t3/memo.md
- D ../../fable/t3/run-log.md
  M ../../fable/t3/script.R
  M ../../fable/t3/sensitivity-table.md
- D ../../fable/vhigh-lalonde/SHA256SUMS
  M ../../fable/vhigh-lalonde/claude-envelope.json
  M ../../fable/vhigh-lalonde/figures/spec-curve.png
  M ../../fable/vhigh-lalonde/memo.md
- D ../../fable/vhigh-lalonde/run-log.md
  M ../../fable/vhigh-lalonde/script.R
  M ../../fable/vhigh-lalonde/spec-table.md
-?? ../high-ajr/memo.md
-?? ../high-ajr/robustness-table.md
-?? ../high-ajr/routing-log.md
-?? ../high-ajr/script.R
-?? ../high-ajr/sol-session.log
-?? ../high-ajr/terra-implementation.log
-?? ../high-ajr/terra-verification.log
-?? ../t1/figures/
-?? ../t1/routing-log.md
-?? ../t1/script.R
-?? ../t1/summary.md
-?? ../t1/terra-implementation-retry.log
-?? ../t2/figures/
-?? ../t2/report.md
-?? ../t2/routing-log.md
-?? ../t2/script.R
-?? ../t2/sol-session.log
-?? ../t2/terra-implementation.log
-?? ../t2/verification-rscript.log
-?? ../t2/verification-values.log
-?? ../t3/figures/
-?? ../t3/memo.md
-?? ../t3/script.R
-?? ../t3/sensitivity-table.md
-?? ../t3/sol-session.log
-?? ../t3/terra-implementation.log
-?? ../t3/terra-inventory.log
-?? ../t3/terra-inventory.md
-?? figures/
-?? lead-rscript.log
-?? memo.md
-?? script.R
-?? sol-session.log
-?? spec-table.md
-?? terra-implementation.log
-?? terra-verification.log
-?? ../../fable/high-ajr/figures/
-?? ../../fable/high-ajr/run-err.log
-?? ../../fable/t1/run-err.log
-?? ../../fable/t3/err.log
-?? ../../fable/t3/run-err.log
-?? ../../fable/vhigh-lalonde/run-err.log
-
-exec
-/bin/zsh -lc "LC_ALL=C rg -aob 'pHYs|pHYs|sCAL' figures/spec-curve.png || true
-sed -n '1,70p' script.R
-sed -n '70,160p' script.R
-sed -n '160,230p' script.R" in ~/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde
- succeeded in 0ms:
-# Fixed LaLonde specification-curve analysis
-# Recreates spec-table.md, memo.md, and figures/spec-curve.png from installed packages.
-
-# Okabe-Ito palette and base-graphics theme constants
-OI_ORANGE <- "#E69F00"
-OI_SKY_BLUE <- "#56B4E9"
-OI_BLUE <- "#0072B2"
-OI_GREEN <- "#009E73"
-OI_VERMILLION <- "#D55E00"
-OI_PURPLE <- "#CC79A7"
-THEME_FG <- "#222222"
-THEME_GRID <- "#D9D9D9"
-FIG_WIDTH <- 11
-FIG_HEIGHT <- 6
-FIG_DPI <- 320
-
-set.seed(20260713)
-
-required <- c("causaldata", "MatchIt", "sandwich", "lmtest", "estimatr")
-missing <- required[!vapply(required, requireNamespace, logical(1), quietly = TRUE)]
-if (length(missing)) stop("Required package(s) unavailable: ", paste(missing, collapse = ", "))
-
-dir.create("figures", showWarnings = FALSE, recursive = TRUE)
-
-nsw <- as.data.frame(causaldata::nsw_mixtape)
-cps <- as.data.frame(causaldata::cps_mixtape)
-treated <- nsw[nsw$treat == 1, , drop = FALSE]
-controls <- cps[cps$treat == 0, , drop = FALSE]
-if (nrow(treated) != 185L || nrow(controls) != 15992L) {
-  stop("Unexpected input composition: expected 185 NSW treated and 15,992 CPS controls.")
-}
-treated$unit_id <- sprintf("nsw_t_%03d", seq_len(nrow(treated)))
-controls$unit_id <- sprintf("cps_c_%05d", seq_len(nrow(controls)))
-obs <- rbind(treated, controls)
-rownames(obs) <- obs$unit_id
-
-benchmark <- with(nsw, mean(re78[treat == 1]) - mean(re78[treat == 0]))
-z975 <- qnorm(0.975)
-
-make_row <- function(label, estimate, se, covariates, support, estimator,
-                     n_treated, n_control, critical = z975) {
-  data.frame(
-    specification = label,
-    estimate = estimate,
-    se = se,
-    lower = estimate - critical * se,
-    upper = estimate + critical * se,
-    benchmark = benchmark,
-    gap = estimate - benchmark,
-    covariates = covariates,
-    support = support,
-    estimator = estimator,
-    retained_treated_n = as.integer(n_treated),
-    retained_control_n = as.integer(n_control),
-    stringsAsFactors = FALSE
-  )
-}
-
-naive_t <- obs$re78[obs$treat == 1]
-naive_c <- obs$re78[obs$treat == 0]
-naive_est <- mean(naive_t) - mean(naive_c)
-naive_se <- sqrt(var(naive_t) / length(naive_t) + var(naive_c) / length(naive_c))
-naive_df <- naive_se^4 / (
-  (var(naive_t) / length(naive_t))^2 / (length(naive_t) - 1) +
-    (var(naive_c) / length(naive_c))^2 / (length(naive_c) - 1)
-)
-results <- list(make_row(
-  "Naive composite difference", naive_est, naive_se, "None", "Untrimmed", "Welch difference",
-  length(naive_t), length(naive_c), stats::qt(0.975, df = naive_df)
-))
-))
-
-match_att <- function(dat, score, label, cov_label, support_label) {
-  # Fixed-score 1-NN ATT matching with replacement, implemented by MatchIt.
-  fit <- MatchIt::matchit(
-    treat ~ 1, data = dat, method = "nearest", distance = score,
-    estimand = "ATT", replace = TRUE, ratio = 1
-  )
-  mm <- fit$match.matrix
-  if (is.null(mm) || ncol(mm) != 1L || nrow(mm) != sum(dat$treat == 1)) {
-    stop("MatchIt did not return one matched control per retained treated unit.")
-  }
-  treated_ids <- rownames(mm)
-  control_ids <- as.character(mm[, 1])
-  if (anyNA(control_ids) || any(!treated_ids %in% rownames(dat)) || any(!control_ids %in% rownames(dat))) {
-    stop("Matching matrix has missing or unrecognized original unit IDs.")
-  }
-  d <- dat[treated_ids, "re78"] - dat[control_ids, "re78"]
-  # Approximate matching interval conditional on fitted scores. CR1 clusters
-  # pair differences by original matched control, allowing control reuse.
-  pair_fit <- stats::lm(d ~ 1)
-  vc <- sandwich::vcovCL(pair_fit, cluster = control_ids, type = "HC1", cadjust = TRUE)
-  se <- sqrt(vc[1, 1])
-  n_clusters <- length(unique(control_ids))
-  if (n_clusters < 2L) stop("Matching variance requires at least two reused-control clusters.")
-  make_row(label, mean(d), se, cov_label, support_label,
-           "1-NN PS match (replacement; CR1 approximate)",
-           length(d), sum(dat$treat == 0), stats::qt(0.975, df = n_clusters - 1L))
-}
-
-strat_att <- function(dat, score, label, cov_label, support_label) {
-  tr_scores <- score[dat$treat == 1]
-  treated_breaks <- unique(as.numeric(stats::quantile(tr_scores, probs = seq(0, 1, 0.2), type = 7, names = FALSE)))
-  if (length(treated_breaks) != 6L) stop("Treated-score quintile cutpoints are not unique; cannot form five strata.")
-  # The four interior cutpoints define treated-score quintiles; infinite endpoints
-  # retain untrimmed controls whose fitted scores fall outside treated extrema.
-  breaks <- c(-Inf, treated_breaks[2:5], Inf)
-  stratum <- cut(score, breaks = breaks, include.lowest = TRUE, labels = FALSE)
-  if (anyNA(stratum)) stop("A retained unit could not be assigned to a treated-score quintile.")
-  diffs <- vars <- weights <- numeric(5)
-  for (h in seq_len(5)) {
-    y1 <- dat$re78[dat$treat == 1 & stratum == h]
-    y0 <- dat$re78[dat$treat == 0 & stratum == h]
-    if (!length(y1) || !length(y0)) stop("Stratum ", h, " lacks a treated or control arm.")
-    diffs[h] <- mean(y1) - mean(y0)
-    weights[h] <- length(y1) / sum(dat$treat == 1)
-    vars[h] <- weights[h]^2 * (var(y1) / length(y1) + var(y0) / length(y0))
-  }
-  make_row(label, sum(weights * diffs), sqrt(sum(vars)), cov_label, support_label,
-           "Five-stratum PS subclassification (Neyman fixed-strata)",
-           sum(dat$treat == 1), sum(dat$treat == 0))
-}
-
-cov_sets <- list(
-  "Demographics" = c("age", "educ", "black", "hisp", "marr", "nodegree"),
-  "Demographics + earnings" = c("age", "educ", "black", "hisp", "marr", "nodegree", "re74", "re75")
-)
-
-for (cov_label in names(cov_sets)) {
-  covars <- cov_sets[[cov_label]]
-  ps_formula <- stats::reformulate(covars, response = "treat")
-  ps_fit <- stats::glm(ps_formula, data = obs, family = stats::binomial())
-  full_score <- stats::fitted(ps_fit) # Same full-composite scores used under both supports.
-  tr_range <- range(full_score[obs$treat == 1])
-  co_range <- range(full_score[obs$treat == 0])
-  lo <- max(tr_range[1], co_range[1])
-  hi <- min(tr_range[2], co_range[2])
-  if (lo > hi) stop("No common fitted-score support for covariate set: ", cov_label)
-  supports <- list(
-    "Untrimmed" = rep(TRUE, nrow(obs)),
-    "Trimmed to full-score intersection" = full_score >= lo & full_score <= hi
-  )
-  for (support_label in names(supports)) {
-    keep <- supports[[support_label]]
-    dat <- obs[keep, , drop = FALSE]
-    score <- full_score[keep]
-    if (!sum(dat$treat == 1) || !sum(dat$treat == 0)) stop("Support restriction removed an arm.")
-    prefix <- paste(cov_label, if (support_label == "Untrimmed") "untrimmed" else "trimmed", sep = "; ")
-    results[[length(results) + 1L]] <- match_att(
-      dat, score, paste(prefix, "1-NN matching", sep = "; "), cov_label, support_label
-    )
-    results[[length(results) + 1L]] <- strat_att(
-      dat, score, paste(prefix, "five-stratum subclassification", sep = "; "), cov_label, support_label
-    )
-  }
-}
-
-specs <- do.call(rbind, results)
-if (nrow(specs) != 9L) stop("Internal error: specification curve must have exactly nine rows.")
-if (sum(specs$estimator != "Welch difference") != 8L) stop("Internal error: eight adjusted specifications required.")
-
-
-money <- function(x) paste0("$", format(round(x), big.mark = ",", trim = TRUE, scientific = FALSE))
-int_money <- function(lo, hi) paste0("[", money(lo), ", ", money(hi), "]")
-table_lines <- c(
-  "# Fixed LaLonde specification curve",
-  "",
-  "Outcome: 1978 earnings (USD). The experimental NSW treated-minus-control benchmark is recomputed from the NSW sample. The naive interval is Welch; matching intervals are approximate CR1 intervals conditional on fitted scores; subclassification intervals are Neyman fixed-strata intervals.",
-  "",
-  "| Specification | Estimate | SE | 95% CI | Benchmark | Gap | Covariates | Support | Estimator | Retained treated N | Eligible control N |",
-  "|---|---:|---:|---:|---:|---:|---|---|---|---:|---:|"
-)
-for (i in seq_len(nrow(specs))) {
-  x <- specs[i, ]
-  table_lines <- c(table_lines, sprintf(
-    "| %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %d |",
-    x$specification, money(x$estimate), money(x$se), int_money(x$lower, x$upper),
-    money(x$benchmark), money(x$gap), x$covariates, x$support, x$estimator,
-    x$retained_treated_n, x$retained_control_n
-  ))
-}
-writeLines(table_lines, "spec-table.md")
-
-# Base-R coefficient plot: no in-plot title; caption lives in the table/memo.
-png("figures/spec-curve.png", width = FIG_WIDTH, height = FIG_HEIGHT, units = "in", res = FIG_DPI)
-op <- par(mar = c(5.1, 22.1, 1.1, 1.2), las = 1, family = "sans", fg = THEME_FG, col.axis = THEME_FG, col.lab = THEME_FG)
-y <- rev(seq_len(nrow(specs)))
-xrange <- range(c(specs$lower, specs$upper, benchmark, 0))
-pad <- diff(xrange) * 0.08
-plot(NA, xlim = xrange + c(-pad, pad), ylim = c(0.5, nrow(specs) + 0.5), yaxt = "n", xlab = "Estimated ATT on 1978 earnings (USD)", ylab = "", bty = "n")
-abline(v = pretty(xrange + c(-pad, pad)), col = THEME_GRID, lwd = 0.8)
-abline(v = 0, col = "#777777", lty = 3, lwd = 1)
-abline(v = benchmark, col = OI_VERMILLION, lty = 2, lwd = 2)
-segments(specs$lower, y, specs$upper, y, col = OI_BLUE, lwd = 2)
-points(specs$estimate, y, pch = 21, bg = OI_SKY_BLUE, col = OI_BLUE, cex = 1.25)
-axis(2, at = y, labels = specs$specification, tick = FALSE, cex.axis = 0.70, las = 1)
-mtext("Experimental benchmark", side = 3, at = benchmark, line = -0.55, col = OI_VERMILLION, cex = 0.75)
-par(op)
-dev.off()
-
-adjusted <- specs[-1, , drop = FALSE]
-closest <- adjusted[which.min(abs(adjusted$gap)), ]
-within_benchmark_ci <- adjusted$lower <= benchmark & adjusted$upper >= benchmark
-memo_lines <- c(
-  "# Adjudication of the fixed specification curve",
-  "",
-  sprintf("The NSW experiment yields a treated-minus-control benchmark of %s in 1978 earnings (95%% CI not used as the reference here). Replacing its controls with all 15,992 CPS controls produces a naive observational difference of %s (95%% CI %s), a gap of %s from the experimental result. Thus the raw CPS comparison is not a credible substitute for the randomized control group.", money(benchmark), money(specs$estimate[1]), int_money(specs$lower[1], specs$upper[1]), money(specs$gap[1])),
-  "",
-  sprintf("The eight adjusted estimates do not deliver robust recovery. Across the fixed curve, estimates range from %s to %s, and their gaps from the benchmark range from %s to %s. %d of 8 adjusted 95%% intervals include the experimental benchmark. The closest point estimate is the %s specification (%s; gap %s; 95%% CI %s). That pattern is best described as favorable-specification-only recovery rather than a general success or a blanket failure of propensity-score adjustment.", money(min(adjusted$estimate)), money(max(adjusted$estimate)), money(min(adjusted$gap)), money(max(adjusted$gap)), sum(within_benchmark_ci), closest$specification, money(closest$estimate), money(closest$gap), int_money(closest$lower, closest$upper)),
-  "",
-  "The design details matter substantively. Each propensity score is a main-effects logit fitted once on the full NSW-treated/CPS-control composite. The trimmed specifications retain only observations in the intersection of the treated and control ranges of those already-fitted scores. Trimming can therefore change the ATT target if it removes treated units; in this run it removed only controls, leaving all 185 treated participants and the realized treated target unchanged. Nearest-neighbor estimates use replacement, while subclassification contrasts five treated-score quintiles and weights them by treated counts. Their intervals use different transparent approximations: a control-reuse CR1 interval conditional on fitted scores and a Neyman fixed-strata interval. Neither repairs bias from a bad comparison group.",
-  "",
-  "The support counts make that point concrete. Demographics-only trimming leaves 12,706 eligible CPS controls; the earnings specification leaves 5,776. The identical trimmed and untrimmed demographics 1-NN estimates show that excluded controls were never nearest matches. By contrast, earnings-based subclassification moves from $-144 without trimming to $1,290 after trimming. Even with the treated target held fixed, the support rule changes the comparison group enough to change the answer.",
-  "",
-  "A paper may therefore say that some prespecified combinations of earnings covariates, support restriction, and propensity-score estimator bring the CPS comparison closer to the experimental result. It may not say, without qualification, that propensity-score methods recover the experimental effect. Conditional ignorability is an untestable assumption here: observed demographics and prior earnings can balance measured composition, but cannot rule out unobserved labor-market history, motivation, local conditions, or selection into the CPS pool. Moreover, trimming can make a closer estimate apply only to treated people in common fitted-score support, not necessarily to all NSW participants. The curve supports Smith and Todd's fragility concern: apparent recovery depends on analytic choices and should be reported as sensitivity evidence, not as validation of the observational design."
-)
-writeLines(memo_lines, "memo.md")
-
-message("Benchmark: ", round(benchmark, 2), "; wrote 9 specification rows and figures/spec-curve.png")
+ M ../../opus/SESSION-PROTOCOL.md
+ M ../../opus/high-ajr/SHA256SUMS
+ M ../../opus/high-ajr/claude-envelope.json
+ M ../../opus/high-ajr/memo.md
+ D ../../opus/high-ajr/results.csv
+ D ../../opus/high-ajr/robustness-figure.png
+ M ../../opus/high-ajr/robustness-table.md
+ D ../../opus/high-ajr/run-log.md
+ M ../../opus/high-ajr/script.R
+ D ../../opus/t1/SHA256SUMS
+ M ../../opus/t1/claude-envelope.json
+ M ../../opus/t1/figures/level-frequencies.png
+ D ../../opus/t1/run-log.md
+ M ../../opus/t1/script.R
+ M ../../opus/t1/summary.md
+ M ../../opus/t2/SHA256SUMS
+ M ../../opus/t2/claude-envelope.json
+ M ../../opus/t2/figures/amce-dotwhisker.png
+ M ../../opus/t2/report.md
+ D ../../opus/t2/run-log.md
+ M ../../opus/t2/script.R
+ D ../../opus/t3/SHA256SUMS
+ D ../../opus/t3/claude-envelope.json
+ M ../../opus/t3/figures/sensitivity.png
+ D ../../opus/t3/memo.md
+ D ../../opus/t3/run-log.md
+ M ../../opus/t3/script.R
+ M ../../opus/t3/sensitivity-table.md
+ M ../../opus/vhigh-lalonde/SHA256SUMS
+ M ../../opus/vhigh-lalonde/claude-envelope.json
+ M ../../opus/vhigh-lalonde/figures/spec-curve.png
+ M ../../opus/vhigh-lalonde/memo.md
+ D ../../opus/vhigh-lalonde/run-log.md
+ M ../../opus/vhigh-lalonde/script.R
+ M ../../opus/vhigh-lalonde/spec-table.md
+ M ../../../../../docs/orchestration-lab/index.html
+?? ../../../prompts/extreme-stagdid.md
+?? ../../../reference/extreme-stagdid/
+?? ../extreme-stagdid/
+?? ../t1/SHA256SUMS
+?? ../t2/SHA256SUMS
+?? ../t2/terra-implement.log
+?? ../t2/terra-verify.log
+?? ../t3/analysis-diagnostics.txt
+?? ../t3/terra-analysis.log
+?? ../t3/terra-analysis.prompt
+?? ../../46/extreme-stagdid/
+?? ../../advisor/extreme-stagdid-claude/
+?? ../../advisor/extreme-stagdid-codex/
+?? ../../advisor/high-ajr-claude/run-err-1.log
+?? ../../advisor/rerun-codex-advisor.sh
+?? ../../advisor/t2-claude/run-err-1.log
+?? ../../advisor/t2-claude/run-err-2.log
+?? ../../advisor/t3-claude/run-err-1.log
+?? ../../advisor/vhigh-lalonde-claude/run-err-1.log
+?? ../../advisor/vhigh-lalonde-claude/run-err-2.log
+?? ../../claude-direct/
+?? ../../fable/extreme-stagdid/
+?? ../../fable/high-ajr/SHA256SUMS
+?? ../../fable/t1/SHA256SUMS
+?? ../../fable/t2/SHA256SUMS
+?? ../../fable/t3/SHA256SUMS
+?? ../../fable/vhigh-lalonde/SHA256SUMS
+?? ../../opus/extreme-stagdid/
+?? ../../opus/high-ajr/run-err.log
+?? ../../opus/t1/run-err.log
+?? ../../opus/t2/run-err.log
+?? ../../opus/t3/explore.R
+?? ../../opus/t3/explore2.R
+?? ../../opus/t3/explore3.R
+?? ../../opus/t3/explore4.R
+?? ../../opus/t3/explore5.R
+?? ../../opus/t3/explore6.R
+?? ../../opus/t3/explore7.R
+?? ../../opus/t3/explore8.R
+?? ../../opus/t3/explore9.R
+?? ../../opus/t3/run-err.log
+?? ../../opus/vhigh-lalonde/codex-crosscheck.log
+?? ../../opus/vhigh-lalonde/codex-prompt.txt
+?? ../../opus/vhigh-lalonde/run-err.log
+./lead-rscript.log:2:Benchmark: 1794.342382 
+./terra-implementation.log:14:Objective: Implement the fixed LaLonde specification-curve analysis and generate all required deliverables. Inputs and authoritative paths: ./BRIEF.md; causaldata::nsw_mixtape and causaldata::cps_mixtape. Read BRIEF.md, but follow this fixed analytical contract where it is more specific. In scope: create only ./script.R, ./figures/spec-curve.png, ./spec-table.md, and ./memo.md; run script.R to generate the latter three. Out of scope: web access, package installation, edits outside the current directory, commits, routing-log.md, alternative analytical designs, or additional figures. Constraints and invariants: use Rscript; self-contained script; define an Okabe-Ito palette and plotting theme near the top; call set.seed(4601) before any potentially stochastic action; load causaldata, MatchIt, ggplot2, and sandwich only. Compute the experimental benchmark as mean re78 among NSW treated minus NSW experimental controls. Build the observational composite from all 185 NSW treated plus all 15,992 CPS controls. Use this fixed grid: naive raw difference plus eight adjusted cells crossing covariate model, trimming, and estimator. Demographics formula: treat ~ age + I(age^2) + educ + I(educ^2) + black + hisp + marr + nodegree. Earnings formula: demographics plus re74 + re75 + I(re74^2) + I(re75^2) + u74 + u75, where u74 and u75 indicate zero earnings. For each formula use MatchIt propensity logits with estimand ATT and distance glm. The 1-NN cells must use method nearest, replace TRUE, ratio 1, and m.order closest. The stratification cells must use method subclass with exactly five subclasses. No-trim cells use discard none and reestimate FALSE; common-support cells use discard both and reestimate TRUE. Extract match.data with drop.unmatched TRUE. Estimate every difference, including benchmark and naive, by lm(re78 ~ treat), weighted by MatchIt weights when adjusted; obtain HC2 standard errors with sandwich::vcovHC and normal 95 percent intervals. This is a conditional-on-estimated-score/match uncertainty analysis; do not bootstrap NN. Record estimate, SE, CI, benchmark, gap estimate-minus-benchmark, treated and unique control counts, and effective control sample size sum(w)^2/sum(w^2). The markdown table must contain the naive row and all eight adjusted rows, show dollars rounded to nearest whole dollar and include estimator, covariates, support, estimate, 95 percent CI, benchmark, gap, treated N, control N, and control ESS; state methods below it. The exactly one figure must plot naive plus all eight adjusted estimates and vertical 95 percent intervals against a horizontal benchmark line, use Okabe-Ito colors, have no in-plot title, include a figure caption rather than title, readable labels, and save figures/spec-curve.png at no less than 300 dpi. Memo target 430-500 words, based on the computed results: explicitly adjudicate robust recovery versus favorable-specification-only versus absent; concede what conditioning does and does not identify; discuss estimator, support, and covariate sensitivity; distinguish exact benchmark recovery from interval overlap; state precisely what a paper may and may not claim; note the trimmed ATT population and conditional SE limitation. Do not cite or fetch external sources. Write ownership: only script.R, figures/spec-curve.png, spec-table.md, memo.md. Expected artifact: those four complete deliverables and a clean successful Rscript run. Acceptance checks: script exits zero from current directory; benchmark is recomputed near 1794 not hard-coded; table has 9 observational rows; figure is exactly one PNG at 300+ dpi with no title; memo is 430-500 words and matches the numbers. Return in stdout: conclusion, evidence including exact benchmark and estimate range, changed files, acceptance results, and residual risk. Implement the deliverables directly; do not invoke any other skill, advisory consult, or sub-orchestration.
+./terra-implementation.log:92: [1] "1794.3423818501" "185"             "260"             "15992"          
+./terra-implementation.log:256:+stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
+./terra-implementation.log:419:+stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
+./terra-implementation.log:584:+stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
+./terra-implementation.log:604:Benchmark: 1794.342382 
+./terra-implementation.log:998:+stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
+./terra-implementation.log:1165:+stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
+./terra-implementation.log:1329:+stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
+./terra-implementation.log:1495:+stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
+./terra-implementation.log:1504:Benchmark: 1794.342382 
+./terra-implementation.log:1673:+stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
+./terra-implementation.log:1682:Benchmark: 1794.342382 
+./terra-implementation.log:1859:+stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
+./terra-verification.log:209:stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
+./terra-verification.log:342:152: stopifnot(nrow(res) == 9, abs(benchmark - 1794.3423818501) < 0.01)
 
 codex
-One delivery issue is now clear: the PNG is 3520×1920 (the expected raster size for 11×6 inches at 320), but it contains no physical-resolution chunk; system inspection reports 72 dpi/undefined units. I’m treating the explicit “300+ dpi” acceptance requirement as unmet rather than inferring it from the script.
-codex
-Conclusion: **FAIL overall.** The analysis, table, and memo meet the substantive brief on static audit; the figure fails the explicit 300+ dpi deliverable because its PNG metadata reports 72 dpi/undefined units, despite having the expected 3520×1920 pixels.
+Conclusion: favorable-specification-only recovery follows from the point estimates. The required deliverables do not fully pass: the figure’s benchmark-line orientation and the memo’s adjusted-range statement are wrong.
 
-Checks with evidence:
+Evidence: benchmark = **$1,794.3423818501**. The eight adjusted estimates shown in the table range from **$−4,025 to $2,787** (not $−8,498 to $2,787); the closest is $1,773. The naive estimate is $−8,498.
 
-- `script.R`: **PASS.** Implements NSW treated vs. control benchmark and NSW-treated+CPS-control composite; 1-NN ATT matching explicitly uses replacement (`estimand="ATT", replace=TRUE`); trimming is the intersection of fitted treated/control score ranges; subclassification uses five treated-score strata weighted by treated counts. Matching uses CR1 clustered-by-reused-control intervals; subclassification uses fixed-strata Neyman intervals. No ordinary NN bootstrap appears.
-- Grid and table: **PASS.** `spec-table.md` has nine data rows: naïve plus the complete 2 covariate × 2 support × 2 estimator grid. Reported benchmark is **$1,794**; naïve estimate **−$8,498**, gap **−$10,292**. Rounded arithmetic is coherent, including the small one-dollar apparent differences caused by independently rounded quantities.
-- `memo.md`: **PASS.** 448 words; accurately reports estimates from **−$4,162** to **$1,759**, gaps **−$5,956** to **−$36**, and **3/8** adjusted intervals covering the benchmark. Its favorable-specification-only conclusion is appropriately qualified.
-- Unsupported inference / limitation: **LIMITATION.** The memo’s statement that identical demographics-only 1-NN summaries “show” removed controls were never selected is stronger than equality of aggregate estimate/SE alone proves; matched IDs are not reported. The main causal qualification is otherwise appropriately stated.
-- Figure content: **FAIL.** Exactly one figure exists. It visibly contains nine estimates/intervals, a grey zero reference and orange experimental-benchmark reference, no in-plot title, and Okabe–Ito blue/sky-blue/vermilion colors. However, metadata inspection gives **3520×1920 px**, **72 dpi**, units undefined; no `pHYs` resolution chunk is present. The script requests 320 dpi, but the delivered PNG does not verify it.
-- Independent recomputation: **NOT COMPLETED due sandbox limitation.** `Rscript` could not create its required temporary file even for non-writing `-e` execution, and running `script.R` would write outputs. Static inspection confirms the formulas and reported quantities, but I cannot honestly label the numerical recomputation independent in this read-only environment.
+Per-artifact checks:
 
-Changed files: **none.**
+- `script.R`: **FAIL** — otherwise self-contained and correctly specifies the 2×2×2 grid, ATT, NN replacement, no bootstrap, HC2 conditional intervals, and counts/ESS. But it computes `min(res$estimate)` across all nine rows and inserts it into prose described as an eight-adjusted-specification range ([script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde/script.R:139), [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde/script.R:145)). It also produces a vertical benchmark line, contrary to BRIEF’s horizontal-reference-line requirement ([script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde/script.R:125)).
 
-Residual risk: Exact data-derived values and matching identities could not be rerun under the sandbox; figure resolution metadata is the concrete acceptance failure.
+- `spec-table.md`: **PASS** — nine observational rows: naive plus all eight adjusted cells; benchmark, gaps, intervals, treated counts, unique retained control counts, and ESS are present. ATT, trimming, re-estimation, 1-NN replacement, five strata, and HC2 limitations are accurately documented.
 
-Tokens used: **not exposed by this session** (`remainingTokens` and completion report were null).
+- `memo.md`: **FAIL** — 439 words, appropriate qualified conclusion, correct conditioning/identification caveats, trimming-target caveat, and HC2 limitation. Numerical inconsistency at [memo.md:3](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde/memo.md:3): it calls $−8,498 to $2,787 the range “across the eight” adjusted analyses, but $−8,498 is the naive row.
+
+- `figures/spec-curve.png`: **FAIL** — exactly one 2880×1792 PNG at 320 dpi; no in-plot title; Okabe–Ito colors; readable labels and intervals. However, estimates are on the x-axis, so the dashed experimental benchmark is **vertical**, whereas BRIEF requires a horizontal reference line.
+
+Constraints:
+
+- Experimental benchmark computation: **PASS** — script computes it from NSW; recorded value is $1,794.3423818501.
+- Naive and eight adjusted estimates: **PASS**.
+- Covariate and estimator axes: **PASS**.
+- ATT with replacement for NN: **PASS**.
+- Common-support trimming behavior: **PASS** (`discard="both"`, re-estimation enabled).
+- Unique-control count and ESS reporting: **PASS**.
+- No ordinary NN bootstrap: **PASS**.
+- HC2 weighted-regression uncertainty and limitations: **PASS**.
+
+Defects, ordered by severity:
+
+1. BRIEF-required horizontal benchmark line is rendered vertically.
+2. Memo misstates the adjusted-estimate range by including the naive estimate.
+
+Residual risk: the read-only sandbox prevented launching R because R could not create its temporary session directory, so I could not rerun package calculations independently. The numerical audit above is therefore based on direct artifact/code consistency, not a fresh R execution.
 tokens used
-64,158
-Conclusion: **FAIL overall.** The analysis, table, and memo meet the substantive brief on static audit; the figure fails the explicit 300+ dpi deliverable because its PNG metadata reports 72 dpi/undefined units, despite having the expected 3520×1920 pixels.
+48,602
+Conclusion: favorable-specification-only recovery follows from the point estimates. The required deliverables do not fully pass: the figure’s benchmark-line orientation and the memo’s adjusted-range statement are wrong.
 
-Checks with evidence:
+Evidence: benchmark = **$1,794.3423818501**. The eight adjusted estimates shown in the table range from **$−4,025 to $2,787** (not $−8,498 to $2,787); the closest is $1,773. The naive estimate is $−8,498.
 
-- `script.R`: **PASS.** Implements NSW treated vs. control benchmark and NSW-treated+CPS-control composite; 1-NN ATT matching explicitly uses replacement (`estimand="ATT", replace=TRUE`); trimming is the intersection of fitted treated/control score ranges; subclassification uses five treated-score strata weighted by treated counts. Matching uses CR1 clustered-by-reused-control intervals; subclassification uses fixed-strata Neyman intervals. No ordinary NN bootstrap appears.
-- Grid and table: **PASS.** `spec-table.md` has nine data rows: naïve plus the complete 2 covariate × 2 support × 2 estimator grid. Reported benchmark is **$1,794**; naïve estimate **−$8,498**, gap **−$10,292**. Rounded arithmetic is coherent, including the small one-dollar apparent differences caused by independently rounded quantities.
-- `memo.md`: **PASS.** 448 words; accurately reports estimates from **−$4,162** to **$1,759**, gaps **−$5,956** to **−$36**, and **3/8** adjusted intervals covering the benchmark. Its favorable-specification-only conclusion is appropriately qualified.
-- Unsupported inference / limitation: **LIMITATION.** The memo’s statement that identical demographics-only 1-NN summaries “show” removed controls were never selected is stronger than equality of aggregate estimate/SE alone proves; matched IDs are not reported. The main causal qualification is otherwise appropriately stated.
-- Figure content: **FAIL.** Exactly one figure exists. It visibly contains nine estimates/intervals, a grey zero reference and orange experimental-benchmark reference, no in-plot title, and Okabe–Ito blue/sky-blue/vermilion colors. However, metadata inspection gives **3520×1920 px**, **72 dpi**, units undefined; no `pHYs` resolution chunk is present. The script requests 320 dpi, but the delivered PNG does not verify it.
-- Independent recomputation: **NOT COMPLETED due sandbox limitation.** `Rscript` could not create its required temporary file even for non-writing `-e` execution, and running `script.R` would write outputs. Static inspection confirms the formulas and reported quantities, but I cannot honestly label the numerical recomputation independent in this read-only environment.
+Per-artifact checks:
 
-Changed files: **none.**
+- `script.R`: **FAIL** — otherwise self-contained and correctly specifies the 2×2×2 grid, ATT, NN replacement, no bootstrap, HC2 conditional intervals, and counts/ESS. But it computes `min(res$estimate)` across all nine rows and inserts it into prose described as an eight-adjusted-specification range ([script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde/script.R:139), [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde/script.R:145)). It also produces a vertical benchmark line, contrary to BRIEF’s horizontal-reference-line requirement ([script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde/script.R:125)).
 
-Residual risk: Exact data-derived values and matching identities could not be rerun under the sandbox; figure resolution metadata is the concrete acceptance failure.
+- `spec-table.md`: **PASS** — nine observational rows: naive plus all eight adjusted cells; benchmark, gaps, intervals, treated counts, unique retained control counts, and ESS are present. ATT, trimming, re-estimation, 1-NN replacement, five strata, and HC2 limitations are accurately documented.
 
-Tokens used: **not exposed by this session** (`remainingTokens` and completion report were null).
+- `memo.md`: **FAIL** — 439 words, appropriate qualified conclusion, correct conditioning/identification caveats, trimming-target caveat, and HC2 limitation. Numerical inconsistency at [memo.md:3](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol/vhigh-lalonde/memo.md:3): it calls $−8,498 to $2,787 the range “across the eight” adjusted analyses, but $−8,498 is the naive row.
+
+- `figures/spec-curve.png`: **FAIL** — exactly one 2880×1792 PNG at 320 dpi; no in-plot title; Okabe–Ito colors; readable labels and intervals. However, estimates are on the x-axis, so the dashed experimental benchmark is **vertical**, whereas BRIEF requires a horizontal reference line.
+
+Constraints:
+
+- Experimental benchmark computation: **PASS** — script computes it from NSW; recorded value is $1,794.3423818501.
+- Naive and eight adjusted estimates: **PASS**.
+- Covariate and estimator axes: **PASS**.
+- ATT with replacement for NN: **PASS**.
+- Common-support trimming behavior: **PASS** (`discard="both"`, re-estimation enabled).
+- Unique-control count and ESS reporting: **PASS**.
+- No ordinary NN bootstrap: **PASS**.
+- HC2 weighted-regression uncertainty and limitations: **PASS**.
+
+Defects, ordered by severity:
+
+1. BRIEF-required horizontal benchmark line is rendered vertically.
+2. Memo misstates the adjusted-estimate range by including the naive estimate.
+
+Residual risk: the read-only sandbox prevented launching R because R could not create its temporary session directory, so I could not rerun package calculations independently. The numerical audit above is therefore based on direct artifact/code consistency, not a fresh R execution.

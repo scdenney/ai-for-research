@@ -1,0 +1,11 @@
+Completed all deliverables.
+
+The evidence rejects a baseline-artifact interpretation for binary crime: changing the reference only reverses the ±25.1-point AMCE. Baseline-invariant MMs are 62.6% versus 37.4%. Crime has the largest observed spread, but only narrowly exceeds driving time’s 23.7 points, so the memo claims a large effect—not unique dominance.
+
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/t3/script.R)
+- [sensitivity.png](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/t3/figures/sensitivity.png)
+- [sensitivity-table.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/t3/sensitivity-table.md)
+- [memo.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/t3/memo.md)
+- [routing-log.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/46-sol-v2/t3/routing-log.md)
+
+Final verification passed: `Rscript script.R` succeeds, the sole figure is 320 dpi with no title, and the memo is approximately 400 words. The routing log records all three delegation calls, including the Claude `fable` check and Terra sandbox handling.

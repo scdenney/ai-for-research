@@ -1,0 +1,26 @@
+Mostly, but two issues are material.
+
+1. Trimming changes the estimand. Dropping treated units outside CPS support no longer targets the ATT for all NSW treated units; it targets the overlap-treated ATT. Do not compare that estimate as if it were directly interchangeable with the full experimental treated–control benchmark.
+
+Concrete correction: define support using the score from the initial composite-sample fit, retain treated and controls in the score-range intersection, and label trimmed rows “overlap-treated ATT.” Either retain that initial score for estimation, or—if refitting after trimming—recheck and report overlap under the refitted score. For an apples-to-apples causal benchmark of the trimmed target, use an experimental comparison adjusted/reweighted to the retained treated covariate distribution; otherwise treat comparison with the full NSW benchmark as descriptive only.
+
+2. The proposed 1-NN interval is not a generally valid matching interval. Clustering matched-pair differences by reused control captures one dependency source, but it does not provide the Abadie–Imbens variance correction for nearest-neighbor matching, including generated-score and nonsmooth-match uncertainty. “No ordinary bootstrap” is right; CR1 is not an adequate replacement.
+
+Concrete correction: use an Abadie–Imbens analytic variance estimator for matching with replacement (including reuse counts and conditional outcome-variance estimation, with the estimated-propensity-score correction where applicable). Report the number of distinct matched controls and maximum/typical score distance as diagnostics.
+
+The point estimators are otherwise reasonable, with two clarifications:
+
+- 1-NN with replacement estimates the mean treated-minus-matched-control contrast for the retained treated set; without trimming it is formally computable but can rest on poor overlap. Report balance and match distances.
+- Treated-quintile subclassification with treated-share weights is the appropriate ATT-form point estimator. Define the outer bins explicitly (`-Inf` and `Inf`) for untrimmed specifications and verify every treated stratum has controls. Its simple plug-in variance conditions on estimated scores, cutpoints, and trimming; it is too optimistic as the primary interval. Use a stratified nonparametric bootstrap that refits the logit, reapplies support, and recomputes quintiles/weights in every replicate.
+
+The full \(2\times2\times2\) grid is a good, transparent minimum: eight labeled specifications. Keep the logit functional form fixed across rows, and report post-design balance as well as retained counts. The naïve CPS contrast should be labeled descriptive, not causal.
+
+The experimental benchmark as a horizontal line with its own table interval is fine; use a standard randomized difference-in-means interval and compute it from the data.
+
+Decision rule:
+
+- **Robust recovery:** estimates remain substantively close to the benchmark across both covariate sets, both estimators, and both support choices, with no systematic sensitivity and adequate balance/overlap.
+- **Favorable-specification-only recovery:** only a restricted subset—plausibly earnings-adjusted and/or overlap-trimmed rows—are close, while credible alternatives materially differ. This supports a conditional, design-dependent claim only.
+- **No recovery:** no defensible prespecified row is close, or estimates remain systematically far from the benchmark after adequate balance/support diagnostics.
+
+Crucially, closeness of an overlap-trimmed estimate to the full-sample experimental benchmark alone is not evidence of recovery of the full NSW-treated ATT.

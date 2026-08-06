@@ -1,11 +1,13 @@
 # 46-orchestrate — Sol-lead interactive run (paste-into-Codex prompt)
 
 This is the **Sol-lead headline** arm of the orchestration lab: `gpt-5.6-sol`
-leads at `medium` effort, reasons the analysis itself, and pushes the *bulk*
-down to `gpt-5.6-terra` through out-of-band `codex exec` one-shots. That
-cross-tier delegation only works in an **interactive, full-access** Codex
-session (a nested `codex exec` dies under any sandbox), which is why this can't
-be captured headless — the headless `runs/46/` arm is the Terra-lead fallback.
+leads at `high` effort (the current skill default, bumped 2026-07-17 from the
+`medium` used in the five earlier captures — see `README.md`), reasons the
+analysis itself, and pushes the *bulk* down to `gpt-5.6-terra` through
+out-of-band `codex exec` one-shots. That cross-tier delegation only works in an
+**interactive, full-access** Codex session (a nested `codex exec` dies under any
+sandbox), which is why this can't be captured headless — the headless
+`runs/46/` arm is the Terra-lead fallback.
 
 The goal is to produce, for each brief, the **same deliverables the other arms
 produce**, plus a `routing-log.md` that documents what Sol did directly vs. what
@@ -22,21 +24,24 @@ to recreate them:
 ```bash
 cd demos/orchestration-lab
 for pair in "t1:t1-descriptive" "t2:t2-amce" "t3:t3-reviewer-memo" \
-            "high-ajr:high-ajr" "vhigh-lalonde:vhigh-lalonde"; do
+            "high-ajr:high-ajr" "vhigh-lalonde:vhigh-lalonde" \
+            "extreme-stagdid:extreme-stagdid"; do
   leaf="${pair%%:*}"; brief="${pair##*:}"
   mkdir -p "runs/46-sol/$leaf"
   cp "prompts/$brief.md" "runs/46-sol/$leaf/BRIEF.md"
 done
 ```
 
-Then, **for each of the five leaves** (`t1 t2 t3 high-ajr vhigh-lalonde`), run a
-**fresh** Codex session — never reuse a session that has seen another brief or
-this repo's history (same fresh-session rule as every other arm):
+Then, **for each of the six leaves** (`t1 t2 t3 high-ajr vhigh-lalonde
+extreme-stagdid`), run a **fresh** Codex session — never reuse a session that
+has seen another brief or this repo's history (same fresh-session rule as every
+other arm). If you only want the new tier, just run the `extreme-stagdid` leaf —
+the other five are already captured:
 
 ```bash
-cd demos/orchestration-lab/runs/46-sol/t1        # <-- change the leaf each time
+cd demos/orchestration-lab/runs/46-sol/extreme-stagdid   # <-- change the leaf each time
 codex --model gpt-5.6-sol \
-      -c model_reasoning_effort=medium \
+      -c model_reasoning_effort=high \
       --dangerously-bypass-approvals-and-sandbox     # full access: required so out-of-band `codex exec` can run
 ```
 
@@ -45,8 +50,8 @@ approval prompts. Both are needed: the sandbox is what blocks a nested
 `codex exec`, and unattended one-shots can't stop for approvals. Run it only in
 this repo, which is disposable and under version control.
 
-Once the TUI is up, paste the **prompt below** verbatim. Repeat for all five
-leaves in five separate sessions.
+Once the TUI is up, paste the **prompt below** verbatim. Repeat for all six
+leaves in six separate sessions (or just the one new leaf if the other five are already captured).
 
 **Token accounting:** each out-of-band Terra one-shot prints its own
 `tokens used: N` line (the prompt tells Sol to record those in `routing-log.md`).
@@ -62,7 +67,7 @@ placeholder the prompt leaves at the bottom of `routing-log.md`. The arm's total
 ------------------------------------------------------------------------
 $46-orchestrate
 
-You are the **46-orchestrate lead**, running as **gpt-5.6-sol at medium
+You are the **46-orchestrate lead**, running as **gpt-5.6-sol at high
 effort** in an interactive, full-access session. Your task brief is in
 `./BRIEF.md` in the current working directory — read it first; it is the
 single source of truth for what to produce and its constraints.
@@ -117,10 +122,34 @@ do everything yourself in one context and don't fan out for its own sake):**
    resample on a high-stakes call. For ordinary bulk, prefer the out-of-band
    Terra one-shot above.
 
-4. **Respect the brief's constraints exactly** — including "at most one
+4. **On any high-stakes call — high blast radius and hard to verify, including
+   any package-convention or sentinel-value question where getting it wrong
+   silently produces a plausible-looking wrong answer — reach for the Claude
+   peer, not a second Terra call.** Terra is cheaper than Sol but still GPT-5.6;
+   a Terra-only "second opinion" shares whatever blind spot the whole model
+   family has. Use `claude-peer.sh` for a genuine cross-vendor line:
+
+   ```bash
+   scripts/claude-peer.sh -C "$PWD" \
+     --model sonnet --out claude-check.log \
+     --prompt "<the exact question, self-contained: what you are unsure of,
+      what you have concluded so far, and the precise thing you want checked>"
+   ```
+
+   (Path is relative to the `46-orchestrate` skill's own directory — the same
+   convention `codex/advisor` uses for `scripts/sol-advisor.sh`. There is no
+   Codex-side equivalent of Claude Code's `${CLAUDE_PLUGIN_ROOT}`.)
+
+   Launch this **and** a Terra out-of-band one-shot on the same question in the
+   same round, blind to each other, then reconcile — that pairing is genuinely
+   decorrelated by vendor, not just by tier. If `claude` is not on PATH, fall
+   back to Terra alone and say so explicitly in `routing-log.md` rather than
+   silently treating the fallback as an equivalent check.
+
+5. **Respect the brief's constraints exactly** — including "at most one
    revision cycle," "at most 3 delegations," "do not fetch anything from the
-   web," and "do not install packages." A Terra out-of-band one-shot counts as
-   one delegation.
+   web," and "do not install packages." A Terra out-of-band one-shot or a
+   Claude peer call each count as one delegation.
 
 **Write your results to the current working directory:**
 
@@ -131,11 +160,14 @@ do everything yourself in one context and don't fan out for its own sake):**
 
 - **`routing-log.md`** — the record of how you led. Include:
   - **Route table:** one row per workstream — *what it was*, *owner*
-    (`Sol (lead, direct)` / `Terra out-of-band` / `Sol spawn`), *why that
-    owner*, and *acceptance check*.
+    (`Sol (lead, direct)` / `Terra out-of-band` / `Sol spawn` / `Claude peer`),
+    *why that owner*, and *acceptance check*.
   - **Out-of-band calls:** for each Terra/Luna one-shot, the **exact command**
     you ran and the **`tokens used: N`** it reported (copy the number from its
-    `.log`).
+    `.log`). For each Claude peer call, the exact command and its response
+    summary — `claude -p` does not print a token footer the way `codex exec`
+    does, so note "Claude peer: uncounted (Anthropic-side usage, not part of
+    this arm's Codex token total)" rather than guessing a figure.
   - **What you reasoned directly:** a short note on the analytical decisions
     you kept in the lead (this is the point of a Sol lead — make it visible).
   - **Friction:** anything that failed, any sandbox/stdin gotcha, any Terra
@@ -155,7 +187,7 @@ delegated to Terra vs. reasoned yourself, and any residual risk.
 
 ---
 
-## After the five runs
+## After the run(s)
 
 Tell me (Claude) the runs are done. I'll read `runs/46-sol/<leaf>/` for each
 brief, score the deliverables against the same answer keys and rubrics

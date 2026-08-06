@@ -1,0 +1,45 @@
+All checks are complete. Here is the review.
+
+# Methodological review — staggered-adoption DiD task (mpdta)
+
+## Conclusion
+
+The task is well-posed and, on this dataset, the TWFE critique does **not** materially change the substantive conclusion. All heterogeneity-robust estimators land within a whisker of naive TWFE: TWFE −0.0365 (SE 0.0133); Callaway–Sant'Anna simple ATT −0.0400 (never-treated) / −0.0398 (not-yet-treated); Sun–Abraham ATT −0.0400; Roth–Sant'Anna efficient −0.0471. Contaminated Bacon comparisons carry only ~5.4% of TWFE's identifying weight. The one genuine trap in this task is sentinel coding for `staggered::staggered`: leaving `first.treat = 0` silently yields a garbage estimate of **−0.370** with no error. Any deliverable that reports a staggered() ATT near −0.37 has fallen into it.
+
+## Checkable evidence
+
+**Never-treated sentinels (from installed help pages).**
+- `did::att_gt` (`?att_gt`, arg `gname`): "should be a positive number for all observations in treated groups… It should be 0 for units in the untreated group." So `mpdta$first.treat` works as-is. ✔
+- `staggered::staggered` (`?staggered`, args `df`/`g`): "the period in which i is first treated, **with Inf denoting never treated**." Recode `g <- ifelse(first.treat == 0, Inf, first.treat)` is mandatory. Crucially, passing `first.treat` with 0s produces **no error or warning** — it treats those counties as always-treated since period 0 and returns −0.3704 (SE 0.126), a 10× inflated estimate. This is the highest-risk failure mode in the whole task.
+- `fixest::sunab` (`?sunab`, Details): "any cohort that is not present in the period is considered as never treated" (with an explicit warning that a cohort *before* the sample "should be considered as always treated: so be careful"). Since 0 ∉ {2003,…,2007}, cohort 0 is treated as never-treated — which is *correct here by accident*. I verified numerically: `sunab(first.treat, year)` and `sunab(coh10000, year)` (0 recoded to 10000) return byte-identical coefficients. Leaving 0 is functionally fine in fixest 0.14.2, but recoding to a large out-of-sample value (or `Inf` won't work — use e.g. 10000) is the self-documenting choice given the doc's own caution.
+
+**Numerical cross-checks (all reproduce, unweighted, no covariates, clustered by countyreal).**
+- TWFE `feols(lemp ~ post | countyreal + year, cluster=~countyreal)` with `post = 1{first.treat>0 & year>=first.treat}`: **−0.03655 (0.01327)**.
+- CS `att_gt(..., est_method="reg")` + `aggte(type="simple")`: nevertreated **−0.03995 (0.01226)**; notyettreated **−0.03976 (0.01207)**.
+- Sun–Abraham `sunab(first.treat, year, att=TRUE)`: ATT row **−0.03995 (0.01180)** — identical to CS-nevertreated to machine precision, as expected: with no covariates both reduce to the same never-treated group-time comparisons with cohort-share weights. This is a strong internal consistency check to cite.
+- Roth–Sant'Anna `staggered(estimand="simple")` with g=Inf: **−0.04705 (0.01161)**; and `staggered_cs()` reproduces the did-package notyettreated estimate **exactly** (−0.03976363) — a second machine-precision cross-check.
+- Bacon: `bacon(lemp ~ post, ...)` weights sum to 1 and the weight-weighted average of 2×2 estimates reproduces TWFE exactly (−0.03655). Weight shares: **Treated vs Untreated 0.8628**, Earlier vs Later 0.0833, **Later vs Earlier (contaminated type) 0.0539**, with within-type averages −0.0407, −0.0198, +0.0046 respectively.
+
+**Pretrends.** `aggte(type="dynamic")` gives leads e = −3, −2, −1 (e = −1 is estimated under the default `base_period="varying"`, not a mechanical zero) and lags 0…3. Leads: +0.0305 (0.0154), −0.0006 (0.0134), −0.0245 (0.0143) for nevertreated — individually mostly insignificant; the joint pre-test reported by att_gt (`Wpval`) is **0.168** for both control groups. Lags are monotonically negative and significant (−0.020, −0.051, −0.137, −0.101).
+
+## Implementation recommendations
+
+1. One coherent no-covariate spec across estimators: `lemp`, id/cluster `countyreal`, time `year`; `xformla=NULL` and `est_method="reg"` in att_gt (with no covariates, est_method choice is irrelevant, but "reg" avoids propensity-score machinery); default unweighted everywhere.
+2. Extract ATT/SE: TWFE via `coef()/se()` on the `post` term; CS via `aggte(...)$overall.att` / `$overall.se`; SA via `summary(fit)$coeftable["ATT", ]` when `att=TRUE` (note `coef()` also returns the unaggregated pre-period cohort×period coefficients — take the named "ATT" row, not position); staggered via the returned data frame's `estimate`/`se` (report `se`, the default adjusted SE; `se_neyman` is near-identical here).
+3. In the estimates table, state each estimator's comparison group explicitly: TWFE = everything Bacon enumerates; CS-never = never-treated only; CS-notyet = never + not-yet-treated; SA (fixest default) = never-treated cohorts; staggered default = not-yet-treated (set `use_last_treated_only=FALSE`, the default).
+4. Bacon aggregation: sum `weight` by `type`, and report the within-type weighted mean estimate as `sum(weight*estimate)/sum(weight)`; sanity-check that `sum(weight*estimate)` reproduces the TWFE coefficient. The mpdta panel is balanced and binary-staggered, so `bacon()` needs no extra arguments.
+5. Event-study figure: dynamic aggte with 95% intervals — note `aggte` defaults to a simultaneous critical value (`cband=TRUE`, `crit.val.egt`); either use it and label the band as uniform, or set pointwise deliberately, but say which.
+
+## Interpretation guardrails
+
+- **Bacon weights vs negative weights.** The brief's caution is exactly right and should survive into the memo: `bacon()` weights are nonnegative shares by construction (they sum to 1; verified `min(weight) > 0`). The Goodman-Bacon/de Chaisemartin critique concerns negative weights on *underlying group-time ATTs* inside the contaminated "Later vs Earlier Treated" comparisons (already-treated units as controls). The correct claim is: "only 5.4% of TWFE's identifying variation comes from the comparison type that can load negatively on dynamic effects" — not "no negative weights exist, so TWFE is fine."
+- **Pretrends.** Wpval = 0.168 is a *failure to reject*, not evidence of parallel trends; with 5 periods and modest cohort sizes the test is low-powered (Roth 2022). The e = −3 lead is borderline (+0.031, t ≈ 2). Say "no significant evidence against parallel trends" and stop there.
+- **Direction of TWFE bias.** Here TWFE (−0.0365) is slightly *attenuated* relative to robust estimators (−0.040 to −0.047), consistent with the contaminated type's positive within-type average (+0.005) pulling toward zero. The substantive conclusion (negative employment effect, roughly −4%, growing with time since treatment) is unchanged; the honest memo says the critique is real but quantitatively small *in this dataset* because 86% of weight sits on clean treated-vs-never comparisons.
+- The dynamic estimates (−0.02 → −0.14) show the "simple" ATT understates longer-run effects; a memo reporting "≈ −4%" should note effects grow with exposure.
+
+## Residual risk
+
+- The **staggered() sentinel trap** is silent; if an existing deliverable was produced without the Inf recode, its Roth–Sant'Anna row will read ≈ −0.37 and the memo's reconciliation will be wrong. Verify that row first.
+- The Roth–Sant'Anna plug-in estimate (−0.047) sits ~18% larger in magnitude than the others because it is an *efficiency-weighted* estimand, not the same weighted average of ATT(g,t); a table that presents it as "the same ATT, different estimator" mildly overstates comparability. `staggered_cs()` is the like-for-like CS benchmark (it matches exactly).
+- SA and CS-nevertreated coinciding to machine precision is spec-dependent (no covariates, varying base period); it should be cited as a consistency check, not as a general property.
+- Minor: `aggte` simple vs the brief's "post × ever-treated" TWFE also differ in estimand weighting; small residual gaps between rows need no causal story.

@@ -1,0 +1,13 @@
+Do not proceed unchanged. The specification curve is sensible, but trimming creates a material estimand defect.
+
+Untrimmed estimates target the ATT for all 185 NSW treated units. Trimming away treated units outside CPS support instead targets an overlap-subpopulation ATT. Its gap from the full-sample experimental benchmark cannot be interpreted as matching bias or “recovery”; treatment effects may differ in the retained subgroup. Separate trimmed results as a different-estimand sensitivity analysis, or construct specification-specific experimental overlap benchmarks by applying the same pre-treatment score rule to both NSW arms. Do not treat every cell as estimating one common effect.
+
+Also correct these details:
+
+- If the score is refit after trimming, recheck overlap using the refitted score. The initial intersection no longer guarantees final-score support.
+- Form ATT subclasses from treated-score quintiles, not pooled-sample quintiles—the 15,992 CPS controls would dominate pooled cutpoints. Require treated and controls in every stratum, merge empty/sparse adjacent strata, and report balance and counts.
+- CR1 clustering by reused control is only a conditional-on-the-realized-match sandwich calculation. It captures control reuse but not propensity-score estimation, support selection, or nearest-neighbor matching discrepancy; a \(t\) critical value over unique controls does not repair that. Use an Abadie–Imbens-style analytic variance appropriate to estimated-score matching, or explicitly label the CR1 intervals as conditional/descriptive rather than full 95% sampling intervals.
+- The stratification plug-in variance likewise conditions on estimated scores and cutpoints. Prefer a full bootstrap that refits the score and reconstructs strata for subclassification only, or an appropriate stacked sandwich estimator.
+- Do not infer “recovery” from overlapping intervals. Ideally report uncertainty for each gap from the randomized benchmark, accounting for the shared NSW treated outcomes.
+
+Proceed after those corrections. Otherwise favorable trimmed estimates could appear to recover the benchmark simply because the treated population changed, while the intervals overstate their inferential defensibility.

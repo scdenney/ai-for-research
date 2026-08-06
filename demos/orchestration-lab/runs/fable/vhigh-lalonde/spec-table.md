@@ -11,15 +11,16 @@ Gap = estimate - benchmark; "recovers" means the 95% CI covers the benchmark poi
 |---|---|---:|---|---:|---:|:---:|
 | Demographics | 1-NN | -2,798 | [-4,866, -730] | -4,592 | 1,794 | no |
 | Demographics | 1-NN + trim | -2,798 | [-4,866, -730] | -4,592 | 1,794 | no |
-| Demographics | Stratify (5) | -4,162 | [-5,491, -2,833] | -5,956 | 1,794 | no |
+| Demographics | Stratify (5) | -4,137 | [-5,484, -2,789] | -5,931 | 1,794 | no |
 | + re74/re75 | 1-NN | 1,712 | [178, 3,247] | -82 | 1,794 | yes |
 | + re74/re75 | 1-NN + trim | 1,759 | [221, 3,296] | -36 | 1,794 | yes |
-| + re74/re75 | Stratify (5) | -144 | [-1,406, 1,119] | -1,938 | 1,794 | no |
+| + re74/re75 | Stratify (5) | -144 | [-1,482, 1,195] | -1,938 | 1,794 | no |
 
 **Standard errors.** Benchmark and naive: HC2 heteroskedasticity-robust.
 1-NN matching (with replacement): cluster-robust on matched pair and reused
 unit id -- a design-based *approximation* to the Abadie-Imbens (2006) analytic
 matching variance (the exact estimator lives in `Matching`, not installed);
 the nonparametric bootstrap is ruled out, being invalid for nearest-neighbour
-matching variances (Abadie & Imbens 2008). Stratification: analytic delta-method
-variance from within-stratum sampling variances, conditional on the estimated strata.
+matching variances (Abadie & Imbens 2008). Stratification: HC1-robust SE on
+post-stratification OLS with strata fixed effects (no repeated-match reuse,
+so ordinary robust SEs are appropriate).

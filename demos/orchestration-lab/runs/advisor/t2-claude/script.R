@@ -1,109 +1,115 @@
-# ------------------------------------------------------------------
-# T2 — AMCEs for all seven attributes on profile choice (projoint)
-# Self-contained: reshapes exampleData1, estimates profile-level AMCEs
-# with respondent-clustered SEs and projoint's measurement-error
-# correction, and writes figures/amce-dotwhisker.png.
-# ------------------------------------------------------------------
+# AMCE estimation and dot-whisker plot for a paired conjoint experiment
+# (exampleData1, projoint package), clustered at the respondent level.
 
-library(projoint)
-library(dplyr)
-library(tidyr)
-library(stringr)
-library(forcats)
-library(ggplot2)
+suppressPackageStartupMessages({
+  library(projoint)
+  library(dplyr)
+  library(ggplot2)
+  library(stringr)
+  library(forcats)
+})
 
-# --- Palette and theme (Okabe-Ito) --------------------------------
+## ---- Okabe-Ito palette + shared theme (declared up front) -----------------
 okabe_ito <- c(
-  "#E69F00", "#56B4E9", "#009E73", "#F0E442",
-  "#0072B2", "#D55E00", "#CC79A7", "#000000"
+  "#E69F00", "#56B4E9", "#009E73",
+  "#0072B2", "#D55E00", "#CC79A7", "#999999"
 )
-theme_amce <- theme_minimal(base_size = 11) +
+
+theme_amce <- theme_minimal(base_size = 12) +
   theme(
-    panel.grid.minor   = element_blank(),
+    panel.grid.minor = element_blank(),
     panel.grid.major.y = element_blank(),
-    strip.text.y.left  = element_text(angle = 0, hjust = 1, face = "bold"),
-    strip.placement    = "outside",
-    axis.title.y       = element_blank(),
-    legend.position    = "none",
-    plot.margin        = margin(10, 14, 10, 10)
+    strip.text.y.left = element_text(angle = 0, hjust = 1, face = "bold"),
+    strip.background = element_blank(),
+    strip.placement = "outside",
+    legend.position = "none",
+    axis.title.y = element_blank(),
+    plot.caption = element_text(hjust = 0, size = 9),
+    plot.margin = margin(5.5, 5.5, 5.5, 5.5)
   )
 
-set.seed(20260712)
+set.seed(1234)
 
-# --- Data ----------------------------------------------------------
+## ---- Data -------------------------------------------------------------
 data(exampleData1)
-out <- reshape_projoint(
-  exampleData1,
-  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
-)
+outcomes <- c(paste0("choice", 1:8), "choice1_repeated_flipped")
+pj <- reshape_projoint(exampleData1, .outcomes = outcomes)
 
-# --- Estimation ----------------------------------------------------
-# projoint's estimator: profile-level AMCEs, analytical SEs clustered
-# at the respondent level (.auto_cluster = TRUE), with correction for
-# intra-respondent reliability measured by the repeated flipped task.
-# NB: this triggers a benign warning ("CR2 produced non-PSD/NA
-# variances; fell back to se_type='stata'") — projoint retries with
-# clusters still supplied, so SEs remain respondent-clustered CR1
-# (Stata-style). Do not pass .se_type_1/.se_type_2 to silence it: in
-# projoint 1.1.1 those disable .auto_cluster's auto-detection and
-# would silently drop the clustering.
+## ---- Estimation ---------------------------------------------------------
+# profile-level AMCEs; .auto_cluster = TRUE (default) clusters analytical SEs
+# on the respondent id column, matching the task's clustering requirement.
 fit <- projoint(
-  out,
-  .structure    = "profile_level",
-  .estimand     = "amce",
-  .se_method    = "analytical",
-  .auto_cluster = TRUE,
-  .seed         = 20260712
+  pj,
+  .structure  = "profile_level",
+  .estimand   = "amce",
+  .se_method  = "analytical",
+  .seed       = 1234
 )
-cat("SE type used:", fit$se_type_used, "\n")
 
-# --- Assemble plotting data ---------------------------------------
-labels <- out$labels %>%
-  mutate(level_order = as.integer(str_extract(level_id, "\\d+$")))
+est <- fit$estimates
 
-est <- fit$estimates %>%
+# projoint reports both the raw ("uncorrected") AMCE and the AMCE corrected
+# for intra-respondent measurement error using the repeated-task IRR (tau).
+# We report the corrected AMCE as the headline estimator: it is projoint's
+# distinguishing contribution and is the estimand the package is designed
+# to produce (see ?projoint), rather than a deviation from it.
+amce <- est %>%
   filter(estimand == "amce_corrected") %>%
-  select(level_id = att_level_choose, estimate, conf.low, conf.high)
+  select(level_id = att_level_choose, estimate, se, conf.low, conf.high)
 
-plot_df <- labels %>%
-  left_join(est, by = "level_id") %>%
-  group_by(attribute) %>%
-  mutate(
-    is_ref   = level_order == min(level_order),
-    estimate = if_else(is_ref, 0, estimate),
-    level_lab = if_else(is_ref, paste0(level, " (ref.)"), level)
-  ) %>%
-  ungroup() %>%
-  mutate(
-    attribute = str_wrap(attribute, 22),
-    level_lab = str_wrap(level_lab, 38)
-  ) %>%
-  arrange(attribute, level_order) %>%
-  mutate(level_lab = fct_rev(fct_inorder(level_lab)))
+## ---- Attach attribute / level labels, reference levels at zero ----------
+labels <- pj$labels
 
-# --- Figure --------------------------------------------------------
-p <- ggplot(plot_df, aes(x = estimate, y = level_lab, colour = attribute)) +
-  geom_vline(xintercept = 0, linewidth = 0.3, colour = "grey55") +
-  geom_errorbar(
-    aes(xmin = conf.low, xmax = conf.high),
-    orientation = "y", width = 0, linewidth = 0.6, na.rm = TRUE
+amce_labelled <- labels %>%
+  left_join(amce, by = "level_id") %>%
+  mutate(
+    is_reference = is.na(estimate),
+    estimate = ifelse(is_reference, 0, estimate),
+    conf.low = ifelse(is_reference, 0, conf.low),
+    conf.high = ifelse(is_reference, 0, conf.high)
+  )
+
+stopifnot(sum(amce_labelled$is_reference) == n_distinct(labels$attribute_id))
+
+# preserve attribute/level ordering as defined in pj$labels, reference level
+# (level1) first within each attribute, remaining plotting order reversed so
+# level1 renders at the top of each facet panel.
+amce_labelled <- amce_labelled %>%
+  mutate(
+    attribute = str_wrap(attribute, width = 22),
+    level = str_wrap(level, width = 36)
+  ) %>%
+  mutate(level_f = fct_rev(fct_inorder(paste(attribute_id, level, sep = "__"))))
+
+attr_levels <- amce_labelled %>% distinct(attribute_id, attribute) %>% arrange(attribute_id)
+amce_labelled <- amce_labelled %>%
+  mutate(attribute = factor(attribute, levels = attr_levels$attribute))
+
+## ---- Plot -----------------------------------------------------------------
+p <- ggplot(amce_labelled, aes(x = estimate, y = level_f, color = attribute)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_segment(
+    aes(x = conf.low, xend = conf.high, y = level_f, yend = level_f),
+    linewidth = 0.6
   ) +
-  geom_point(size = 1.9) +
-  facet_grid(attribute ~ ., scales = "free_y", space = "free_y",
-             switch = "y") +
-  scale_colour_manual(values = okabe_ito[c(1:3, 5:8)]) +
-  scale_x_continuous(labels = scales::label_percent(accuracy = 1)) +
-  labs(x = "AMCE: change in probability of choosing the profile\n(percentage points, 95% CI, respondent-clustered)") +
+  geom_point(size = 2.2) +
+  scale_y_discrete(labels = function(x) sub(".*__", "", x)) +
+  scale_color_manual(values = okabe_ito) +
+  facet_grid(attribute ~ ., scales = "free_y", space = "free_y", switch = "y") +
+  labs(
+    x = "Average marginal component effect (probability of profile choice)",
+    y = NULL
+  ) +
   theme_amce
 
 dir.create("figures", showWarnings = FALSE)
-ggsave("figures/amce-dotwhisker.png", p,
-       width = 7.5, height = 9, dpi = 300, bg = "white")
+ggsave("figures/amce-dotwhisker.png", p, width = 10, height = 8, dpi = 320)
 
-# --- Console summary for the report -------------------------------
-plot_df %>%
-  filter(!is_ref) %>%
+## ---- Console summary for report writing -----------------------------------
+amce_out <- amce_labelled %>%
+  filter(!is_reference) %>%
   arrange(desc(abs(estimate))) %>%
-  transmute(attribute, level, pp = round(100 * estimate, 1),
-            lo = round(100 * conf.low, 1), hi = round(100 * conf.high, 1)) %>%
-  print(n = 30)
+  select(attribute, level, estimate, se, conf.low, conf.high)
+
+print(amce_out, n = Inf)
+cat("\nEstimated IRR (tau):", fit$tau, "\n")

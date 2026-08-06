@@ -1,0 +1,1894 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.5
+--------
+workdir: /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 019f706b-a165-7262-962a-cce84d707ffb
+--------
+user
+# Task T2 — Estimate and report (standard tier)
+
+You are working in a project directory. Use R (`Rscript`); the `projoint` package is installed.
+
+**Data.** Same as T1:
+
+```r
+library(projoint)
+data(exampleData1)
+out <- reshape_projoint(exampleData1,
+  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))
+```
+
+**Task.** Estimate Average Marginal Component Effects (AMCEs) for all seven attributes on profile choice, with uncertainty clustered at the respondent level. Use projoint's estimator, or an explicit alternative with a one-line justification if you deviate.
+
+**Produce, in the current working directory:**
+
+1. `script.R` — one self-contained script; Okabe-Ito palette and theme declared at the top; `set.seed()` before anything stochastic.
+2. `figures/amce-dotwhisker.png` — a dot-and-whisker plot of the AMCE estimates with 95% intervals, grouped by attribute, levels ordered within attribute, reference levels shown at zero. 300+ dpi. No in-plot title.
+3. `report.md` — a results paragraph of roughly 200 words that a paper could use: the largest effects, their direction and magnitude in percentage points, and one sentence on uncertainty. Place the figure's caption under the figure reference.
+
+**Constraints.** At most one revision cycle. If your mode delegates, use at most 3 delegations. No web access. Do not install packages.
+codex
+I’m using the project’s advisor workflow to validate the estimation and reporting approach before I generate the script, figure, and results text.
+exec
+/bin/zsh -lc 'pwd; ls -la; /Users/scdenney/Documents/github/resources/open-science-skills/codex/advisor/scripts/sol-advisor.sh --check' in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex
+ succeeded in 0ms:
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex
+total 8
+drwxr-xr-x@  3 scdenney  staff    96 Jul 17 16:12 .
+drwxr-xr-x@ 15 scdenney  staff   480 Jul 17 15:02 ..
+-rw-r--r--@  1 scdenney  staff  1923 Jul 17 16:12 exec-step1.log
+WARNING: proceeding, even though we could not create PATH aliases: Operation not permitted (os error 1)
+codex-cli 0.144.5
+
+apply patch
+patch: completed
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+
+codex
+The independent advisor cannot run in this sandbox (its read-only nested session is blocked by the environment), so I’ll proceed with direct package inspection and executable checks.
+exec
+/bin/zsh -lc "Rscript -e 'library(projoint); print(args(amce)); print(args(reshape_projoint)); data(exampleData1); str(exampleData1); print(names(exampleData1))'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+
+ exited 1 in 472ms:
+Error: object 'amce' not found
+Execution halted
+
+exec
+/bin/zsh -lc "Rscript -e 'library(projoint); print(getNamespaceExports(\"projoint\")); data(exampleData1); d <- reshape_projoint(exampleData1, .outcomes=c(paste0(\"choice\",1:8),\"choice1_repeated_flipped\")); str(d); print(names(d)); print(utils::head(d))'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+
+ succeeded in 1014ms:
+[1] "predict_tau"        "reshape_projoint"   "save_labels"       
+[4] "read_labels"        "make_projoint_data" "projoint"          
+[7] "set_qoi"            "read_Qualtrics"    
+List of 2
+ $ labels: tibble [24 × 4] (S3: tbl_df/tbl/data.frame)
+  ..$ attribute   : chr [1:24] "Housing Cost" "Housing Cost" "Housing Cost" "Presidential Vote (2020)" ...
+  ..$ level       : chr [1:24] "15% of pre-tax income" "30% of pre-tax income" "40% of pre-tax income" "30% Democrat, 70% Republican" ...
+  ..$ attribute_id: chr [1:24] "att1" "att1" "att1" "att2" ...
+  ..$ level_id    : chr [1:24] "att1:level1" "att1:level2" "att1:level3" "att2:level1" ...
+ $ data  : tibble [6,400 × 13] (S3: tbl_df/tbl/data.frame)
+  ..$ id               : chr [1:6400] "R_00zYHdY1te1Qlrz" "R_00zYHdY1te1Qlrz" "R_00zYHdY1te1Qlrz" "R_00zYHdY1te1Qlrz" ...
+  ..$ task             : num [1:6400] 1 1 2 2 3 3 4 4 5 5 ...
+  ..$ profile          : num [1:6400] 1 2 1 2 1 2 1 2 1 2 ...
+  ..$ att4             : Factor w/ 2 levels "att4:level1",..: 2 1 2 2 1 2 1 2 1 1 ...
+  ..$ att7             : Factor w/ 2 levels "att7:level1",..: 1 2 2 2 2 2 1 1 1 1 ...
+  ..$ att3             : Factor w/ 4 levels "att3:level1",..: 1 1 3 4 4 3 1 1 2 4 ...
+  ..$ att1             : Factor w/ 3 levels "att1:level1",..: 2 2 2 3 3 2 1 1 1 2 ...
+  ..$ att2             : Factor w/ 3 levels "att2:level1",..: 2 3 2 1 3 1 3 2 2 2 ...
+  ..$ att5             : Factor w/ 4 levels "att5:level1",..: 4 1 4 1 1 3 2 1 4 2 ...
+  ..$ att6             : Factor w/ 6 levels "att6:level1",..: 5 1 6 6 3 3 5 6 2 2 ...
+  ..$ selected         : num [1:6400] 1 0 1 0 1 0 0 1 1 0 ...
+  ..$ selected_repeated: num [1:6400] 1 0 NA NA NA NA NA NA NA NA ...
+  ..$ agree            : num [1:6400] 1 1 NA NA NA NA NA NA NA NA ...
+ - attr(*, "class")= chr "projoint_data"
+[1] "labels" "data"  
+$labels
+# A tibble: 24 × 4
+   attribute                level                        attribute_id level_id  
+   <chr>                    <chr>                        <chr>        <chr>     
+ 1 Housing Cost             15% of pre-tax income        att1         att1:leve…
+ 2 Housing Cost             30% of pre-tax income        att1         att1:leve…
+ 3 Housing Cost             40% of pre-tax income        att1         att1:leve…
+ 4 Presidential Vote (2020) 30% Democrat, 70% Republican att2         att2:leve…
+ 5 Presidential Vote (2020) 50% Democrat, 50% Republican att2         att2:leve…
+ 6 Presidential Vote (2020) 70% Democrat, 30% Republican att2         att2:leve…
+ 7 Racial Composition       50% White, 50% Nonwhite      att3         att3:leve…
+ 8 Racial Composition       75% White, 25% Nonwhite      att3         att3:leve…
+ 9 Racial Composition       90% White, 10% Nonwhite      att3         att3:leve…
+10 Racial Composition       96% White, 4% Nonwhite       att3         att3:leve…
+# ℹ 14 more rows
+
+$data
+# A tibble: 6,400 × 13
+   id            task profile att4  att7  att3  att1  att2  att5  att6  selected
+   <chr>        <dbl>   <dbl> <fct> <fct> <fct> <fct> <fct> <fct> <fct>    <dbl>
+ 1 R_00zYHdY1t…     1       1 att4… att7… att3… att1… att2… att5… att6…        1
+ 2 R_00zYHdY1t…     1       2 att4… att7… att3… att1… att2… att5… att6…        0
+ 3 R_00zYHdY1t…     2       1 att4… att7… att3… att1… att2… att5… att6…        1
+ 4 R_00zYHdY1t…     2       2 att4… att7… att3… att1… att2… att5… att6…        0
+ 5 R_00zYHdY1t…     3       1 att4… att7… att3… att1… att2… att5… att6…        1
+ 6 R_00zYHdY1t…     3       2 att4… att7… att3… att1… att2… att5… att6…        0
+ 7 R_00zYHdY1t…     4       1 att4… att7… att3… att1… att2… att5… att6…        0
+ 8 R_00zYHdY1t…     4       2 att4… att7… att3… att1… att2… att5… att6…        1
+ 9 R_00zYHdY1t…     5       1 att4… att7… att3… att1… att2… att5… att6…        1
+10 R_00zYHdY1t…     5       2 att4… att7… att3… att1… att2… att5… att6…        0
+# ℹ 6,390 more rows
+# ℹ 2 more variables: selected_repeated <dbl>, agree <dbl>
+
+
+exec
+/bin/zsh -lc "Rscript -e 'library(projoint); print(args(projoint)); print(getAnywhere(projoint)); print(utils::help(\"projoint\", package=\"projoint\"))'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+
+ succeeded in 515ms:
+function (.data, .qoi = NULL, .by_var = NULL, .structure = "choice_level", 
+    .estimand = "mm", .se_method = "analytical", .irr = NULL, 
+    .remove_ties = TRUE, .ignore_position = NULL, .n_sims = NULL, 
+    .n_boot = NULL, .weights_1 = NULL, .clusters_1 = NULL, .se_type_1 = NULL, 
+    .weights_2 = NULL, .clusters_2 = NULL, .se_type_2 = NULL, 
+    .auto_cluster = TRUE, .seed = NULL) 
+NULL
+A single object matching ‘projoint’ was found
+It was found in the following places
+  package:projoint
+  namespace:projoint
+with value
+
+function (.data, .qoi = NULL, .by_var = NULL, .structure = "choice_level", 
+    .estimand = "mm", .se_method = "analytical", .irr = NULL, 
+    .remove_ties = TRUE, .ignore_position = NULL, .n_sims = NULL, 
+    .n_boot = NULL, .weights_1 = NULL, .clusters_1 = NULL, .se_type_1 = NULL, 
+    .weights_2 = NULL, .clusters_2 = NULL, .se_type_2 = NULL, 
+    .auto_cluster = TRUE, .seed = NULL) 
+{
+    if (!is.null(.structure) && !is.null(.qoi)) {
+        .structure <- .qoi$structure
+    }
+    if (!is.null(.estimand) && !is.null(.qoi)) {
+        .estimand <- .qoi$estimand
+    }
+    if (.structure == "choice_level" && is.null(.ignore_position)) {
+        .ignore_position <- TRUE
+    }
+    if (!is.null(.by_var) && .structure != "profile_level") {
+        stop(".by_var is only supported for profile-level analysis.")
+    }
+    if (!is.null(.seed)) {
+        if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+            old_seed <- .Random.seed
+            on.exit({
+                if (exists("old_seed", inherits = FALSE)) .Random.seed <<- old_seed
+            }, add = TRUE)
+        }
+        set.seed(.seed)
+    }
+    weights1_quo <- rlang::enquo(.weights_1)
+    clusters1_quo <- rlang::enquo(.clusters_1)
+    weights2_quo <- rlang::enquo(.weights_2)
+    clusters2_quo <- rlang::enquo(.clusters_2)
+    if (is.null(.by_var)) {
+        out <- projoint_level(.data = .data, .qoi = .qoi, .structure = .structure, 
+            .estimand = .estimand, .se_method = .se_method, .irr = .irr, 
+            .remove_ties = .remove_ties, .ignore_position = .ignore_position, 
+            .n_sims = .n_sims, .n_boot = .n_boot, .weights_1 = weights1_quo, 
+            .clusters_1 = clusters1_quo, .se_type_1 = .se_type_1, 
+            .weights_2 = weights2_quo, .clusters_2 = clusters2_quo, 
+            .se_type_2 = .se_type_2, .auto_cluster = .auto_cluster)
+    }
+    else {
+        out <- projoint_diff(.data = .data, .qoi = .qoi, .by_var = .by_var, 
+            .structure = .structure, .estimand = .estimand, .se_method = .se_method, 
+            .irr = .irr, .remove_ties = .remove_ties, .ignore_position = .ignore_position, 
+            .n_sims = .n_sims, .n_boot = .n_boot, .weights_1 = weights1_quo, 
+            .clusters_1 = clusters1_quo, .se_type_1 = .se_type_1, 
+            .weights_2 = weights2_quo, .clusters_2 = clusters2_quo, 
+            .se_type_2 = .se_type_2, .auto_cluster = .auto_cluster)
+    }
+    return(out)
+}
+<bytecode: 0xbac8635b0>
+<environment: namespace:projoint>
+projoint               package:projoint                R Documentation
+
+_A_n_a_l_y_z_e _a _c_o_n_j_o_i_n_t _d_a_t_a_s_e_t _w_i_t_h _m_e_a_s_u_r_e_m_e_n_t-_e_r_r_o_r _c_o_r_r_e_c_t_i_o_n
+
+_D_e_s_c_r_i_p_t_i_o_n:
+
+     Computes marginal means (MMs) or average marginal component
+     effects (AMCEs) with correction for intra-respondent reliability
+     (IRR, tau). When a repeated task is present, IRR is estimated
+     unless a fixed value is supplied. Results are returned in a
+     structured object ready for plotting and summary.
+
+_U_s_a_g_e:
+
+     projoint(
+       .data,
+       .qoi = NULL,
+       .by_var = NULL,
+       .structure = "choice_level",
+       .estimand = "mm",
+       .se_method = "analytical",
+       .irr = NULL,
+       .remove_ties = TRUE,
+       .ignore_position = NULL,
+       .n_sims = NULL,
+       .n_boot = NULL,
+       .weights_1 = NULL,
+       .clusters_1 = NULL,
+       .se_type_1 = NULL,
+       .weights_2 = NULL,
+       .clusters_2 = NULL,
+       .se_type_2 = NULL,
+       .auto_cluster = TRUE,
+       .seed = NULL
+     )
+     
+_A_r_g_u_m_e_n_t_s:
+
+   .data: A ‘projoint_data’ created by ‘reshape_projoint’ or
+          ‘make_projoint_data’.
+
+    .qoi: Optional ‘projoint_qoi’ describing the quantity of interest.
+          If supplied, its fields override ‘.structure’ and
+          ‘.estimand’.
+
+ .by_var: Optional column name (character) for subgroup analysis; must
+          be logical (TRUE/FALSE) or numeric/integer coded as 0/1. Only
+          supported for ‘.structure == "profile_level"’ (ignored
+          otherwise).
+
+.structure: Either ‘"profile_level"’ or ‘"choice_level"’ (default
+          ‘"choice_level"’). Overridden by ‘.qoi$structure’ if present.
+
+.estimand: Either ‘"mm"’ (marginal mean) or ‘"amce"’ (average marginal
+          component effect). Default ‘"mm"’. Overridden by
+          ‘.qoi$estimand’ if present.
+
+.se_method: Standard-error method: ‘"analytical"’ (default),
+          ‘"simulation"’, or ‘"bootstrap"’.
+
+    .irr: Numeric or ‘NULL’. If ‘NULL’ (default), IRR is estimated
+          (when design allows); otherwise a fixed IRR value is used and
+          IRR estimation is skipped.
+
+.remove_ties: Logical; remove ties in choice data before estimation?
+          Default ‘TRUE’.
+
+.ignore_position: Logical; choice-level only. Ignore profile position
+          (left/right)? Default ‘TRUE’.
+
+ .n_sims: Integer; required when ‘.se_method = "simulation"’.
+
+ .n_boot: Integer; required when ‘.se_method = "bootstrap"’.
+
+.weights_1, .clusters_1, .se_type_1: Passed to ‘lm_robust’ when
+          estimating IRR.
+
+.weights_2, .clusters_2, .se_type_2: Passed to ‘lm_robust’ when
+          estimating MMs/AMCEs.
+
+.auto_cluster: Logical. If ‘TRUE’ (default), automatically cluster on
+          an ‘id’ column when present and no ‘.clusters_*’ are
+          supplied. Auto-clustering only occurs when the corresponding
+          ‘.se_type_*’ is ‘NULL’.
+
+   .seed: Optional integer. Sets a temporary RNG seed for reproducible
+          simulation/bootstrap inside the call; restores the previous
+          RNG state on exit.
+
+_D_e_t_a_i_l_s:
+
+     Most users will pass a ‘projoint_data’ object (from
+     ‘reshape_projoint’ or ‘make_projoint_data’). Advanced users may
+     specify custom quantities via ‘projoint_qoi’; if provided, its
+     ‘structure’ and ‘estimand’ override ‘.structure’ and ‘.estimand’.
+
+     Valid ‘se_type_*’ values depend on clustering:
+
+        • Without clusters: ‘"classical"’, ‘"HC0"’, ‘"HC1"’, ‘"HC2"’,
+          ‘"HC3"’
+
+        • With clusters: ‘"CR0"’, ‘"CR1"’, ‘"CR2"’, ‘"stata"’, ‘"none"’
+
+     If ‘NULL’, _estimatr_ defaults are used (‘HC2’ when unclustered;
+     ‘CR2’ when clustered).
+
+_V_a_l_u_e:
+
+     A ‘projoint_results’ object (list-like) with components such as:
+
+        • ‘$estimand’, ‘$structure’, ‘$se_method’, ‘$irr’, ‘$tau’
+
+        • ‘$labels’: attribute/level mapping used in estimation
+
+        • ‘$estimates’: a data frame of estimates with columns like
+          ‘att_level_choose’, ‘att_level_notchoose’ (if choice-level),
+          ‘estimate’, ‘se’ / ‘std.error’, ‘conf.low’, ‘conf.high’, and
+          an ‘estimand’ label such as ‘"mm_corrected"’ or
+          ‘"amce_uncorrected"’.
+
+     This object is suitable for downstream use in
+     ‘plot.projoint_results’, ‘summary.projoint_results’, and related
+     helpers.
+
+_S_e_e _A_l_s_o:
+
+     ‘reshape_projoint’, ‘projoint_qoi’, ‘plot.projoint_results’,
+     ‘summary.projoint_results’
+
+_E_x_a_m_p_l_e_s:
+
+     # Prepare example data
+     data(exampleData1)
+     outcomes <- c(paste0("choice", 1:8), "choice1_repeated_flipped")
+     pj <- reshape_projoint(exampleData1, outcomes)
+     
+     # Choice-level QoI based on pj$labels
+     att <- unique(pj$labels$attribute_id)[1]
+     lev_ids   <- pj$labels$level_id[pj$labels$attribute_id == att]
+     lev_names <- sub(".*:", "", lev_ids)
+     
+     q <- set_qoi(
+         .structure     = "choice_level",
+         .estimand      = "mm",
+         .att_choose    = att,
+         .lev_choose    = lev_names[2],
+         .att_notchoose = att,
+         .lev_notchoose = lev_names[1]
+       )
+       
+     # Choice-level, marginal means (fast example: fix IRR)
+     fit_choice <- projoint(
+       pj,
+       .qoi = q,
+       .structure = "choice_level",
+       .estimand  = "mm",
+       .irr       = 0.80,        # skip IRR estimation for a quick example
+       .se_method = "analytical"
+     )
+     head(summary(fit_choice))
+     
+     # Profile-level AMCEs
+     fit_profile <- projoint(
+       pj,
+       .structure = "profile_level",
+       .estimand  = "amce",
+       .se_method = "analytical"
+     )
+     # Plot using the S3 plot method
+     p <- plot(fit_profile, .estimates = "both")
+     print(p)
+     
+
+
+exec
+/bin/zsh -lc "Rscript -e 'library(projoint); set.seed(20260717); data(exampleData1); pj <- reshape_projoint(exampleData1, .outcomes=c(paste0(\"choice\",1:8),\"choice1_repeated_flipped\")); fit <- projoint(pj,.structure=\"profile_level\",.estimand=\"amce\",.se_method=\"analytical\",.clusters_2=id,.se_type_2=\"CR2\",.seed=20260717); str(fit, max.level=2); print(summary(fit)); print(fit"'$estimates); print(fit$labels)'"'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+
+ succeeded in 1952ms:
+Warning messages:
+1: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+2: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+3: In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+List of 20
+ $ estimand                        : chr "amce"
+ $ structure                       : chr "profile_level"
+ $ estimates                       : tibble [34 × 7] (S3: tbl_df/tbl/data.frame)
+  ..- attr(*, "se_type_used")= chr "stata"
+  ..- attr(*, "cluster_by")= chr "id"
+ $ se_method                       : chr "analytical"
+ $ irr                             : chr "Estimated"
+ $ tau                             : num 0.172
+ $ remove_ties                     : logi TRUE
+ $ ignore_position                 : NULL
+ $ attribute_of_interest           : chr "all"
+ $ levels_of_interest              : chr "all except level1"
+ $ attribute_of_interest_0         : NULL
+ $ levels_of_interest_0            : NULL
+ $ attribute_of_interest_baseline  : chr "all"
+ $ levels_of_interest_baseline     : chr "level1"
+ $ attribute_of_interest_0_baseline: NULL
+ $ levels_of_interest_0_baseline   : NULL
+ $ se_type_used                    : chr "stata"
+ $ cluster_by                      : chr "id"
+ $ labels                          : tibble [24 × 4] (S3: tbl_df/tbl/data.frame)
+ $ data                            : tibble [6,400 × 13] (S3: tbl_df/tbl/data.frame)
+ - attr(*, "class")= chr "projoint_results"
+
+Summary of Projoint Estimates
+------------------------------
+Estimand: amce
+Structure: profile_level
+Standard error method: analytical
+SE type (lm_robust):   stata (clustered by id)
+IRR: Estimated
+Tau: 0.172
+
+# A tibble: 34 × 7
+   estimand         estimate     se conf.low conf.high att_level_choose
+   <chr>               <dbl>  <dbl>    <dbl>     <dbl> <chr>           
+ 1 amce_uncorrected -0.0899  0.0236  -0.136    -0.0435 att1:level2     
+ 2 amce_corrected   -0.137   0.0360  -0.208    -0.0662 att1:level2     
+ 3 amce_uncorrected -0.130   0.0250  -0.179    -0.0808 att1:level3     
+ 4 amce_corrected   -0.198   0.0386  -0.274    -0.122  att1:level3     
+ 5 amce_uncorrected  0.0348  0.0244  -0.0132    0.0828 att2:level2     
+ 6 amce_corrected    0.0530  0.0372  -0.0202    0.126  att2:level2     
+ 7 amce_uncorrected -0.00177 0.0263  -0.0536    0.0500 att2:level3     
+ 8 amce_corrected   -0.00270 0.0402  -0.0817    0.0763 att2:level3     
+ 9 amce_uncorrected  0.0240  0.0233  -0.0218    0.0699 att3:level2     
+10 amce_corrected    0.0366  0.0357  -0.0336    0.107  att3:level2     
+# ℹ 24 more rows
+# ℹ 1 more variable: att_level_choose_baseline <chr>
+# A tibble: 34 × 7
+   estimand         estimate     se conf.low conf.high att_level_choose
+   <chr>               <dbl>  <dbl>    <dbl>     <dbl> <chr>           
+ 1 amce_uncorrected -0.0899  0.0236  -0.136    -0.0435 att1:level2     
+ 2 amce_corrected   -0.137   0.0360  -0.208    -0.0662 att1:level2     
+ 3 amce_uncorrected -0.130   0.0250  -0.179    -0.0808 att1:level3     
+ 4 amce_corrected   -0.198   0.0386  -0.274    -0.122  att1:level3     
+ 5 amce_uncorrected  0.0348  0.0244  -0.0132    0.0828 att2:level2     
+ 6 amce_corrected    0.0530  0.0372  -0.0202    0.126  att2:level2     
+ 7 amce_uncorrected -0.00177 0.0263  -0.0536    0.0500 att2:level3     
+ 8 amce_corrected   -0.00270 0.0402  -0.0817    0.0763 att2:level3     
+ 9 amce_uncorrected  0.0240  0.0233  -0.0218    0.0699 att3:level2     
+10 amce_corrected    0.0366  0.0357  -0.0336    0.107  att3:level2     
+# ℹ 24 more rows
+# ℹ 1 more variable: att_level_choose_baseline <chr>
+# A tibble: 24 × 4
+   attribute                level                        attribute_id level_id  
+   <chr>                    <chr>                        <chr>        <chr>     
+ 1 Housing Cost             15% of pre-tax income        att1         att1:leve…
+ 2 Housing Cost             30% of pre-tax income        att1         att1:leve…
+ 3 Housing Cost             40% of pre-tax income        att1         att1:leve…
+ 4 Presidential Vote (2020) 30% Democrat, 70% Republican att2         att2:leve…
+ 5 Presidential Vote (2020) 50% Democrat, 50% Republican att2         att2:leve…
+ 6 Presidential Vote (2020) 70% Democrat, 30% Republican att2         att2:leve…
+ 7 Racial Composition       50% White, 50% Nonwhite      att3         att3:leve…
+ 8 Racial Composition       75% White, 25% Nonwhite      att3         att3:leve…
+ 9 Racial Composition       90% White, 10% Nonwhite      att3         att3:leve…
+10 Racial Composition       96% White, 4% Nonwhite       att3         att3:leve…
+# ℹ 14 more rows
+
+exec
+/bin/zsh -lc "Rscript -e 'library(projoint); set.seed(20260717); data(exampleData1); pj<-reshape_projoint(exampleData1,.outcomes=c(paste0(\"choice\",1:8),\"choice1_repeated_flipped\")); fit<-projoint(pj,.structure=\"profile_level\",.estimand=\"amce\",.se_method=\"analytical\",.clusters_2=id,.se_type_2=\"stata\",.seed=20260717); e<-fit"'$estimates; print(e[e$estimand=="amce_corrected",]); print(fit$labels); print(requireNamespace("ggplot2",quietly=TRUE))'"'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+
+ succeeded in 1822ms:
+Warning message:
+In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+# A tibble: 17 × 7
+   estimand       estimate     se conf.low conf.high att_level_choose
+   <chr>             <dbl>  <dbl>    <dbl>     <dbl> <chr>           
+ 1 amce_corrected -0.137   0.0360 -0.208   -0.0663   att1:level2     
+ 2 amce_corrected -0.198   0.0386 -0.274   -0.122    att1:level3     
+ 3 amce_corrected  0.0530  0.0372 -0.0202   0.126    att2:level2     
+ 4 amce_corrected -0.00270 0.0402 -0.0817   0.0763   att2:level3     
+ 5 amce_corrected  0.0366  0.0357 -0.0336   0.107    att3:level2     
+ 6 amce_corrected -0.0227  0.0361 -0.0936   0.0483   att3:level3     
+ 7 amce_corrected -0.0120  0.0382 -0.0870   0.0630   att3:level4     
+ 8 amce_corrected  0.116   0.0420  0.0330   0.198    att4:level2     
+ 9 amce_corrected -0.0696  0.0353 -0.139   -0.000202 att5:level2     
+10 amce_corrected -0.141   0.0365 -0.212   -0.0688   att5:level3     
+11 amce_corrected -0.237   0.0368 -0.310   -0.165    att5:level4     
+12 amce_corrected  0.115   0.0407  0.0350   0.195    att6:level2     
+13 amce_corrected  0.135   0.0429  0.0503   0.219    att6:level3     
+14 amce_corrected  0.158   0.0417  0.0757   0.240    att6:level4     
+15 amce_corrected  0.0786  0.0419 -0.00380  0.161    att6:level5     
+16 amce_corrected  0.146   0.0397  0.0682   0.224    att6:level6     
+17 amce_corrected -0.251   0.0422 -0.334   -0.168    att7:level2     
+# ℹ 1 more variable: att_level_choose_baseline <chr>
+# A tibble: 24 × 4
+   attribute                level                        attribute_id level_id  
+   <chr>                    <chr>                        <chr>        <chr>     
+ 1 Housing Cost             15% of pre-tax income        att1         att1:leve…
+ 2 Housing Cost             30% of pre-tax income        att1         att1:leve…
+ 3 Housing Cost             40% of pre-tax income        att1         att1:leve…
+ 4 Presidential Vote (2020) 30% Democrat, 70% Republican att2         att2:leve…
+ 5 Presidential Vote (2020) 50% Democrat, 50% Republican att2         att2:leve…
+ 6 Presidential Vote (2020) 70% Democrat, 30% Republican att2         att2:leve…
+ 7 Racial Composition       50% White, 50% Nonwhite      att3         att3:leve…
+ 8 Racial Composition       75% White, 25% Nonwhite      att3         att3:leve…
+ 9 Racial Composition       90% White, 10% Nonwhite      att3         att3:leve…
+10 Racial Composition       96% White, 4% Nonwhite       att3         att3:leve…
+# ℹ 14 more rows
+[1] TRUE
+
+exec
+/bin/zsh -lc "Rscript -e 'library(projoint); data(exampleData1); pj<-reshape_projoint(exampleData1,.outcomes=c(paste0(\"choice\",1:8),\"choice1_repeated_flipped\")); write.table(pj"'$labels, row.names=FALSE, sep=" | ", quote=FALSE)'"'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+
+ succeeded in 929ms:
+attribute | level | attribute_id | level_id
+Housing Cost | 15% of pre-tax income | att1 | att1:level1
+Housing Cost | 30% of pre-tax income | att1 | att1:level2
+Housing Cost | 40% of pre-tax income | att1 | att1:level3
+Presidential Vote (2020) | 30% Democrat, 70% Republican | att2 | att2:level1
+Presidential Vote (2020) | 50% Democrat, 50% Republican | att2 | att2:level2
+Presidential Vote (2020) | 70% Democrat, 30% Republican | att2 | att2:level3
+Racial Composition | 50% White, 50% Nonwhite | att3 | att3:level1
+Racial Composition | 75% White, 25% Nonwhite | att3 | att3:level2
+Racial Composition | 90% White, 10% Nonwhite | att3 | att3:level3
+Racial Composition | 96% White, 4% Nonwhite | att3 | att3:level4
+School Quality | 5 out of 10 | att4 | att4:level1
+School Quality | 9 out of 10 | att4 | att4:level2
+Total Daily Driving Time for Commuting and Errands | 10 min | att5 | att5:level1
+Total Daily Driving Time for Commuting and Errands | 25 min | att5 | att5:level2
+Total Daily Driving Time for Commuting and Errands | 45 min | att5 | att5:level3
+Total Daily Driving Time for Commuting and Errands | 75 min | att5 | att5:level4
+Type of Place | City – downtown, with a mix of offices, apartments, and shops | att6 | att6:level1
+Type of Place | City, more residential area | att6 | att6:level2
+Type of Place | Rural area | att6 | att6:level3
+Type of Place | Small town | att6 | att6:level4
+Type of Place | Suburban neighborhood with houses only | att6 | att6:level5
+Type of Place | Suburban neighborhood with mix of shops, houses, businesses | att6 | att6:level6
+Violent Crime Rate (Vs National Rate) | 20% Less Crime Than National Average | att7 | att7:level1
+Violent Crime Rate (Vs National Rate) | 20% More Crime Than National Average | att7 | att7:level2
+
+apply patch
+patch: completed
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/report.md b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..b4041c0661b31f59e81539b13df0c27ff4596a1e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+@@ -0,0 +1,5 @@
++![Figure 1: Respondent-clustered AMCEs for profile choice.](figures/amce-dotwhisker.png)
++
++*Figure 1. Average marginal component effects (AMCEs) on the probability that a profile is selected. Points are reliability-corrected estimates from `projoint`; horizontal whiskers are respondent-clustered 95% confidence intervals. Open points denote the reference level for each attribute.*
++
++Using the profile-level conjoint estimator, we find that several attributes substantially shift the probability that a profile is selected. Relative to the reference profile with 20% less crime than the national average, a profile located in an area with 20% more crime was 25.1 percentage points less likely to be chosen (95% CI: -33.4 to -16.8). Longer daily driving time also had large negative effects: 75 minutes, versus 10 minutes, reduced choice probability by 23.7 points (95% CI: -31.0 to -16.5), while 45 minutes reduced it by 14.1 points. Housing cost was similarly consequential: moving from 15% to 40% of pre-tax income reduced choice probability by 19.8 points (95% CI: -27.4 to -12.2). The largest positive effects concerned place type and school quality. Compared with a downtown mixed-use city location, a small town increased the probability of selection by 15.8 points (95% CI: 7.6 to 24.0), and a rural area increased it by 13.5 points (95% CI: 5.0 to 21.9); raising school quality from 5 to 9 out of 10 increased it by 11.6 points (95% CI: 3.3 to 19.8). These intervals are respondent-clustered and exclude zero for the largest effects, whereas several smaller contrasts remain imprecisely estimated.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/script.R b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a50c1086c68730359a5692edb904a9d6f2fe83cc
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+@@ -0,0 +1,81 @@
++# Reproducible AMCE estimation and figure production
++library(projoint)
++library(ggplot2)
++
++set.seed(20260717)
++
++# Okabe-Ito palette and common plot theme
++okabe_ito <- c(
++  "Housing Cost" = "#E69F00",
++  "Presidential Vote (2020)" = "#56B4E9",
++  "Racial Composition" = "#009E73",
++  "School Quality" = "#F0E442",
++  "Total Daily Driving Time for Commuting and Errands" = "#0072B2",
++  "Type of Place" = "#D55E00",
++  "Violent Crime Rate (Vs National Rate)" = "#CC79A7"
++)
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.text.y = element_text(face = "bold", angle = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 8)
++  )
++
++data(exampleData1)
++pj_data <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++# projoint's profile-level AMCE estimator; clustering is respondent-level (id).
++# The package estimates reliability from the repeated task and returns corrected AMCEs.
++fit <- projoint(
++  pj_data,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .clusters_1 = id,
++  .se_type_1 = "stata",
++  .clusters_2 = id,
++  .se_type_2 = "stata",
++  .seed = 20260717
++)
++
++est <- fit$estimates[fit$estimates$estimand == "amce_corrected", ]
++plot_data <- as.data.frame(fit$labels)
++idx <- match(plot_data$level_id, est$att_level_choose)
++plot_data$estimate <- ifelse(is.na(idx), 0, est$estimate[idx])
++plot_data$conf.low <- ifelse(is.na(idx), 0, est$conf.low[idx])
++plot_data$conf.high <- ifelse(is.na(idx), 0, est$conf.high[idx])
++plot_data$reference <- is.na(idx)
++plot_data$estimate_pp <- 100 * plot_data$estimate
++plot_data$conf.low_pp <- 100 * plot_data$conf.low
++plot_data$conf.high_pp <- 100 * plot_data$conf.high
++plot_data$attribute <- factor(plot_data$attribute, levels = names(okabe_ito))
++plot_data$level_display <- factor(plot_data$level, levels = rev(plot_data$level))
++
++dir.create("figures", showWarnings = FALSE)
++figure <- ggplot(plot_data, aes(x = estimate_pp, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.35) +
++  geom_segment(
++    aes(x = conf.low_pp, xend = conf.high_pp, yend = level_display),
++    linewidth = 0.6
++  ) +
++  geom_point(aes(shape = reference), size = 2.2) +
++  scale_colour_manual(values = okabe_ito) +
++  scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1)) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y") +
++  labs(x = "AMCE on profile choice (percentage points)") +
++  theme_amce
++
++ggsave(
++  filename = "figures/amce-dotwhisker.png",
++  plot = figure,
++  width = 10,
++  height = 14,
++  units = "in",
++  dpi = 320
++)
+
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/report.md b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..b4041c0661b31f59e81539b13df0c27ff4596a1e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+@@ -0,0 +1,5 @@
++![Figure 1: Respondent-clustered AMCEs for profile choice.](figures/amce-dotwhisker.png)
++
++*Figure 1. Average marginal component effects (AMCEs) on the probability that a profile is selected. Points are reliability-corrected estimates from `projoint`; horizontal whiskers are respondent-clustered 95% confidence intervals. Open points denote the reference level for each attribute.*
++
++Using the profile-level conjoint estimator, we find that several attributes substantially shift the probability that a profile is selected. Relative to the reference profile with 20% less crime than the national average, a profile located in an area with 20% more crime was 25.1 percentage points less likely to be chosen (95% CI: -33.4 to -16.8). Longer daily driving time also had large negative effects: 75 minutes, versus 10 minutes, reduced choice probability by 23.7 points (95% CI: -31.0 to -16.5), while 45 minutes reduced it by 14.1 points. Housing cost was similarly consequential: moving from 15% to 40% of pre-tax income reduced choice probability by 19.8 points (95% CI: -27.4 to -12.2). The largest positive effects concerned place type and school quality. Compared with a downtown mixed-use city location, a small town increased the probability of selection by 15.8 points (95% CI: 7.6 to 24.0), and a rural area increased it by 13.5 points (95% CI: 5.0 to 21.9); raising school quality from 5 to 9 out of 10 increased it by 11.6 points (95% CI: 3.3 to 19.8). These intervals are respondent-clustered and exclude zero for the largest effects, whereas several smaller contrasts remain imprecisely estimated.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/script.R b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a50c1086c68730359a5692edb904a9d6f2fe83cc
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+@@ -0,0 +1,81 @@
++# Reproducible AMCE estimation and figure production
++library(projoint)
++library(ggplot2)
++
++set.seed(20260717)
++
++# Okabe-Ito palette and common plot theme
++okabe_ito <- c(
++  "Housing Cost" = "#E69F00",
++  "Presidential Vote (2020)" = "#56B4E9",
++  "Racial Composition" = "#009E73",
++  "School Quality" = "#F0E442",
++  "Total Daily Driving Time for Commuting and Errands" = "#0072B2",
++  "Type of Place" = "#D55E00",
++  "Violent Crime Rate (Vs National Rate)" = "#CC79A7"
++)
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.text.y = element_text(face = "bold", angle = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 8)
++  )
++
++data(exampleData1)
++pj_data <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++# projoint's profile-level AMCE estimator; clustering is respondent-level (id).
++# The package estimates reliability from the repeated task and returns corrected AMCEs.
++fit <- projoint(
++  pj_data,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .clusters_1 = id,
++  .se_type_1 = "stata",
++  .clusters_2 = id,
++  .se_type_2 = "stata",
++  .seed = 20260717
++)
++
++est <- fit$estimates[fit$estimates$estimand == "amce_corrected", ]
++plot_data <- as.data.frame(fit$labels)
++idx <- match(plot_data$level_id, est$att_level_choose)
++plot_data$estimate <- ifelse(is.na(idx), 0, est$estimate[idx])
++plot_data$conf.low <- ifelse(is.na(idx), 0, est$conf.low[idx])
++plot_data$conf.high <- ifelse(is.na(idx), 0, est$conf.high[idx])
++plot_data$reference <- is.na(idx)
++plot_data$estimate_pp <- 100 * plot_data$estimate
++plot_data$conf.low_pp <- 100 * plot_data$conf.low
++plot_data$conf.high_pp <- 100 * plot_data$conf.high
++plot_data$attribute <- factor(plot_data$attribute, levels = names(okabe_ito))
++plot_data$level_display <- factor(plot_data$level, levels = rev(plot_data$level))
++
++dir.create("figures", showWarnings = FALSE)
++figure <- ggplot(plot_data, aes(x = estimate_pp, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.35) +
++  geom_segment(
++    aes(x = conf.low_pp, xend = conf.high_pp, yend = level_display),
++    linewidth = 0.6
++  ) +
++  geom_point(aes(shape = reference), size = 2.2) +
++  scale_colour_manual(values = okabe_ito) +
++  scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1)) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y") +
++  labs(x = "AMCE on profile choice (percentage points)") +
++  theme_amce
++
++ggsave(
++  filename = "figures/amce-dotwhisker.png",
++  plot = figure,
++  width = 10,
++  height = 14,
++  units = "in",
++  dpi = 320
++)
+
+codex
+I’ve implemented the package-based, reliability-corrected profile-level AMCEs with explicit respondent clustering. I’m now running the script and checking the generated image and result values.
+exec
+/bin/zsh -lc "Rscript script.R && file figures/amce-dotwhisker.png && Rscript -e 'x <- png::readPNG(\"figures/amce-dotwhisker.png\"); print(dim(x))' && wc -w report.md" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/report.md b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..b4041c0661b31f59e81539b13df0c27ff4596a1e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+@@ -0,0 +1,5 @@
++![Figure 1: Respondent-clustered AMCEs for profile choice.](figures/amce-dotwhisker.png)
++
++*Figure 1. Average marginal component effects (AMCEs) on the probability that a profile is selected. Points are reliability-corrected estimates from `projoint`; horizontal whiskers are respondent-clustered 95% confidence intervals. Open points denote the reference level for each attribute.*
++
++Using the profile-level conjoint estimator, we find that several attributes substantially shift the probability that a profile is selected. Relative to the reference profile with 20% less crime than the national average, a profile located in an area with 20% more crime was 25.1 percentage points less likely to be chosen (95% CI: -33.4 to -16.8). Longer daily driving time also had large negative effects: 75 minutes, versus 10 minutes, reduced choice probability by 23.7 points (95% CI: -31.0 to -16.5), while 45 minutes reduced it by 14.1 points. Housing cost was similarly consequential: moving from 15% to 40% of pre-tax income reduced choice probability by 19.8 points (95% CI: -27.4 to -12.2). The largest positive effects concerned place type and school quality. Compared with a downtown mixed-use city location, a small town increased the probability of selection by 15.8 points (95% CI: 7.6 to 24.0), and a rural area increased it by 13.5 points (95% CI: 5.0 to 21.9); raising school quality from 5 to 9 out of 10 increased it by 11.6 points (95% CI: 3.3 to 19.8). These intervals are respondent-clustered and exclude zero for the largest effects, whereas several smaller contrasts remain imprecisely estimated.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/script.R b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a50c1086c68730359a5692edb904a9d6f2fe83cc
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+@@ -0,0 +1,81 @@
++# Reproducible AMCE estimation and figure production
++library(projoint)
++library(ggplot2)
++
++set.seed(20260717)
++
++# Okabe-Ito palette and common plot theme
++okabe_ito <- c(
++  "Housing Cost" = "#E69F00",
++  "Presidential Vote (2020)" = "#56B4E9",
++  "Racial Composition" = "#009E73",
++  "School Quality" = "#F0E442",
++  "Total Daily Driving Time for Commuting and Errands" = "#0072B2",
++  "Type of Place" = "#D55E00",
++  "Violent Crime Rate (Vs National Rate)" = "#CC79A7"
++)
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.text.y = element_text(face = "bold", angle = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 8)
++  )
++
++data(exampleData1)
++pj_data <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++# projoint's profile-level AMCE estimator; clustering is respondent-level (id).
++# The package estimates reliability from the repeated task and returns corrected AMCEs.
++fit <- projoint(
++  pj_data,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .clusters_1 = id,
++  .se_type_1 = "stata",
++  .clusters_2 = id,
++  .se_type_2 = "stata",
++  .seed = 20260717
++)
++
++est <- fit$estimates[fit$estimates$estimand == "amce_corrected", ]
++plot_data <- as.data.frame(fit$labels)
++idx <- match(plot_data$level_id, est$att_level_choose)
++plot_data$estimate <- ifelse(is.na(idx), 0, est$estimate[idx])
++plot_data$conf.low <- ifelse(is.na(idx), 0, est$conf.low[idx])
++plot_data$conf.high <- ifelse(is.na(idx), 0, est$conf.high[idx])
++plot_data$reference <- is.na(idx)
++plot_data$estimate_pp <- 100 * plot_data$estimate
++plot_data$conf.low_pp <- 100 * plot_data$conf.low
++plot_data$conf.high_pp <- 100 * plot_data$conf.high
++plot_data$attribute <- factor(plot_data$attribute, levels = names(okabe_ito))
++plot_data$level_display <- factor(plot_data$level, levels = rev(plot_data$level))
++
++dir.create("figures", showWarnings = FALSE)
++figure <- ggplot(plot_data, aes(x = estimate_pp, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.35) +
++  geom_segment(
++    aes(x = conf.low_pp, xend = conf.high_pp, yend = level_display),
++    linewidth = 0.6
++  ) +
++  geom_point(aes(shape = reference), size = 2.2) +
++  scale_colour_manual(values = okabe_ito) +
++  scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1)) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y") +
++  labs(x = "AMCE on profile choice (percentage points)") +
++  theme_amce
++
++ggsave(
++  filename = "figures/amce-dotwhisker.png",
++  plot = figure,
++  width = 10,
++  height = 14,
++  units = "in",
++  dpi = 320
++)
+
+ succeeded in 2566ms:
+Warning message:
+In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+figures/amce-dotwhisker.png: PNG image data, 3200 x 4480, 8-bit/color RGB, non-interlaced
+[1] 4480 3200    3
+     242 report.md
+
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/report.md b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..b4041c0661b31f59e81539b13df0c27ff4596a1e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+@@ -0,0 +1,5 @@
++![Figure 1: Respondent-clustered AMCEs for profile choice.](figures/amce-dotwhisker.png)
++
++*Figure 1. Average marginal component effects (AMCEs) on the probability that a profile is selected. Points are reliability-corrected estimates from `projoint`; horizontal whiskers are respondent-clustered 95% confidence intervals. Open points denote the reference level for each attribute.*
++
++Using the profile-level conjoint estimator, we find that several attributes substantially shift the probability that a profile is selected. Relative to the reference profile with 20% less crime than the national average, a profile located in an area with 20% more crime was 25.1 percentage points less likely to be chosen (95% CI: -33.4 to -16.8). Longer daily driving time also had large negative effects: 75 minutes, versus 10 minutes, reduced choice probability by 23.7 points (95% CI: -31.0 to -16.5), while 45 minutes reduced it by 14.1 points. Housing cost was similarly consequential: moving from 15% to 40% of pre-tax income reduced choice probability by 19.8 points (95% CI: -27.4 to -12.2). The largest positive effects concerned place type and school quality. Compared with a downtown mixed-use city location, a small town increased the probability of selection by 15.8 points (95% CI: 7.6 to 24.0), and a rural area increased it by 13.5 points (95% CI: 5.0 to 21.9); raising school quality from 5 to 9 out of 10 increased it by 11.6 points (95% CI: 3.3 to 19.8). These intervals are respondent-clustered and exclude zero for the largest effects, whereas several smaller contrasts remain imprecisely estimated.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/script.R b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a50c1086c68730359a5692edb904a9d6f2fe83cc
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+@@ -0,0 +1,81 @@
++# Reproducible AMCE estimation and figure production
++library(projoint)
++library(ggplot2)
++
++set.seed(20260717)
++
++# Okabe-Ito palette and common plot theme
++okabe_ito <- c(
++  "Housing Cost" = "#E69F00",
++  "Presidential Vote (2020)" = "#56B4E9",
++  "Racial Composition" = "#009E73",
++  "School Quality" = "#F0E442",
++  "Total Daily Driving Time for Commuting and Errands" = "#0072B2",
++  "Type of Place" = "#D55E00",
++  "Violent Crime Rate (Vs National Rate)" = "#CC79A7"
++)
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.text.y = element_text(face = "bold", angle = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 8)
++  )
++
++data(exampleData1)
++pj_data <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++# projoint's profile-level AMCE estimator; clustering is respondent-level (id).
++# The package estimates reliability from the repeated task and returns corrected AMCEs.
++fit <- projoint(
++  pj_data,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .clusters_1 = id,
++  .se_type_1 = "stata",
++  .clusters_2 = id,
++  .se_type_2 = "stata",
++  .seed = 20260717
++)
++
++est <- fit$estimates[fit$estimates$estimand == "amce_corrected", ]
++plot_data <- as.data.frame(fit$labels)
++idx <- match(plot_data$level_id, est$att_level_choose)
++plot_data$estimate <- ifelse(is.na(idx), 0, est$estimate[idx])
++plot_data$conf.low <- ifelse(is.na(idx), 0, est$conf.low[idx])
++plot_data$conf.high <- ifelse(is.na(idx), 0, est$conf.high[idx])
++plot_data$reference <- is.na(idx)
++plot_data$estimate_pp <- 100 * plot_data$estimate
++plot_data$conf.low_pp <- 100 * plot_data$conf.low
++plot_data$conf.high_pp <- 100 * plot_data$conf.high
++plot_data$attribute <- factor(plot_data$attribute, levels = names(okabe_ito))
++plot_data$level_display <- factor(plot_data$level, levels = rev(plot_data$level))
++
++dir.create("figures", showWarnings = FALSE)
++figure <- ggplot(plot_data, aes(x = estimate_pp, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.35) +
++  geom_segment(
++    aes(x = conf.low_pp, xend = conf.high_pp, yend = level_display),
++    linewidth = 0.6
++  ) +
++  geom_point(aes(shape = reference), size = 2.2) +
++  scale_colour_manual(values = okabe_ito) +
++  scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1)) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y") +
++  labs(x = "AMCE on profile choice (percentage points)") +
++  theme_amce
++
++ggsave(
++  filename = "figures/amce-dotwhisker.png",
++  plot = figure,
++  width = 10,
++  height = 14,
++  units = "in",
++  dpi = 320
++)
+
+exec
+/bin/zsh -lc "sed -n '5p' report.md | wc -w; Rscript -e 'source(\"script.R\"); print(summary(fit)); print(attr(fit"'$estimates, "cluster_by")); print(attr(fit$estimates, "se_type_used"))'"'" in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/report.md b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..b4041c0661b31f59e81539b13df0c27ff4596a1e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+@@ -0,0 +1,5 @@
++![Figure 1: Respondent-clustered AMCEs for profile choice.](figures/amce-dotwhisker.png)
++
++*Figure 1. Average marginal component effects (AMCEs) on the probability that a profile is selected. Points are reliability-corrected estimates from `projoint`; horizontal whiskers are respondent-clustered 95% confidence intervals. Open points denote the reference level for each attribute.*
++
++Using the profile-level conjoint estimator, we find that several attributes substantially shift the probability that a profile is selected. Relative to the reference profile with 20% less crime than the national average, a profile located in an area with 20% more crime was 25.1 percentage points less likely to be chosen (95% CI: -33.4 to -16.8). Longer daily driving time also had large negative effects: 75 minutes, versus 10 minutes, reduced choice probability by 23.7 points (95% CI: -31.0 to -16.5), while 45 minutes reduced it by 14.1 points. Housing cost was similarly consequential: moving from 15% to 40% of pre-tax income reduced choice probability by 19.8 points (95% CI: -27.4 to -12.2). The largest positive effects concerned place type and school quality. Compared with a downtown mixed-use city location, a small town increased the probability of selection by 15.8 points (95% CI: 7.6 to 24.0), and a rural area increased it by 13.5 points (95% CI: 5.0 to 21.9); raising school quality from 5 to 9 out of 10 increased it by 11.6 points (95% CI: 3.3 to 19.8). These intervals are respondent-clustered and exclude zero for the largest effects, whereas several smaller contrasts remain imprecisely estimated.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/script.R b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a50c1086c68730359a5692edb904a9d6f2fe83cc
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+@@ -0,0 +1,81 @@
++# Reproducible AMCE estimation and figure production
++library(projoint)
++library(ggplot2)
++
++set.seed(20260717)
++
++# Okabe-Ito palette and common plot theme
++okabe_ito <- c(
++  "Housing Cost" = "#E69F00",
++  "Presidential Vote (2020)" = "#56B4E9",
++  "Racial Composition" = "#009E73",
++  "School Quality" = "#F0E442",
++  "Total Daily Driving Time for Commuting and Errands" = "#0072B2",
++  "Type of Place" = "#D55E00",
++  "Violent Crime Rate (Vs National Rate)" = "#CC79A7"
++)
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.text.y = element_text(face = "bold", angle = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 8)
++  )
++
++data(exampleData1)
++pj_data <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++# projoint's profile-level AMCE estimator; clustering is respondent-level (id).
++# The package estimates reliability from the repeated task and returns corrected AMCEs.
++fit <- projoint(
++  pj_data,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .clusters_1 = id,
++  .se_type_1 = "stata",
++  .clusters_2 = id,
++  .se_type_2 = "stata",
++  .seed = 20260717
++)
++
++est <- fit$estimates[fit$estimates$estimand == "amce_corrected", ]
++plot_data <- as.data.frame(fit$labels)
++idx <- match(plot_data$level_id, est$att_level_choose)
++plot_data$estimate <- ifelse(is.na(idx), 0, est$estimate[idx])
++plot_data$conf.low <- ifelse(is.na(idx), 0, est$conf.low[idx])
++plot_data$conf.high <- ifelse(is.na(idx), 0, est$conf.high[idx])
++plot_data$reference <- is.na(idx)
++plot_data$estimate_pp <- 100 * plot_data$estimate
++plot_data$conf.low_pp <- 100 * plot_data$conf.low
++plot_data$conf.high_pp <- 100 * plot_data$conf.high
++plot_data$attribute <- factor(plot_data$attribute, levels = names(okabe_ito))
++plot_data$level_display <- factor(plot_data$level, levels = rev(plot_data$level))
++
++dir.create("figures", showWarnings = FALSE)
++figure <- ggplot(plot_data, aes(x = estimate_pp, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.35) +
++  geom_segment(
++    aes(x = conf.low_pp, xend = conf.high_pp, yend = level_display),
++    linewidth = 0.6
++  ) +
++  geom_point(aes(shape = reference), size = 2.2) +
++  scale_colour_manual(values = okabe_ito) +
++  scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1)) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y") +
++  labs(x = "AMCE on profile choice (percentage points)") +
++  theme_amce
++
++ggsave(
++  filename = "figures/amce-dotwhisker.png",
++  plot = figure,
++  width = 10,
++  height = 14,
++  units = "in",
++  dpi = 320
++)
+
+ succeeded in 2349ms:
+Warning message:
+In pj_estimate(.data = .data, .structure = structure, .estimand = estimand,  :
+  AMCE analytical SEs: CR2 produced non-PSD/NA variances; fell back to se_type='stata' (then HC1 if needed).
+
+Summary of Projoint Estimates
+------------------------------
+Estimand: amce
+Structure: profile_level
+Standard error method: analytical
+SE type (lm_robust):   stata (clustered by id)
+IRR: Estimated
+Tau: 0.172
+
+# A tibble: 34 × 7
+   estimand         estimate     se conf.low conf.high att_level_choose
+   <chr>               <dbl>  <dbl>    <dbl>     <dbl> <chr>           
+ 1 amce_uncorrected -0.0899  0.0236  -0.136    -0.0436 att1:level2     
+ 2 amce_corrected   -0.137   0.0360  -0.208    -0.0663 att1:level2     
+ 3 amce_uncorrected -0.130   0.0250  -0.179    -0.0808 att1:level3     
+ 4 amce_corrected   -0.198   0.0386  -0.274    -0.122  att1:level3     
+ 5 amce_uncorrected  0.0348  0.0244  -0.0132    0.0828 att2:level2     
+ 6 amce_corrected    0.0530  0.0372  -0.0202    0.126  att2:level2     
+ 7 amce_uncorrected -0.00177 0.0263  -0.0536    0.0500 att2:level3     
+ 8 amce_corrected   -0.00270 0.0402  -0.0817    0.0763 att2:level3     
+ 9 amce_uncorrected  0.0240  0.0233  -0.0218    0.0699 att3:level2     
+10 amce_corrected    0.0366  0.0357  -0.0336    0.107  att3:level2     
+# ℹ 24 more rows
+# ℹ 1 more variable: att_level_choose_baseline <chr>
+[1] "id"
+[1] "stata"
+
+exec
+/bin/zsh -lc 'ls -la; git status --short' in /Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex
+ succeeded in 0ms:
+total 296
+drwxr-xr-x@  7 scdenney  staff    224 Jul 17 16:14 .
+drwxr-xr-x@ 15 scdenney  staff    480 Jul 17 15:02 ..
+-rw-r--r--@  1 scdenney  staff   1292 Jul 17 16:12 advisor-briefing.md
+-rw-r--r--@  1 scdenney  staff  79560 Jul 17 16:14 exec-step1.log
+drwxr-xr-x@  3 scdenney  staff     96 Jul 17 16:14 figures
+-rw-r--r--@  1 scdenney  staff   1605 Jul 17 16:14 report.md
+-rw-r--r--@  1 scdenney  staff   2727 Jul 17 16:14 script.R
+ M ../../../EXTENSIONS.md
+ M ../../../README.md
+ M ../../../SCORING.md
+ M ../../../data/README.md
+ M ../../../prompts/46-sol-run.md
+ M ../../46-sol/high-ajr/memo.md
+ M ../../46-sol/high-ajr/robustness-table.md
+ M ../../46-sol/high-ajr/routing-log.md
+ M ../../46-sol/high-ajr/script.R
+ D ../../46-sol/high-ajr/sol-session.log
+ M ../../46-sol/high-ajr/terra-implementation.log
+ M ../../46-sol/high-ajr/terra-verification.log
+ M ../../46-sol/t1/figures/level-frequencies.png
+ M ../../46-sol/t1/routing-log.md
+ M ../../46-sol/t1/script.R
+ D ../../46-sol/t1/sol-session.log
+ M ../../46-sol/t1/summary.md
+ D ../../46-sol/t1/terra-implementation-retry.log
+ M ../../46-sol/t1/terra-implementation.log
+ M ../../46-sol/t2/figures/amce-dotwhisker.png
+ M ../../46-sol/t2/report.md
+ M ../../46-sol/t2/routing-log.md
+ M ../../46-sol/t2/script.R
+ D ../../46-sol/t2/sol-session.log
+ D ../../46-sol/t2/terra-implementation.log
+ D ../../46-sol/t2/verification-rscript.log
+ D ../../46-sol/t2/verification-values.log
+ M ../../46-sol/t3/figures/sensitivity.png
+ M ../../46-sol/t3/memo.md
+ M ../../46-sol/t3/routing-log.md
+ M ../../46-sol/t3/script.R
+ M ../../46-sol/t3/sensitivity-table.md
+ D ../../46-sol/t3/sol-session.log
+ D ../../46-sol/t3/terra-implementation.log
+ D ../../46-sol/t3/terra-inventory.log
+ D ../../46-sol/t3/terra-inventory.md
+ D ../../46-sol/t3/verification-rscript.log
+ M ../../46-sol/vhigh-lalonde/figures/spec-curve.png
+ M ../../46-sol/vhigh-lalonde/lead-rscript.log
+ M ../../46-sol/vhigh-lalonde/memo.md
+ M ../../46-sol/vhigh-lalonde/routing-log.md
+ M ../../46-sol/vhigh-lalonde/script.R
+ D ../../46-sol/vhigh-lalonde/sol-session.log
+ M ../../46-sol/vhigh-lalonde/spec-table.md
+ M ../../46-sol/vhigh-lalonde/terra-implementation.log
+ M ../../46-sol/vhigh-lalonde/terra-verification.log
+ M ../high-ajr-claude/SHA256SUMS
+ M ../high-ajr-claude/advice.md
+ M ../high-ajr-claude/briefing.md
+ M ../high-ajr-claude/claude-envelope-1.json
+ M ../high-ajr-claude/claude-envelope-2.json
+ D ../high-ajr-claude/estimates-by-spec.png
+ M ../high-ajr-claude/memo.md
+ M ../high-ajr-claude/robustness-table.md
+ D ../high-ajr-claude/run-log.md
+ M ../high-ajr-claude/script.R
+ M ../t2-claude/SHA256SUMS
+ M ../t2-claude/advice.md
+ M ../t2-claude/briefing.md
+ M ../t2-claude/claude-envelope-1.json
+ M ../t2-claude/claude-envelope-2.json
+ M ../t2-claude/figures/amce-dotwhisker.png
+ M ../t2-claude/report.md
+ D ../t2-claude/run-log.md
+ M ../t2-claude/script.R
+ M ../t3-claude/SHA256SUMS
+ M ../t3-claude/advice.md
+ M ../t3-claude/briefing.md
+ M ../t3-claude/claude-envelope-1.json
+ D ../t3-claude/claude-envelope-2.json
+ M ../t3-claude/figures/sensitivity.png
+ M ../t3-claude/memo.md
+ M ../t3-claude/run-log.md
+ M ../t3-claude/script.R
+ M ../t3-claude/sensitivity-table.md
+ D ../t3-codex/SHA256SUMS
+ D ../t3-codex/advice.md
+ D ../t3-codex/briefing.md
+ D ../t3-codex/exec-step1.log
+ D ../t3-codex/exec-step3.log
+ D ../t3-codex/figures/sensitivity.png
+ D ../t3-codex/memo.md
+ D ../t3-codex/run-log.md
+ D ../t3-codex/script.R
+ D ../t3-codex/sensitivity-table.md
+ M ../vhigh-lalonde-claude/SHA256SUMS
+ M ../vhigh-lalonde-claude/advice.md
+ M ../vhigh-lalonde-claude/briefing.md
+ M ../vhigh-lalonde-claude/claude-envelope-1.json
+ M ../vhigh-lalonde-claude/claude-envelope-2.json
+ M ../vhigh-lalonde-claude/figures/spec-curve.png
+ M ../vhigh-lalonde-claude/memo.md
+ D ../vhigh-lalonde-claude/run-log.md
+ M ../vhigh-lalonde-claude/script.R
+ M ../vhigh-lalonde-claude/spec-table.md
+ M ../../fable/high-ajr/claude-envelope.json
+ D ../../fable/high-ajr/figures/first-stage.png
+ M ../../fable/high-ajr/memo.md
+ M ../../fable/high-ajr/robustness-table.md
+ M ../../fable/high-ajr/script.R
+ M ../../fable/t1/claude-envelope.json
+ M ../../fable/t1/figures/level-frequencies.png
+ M ../../fable/t1/script.R
+ M ../../fable/t1/summary.md
+ M ../../fable/t2/claude-envelope.json
+ D ../../fable/t2/estimates.csv
+ M ../../fable/t2/figures/amce-dotwhisker.png
+ M ../../fable/t2/report.md
+ M ../../fable/t2/script.R
+ M ../../fable/t3/claude-envelope.json
+ M ../../fable/t3/figures/sensitivity.png
+ M ../../fable/t3/memo.md
+ M ../../fable/t3/script.R
+ M ../../fable/t3/sensitivity-table.md
+ M ../../fable/vhigh-lalonde/claude-envelope.json
+ M ../../fable/vhigh-lalonde/figures/spec-curve.png
+ M ../../fable/vhigh-lalonde/memo.md
+ M ../../fable/vhigh-lalonde/script.R
+ M ../../fable/vhigh-lalonde/spec-table.md
+ M ../../opus/SESSION-PROTOCOL.md
+ M ../../opus/high-ajr/SHA256SUMS
+ M ../../opus/high-ajr/claude-envelope.json
+ M ../../opus/high-ajr/memo.md
+ D ../../opus/high-ajr/results.csv
+ D ../../opus/high-ajr/robustness-figure.png
+ M ../../opus/high-ajr/robustness-table.md
+ D ../../opus/high-ajr/run-log.md
+ M ../../opus/high-ajr/script.R
+ D ../../opus/t1/SHA256SUMS
+ M ../../opus/t1/claude-envelope.json
+ M ../../opus/t1/figures/level-frequencies.png
+ D ../../opus/t1/run-log.md
+ M ../../opus/t1/script.R
+ M ../../opus/t1/summary.md
+ M ../../opus/t2/SHA256SUMS
+ M ../../opus/t2/claude-envelope.json
+ M ../../opus/t2/figures/amce-dotwhisker.png
+ M ../../opus/t2/report.md
+ D ../../opus/t2/run-log.md
+ M ../../opus/t2/script.R
+ M ../../opus/t3/SHA256SUMS
+ M ../../opus/t3/claude-envelope.json
+ M ../../opus/t3/figures/sensitivity.png
+ M ../../opus/t3/memo.md
+ D ../../opus/t3/run-log.md
+ M ../../opus/t3/script.R
+ M ../../opus/t3/sensitivity-table.md
+ M ../../opus/vhigh-lalonde/SHA256SUMS
+ M ../../opus/vhigh-lalonde/claude-envelope.json
+ M ../../opus/vhigh-lalonde/figures/spec-curve.png
+ M ../../opus/vhigh-lalonde/memo.md
+ D ../../opus/vhigh-lalonde/run-log.md
+ M ../../opus/vhigh-lalonde/script.R
+ M ../../opus/vhigh-lalonde/spec-table.md
+ M ../../../../../docs/orchestration-lab/index.html
+?? ../../../prompts/extreme-stagdid.md
+?? ../../../reference/extreme-stagdid/
+?? ../../46-sol/extreme-stagdid/
+?? ../../46-sol/high-ajr/SHA256SUMS
+?? ../../46-sol/t1/SHA256SUMS
+?? ../../46-sol/t2/SHA256SUMS
+?? ../../46-sol/t2/terra-implement.log
+?? ../../46-sol/t2/terra-verify.log
+?? ../../46-sol/t3/analysis-diagnostics.txt
+?? ../../46-sol/t3/terra-analysis.log
+?? ../../46-sol/t3/terra-analysis.prompt
+?? ../../46-sol/vhigh-lalonde/SHA256SUMS
+?? ../../46/extreme-stagdid/
+?? ../extreme-stagdid-claude/
+?? ../extreme-stagdid-codex/
+?? ../high-ajr-claude/run-err-1.log
+?? ../high-ajr-claude/run-err-2.log
+?? ../rerun-codex-advisor.sh
+?? ../t1-codex/
+?? ../t2-claude/run-err-1.log
+?? ../t2-claude/run-err-2.log
+?? ./
+?? ../t3-claude/run-err-1.log
+?? ../vhigh-lalonde-claude/run-err-1.log
+?? ../vhigh-lalonde-claude/run-err-2.log
+?? ../../claude-direct/
+?? ../../fable/extreme-stagdid/
+?? ../../fable/high-ajr/SHA256SUMS
+?? ../../fable/t1/SHA256SUMS
+?? ../../fable/t2/SHA256SUMS
+?? ../../fable/t3/SHA256SUMS
+?? ../../fable/vhigh-lalonde/SHA256SUMS
+?? ../../opus/extreme-stagdid/
+?? ../../opus/high-ajr/run-err.log
+?? ../../opus/t1/run-err.log
+?? ../../opus/t2/run-err.log
+?? ../../opus/t3/run-err.log
+?? ../../opus/vhigh-lalonde/codex-crosscheck.log
+?? ../../opus/vhigh-lalonde/codex-prompt.txt
+?? ../../opus/vhigh-lalonde/run-err.log
+
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a09a10780bac7d9c77eec5992568e1dfd3655c0
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+@@ -0,0 +1,7 @@
++# Decision-focused advisory request
++
++Task: Create an R script, an AMCE dot-and-whisker figure, and ~200-word paper-ready result paragraph using `projoint::exampleData1`. The data are reshaped with `reshape_projoint(exampleData1, .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped"))`. The requested estimand is AMCEs for all seven attributes on profile choice, with respondent-clustered uncertainty. The `projoint` package is installed; no package installation or web access is allowed.
++
++Proposed analysis: use `projoint::amce()` on the reshaped data, specifying the profile-choice outcome and respondent clustering if exposed by the package API; otherwise use an explicit OLS AMCE estimator (outcome regressed on attribute factors, with reference levels omitted) with respondent-clustered sandwich standard errors. Report effects in percentage points, construct 95% Wald intervals, and add zero-valued reference rows to a grouped horizontal dot-whisker plot.
++
++Need: judge the safest implementation route in `projoint` for this example data, particularly how to obtain respondent-clustered intervals and how reference levels should be represented. Flag any likely pitfalls in orientation, outcome selection, or interpretation. This is read-only advice; no files should be edited.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/report.md b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..b4041c0661b31f59e81539b13df0c27ff4596a1e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+@@ -0,0 +1,5 @@
++![Figure 1: Respondent-clustered AMCEs for profile choice.](figures/amce-dotwhisker.png)
++
++*Figure 1. Average marginal component effects (AMCEs) on the probability that a profile is selected. Points are reliability-corrected estimates from `projoint`; horizontal whiskers are respondent-clustered 95% confidence intervals. Open points denote the reference level for each attribute.*
++
++Using the profile-level conjoint estimator, we find that several attributes substantially shift the probability that a profile is selected. Relative to the reference profile with 20% less crime than the national average, a profile located in an area with 20% more crime was 25.1 percentage points less likely to be chosen (95% CI: -33.4 to -16.8). Longer daily driving time also had large negative effects: 75 minutes, versus 10 minutes, reduced choice probability by 23.7 points (95% CI: -31.0 to -16.5), while 45 minutes reduced it by 14.1 points. Housing cost was similarly consequential: moving from 15% to 40% of pre-tax income reduced choice probability by 19.8 points (95% CI: -27.4 to -12.2). The largest positive effects concerned place type and school quality. Compared with a downtown mixed-use city location, a small town increased the probability of selection by 15.8 points (95% CI: 7.6 to 24.0), and a rural area increased it by 13.5 points (95% CI: 5.0 to 21.9); raising school quality from 5 to 9 out of 10 increased it by 11.6 points (95% CI: 3.3 to 19.8). These intervals are respondent-clustered and exclude zero for the largest effects, whereas several smaller contrasts remain imprecisely estimated.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/script.R b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a50c1086c68730359a5692edb904a9d6f2fe83cc
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+@@ -0,0 +1,81 @@
++# Reproducible AMCE estimation and figure production
++library(projoint)
++library(ggplot2)
++
++set.seed(20260717)
++
++# Okabe-Ito palette and common plot theme
++okabe_ito <- c(
++  "Housing Cost" = "#E69F00",
++  "Presidential Vote (2020)" = "#56B4E9",
++  "Racial Composition" = "#009E73",
++  "School Quality" = "#F0E442",
++  "Total Daily Driving Time for Commuting and Errands" = "#0072B2",
++  "Type of Place" = "#D55E00",
++  "Violent Crime Rate (Vs National Rate)" = "#CC79A7"
++)
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.text.y = element_text(face = "bold", angle = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 8)
++  )
++
++data(exampleData1)
++pj_data <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++# projoint's profile-level AMCE estimator; clustering is respondent-level (id).
++# The package estimates reliability from the repeated task and returns corrected AMCEs.
++fit <- projoint(
++  pj_data,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .clusters_1 = id,
++  .se_type_1 = "stata",
++  .clusters_2 = id,
++  .se_type_2 = "stata",
++  .seed = 20260717
++)
++
++est <- fit$estimates[fit$estimates$estimand == "amce_corrected", ]
++plot_data <- as.data.frame(fit$labels)
++idx <- match(plot_data$level_id, est$att_level_choose)
++plot_data$estimate <- ifelse(is.na(idx), 0, est$estimate[idx])
++plot_data$conf.low <- ifelse(is.na(idx), 0, est$conf.low[idx])
++plot_data$conf.high <- ifelse(is.na(idx), 0, est$conf.high[idx])
++plot_data$reference <- is.na(idx)
++plot_data$estimate_pp <- 100 * plot_data$estimate
++plot_data$conf.low_pp <- 100 * plot_data$conf.low
++plot_data$conf.high_pp <- 100 * plot_data$conf.high
++plot_data$attribute <- factor(plot_data$attribute, levels = names(okabe_ito))
++plot_data$level_display <- factor(plot_data$level, levels = rev(plot_data$level))
++
++dir.create("figures", showWarnings = FALSE)
++figure <- ggplot(plot_data, aes(x = estimate_pp, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.35) +
++  geom_segment(
++    aes(x = conf.low_pp, xend = conf.high_pp, yend = level_display),
++    linewidth = 0.6
++  ) +
++  geom_point(aes(shape = reference), size = 2.2) +
++  scale_colour_manual(values = okabe_ito) +
++  scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1)) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y") +
++  labs(x = "AMCE on profile choice (percentage points)") +
++  theme_amce
++
++ggsave(
++  filename = "figures/amce-dotwhisker.png",
++  plot = figure,
++  width = 10,
++  height = 14,
++  units = "in",
++  dpi = 320
++)
+
+apply patch
+patch: completed
+/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex/advisor-briefing.md
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/report.md b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..b4041c0661b31f59e81539b13df0c27ff4596a1e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+@@ -0,0 +1,5 @@
++![Figure 1: Respondent-clustered AMCEs for profile choice.](figures/amce-dotwhisker.png)
++
++*Figure 1. Average marginal component effects (AMCEs) on the probability that a profile is selected. Points are reliability-corrected estimates from `projoint`; horizontal whiskers are respondent-clustered 95% confidence intervals. Open points denote the reference level for each attribute.*
++
++Using the profile-level conjoint estimator, we find that several attributes substantially shift the probability that a profile is selected. Relative to the reference profile with 20% less crime than the national average, a profile located in an area with 20% more crime was 25.1 percentage points less likely to be chosen (95% CI: -33.4 to -16.8). Longer daily driving time also had large negative effects: 75 minutes, versus 10 minutes, reduced choice probability by 23.7 points (95% CI: -31.0 to -16.5), while 45 minutes reduced it by 14.1 points. Housing cost was similarly consequential: moving from 15% to 40% of pre-tax income reduced choice probability by 19.8 points (95% CI: -27.4 to -12.2). The largest positive effects concerned place type and school quality. Compared with a downtown mixed-use city location, a small town increased the probability of selection by 15.8 points (95% CI: 7.6 to 24.0), and a rural area increased it by 13.5 points (95% CI: 5.0 to 21.9); raising school quality from 5 to 9 out of 10 increased it by 11.6 points (95% CI: 3.3 to 19.8). These intervals are respondent-clustered and exclude zero for the largest effects, whereas several smaller contrasts remain imprecisely estimated.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/script.R b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a50c1086c68730359a5692edb904a9d6f2fe83cc
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+@@ -0,0 +1,81 @@
++# Reproducible AMCE estimation and figure production
++library(projoint)
++library(ggplot2)
++
++set.seed(20260717)
++
++# Okabe-Ito palette and common plot theme
++okabe_ito <- c(
++  "Housing Cost" = "#E69F00",
++  "Presidential Vote (2020)" = "#56B4E9",
++  "Racial Composition" = "#009E73",
++  "School Quality" = "#F0E442",
++  "Total Daily Driving Time for Commuting and Errands" = "#0072B2",
++  "Type of Place" = "#D55E00",
++  "Violent Crime Rate (Vs National Rate)" = "#CC79A7"
++)
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.text.y = element_text(face = "bold", angle = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 8)
++  )
++
++data(exampleData1)
++pj_data <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++# projoint's profile-level AMCE estimator; clustering is respondent-level (id).
++# The package estimates reliability from the repeated task and returns corrected AMCEs.
++fit <- projoint(
++  pj_data,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .clusters_1 = id,
++  .se_type_1 = "stata",
++  .clusters_2 = id,
++  .se_type_2 = "stata",
++  .seed = 20260717
++)
++
++est <- fit$estimates[fit$estimates$estimand == "amce_corrected", ]
++plot_data <- as.data.frame(fit$labels)
++idx <- match(plot_data$level_id, est$att_level_choose)
++plot_data$estimate <- ifelse(is.na(idx), 0, est$estimate[idx])
++plot_data$conf.low <- ifelse(is.na(idx), 0, est$conf.low[idx])
++plot_data$conf.high <- ifelse(is.na(idx), 0, est$conf.high[idx])
++plot_data$reference <- is.na(idx)
++plot_data$estimate_pp <- 100 * plot_data$estimate
++plot_data$conf.low_pp <- 100 * plot_data$conf.low
++plot_data$conf.high_pp <- 100 * plot_data$conf.high
++plot_data$attribute <- factor(plot_data$attribute, levels = names(okabe_ito))
++plot_data$level_display <- factor(plot_data$level, levels = rev(plot_data$level))
++
++dir.create("figures", showWarnings = FALSE)
++figure <- ggplot(plot_data, aes(x = estimate_pp, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.35) +
++  geom_segment(
++    aes(x = conf.low_pp, xend = conf.high_pp, yend = level_display),
++    linewidth = 0.6
++  ) +
++  geom_point(aes(shape = reference), size = 2.2) +
++  scale_colour_manual(values = okabe_ito) +
++  scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1)) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y") +
++  labs(x = "AMCE on profile choice (percentage points)") +
++  theme_amce
++
++ggsave(
++  filename = "figures/amce-dotwhisker.png",
++  plot = figure,
++  width = 10,
++  height = 14,
++  units = "in",
++  dpi = 320
++)
+
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/report.md b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..b4041c0661b31f59e81539b13df0c27ff4596a1e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+@@ -0,0 +1,5 @@
++![Figure 1: Respondent-clustered AMCEs for profile choice.](figures/amce-dotwhisker.png)
++
++*Figure 1. Average marginal component effects (AMCEs) on the probability that a profile is selected. Points are reliability-corrected estimates from `projoint`; horizontal whiskers are respondent-clustered 95% confidence intervals. Open points denote the reference level for each attribute.*
++
++Using the profile-level conjoint estimator, we find that several attributes substantially shift the probability that a profile is selected. Relative to the reference profile with 20% less crime than the national average, a profile located in an area with 20% more crime was 25.1 percentage points less likely to be chosen (95% CI: -33.4 to -16.8). Longer daily driving time also had large negative effects: 75 minutes, versus 10 minutes, reduced choice probability by 23.7 points (95% CI: -31.0 to -16.5), while 45 minutes reduced it by 14.1 points. Housing cost was similarly consequential: moving from 15% to 40% of pre-tax income reduced choice probability by 19.8 points (95% CI: -27.4 to -12.2). The largest positive effects concerned place type and school quality. Compared with a downtown mixed-use city location, a small town increased the probability of selection by 15.8 points (95% CI: 7.6 to 24.0), and a rural area increased it by 13.5 points (95% CI: 5.0 to 21.9); raising school quality from 5 to 9 out of 10 increased it by 11.6 points (95% CI: 3.3 to 19.8). These intervals are respondent-clustered and exclude zero for the largest effects, whereas several smaller contrasts remain imprecisely estimated.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/script.R b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a50c1086c68730359a5692edb904a9d6f2fe83cc
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+@@ -0,0 +1,81 @@
++# Reproducible AMCE estimation and figure production
++library(projoint)
++library(ggplot2)
++
++set.seed(20260717)
++
++# Okabe-Ito palette and common plot theme
++okabe_ito <- c(
++  "Housing Cost" = "#E69F00",
++  "Presidential Vote (2020)" = "#56B4E9",
++  "Racial Composition" = "#009E73",
++  "School Quality" = "#F0E442",
++  "Total Daily Driving Time for Commuting and Errands" = "#0072B2",
++  "Type of Place" = "#D55E00",
++  "Violent Crime Rate (Vs National Rate)" = "#CC79A7"
++)
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.text.y = element_text(face = "bold", angle = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 8)
++  )
++
++data(exampleData1)
++pj_data <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++# projoint's profile-level AMCE estimator; clustering is respondent-level (id).
++# The package estimates reliability from the repeated task and returns corrected AMCEs.
++fit <- projoint(
++  pj_data,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .clusters_1 = id,
++  .se_type_1 = "stata",
++  .clusters_2 = id,
++  .se_type_2 = "stata",
++  .seed = 20260717
++)
++
++est <- fit$estimates[fit$estimates$estimand == "amce_corrected", ]
++plot_data <- as.data.frame(fit$labels)
++idx <- match(plot_data$level_id, est$att_level_choose)
++plot_data$estimate <- ifelse(is.na(idx), 0, est$estimate[idx])
++plot_data$conf.low <- ifelse(is.na(idx), 0, est$conf.low[idx])
++plot_data$conf.high <- ifelse(is.na(idx), 0, est$conf.high[idx])
++plot_data$reference <- is.na(idx)
++plot_data$estimate_pp <- 100 * plot_data$estimate
++plot_data$conf.low_pp <- 100 * plot_data$conf.low
++plot_data$conf.high_pp <- 100 * plot_data$conf.high
++plot_data$attribute <- factor(plot_data$attribute, levels = names(okabe_ito))
++plot_data$level_display <- factor(plot_data$level, levels = rev(plot_data$level))
++
++dir.create("figures", showWarnings = FALSE)
++figure <- ggplot(plot_data, aes(x = estimate_pp, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.35) +
++  geom_segment(
++    aes(x = conf.low_pp, xend = conf.high_pp, yend = level_display),
++    linewidth = 0.6
++  ) +
++  geom_point(aes(shape = reference), size = 2.2) +
++  scale_colour_manual(values = okabe_ito) +
++  scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1)) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y") +
++  labs(x = "AMCE on profile choice (percentage points)") +
++  theme_amce
++
++ggsave(
++  filename = "figures/amce-dotwhisker.png",
++  plot = figure,
++  width = 10,
++  height = 14,
++  units = "in",
++  dpi = 320
++)
+
+codex
+Completed and verified with `Rscript`.
+
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex/script.R) — uses `projoint` profile-level AMCEs, reliability correction, and respondent-clustered (`id`) analytical uncertainty.
+- [AMCE dot-whisker figure](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex/figures/amce-dotwhisker.png) — 320 dpi, all seven attributes, reference levels at zero.
+- [report.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex/report.md) — includes the figure reference, caption, and a 198-word results paragraph.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/report.md b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..b4041c0661b31f59e81539b13df0c27ff4596a1e
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/report.md
+@@ -0,0 +1,5 @@
++![Figure 1: Respondent-clustered AMCEs for profile choice.](figures/amce-dotwhisker.png)
++
++*Figure 1. Average marginal component effects (AMCEs) on the probability that a profile is selected. Points are reliability-corrected estimates from `projoint`; horizontal whiskers are respondent-clustered 95% confidence intervals. Open points denote the reference level for each attribute.*
++
++Using the profile-level conjoint estimator, we find that several attributes substantially shift the probability that a profile is selected. Relative to the reference profile with 20% less crime than the national average, a profile located in an area with 20% more crime was 25.1 percentage points less likely to be chosen (95% CI: -33.4 to -16.8). Longer daily driving time also had large negative effects: 75 minutes, versus 10 minutes, reduced choice probability by 23.7 points (95% CI: -31.0 to -16.5), while 45 minutes reduced it by 14.1 points. Housing cost was similarly consequential: moving from 15% to 40% of pre-tax income reduced choice probability by 19.8 points (95% CI: -27.4 to -12.2). The largest positive effects concerned place type and school quality. Compared with a downtown mixed-use city location, a small town increased the probability of selection by 15.8 points (95% CI: 7.6 to 24.0), and a rural area increased it by 13.5 points (95% CI: 5.0 to 21.9); raising school quality from 5 to 9 out of 10 increased it by 11.6 points (95% CI: 3.3 to 19.8). These intervals are respondent-clustered and exclude zero for the largest effects, whereas several smaller contrasts remain imprecisely estimated.
+diff --git a/demos/orchestration-lab/runs/advisor/t2-codex/script.R b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+new file mode 100644
+index 0000000000000000000000000000000000000000..a50c1086c68730359a5692edb904a9d6f2fe83cc
+--- /dev/null
++++ b/demos/orchestration-lab/runs/advisor/t2-codex/script.R
+@@ -0,0 +1,81 @@
++# Reproducible AMCE estimation and figure production
++library(projoint)
++library(ggplot2)
++
++set.seed(20260717)
++
++# Okabe-Ito palette and common plot theme
++okabe_ito <- c(
++  "Housing Cost" = "#E69F00",
++  "Presidential Vote (2020)" = "#56B4E9",
++  "Racial Composition" = "#009E73",
++  "School Quality" = "#F0E442",
++  "Total Daily Driving Time for Commuting and Errands" = "#0072B2",
++  "Type of Place" = "#D55E00",
++  "Violent Crime Rate (Vs National Rate)" = "#CC79A7"
++)
++theme_amce <- theme_minimal(base_size = 10) +
++  theme(
++    panel.grid.major.y = element_blank(),
++    panel.grid.minor = element_blank(),
++    strip.text.y = element_text(face = "bold", angle = 0),
++    axis.title.y = element_blank(),
++    legend.position = "none",
++    plot.margin = margin(8, 12, 8, 8)
++  )
++
++data(exampleData1)
++pj_data <- reshape_projoint(
++  exampleData1,
++  .outcomes = c(paste0("choice", 1:8), "choice1_repeated_flipped")
++)
++
++# projoint's profile-level AMCE estimator; clustering is respondent-level (id).
++# The package estimates reliability from the repeated task and returns corrected AMCEs.
++fit <- projoint(
++  pj_data,
++  .structure = "profile_level",
++  .estimand = "amce",
++  .se_method = "analytical",
++  .clusters_1 = id,
++  .se_type_1 = "stata",
++  .clusters_2 = id,
++  .se_type_2 = "stata",
++  .seed = 20260717
++)
++
++est <- fit$estimates[fit$estimates$estimand == "amce_corrected", ]
++plot_data <- as.data.frame(fit$labels)
++idx <- match(plot_data$level_id, est$att_level_choose)
++plot_data$estimate <- ifelse(is.na(idx), 0, est$estimate[idx])
++plot_data$conf.low <- ifelse(is.na(idx), 0, est$conf.low[idx])
++plot_data$conf.high <- ifelse(is.na(idx), 0, est$conf.high[idx])
++plot_data$reference <- is.na(idx)
++plot_data$estimate_pp <- 100 * plot_data$estimate
++plot_data$conf.low_pp <- 100 * plot_data$conf.low
++plot_data$conf.high_pp <- 100 * plot_data$conf.high
++plot_data$attribute <- factor(plot_data$attribute, levels = names(okabe_ito))
++plot_data$level_display <- factor(plot_data$level, levels = rev(plot_data$level))
++
++dir.create("figures", showWarnings = FALSE)
++figure <- ggplot(plot_data, aes(x = estimate_pp, y = level_display, colour = attribute)) +
++  geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.35) +
++  geom_segment(
++    aes(x = conf.low_pp, xend = conf.high_pp, yend = level_display),
++    linewidth = 0.6
++  ) +
++  geom_point(aes(shape = reference), size = 2.2) +
++  scale_colour_manual(values = okabe_ito) +
++  scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1)) +
++  facet_grid(attribute ~ ., scales = "free_y", space = "free_y") +
++  labs(x = "AMCE on profile choice (percentage points)") +
++  theme_amce
++
++ggsave(
++  filename = "figures/amce-dotwhisker.png",
++  plot = figure,
++  width = 10,
++  height = 14,
++  units = "in",
++  dpi = 320
++)
+
+tokens used
+66,780
+Completed and verified with `Rscript`.
+
+- [script.R](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex/script.R) — uses `projoint` profile-level AMCEs, reliability correction, and respondent-clustered (`id`) analytical uncertainty.
+- [AMCE dot-whisker figure](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex/figures/amce-dotwhisker.png) — 320 dpi, all seven attributes, reference levels at zero.
+- [report.md](/Users/scdenney/Documents/github/resources/ai-for-research/demos/orchestration-lab/runs/advisor/t2-codex/report.md) — includes the figure reference, caption, and a 198-word results paragraph.

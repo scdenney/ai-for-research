@@ -1,0 +1,7 @@
+Use the uncorrected, profile-level AMCEs as the sole reported estimand. That is the conventional AMCE the brief asks for; the reliability-corrected values are a different, model-dependent estimand and are especially fragile with τ = 0.172. Do not make them the headline figure merely because the package produces them. If desired, retain them only as an unreported sensitivity analysis.
+
+Request `.se_type_2 = "stata"` explicitly. CR2’s invalid covariance means it is not a usable estimator here; retaining CR2 and relying on fallback obscures what was actually used. State: “95% confidence intervals use analytical, respondent-clustered (`id`) Stata-style cluster-robust standard errors (400 respondents).” Do not describe the results as CR2. A concise methods note may add that CR2 was numerically infeasible for these data.
+
+Add one zero row per attribute for the model’s actual reference level, preserving label order. Set its estimate and interval endpoints to zero only for display, and label the caption/note: “Reference levels are fixed at zero and have no estimated uncertainty.” This prevents a zero-width whisker from being misread as a precise estimate.
+
+The plot caption and report should explicitly say “uncorrected AMCEs on probability of profile selection,” with intervals reflecting clustered sampling uncertainty.

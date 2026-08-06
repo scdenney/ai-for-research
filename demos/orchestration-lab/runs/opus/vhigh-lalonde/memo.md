@@ -1,11 +1,42 @@
-# Does propensity-score matching recover the NSW experimental benchmark?
+# Adjudication: does propensity-score matching recover the LaLonde benchmark?
 
-**Verdict: recovery is favorable-specification-only.** Matching neither reliably works nor uniformly fails. Whether it reproduces the experiment depends on the covariate set and, secondarily, on the estimator.
+The National Supported Work experiment fixes the target. Within `nsw_mixtape`, treated
+units out-earn controls by **+$1,794** in 1978 (HC1 95% CI [$480, $3,109]), an unbiased
+effect because randomization balances everything, observed and unobserved. Replacing the
+260 experimental controls with 15,992 CPS controls destroys that balance. The naive
+observational contrast is **−$8,498**, a $10,300 swing driven entirely by selection: NSW
+enrollees were far more disadvantaged than the CPS population, so any credible observational
+estimate must undo roughly $10,000 of composition before it can be believed.
 
-**The evidence.** The experiment puts the unbiased effect at **+$1,794** (SE 673). Discarding the 260 experimental controls and substituting 15,992 CPS controls, then taking a raw difference, gives **−$8,498**: the observational comparison group looks nothing like the trainees, who were recruited precisely because their earnings were near zero. Propensity-score matching on **demographics only** (age, education, race, marital status, degree) closes roughly half of that gap but stops at **−$2,798** (1-NN) to **−$3,622** (stratification), still the wrong sign, with intervals nowhere near the benchmark. Adding the two years of **pre-treatment earnings** (re74, re75) to the propensity model brings the 1-NN estimate to **+$1,712** (no trim) and **+$1,759** (common-support trim), each within about $80 of the benchmark, with a 95% interval that covers it. That is the Dehejia–Wahba finding. Yet holding those same rich covariates fixed and switching to coarse 6-stratum **stratification** returns **+$61**, near zero and with the benchmark outside its interval. Trimming to common support changes essentially nothing. That is the Smith–Todd fragility, in the same table.
+**What conditioning does, and does not, do.** Matching on demographics alone (age,
+education, race, marital status, degree) removes most of that gap, moving the estimate from
+−$8,498 to about −$2,800 (1-NN) or −$3,600 (stratification). That is real bias reduction,
+but it stops far short. Every demographics-only specification lands significantly *below
+zero*, nowhere near +$1,794, and none of their intervals cover the benchmark. Demographic
+similarity is not the selection mechanism. Adding the two pre-treatment earnings variables
+(`re74`, `re75`) closes the remaining gap, because NSW participants had near-zero prior
+earnings, an enrollment signal demographics cannot proxy. With earnings in the propensity
+score, 1-NN matching returns **+$1,712 and +$1,759**, within $100 of the benchmark, with
+intervals that cover it. This is the Dehejia–Wahba result, and it is genuine.
 
-**What conditioning does, and does not, do.** Adding lagged earnings makes the CPS controls resemble the trainees on the single strongest observed predictor of both future earnings and program selection, reweighting the counterfactual earnings distribution toward the experimental one. That covariate choice, not demographic adjustment and not the common-support restriction, does the work; it accounts for the whole ~$4,500 swing. What it does not do is equally important: it is not randomization, it does not establish ignorability, and it does not balance unobserved employability or motivation. It removes only the bias captured by the observables actually conditioned on, and here that demanded the earnings histories specifically.
+**Recovery is specification-dependent, not robust.** Hold the rich covariate set fixed and
+change only the estimator, from 1-NN to simple six-strata stratification, and the estimate
+collapses to **+$61**. Its interval [−$3,108, $3,229] nominally covers the benchmark only
+because it is wide enough to cover almost anything, including zero. Trimming to common
+support changes nothing; it drops no treated units on either score, so the two "trim" cells
+merely relabel their untrimmed twins. Across the six specifications the point estimate ranges
+from −$3,622 to +$1,759. Recovery appears in exactly the two cells that pair pre-treatment
+earnings *with* nearest-neighbor matching, and vanishes elsewhere. This is the Smith–Todd
+fragility, reproduced.
 
-**What a paper may claim.** That in this NSW-treated/CPS-control comparison, nearest-neighbor propensity-score matching on demographics *plus* lagged earnings yields an ATT statistically consistent with the experimental benchmark, and that pre-treatment earnings are the pivotal covariate. A bounded, conditional success.
+**Verdict: favorable-specification-only.** Matching recovers the benchmark under one
+defensible-but-not-privileged combination of choices and fails under equally defensible
+neighbors. It is neither "matching works" nor "matching fails."
 
-**What a paper may not claim.** That matching "recovers" the experimental effect without qualification, that the CPS controls have been rendered experimentally equivalent, or that the exercise validates selection-on-observables generally. Two of six matching specifications reach the benchmark; four miss it, three with the wrong sign. Interval coverage is only a compatibility check, not a formal test of equality against a benchmark that is itself estimated and correlated with the matched estimates. The defensible summary: PSM can reproduce this experiment when, and only when, the analyst already knows to condition on the right earnings histories, which is exactly why the recovered number cannot certify the method where no experiment exists to check it against.
+**What a paper may claim:** that conditioning on pre-treatment earnings eliminates the bulk
+of observational bias and can yield estimates statistically consistent with the experimental
+effect, a strong and honest result about the value of good covariates. **What it may not
+claim:** that PSM "recovers the experimental estimate" without qualification, that demographic
+controls suffice, or that any single favorable estimate is *the* recovered effect. Absent the
+experiment, an analyst could not know which of these six specifications to trust, which is
+precisely why the benchmark, not the match, remains the standard.

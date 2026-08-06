@@ -1,0 +1,11 @@
+The core conclusion is sound, but I would make three changes.
+
+1. Replace the Roth–Sant’Anna `staggered()` estimate with Sun–Abraham. `staggered()` is designed for randomized staggered rollouts, whereas minimum-wage adoption is observational. Treating it as an ordinary parallel-trends robustness estimator is the submission’s main methodological weakness. Use a county-clustered `fixest::sunab` specification and report its aggregated ATT with never-treated counties as the reference group. If retaining Roth–Sant’Anna, explicitly state its stronger assignment assumption and do not use it to validate the causal conclusion.
+
+2. Qualify the cross-estimator comparison. TWFE, C&S simple aggregation, and Sun–Abraham do not generally apply identical weights to cohort-time effects. Their similarity supports robustness of the sign and approximate magnitude; it does not show that TWFE’s negative-weight bias is exactly the difference between −0.0365 and −0.0398.
+
+3. Align the pretrend evidence. The reported `cs_notyet$Wpval` tests all available group-time pre-treatment restrictions, while the graph is truncated at event time −3. Either plot the available −4 lead or state explicitly that the joint test includes pre-treatment cells not displayed. I would also describe the result as “no statistically detectable pretrend” rather than positive support for parallel trends, given limited power and changing cohort support across event times.
+
+Keep the Bacon interpretation, including the important clarification that 5.39% is exposure to the problematic comparison type—not a literal negative-weight share. Keep C&S with not-yet-treated controls as the preferred estimate, but report the transformed magnitude precisely as `exp(−0.0398) − 1 ≈ −3.9%`.
+
+A final useful caveat: minimum-wage treatment is assigned at the state level. County clustering follows the brief, but it may understate uncertainty from within-state dependence; acknowledge that limitation even if the required table retains county-level inference.

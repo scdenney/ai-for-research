@@ -1,27 +1,38 @@
-# Specification table: NSW-treated + CPS-control composite vs. experimental benchmark
+# Specification table: LaLonde NSW vs. CPS-composite matching estimates
 
-**Experimental benchmark** (NSW treated - control, n = 185 / 260): $1,794 (SE $671, 95% CI [$479, $3,109]).
+Benchmark = experimental treated-control difference in `re78` within `nsw_mixtape`.
+Gap = specification estimate minus benchmark (positive = overstates program effect).
+Standard errors: HC1-robust for difference-in-means rows; for matching rows, the
+ordinary nonparametric bootstrap is invalid (Abadie-Imbens 2008), so we do not
+bootstrap, but the two estimators need different sandwich corrections. 1-NN rows
+use two-way cluster-robust SEs (`vcovCL(cluster = ~subclass + id)`): matching with
+replacement reuses CPS controls across pairs, so clustering on the match pair alone
+misses the correlation induced by reusing the same physical unit. Stratification rows
+use ordinary HC1-robust SEs (no clustering): with only 5-10 strata, cluster-robust
+sandwich asymptotics do not apply.
 
-**Observational composite**: 185 NSW-treated units + 15,992 CPS controls (n = 16,177).
+N for 1-NN rows is the matched-data row count. N for stratification rows is an
+effective sample size (treated N + Kish effective sample size of the weighted
+controls), not the raw CPS pool size — under the ATT stratification weights the
+control side's effective contribution is a small fraction of the full 16,177-row pool.
 
-| Specification | Covariate set | Estimator | n (treated/controls used) | Estimate [95% CI] | Gap vs. benchmark | Gap (SE units) |
-|---|---|---|---|---|---|---|
-| Naive (no adjustment) | None | Raw difference | 185 / 15992 | -$8,498 [-$9,641, -$7,354] | -$10,292 | -17.64 |
-| PSM: demo, 1-NN | Demographics only | 1-NN, full support | 185 / 120 | -$2,798 [-$4,926, -$670] | -$4,592 | -4.23 |
-| PSM: demo, 1-NN, trimmed | Demographics only | 1-NN, trimmed | 185 / 120 | -$2,798 [-$4,926, -$670] | -$4,592 | -4.23 |
-| PSM: demo, stratified | Demographics only | Stratification | 185 / 15992 | -$4,137 [-$5,492, -$2,782] | -$5,931 | -8.58 |
-| PSM: demo+earn, 1-NN | Demographics + re74/re75 | 1-NN, full support | 185 / 127 | $1,712 [$128, $3,296] | -$82 | -0.10 |
-| PSM: demo+earn, 1-NN, trimmed | Demographics + re74/re75 | 1-NN, trimmed | 185 / 127 | $1,759 [$175, $3,342] | -$36 | -0.04 |
-| PSM: demo+earn, stratified | Demographics + re74/re75 | Stratification | 185 / 15992 | -$144 [-$1,439, $1,152] | -$1,938 | -2.93 |
+The two demographics-only 1-NN rows (no trim / trimmed) are numerically identical.
+This is not a coincidence: with these covariates, common-support discarding removes
+only CPS controls that were never any treated unit's nearest neighbor, so the ATT
+match assignment — and the estimate — is unchanged. (Confirmed directly: discarding
+removes 3,286 controls and 0 treated units, and the matched-unit id sets are
+identical with and without discarding.) With `re74`/`re75` added, discarding removes
+10,216 controls and does change some best-match assignments, so those two rows differ.
 
-Gap = estimate - experimental benchmark ($1,794 rounded; exact value computed in `script.R`).
-"Gap (SE units)" divides by each row's own SE, not the benchmark's --
-dividing by the benchmark's $671 instead will not reproduce these numbers.
-Standard errors for matching estimators are HC3-robust on a weighted
-linear model fit to `match_data()` output (one row per matched unit,
-weighted by reuse count), per the note in `script.R`: the ordinary
-bootstrap is invalid for nearest-neighbor matching variances (Abadie &
-Imbens 2008), the closed-form `Matching` package is not installed, and
-cluster-robust alternatives are either invalid here (too few clusters for
-stratification) or understate the SE (subclass clustering under
-replacement).
+| Specification | Covariates | Estimator | Trimmed | N | Estimate | 95% CI | Gap vs. benchmark |
+|---|---|---|---|---|---|---|---|
+| Experimental benchmark (NSW treated - control) | — | difference in means | — | 445 | $1,794 | [$480, $3,109] | $0 |
+| Naive observational (NSW treated - CPS control) | — | difference in means | — | 16177 | $-8,498 | [$-9,638, $-7,357] | $-10,292 |
+| Demographics - 1-NN, no trim | demographics | nn | no | 370 | $-2,798 | [$-4,866, $-730] | $-4,592 |
+| Demographics - 1-NN, trimmed | demographics | nn | yes | 370 | $-2,798 | [$-4,866, $-730] | $-4,592 |
+| Demographics - Stratification (5 strata) | demographics | strat | no | 616 | $-4,137 | [$-5,484, $-2,789] | $-5,931 |
+| Demographics + re74/re75 - 1-NN, no trim | demographics + re74/re75 | nn | no | 370 | $1,712 | [$178, $3,247] | $-82 |
+| Demographics + re74/re75 - 1-NN, trimmed | demographics + re74/re75 | nn | yes | 370 | $1,759 | [$221, $3,296] | $-36 |
+| Demographics + re74/re75 - Stratification, coarse (5 strata, untrimmed) | demographics + re74/re75 | strat | no | 540 | $-144 | [$-1,433, $1,146] | $-1,938 |
+| Demographics + re74/re75 - Stratification, trimmed (5 strata) | demographics + re74/re75 | strat | yes | 534 | $1,290 | [$17, $2,563] | $-505 |
+| Demographics + re74/re75 - Stratification, finer (10 strata, untrimmed) | demographics + re74/re75 | strat | no | 518 | $660 | [$-620, $1,940] | $-1,134 |

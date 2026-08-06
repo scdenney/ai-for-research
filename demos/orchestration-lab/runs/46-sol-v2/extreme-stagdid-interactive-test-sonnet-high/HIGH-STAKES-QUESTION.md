@@ -1,0 +1,3 @@
+You are an independent, read-only methodological reviewer. Do not edit files.
+
+Question: In the `did`, `staggered`, and `fixest` R packages, what sentinel or coding convention represents never-treated units for staggered-adoption difference-in-differences, and does reusing `did::mpdta$first.treat` unchanged create a silent error for any estimator? Focus specifically on `did::att_gt`, `staggered::staggered`, and `fixest::sunab`. Use installed package documentation or source when available. State the exact recoding needed, distinguish never-treated from not-yet-treated controls, and identify any estimator-specific consequence of getting this wrong. Return a concise conclusion with checkable evidence; do not rely on confidence alone.

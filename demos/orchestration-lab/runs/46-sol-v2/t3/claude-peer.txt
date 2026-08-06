@@ -1,0 +1,55 @@
+All computations done. Here is my independent adjudication.
+
+---
+
+## Verdict
+
+**The reviewer's mechanical premise is largely wrong for this attribute, but the conclusion they stumble toward is right for a different reason.** Violent Crime Rate is binary, so its AMCE is baseline-invariant up to sign: flipping the reference exactly negates the estimate (−0.251 → +0.251) with identical magnitude, SE, and CI width. No baseline choice can make "the effect of crime look quite different." However, the manuscript's headline — that crime *drives* community choice — is still not supported: on the baseline-invariant marginal-means scale, crime's spread (0.251) is statistically indistinguishable from commute time's (0.237) and not clearly separable from housing cost's (0.198). The headline should be softened from dominance to co-leadership.
+
+## Evidence
+
+All estimates from `projoint` profile-level analysis with the package's IRR/measurement-error correction, on the exact `reshape_projoint` call in the brief (400 respondents, 6,400 profile rows).
+
+**Corrected marginal means and per-attribute spreads (max − min):**
+
+| Attribute | Levels | Max MM | Min MM | Spread |
+|---|---|---|---|---|
+| Violent Crime Rate | 2 | 0.626 (20% less) | 0.374 (20% more) | **0.251** |
+| Commute time | 4 | 0.610 (10 min) | 0.373 (75 min) | **0.237** |
+| Housing Cost | 3 | 0.614 (15%) | 0.416 (40%) | 0.198 |
+| Type of Place | 6 | 0.552 (small town) | 0.394 (downtown) | 0.158 |
+| School Quality | 2 | 0.558 | 0.442 | 0.116 |
+| Racial Composition | 4 | 0.537 | 0.477 | 0.059 |
+| Presidential Vote | 3 | 0.536 | 0.480 | 0.056 |
+
+Crime MMs: 0.626 [0.584, 0.667] for less crime, 0.374 [0.333, 0.416] for more crime (SE 0.021 each). Both CIs exclude 0.5.
+
+**Baseline sensitivity, computed directly:**
+- Crime AMCE, default baseline (less crime): −0.251 [−0.334, −0.168]. Flipped baseline (more crime): +0.251 [+0.168, +0.334]. Sign flip only — mechanically forced for any binary attribute.
+- Type of Place (6 levels), the multi-level check: against the downtown baseline all five AMCEs are positive (up to +0.158 for small town); against the small-town baseline all five are negative (down to −0.158 for downtown). Individual reported contrasts change sign and magnitude — e.g., suburban-houses-only reads +0.079 under one baseline and −0.079 under the other — but every pairwise difference and the maximal within-attribute contrast (0.158) are invariant. This is the reviewer's point working exactly as far as it goes: baselines relabel contrasts, they never touch the fitted cell means.
+
+**The comparison the headline actually rests on** (does crime beat the runner-up?): cluster bootstrap by respondent (2,000 reps) on the tie-removed spread differences —
+- crime − commute: +0.009, 95% CI [−0.066, +0.080] — no separation.
+- crime − housing: +0.035, 95% CI [−0.038, +0.106] — no separation.
+- crime − place: +0.061, 95% CI [−0.021, +0.120] — marginal at best.
+
+(One diagnostic worth noting: raw level means understate spreads because ~1/2 of tasks tie on a binary attribute vs ~1/4 on a 4-level one; projoint's default tie removal handles this, and I verified my bootstrap reproduces projoint's uncorrected MMs exactly — crime 0.582/0.418.)
+
+**Levels caveat, in crime's favor:** max−min is biased *upward* for attributes with more levels, so 2-level crime matching or topping 4- and 6-level attributes' ranges is if anything understated. But crime's range also reflects a design choice (±20% vs national average); "importance" here is range-of-shown-levels, not a structural quantity.
+
+## Reviewer reply logic
+
+Concede: AMCEs are indeed contrasts against a chosen reference; for multi-level attributes, individual reported coefficients (and naive "largest coefficient" rankings) change with the baseline, as our Type of Place re-estimation shows. Rebut: this cannot affect the crime attribute, which is binary — its AMCE magnitude is baseline-invariant, as re-estimation under the flipped reference confirms (±0.251, identical CI). Then move to the invariant scale: marginal means, which involve no reference category, reproduce the finding — the two crime levels are the most extreme cell means in the entire design (0.626 and 0.374) and both differ from indifference. Concede the deeper point the reviewer didn't quite make: on that invariant scale crime does not statistically dominate commute time or housing cost, so the manuscript will drop the dominance framing.
+
+## Proposed revised claim
+
+> "A community's violent crime rate has one of the largest effects on choice in our design: moving from 20% above to 20% below the national crime rate raises a profile's corrected choice probability from 0.374 to 0.626, the largest single level contrast among all attributes — a quantity invariant to reference-category coding. Crime, commuting time, and housing cost form a clearly leading tier (MM spreads of 0.251, 0.237, and 0.198), statistically indistinguishable from one another and well above the remaining attributes; racial composition and partisan composition matter least (spreads ≤ 0.06)."
+
+**Core visual:** a single marginal-means dot-whisker plot, all 24 levels grouped by attribute, sorted by attribute spread, with a reference line at 0.5 — baseline-free by construction, shows crime's levels as the two most extreme points, and makes the crime/commute/housing near-tie visible rather than hidden.
+
+## Residual risk
+
+1. Cross-attribute "importance" remains range-dependent: crime's ±20% band and the 10–75 min commute range are designer choices; different level ranges would reorder the tiers. The revised claim should keep "in our design."
+2. Max−min spread mechanically favors many-level attributes, so the tier ordering is conservative for crime — but it is still not a model-free importance measure (a full alternative would be something like attribute-level R² decomposition).
+3. My bootstrap ranks uncorrected tie-removed spreads; the IRR correction rescales attributes near-proportionally so ranking is unaffected, but corrected-scale CIs on the spread *differences* would be somewhat wider — reinforcing, not weakening, the "indistinguishable" conclusion.
+4. The corrected crime spread (0.251) depends on projoint's measurement-error model via the repeated task; the uncorrected spread (0.165) tells the same relative story, so nothing in the claim hinges on the correction.

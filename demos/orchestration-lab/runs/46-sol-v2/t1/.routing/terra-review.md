@@ -1,0 +1,7 @@
+Conclusion: Yes. The accounting is mechanically correct: 6,400 profile rows represent 400 × 8 randomized tasks × 2 profiles; the flipped repeat is a ninth choice screen but does not create additional randomized profile rows.
+
+Evidence/reasoning: Level-frequency denominators should be 6,400 separately within each attribute, since every long-format profile row has one level of every attribute. The equal-share benchmark is therefore \(1/L_a\) within attribute \(a\), and counts must sum to 6,400 for each attribute.
+
+Concrete corrections if any: State explicitly that “2 profiles per task” refers to the eight represented randomized tasks; the reliability screen reuses task-1 profiles in flipped order. Add deterministic checks that `(id, task, profile)` is unique; each respondent has tasks 1–8 and exactly two profiles per task; and each respondent-task has exactly one selected profile. For the repeat, verify it is populated only on task 1 and has exactly one repeated selection per respondent. Do not include the repeat in balance frequencies.
+
+Residual risk: Equal-allocation is an appropriate descriptive benchmark only if the package’s design randomizes each attribute’s levels uniformly; confirm this from the observed design or documentation before describing deviations as evidence of imbalance rather than intended constrained randomization.

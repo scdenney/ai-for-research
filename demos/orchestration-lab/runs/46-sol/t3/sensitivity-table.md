@@ -1,8 +1,20 @@
-# Violent Crime Rate baseline sensitivity
+# Violent-crime reference-level sensitivity
 
-| Crime level | Less crime baseline | More crime baseline | Marginal mean |
+All entries are percentage points. Marginal means (MMs) are profile-level estimates from one all-level model. Each AMCE contrast was re-estimated with `set_qoi()` under the stated reference level, using analytical SEs and the package default respondent clustering.
+
+Baseline rows are fixed at zero by definition and do not have sampling intervals. Corrected AMCE estimates may differ from differences of separately estimated corrected MMs by trivial numerical/model-fitting amounts.
+
+## Measurement-error-corrected estimates (primary)
+
+| Violent Crime Rate level | MM [95% CI], pp | AMCE: Less Crime baseline [95% CI], pp | AMCE: More Crime baseline [95% CI], pp |
 |---|---:|---:|---:|
-| 20% Less Crime Than National Average | Reference | 25.1 pp (95% CI 16.8, 33.4) | 0.626 (95% CI 0.584, 0.667) |
-| 20% More Crime Than National Average | -25.1 pp (95% CI -33.4, -16.8) | Reference | 0.374 (95% CI 0.333, 0.416) |
+| 20% Less Crime Than National Average | 62.6 [58.4, 66.7] | 0.0 (baseline) | 25.1 [16.8, 33.4] |
+| 20% More Crime Than National Average | 37.4 [33.3, 41.6] | -25.1 [-33.4, -16.8] | 0.0 (baseline) |
 
-*Note.* AMCE entries are corrected profile-level estimates (with 95% confidence intervals) using the package's estimated IRR correction and respondent-clustered analytical standard errors. Marginal means are corrected predicted choice probabilities. Reversing the crime baseline changes only the sign of the same 0.251 (25.1 percentage-point) contrast.
+## Uncorrected estimates (secondary)
+
+| Violent Crime Rate level | MM [95% CI], pp | AMCE: Less Crime baseline [95% CI], pp | AMCE: More Crime baseline [95% CI], pp |
+|---|---:|---:|---:|
+| 20% Less Crime Than National Average | 58.2 [55.5, 61.0] | 0.0 (baseline) | 16.5 [10.9, 22.0] |
+| 20% More Crime Than National Average | 41.8 [39.0, 44.5] | -16.5 [-22.0, -10.9] | 0.0 (baseline) |
+

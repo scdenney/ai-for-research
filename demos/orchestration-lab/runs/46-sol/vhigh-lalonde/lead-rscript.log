@@ -1,3 +1,5 @@
-null device 
-          1 
-Benchmark: 1794.34; wrote 9 specification rows and figures/spec-curve.png
+Conclusion: favorable-specification-only recovery.
+Benchmark: 1794.342382 
+Adjusted estimate range: -4025.224574 to 2786.752100 
+Artifacts: script.R, figures/spec-curve.png, spec-table.md, memo.md
+Acceptance: 9 observational rows; one 320 dpi PNG; memo words: 441 

@@ -1,0 +1,37 @@
+Task T3 conjoint sensitivity diagnostics
+projoint version: 1.1.1
+Respondents: 400; profile rows: 6400
+IRR: Estimated; tau: 0.172128
+
+Corrected MM ranges (descending; percentage points):
+  Violent Crime Rate (Vs National Rate): 25.1 (min 37.4, max 62.6)
+  Total Daily Driving Time for Commuting and Errands: 23.7 (min 37.3, max 61.0)
+  Housing Cost: 19.8 (min 41.6, max 61.4)
+  Type of Place: 15.8 (min 39.4, max 55.2)
+  School Quality: 11.6 (min 44.2, max 55.8)
+  Racial Composition: 5.9 (min 47.7, max 53.7)
+  Presidential Vote (2020): 5.6 (min 48.0, max 53.6)
+
+Uncorrected MM ranges (descending; percentage points):
+  Violent Crime Rate (Vs National Rate): 16.5 (min 41.8, max 58.2)
+  Total Daily Driving Time for Commuting and Errands: 15.6 (min 41.7, max 57.2)
+  Housing Cost: 13.0 (min 44.5, max 57.4)
+  Type of Place: 10.3 (min 43.1, max 53.4)
+  School Quality: 7.6 (min 46.2, max 53.8)
+  Racial Composition: 3.9 (min 48.5, max 52.4)
+  Presidential Vote (2020): 3.7 (min 48.7, max 52.4)
+
+Crime AMCEs (percentage points; estimate [95% CI]):
+  Corrected:
+    20% Less Crime Than National Average baseline -> 20% More Crime Than National Average: -25.1 [-33.4, -16.8] pp
+    20% More Crime Than National Average baseline -> 20% Less Crime Than National Average: 25.1 [16.8, 33.4] pp
+  Uncorrected:
+    20% Less Crime Than National Average baseline -> 20% More Crime Than National Average: -16.5 [-22.0, -10.9] pp
+    20% More Crime Than National Average baseline -> 20% Less Crime Than National Average: 16.5 [10.9, 22.0] pp
+
+Driving-time sensitivity: largest absolute corrected AMCE by baseline:
+  10 min baseline: 23.7 pp
+  25 min baseline: 16.8 pp
+  45 min baseline: 14.1 pp
+  75 min baseline: 23.7 pp
+Checks: 24 corrected MMs; 2 crime levels; 2 crime and 4 driving reference sets estimated.

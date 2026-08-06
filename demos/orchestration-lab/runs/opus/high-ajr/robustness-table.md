@@ -1,24 +1,27 @@
-# Robustness table — AJR (2001) IV headline: `logpgp95 ~ avexpr`, instrument `logem4`
+# Robustness table — AJR (2001) IV replication and stress tests
 
-**Structural model:** `logpgp95 ~ avexpr`, with `avexpr` (expropriation-risk institutions) instrumented by `logem4` (log settler mortality). Base sample: 64 countries (`ivdoctr::colonial`).
-**2SLS engine:** `AER::ivreg` (available in this environment) — the reported 2SLS standard errors are the correct IV standard errors, **not** the naive two-stage approximation.
-**First-stage F:** partial *F* on the *excluded* instrument `logem4`, from `car::linearHypothesis(fs, "logem4 = 0")` (classical/homoskedastic; correct with or without controls). Weak-instrument flag: first-stage *F* < 10.
-**Same sample within each spec:** OLS, 2SLS, and the first stage are estimated on identical complete-case rows, so all three are strictly comparable.
+Outcome `logpgp95` on institutions `avexpr`; `avexpr` instrumented by log
+settler mortality `logem4`. 2SLS estimated with `AER::ivreg` (available, so
+second-stage SEs are exact — no two-stage-`lm` fallback was needed). The
+first-stage F is the excluded-instrument F (test that `logem4 = 0` in
+`avexpr ~ logem4 + same controls`); with a single instrument it equals the
+square of the instrument's *t*-statistic, cross-checked two ways (AER's
+`diagnostics=TRUE` weak-instruments F and `car::linearHypothesis`) — the two
+agree exactly. Weak-instrument rule of thumb: F ≈ 10.
 
-| Specification | N | OLS β̂(avexpr) (SE) | 2SLS β̂(avexpr) (SE) | 2SLS 95% CI | 1st-stage β̂(logem4) (SE) | 1st-stage F | Identification |
-|---|---:|---:|---:|---:|---:|---:|---|
-| Base (bivariate) | 64 | 0.52 (0.06) | **0.94 (0.16)** | [0.64, 1.25] | −0.61 (0.13) | **22.9** | strong |
-| + latitude (`lat_abst`) | 64 | 0.47 (0.06) | 1.00 (0.22) | [0.56, 1.43] | −0.51 (0.14) | 13.1 | strong |
-| + continents (`africa`, `asia`) | 64 | 0.43 (0.05) | 0.84 (0.19) | [0.46, 1.21] | −0.53 (0.16) | 11.0 | strong (marginal) |
-| Drop neo-Europes (AUS/CAN/NZL/USA) | 60 | 0.49 (0.08) | 1.28 (0.36) | [0.58, 1.98] | −0.39 (0.13) | 8.6 | ⚠️ **WEAK** (F < 10) |
-| Africa only (`africa == 1`) | 27 | 0.30 (0.11) | 2.40 (3.99) | [−5.41, 10.21] | −0.11 (0.20) | 0.3 | ⚠️ **COLLAPSED** (F ≈ 0) |
+| Specification | N | OLS (avexpr) | 2SLS (avexpr) | First-stage coef (logem4) | First-stage F | Identified? |
+|---|---|---|---|---|---|---|
+| Base (bivariate) | 64 | 0.522 | 0.944 | -0.607 | 22.9 | strong |
+| + latitude | 64 | 0.468 | 0.996 | -0.510 | 13.1 | strong |
+| + continent (africa, asia) | 64 | 0.434 | 0.839 | -0.533 | 11.0 | strong (marginal) |
+| Drop neo-Europes | 60 | 0.487 | 1.281 | -0.391 | 8.6 | **weak** |
+| Africa only | 27 | 0.302 | 2.400 | -0.108 | 0.3 | **collapsed** |
 
-**Reading the table.**
+**Weakly identified (F < ~10):** Drop neo-Europes and Africa only. The 2SLS point estimates in these
+rows should **not** be read at face value.
 
-- **The headline replicates.** In the base sample the 2SLS coefficient (0.94) is far above its OLS counterpart (0.52), on a strong first stage (F = 22.9; instrument coefficient −0.61, correctly signed — higher settler mortality → worse institutions today).
-- **The two control perturbations survive.** Adding latitude, or continent dummies, leaves 2SLS in the 0.84–1.00 band — statistically indistinguishable from the base estimate and still well above OLS. The first stage weakens (F = 13.1, then 11.0) but stays above the rule of thumb.
-- **The two sample perturbations are weakly identified — their 2SLS point estimates are not reliable:**
-  - *Drop neo-Europes* (F = 8.6): the first stage falls below 10. The 2SLS estimate (1.28) is subject to weak-instrument bias and its SE is understated; treat it as uninformative, not as evidence for a *larger* effect.
-  - *Africa only* (F = 0.3): the first stage has collapsed — the instrument coefficient (−0.11) is statistically indistinguishable from zero. The 2SLS "estimate" (2.40, SE 3.99, 95% CI [−5.41, 10.21]) carries no information and must not be reported as a point estimate.
-
-**Verification.** Every number was independently reproduced from scratch by a second, blind estimation on a different-vendor model (GPT-5.6 "Terra" via Codex), which wrote its own R and agreed to the reported precision on all five specifications. Full precision in `results.csv`; figure in `robustness-figure.png`; interpretation in `memo.md`.
+In every row the sample and controls are held common across OLS, 2SLS, and
+the first stage, so the three estimates in a row are directly comparable.
+Across the well-identified specifications 2SLS sits well above OLS; in the
+flagged rows the 2SLS estimate inflates as the first stage weakens, which is
+weak-instrument bias, not a larger true effect.

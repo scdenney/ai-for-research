@@ -1,0 +1,14 @@
+# Independent methods review request
+
+I analysed LaLonde's NSW experimental sample and the CPS comparison pool in R.
+The experimental treated-minus-control earnings benchmark is $1,794.3. The observational composite is 185 NSW treated units plus 15,992 CPS controls. The raw gap is -$8,497.5.
+
+I fit logistic propensity scores using either demographics (age, education, Black, Hispanic, married, no-degree) or those variables plus pre-treatment earnings (re74, re75). For each covariate set I used 1:1 nearest-neighbour ATT matching with replacement (MatchIt) and five propensity-score strata standardized to the treated distribution, both with and without common-support trimming. Matching estimates are -$2,797.9 with demographics alone and $1,712.2/$1,758.6 with the richer covariates (untrimmed/trimmed). Stratification estimates are -$3,911.7 under demographics alone and $1,252.5 with richer covariates. Trimming has no material effect in most cells because retained matched/stratified units are already inside overlap.
+
+The prior stratification code inadvertently used the treated-score minimum and maximum as `cut()` boundaries even for “No trim,” silently dropping CPS controls outside that range. I will correct this by using `-Inf`, the four internal treated-score quintiles, and `Inf` in no-trim rows, and applying the score-range common-support restriction only in trim rows. I will report the maximum post-adjustment standardized mean difference, treated retained, and effective CPS-control sample size.
+
+For 1-NN, I will replace the misleading global-variance `nn_se()` with a unique-unit fixed-weight HC calculation: calculate the realized ATT as a treated mean minus a weighted CPS mean; use squared outcome residual contributions for each unique unit and squared realized weights, including the aggregate reuse count K_j for each CPS control. These intervals will be explicitly conditional on the fitted score and realized matches, not full matching-estimator inference. The same fixed-weight residual calculation will be used for stratification.
+
+Because all 185 NSW treated units remain in every intended row, I will assess replication with the dependent gap, not with benchmark inclusion in an estimate-level interval. Specifically, the gap is the NSW randomized-control mean minus the weighted CPS-control mean, and its conditional fixed-weight interval includes uncertainty from both non-overlapping control groups. No equivalence claim will be made without a prespecified tolerance.
+
+Question: Is this revised inferential/reporting plan adequate for the constrained claim that richer lagged-earnings 1-NN specifications replicate the benchmark at the specification level, while propensity-score matching generally does not demonstrate robust recovery? Flag any material flaw in the fixed-weight diagnostic or the interpretation.

@@ -1,0 +1,5 @@
+No material correction is required. The three files are statistically correct, internally consistent, and compliant with `BRIEF.md`.
+
+The specification samples, coefficients, conventional partial-F calculations, weak-instrument flags, and `AER::ivreg` implementation all align. The memo appropriately treats F = 13.09 and 11.01 as passing the brief’s stated rule while acknowledging erosion, and treats F = 8.65 and 0.30 as weak. Displaying but explicitly disclaiming the weak-row 2SLS estimates satisfies the brief better than suppressing them.
+
+Optional only: replace “the sign and broad magnitude survive” with “the positive estimates remain broadly similar” to avoid any inferential reading of “survive” when no uncertainty intervals are reported. Weak-IV-robust inference or additional standard errors would be useful extensions, but the brief does not require them and their omission is not a compliance defect.

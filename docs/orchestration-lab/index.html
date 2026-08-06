@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Orchestration Lab — AI for Research</title>
-<meta name="description" content="A hands-on lab: run five real social-science analyses through four ways of using frontier models — a Fable lead, an Opus lead, a single advisor consult, and a Codex lead — then score your run against a pre-built answer key.">
+<meta name="description" content="A hands-on lab: run six real social-science analyses, on a formal four-rung difficulty ladder, through four ways of using frontier models — a Fable lead, an Opus lead, a single advisor consult, and a Codex lead — then score your run against a pre-built answer key.">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,7 +76,7 @@
   /* --- demo additions --- */
   .diff{font:600 11px/1 -apple-system,sans-serif; letter-spacing:.06em; text-transform:uppercase; border:1px solid var(--line); color:var(--grey); border-radius:5px; padding:.3em .5em; white-space:nowrap}
   .diff.d3{border-color:var(--gold); color:var(--ochre)}
-  .diff.d4,.diff.d5{border-color:var(--ochre); color:var(--ochre); background:color-mix(in srgb, var(--gold) 12%, transparent)}
+  .diff.d4,.diff.d5,.diff.d6{border-color:var(--ochre); color:var(--ochre); background:color-mix(in srgb, var(--gold) 12%, transparent)}
   .briefs{list-style:none; padding:0; margin:1em 0}
   .briefs li{display:flex; gap:12px; align-items:baseline; padding:9px 2px; border-bottom:1px solid var(--line); margin:0}
   .briefs .diff{flex:0 0 auto; min-width:86px; text-align:center}
@@ -122,12 +122,12 @@
   <p class="kicker">Demo · hands-on</p>
   <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
   <h1>Orchestration Lab</h1>
-  <p class="lede">Run a real analysis through four ways of using frontier models, then score your run against a pre-built answer key. Most cells cost $1–7 and finish in minutes.</p>
+  <p class="lede">Run a real analysis through four ways of using frontier models, then score your run against a pre-built answer key. Most cells cost $1–5 and finish in minutes.</p>
 </div></header>
 
 <main class="wrap">
   <section id="what">
-    <p>Five real social-science briefs, four ways to run a frontier model on them. The four arms are skills I wrote for my own work — three for Claude Code, one for the Codex CLI, all in the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> toolkit. Every brief has a reference solution and a rubric written before any model ran. Pick a brief, pick an arm, paste one command, and grade what comes back against the answer key and <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">our committed runs</a>.</p>
+    <p>Six real social-science briefs, four ways to run a frontier model on them. The four arms are skills I wrote for my own work — three for Claude Code, one for the Codex CLI, all in the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> toolkit. Every brief has a reference solution and a rubric written before any model ran. Pick a brief, pick an arm, paste one command, and grade what comes back against the answer key and <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">our committed runs</a>.</p>
     <div class="rule"><b>One draw.</b> A captured run is one sample from a non-deterministic process, not a benchmark. Our numbers below are specimens. Re-run the briefs and expect yours to differ.</div>
     <a class="next" href="https://www.pixelsandpatterns.org/p/four-ways-to-run-a-frontier-model">
       <h3>Read the report</h3>
@@ -141,7 +141,7 @@
     <pre><code>npm install -g @anthropic-ai/claude-code
 claude plugin marketplace add scdenney/open-science-skills
 claude plugin install oss@open-science-skills
-Rscript -e 'install.packages(c("projoint","ivdoctr","AER","car","causaldata","MatchIt"))'
+Rscript -e 'install.packages(c("projoint","ivdoctr","AER","car","causaldata","MatchIt","did","fixest","staggered","bacondecomp"))'
 git clone https://github.com/scdenney/ai-for-research.git
 cd ai-for-research/demos/orchestration-lab
 
@@ -150,18 +150,26 @@ npm install -g @openai/codex
 git clone https://github.com/scdenney/open-science-skills.git ~/open-science-skills
 mkdir -p ~/.agents/skills
 for s in ~/open-science-skills/codex/*/; do ln -sfn "${s%/}" ~/.agents/skills/"$(basename "$s")"; done</code></pre>
-    <p class="note">Every brief uses public data that ships with an R package — nothing to download. The runs call hosted models and cost real money: in our captures, $0.72 to $7.08 per cell on the Claude arms. Keep <code>ANTHROPIC_API_KEY</code> unset so headless runs bill your claude.ai plan, not an API account.</p>
+    <p class="note">Every brief uses public data that ships with an R package — nothing to download. The runs call hosted models and cost real money: in our captures, $0.98 to $4.99 per cell on the Claude arms. Keep <code>ANTHROPIC_API_KEY</code> unset so headless runs bill your claude.ai plan, not an API account.</p>
   </section>
 
   <section id="briefs">
     <h2><span class="step">Step 2</span>Pick a brief</h2>
-    <p>The five briefs climb from a descriptive check to a real methods dispute. Each links to the exact prompt the models get.</p>
+    <p>The six briefs sit on a four-rung difficulty ladder, and each rung is defined by <em>what kind of problem it is</em>, not just how much statistics it takes to solve it:</p>
+    <div class="tablewrap"><table>
+      <tr><th>Rung</th><th>What it tests</th><th>Why it's on the ladder</th></tr>
+      <tr><td><span class="diff d1">easy</span>–<span class="diff d3">moderate</span></td><td>Mechanical due diligence → standard estimation → an original judgment call</td><td>Three briefs, same data, escalating from "get the facts right" to "make a defensible call nobody hands you the answer to."</td></tr>
+      <tr><td><span class="diff d4">hard</span>–<span class="diff d5">very hard</span></td><td>Canonical, decades-old disputes with literature-settled verdicts</td><td>Harder statistics (IV diagnostics, matching estimators), but every capable pipeline has seen a worked version. All four arms hit the top band on both.</td></tr>
+      <tr><td><span class="diff d6">extreme</span></td><td>A 2020s-vintage methods debate with a genuine, checkable trap</td><td>Built to test whether the high/very-high convergence was about the arms or about the tasks being over-rehearsed. It wasn't differentiating either way — see the results below.</td></tr>
+    </table></div>
+    <p>Each brief links to the exact prompt the models get.</p>
     <ul class="briefs">
       <li><span class="diff d1">easy</span><span class="ask"><strong><a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/t1-descriptive.md">Describe</a></strong> — document a community-choice conjoint design (projoint's <code>exampleData1</code>) and check randomization balance.</span></li>
       <li><span class="diff d2">standard</span><span class="ask"><strong><a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/t2-amce.md">Estimate</a></strong> — fit the AMCEs, cluster correctly, plot them with reference levels at zero.</span></li>
       <li><span class="diff d3">moderate</span><span class="ask"><strong><a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/t3-reviewer-memo.md">Reviewer reply</a></strong> — answer a referee who calls the headline crime finding an artifact of the AMCE baseline.</span></li>
       <li><span class="diff d4">hard</span><span class="ask"><strong><a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/high-ajr.md">IV replication</a></strong> — reproduce Acemoglu-Johnson-Robinson's colonial-origins 2SLS result (via ivdoctr) and stress it until the instrument breaks.</span></li>
       <li><span class="diff d5">very hard</span><span class="ask"><strong><a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/vhigh-lalonde.md">Methods dispute</a></strong> — adjudicate Dehejia-Wahba vs Smith-Todd on whether matching recovers the LaLonde experimental benchmark (via causaldata).</span></li>
+      <li><span class="diff d6">extreme</span><span class="ask"><strong><a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/extreme-stagdid.md">Staggered-DiD reconciliation</a></strong> — reconcile four modern difference-in-differences estimators on a real staggered minimum-wage rollout (Callaway-Sant'Anna's own <code>mpdta</code>), and catch a genuine package-convention trap along the way.</span></li>
     </ul>
   </section>
 
@@ -172,14 +180,15 @@ for s in ~/open-science-skills/codex/*/; do ln -sfn "${s%/}" ~/.agents/skills/"$
       <span class="plabel">Arm</span>
       <button data-arm="fable" class="on">Fable lead</button>
       <button data-arm="opus">Opus lead</button>
-      <button data-arm="advisor">Advisor</button>
       <button data-arm="46">Codex lead</button>
+      <button data-arm="advisor">Advisor</button>
       <span class="plabel">Brief</span>
       <button data-brief="t1" class="on">Describe</button>
       <button data-brief="t2">Estimate</button>
       <button data-brief="t3">Reviewer reply</button>
       <button data-brief="high-ajr">IV replication</button>
       <button data-brief="vhigh-lalonde">Methods dispute</button>
+      <button data-brief="extreme-stagdid">Staggered-DiD</button>
     </div>
     <p class="arminfo" id="arminfo"></p>
     <pre><code id="cmd"></code></pre>
@@ -234,20 +243,30 @@ for s in ~/open-science-skills/codex/*/; do ln -sfn "${s%/}" ~/.agents/skills/"$
       <li><span class="itemtag it-judg">judgment</span>Lands the "helps but does not settle" verdict — favorable-specification recovery, not universal recovery.</li>
       <li><span class="itemtag it-comp">completeness</span>Benchmark-referenced figure.</li>
     </ul></div></details>
+
+    <details><summary>Staggered-DiD reconciliation — checklist</summary><div class="body"><ul>
+      <li><span class="itemtag it-core">core</span>At least four ATT estimates, all clustering at −0.037 to −0.047 log points.</li>
+      <li><span class="itemtag it-core">core</span>Correctly codes (or explicitly notes) that the <code>staggered</code> package needs never-treated units as <code>Inf</code>, not the <code>0</code> the raw data and <code>did</code> use — the trap.</li>
+      <li><span class="itemtag it-core">core</span>Runs a Goodman-Bacon decomposition and reports the correct ~5.4% negative-weight-risk share, with the right inference (small, not zero).</li>
+      <li><span class="itemtag it-core">core</span>An event-study / pre-trend check covering at least two pre-periods.</li>
+      <li><span class="itemtag it-judg">judgment</span>Lands the calibrated middle: the TWFE critique is real in general and empirically small in this dataset — not "always fine" and not "always use the modern estimator."</li>
+      <li><span class="itemtag it-comp">completeness</span>Full comparison table across every estimator, plus the event-study time path (effect grows after impact).</li>
+    </ul></div></details>
   </section>
 
   <section id="results">
     <h2>What our runs showed</h2>
-    <p>Twenty captured cells, graded blind against the rubrics, and one rule sums them up. Difficulty picks the setup, not effort. The full findings and cost breakdowns are in <a href="https://www.pixelsandpatterns.org/p/four-ways-to-run-a-frontier-model">the report</a>. The run-by-run matrix is in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
-    <figure class="fig"><img src="../assets/orchestration-lab/eff-quality.png" alt="Four small panels, one per arm, each plotting rubric items met across the five briefs against dotted threshold lines labeled Pass, Pass plus, and Distinction." loading="lazy"><figcaption>Rubric items met across the five briefs, one panel per arm, read against the same three band thresholds. Our captures: one draw each.</figcaption></figure>
+    <p>Thirty captured cells (six briefs × five arms), graded blind against the rubrics, all in one sitting under one consistent settings pass. Two findings matter more than any single band. First: on the easy brief, both orchestrated Claude leads (Fable, Opus) landed at Pass rather than the higher band their historical captures had reached, because neither write-up explains the conjoint design's repeated reliability check — even though both arms' analysis code still handles it correctly (6,400 rows, not an inflated 7,200). The miss is in the diagnostic write-up, not the computation or the core design facts, and it is the clearest demonstration yet of this project's standing caveat: a captured run is one draw, not a benchmark. Second: the new Extreme brief, built specifically to test whether frontier models would separate from competent ones on harder, less-rehearsed work, did not show that separation across these five arms — every one reached the top band, including the historical weak point (the Codex headless fallback).</p>
+    <p>A sixth arm, not part of the interactive picker below, tells a different story on that same Extreme brief. An all-Codex advisor (a plain <code>gpt-5.6-terra</code> solve, one read-only <code>gpt-5.6-sol</code> consult, a <code>gpt-5.6-terra</code> revise) failed it — and the reason is worth stating plainly rather than folding into a single Pass/Fail count. The pre-revision draft correctly handled the brief's central trap, then the consult raised a separate, defensible methodological point that led the model to remove the exact code demonstrating that awareness during revision. A substantively reasonable second opinion cost the run the one thing its rubric was built to check for. Full detail is in <a href="https://www.pixelsandpatterns.org/p/four-ways-to-run-a-frontier-model">the report</a>; the run-by-run matrix, including this arm, is in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
+    <figure class="fig"><img src="../assets/orchestration-lab/eff-quality.png" alt="Four small panels, one per arm, each plotting rubric items met across the six briefs against dotted threshold lines labeled Pass, Pass plus, and Distinction." loading="lazy"><figcaption>Rubric items met across the six briefs, one panel per arm, read against the same three band thresholds. Our captures: one draw each.</figcaption></figure>
     <div class="tablewrap"><table>
       <tr><th>Setup</th><th>When to reach for it</th></tr>
-      <tr><td><strong>Advisor</strong></td><td><strong>The default for a single, well-scoped analysis.</strong> The only arm that took the judgment-heavy reviewer reply to the top band, because its second read re-computes the work and tests the judgment call formally rather than eyeballing it. Reach for it first.</td></tr>
-      <tr><td><strong>Fable lead</strong></td><td><strong>When the task is too big to hold in one context</strong> — a broad migration, a multi-file audit, a many-source survey. That regime is untested here. The case for it is the context economics. On these briefs it clears every core item at the lowest Claude-orchestrator cost.</td></tr>
-      <tr><td><strong>Opus lead</strong></td><td><strong>Rarely, on work this size.</strong> It ties the Fable lead on the two hardest briefs at higher cost, and its edge on the easier briefs is write-up thoroughness — persistent across its captures, but completeness rather than correctness. Reserve it for a task hard enough to strain a top model.</td></tr>
-      <tr><td><strong>Codex lead</strong></td><td><strong>A cross-vendor read on the same brief.</strong> The Sol lead matched the Fable lead's total (25 of 30 items) and took both hard briefs to Distinction, at roughly the Fable arm's cost at list prices. Reach for it when you want the second opinion to come from a different vendor entirely.</td></tr>
+      <tr><td><strong>Fable lead</strong></td><td><strong>When the task is too big to hold in one context</strong> — a broad migration, a multi-file audit, a many-source survey. That regime is untested here. Cheapest and fastest Claude orchestrator on these briefs, but the easy brief landed at Pass rather than a higher band, a reminder that speed doesn't buy the extra diagnostic thoroughness a second read supplies.</td></tr>
+      <tr><td><strong>Opus lead</strong></td><td><strong>Rarely, on work this size.</strong> Ties or beats the Fable lead on the harder rungs at higher cost; its edge is write-up thoroughness, not correctness — and it hit the same easy-brief miss Fable did. Reserve it for a task hard enough to strain a top model.</td></tr>
+      <tr><td><strong>Codex lead</strong></td><td><strong>A cross-vendor read on the same brief.</strong> The Sol-lead capture reaches Distinction on five of six briefs at xhigh effort with a genuine Fable-5 cross-vendor peer, missing only completeness on the standard-estimation brief. Reach for it when you want the second opinion to come from a different vendor entirely.</td></tr>
+      <tr><td><strong>Advisor</strong></td><td><strong>The default for a single, well-scoped analysis.</strong> Its second read re-computes the work rather than eyeballing it, and it's the only arm that caught a real analytical error (a misread comparison-type label) on the extreme brief before it shipped. Reach for it first.</td></tr>
     </table></div>
-    <p>Our captures are one draw each. Re-run a cell and expect yours to differ.</p>
+    <p>Our captures are one draw each. Re-run a cell and expect yours to differ — that's not a caveat, it's the point.</p>
   </section>
 </main>
 
@@ -280,11 +299,12 @@ for s in ~/open-science-skills/codex/*/; do ln -sfn "${s%/}" ~/.agents/skills/"$
     't2':            {file:'t2-amce.md',          label:'Estimate'},
     't3':            {file:'t3-reviewer-memo.md', label:'Reviewer reply'},
     'high-ajr':      {file:'high-ajr.md',         label:'IV replication'},
-    'vhigh-lalonde': {file:'vhigh-lalonde.md',    label:'Methods dispute'}
+    'vhigh-lalonde': {file:'vhigh-lalonde.md',    label:'Methods dispute'},
+    'extreme-stagdid': {file:'extreme-stagdid.md', label:'Staggered-DiD reconciliation'}
   };
   var ARMS = {
     'fable': {
-      info: 'Fable 5 at max effort leads and delegates: Sonnet for mechanical work, Opus for wide reasoning, a Codex peer for decorrelated checks. Our five briefs: $0.72–$2.64, 0.6–18 min each.',
+      info: 'Fable 5 at max effort leads and delegates: Sonnet for mechanical work, Opus for wide reasoning, a Codex peer for decorrelated checks. Our six briefs: $0.98–$2.60, 0.6–7.6 min each — though the easy brief landed at Pass rather than higher, missing the diagnostic thoroughness a second read supplies.',
       cmd: function(b){
         return 'mkdir -p myruns/fable/' + b + ' && cd myruns/fable/' + b + '\n' +
           'env -u ANTHROPIC_API_KEY claude -p \\\n' +
@@ -293,7 +313,7 @@ for s in ~/open-science-skills/codex/*/; do ln -sfn "${s%/}" ~/.agents/skills/"$
       }
     },
     'opus': {
-      info: 'Opus 4.8 at ultracode, run interactively — the lead reasons in place and delegates to the same pool. Our five briefs: $1.08–$5.19, 5–34 min each.',
+      info: 'Opus 4.8 at ultracode, run interactively — the lead reasons in place and delegates to the same pool. Our six briefs: $1.59–$3.26, 6–16 min each.',
       cmd: function(b){
         return 'mkdir -p myruns/opus/' + b + ' && cd myruns/opus/' + b + ' && claude\n' +
           '# interactive arm — in the session that opens:\n' +
@@ -303,7 +323,7 @@ for s in ~/open-science-skills/codex/*/; do ln -sfn "${s%/}" ~/.agents/skills/"$
       }
     },
     'advisor': {
-      info: 'A plain Fable 5 session solves, one Fable 5 reviewer comments (read-only), the session revises. Three scripted steps; the solve and revise use your default model — the captures assume Fable 5, so set that with /model in Claude Code first. Our five briefs: $1.09–$7.08 total each.',
+      info: 'A plain session solves, one Fable 5 reviewer comments (read-only), the same plain session revises. Three scripted steps; the solve and revise use whatever your default model is — our captures ran under a Sonnet 5 default, the consult is always Fable 5 regardless of the caller. Our six briefs: $1.90–$4.99 total each. This arm caught a real analytical error on the extreme brief that the orchestrated leads did not make.',
       cmd: function(b){
         return 'mkdir -p myruns/advisor/' + b + ' && cd myruns/advisor/' + b + '\n' +
           '# 1. solve (plain session, no orchestration skill)\n' +
@@ -324,10 +344,10 @@ for s in ~/open-science-skills/codex/*/; do ln -sfn "${s%/}" ~/.agents/skills/"$
       }
     },
     '46': {
-      info: 'gpt-5.6-sol at high leads in a Codex session and routes bounded work down to gpt-5.6-terra one-shots; gpt-5.6-luna is reserved for tightly specified mechanical work. Codex skills must be installed user-wide first (see the setup block). Our five briefs are historical medium-effort captures, not cost forecasts for the current default.',
+      info: 'gpt-5.6-sol at xhigh leads in a Codex session, routes bounded work down to gpt-5.6-terra one-shots, and reaches a Fable 5 peer for a cross-vendor check on high-stakes calls. Codex skills must be installed user-wide first (see the setup block). Our six briefs: 1.11M–3.62M tokens each, full cumulative accounting (Codex reports tokens, not dollars).',
       cmd: function(b){
         return 'mkdir -p myruns/46/' + b + ' && cp prompts/' + BRIEFS[b].file + ' myruns/46/' + b + '/BRIEF.md && cd myruns/46/' + b + '\n' +
-          'codex --model gpt-5.6-sol -c model_reasoning_effort=high \\\n' +
+          'codex --model gpt-5.6-sol -c model_reasoning_effort=xhigh \\\n' +
           '  --dangerously-bypass-approvals-and-sandbox\n' +
           '# full access is what lets the lead fire gpt-5.6-terra one-shots — run it only in this repo\n' +
           '# in the session, paste the run prompt from ../../../prompts/46-sol-run.md (it reads ./BRIEF.md)';

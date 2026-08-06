@@ -1,139 +1,168 @@
 #!/usr/bin/env Rscript
-# ---------------------------------------------------------------------------
-# AJR (2001) instrumental-variables replication + robustness/stress test
 #
-# Structural model: logpgp95 ~ avexpr, with avexpr instrumented by logem4
-# (log settler mortality). Controls, when added, enter BOTH stages (as
-# exogenous regressors and as instruments). Five specifications are run:
-#   1. base            (full sample, no controls)
-#   2. add latitude    (+ lat_abst)
-#   3. add continents  (+ africa + asia)
-#   4. drop neo-Europes (drop AUS, CAN, NZL, USA)
-#   5. Africa only     (africa == 1)
+# script.R -- Robustness of the AJR (2001) "Colonial Origins" IV estimate.
 #
-# Estimation path: 2SLS via AER::ivreg (available in this environment); the
-# first-stage F is the F-test on the excluded instrument logem4 in the first
-# stage, controls partialled out (car::linearHypothesis(fs, "logem4 = 0")$F[2]).
+# Estimates OLS and 2SLS specifications of logpgp95 ~ avexpr (instrumented by
+# logem4), across 5 specifications (bivariate, +latitude, +continent dummies,
+# drop neo-Europes, Africa-only), and reports first-stage strength (F-stats)
+# alongside a weak-instrument verdict for each. Writes robustness-table.md.
 #
-# OLS/2SLS point estimates are deterministic given the data; set.seed() is
-# included anyway per house convention (no stochastic step depends on it).
-# ---------------------------------------------------------------------------
+# Run with:  Rscript script.R
+#
+# Estimation path: AER::ivreg is available in this environment, so all 2SLS
+# estimates below are exact 2SLS with correct standard errors (ivreg accounts
+# for the generated first-stage regressor). The manual-two-lm fallback noted
+# in the brief was not needed.
 
 suppressPackageStartupMessages({
   library(ivdoctr)
   library(AER)
   library(car)
-  library(ggplot2)
 })
 
-okabe_ito <- c("#E69F00","#56B4E9","#009E73","#F0E442","#0072B2","#D55E00","#CC79A7","#000000")
+# Not load-bearing: this analysis is fully deterministic (OLS/2SLS have
+# closed-form solutions), but we set a seed anyway to match house convention.
+set.seed(46)
 
-theme_report <- theme_minimal(base_size = 12) +
-  theme(
-    panel.grid.minor = element_blank(),
-    strip.text = element_text(face = "bold"),
-    legend.position = "none"
-  )
-theme_set(theme_report)
-
-set.seed(20260713)
-
-dir.create("figures", showWarnings = FALSE)
-
-# ---- data -------------------------------------------------------------
 data(colonial, package = "ivdoctr")
-d0 <- as.data.frame(colonial)                       # 64 rows; data.table -> data.frame
-d0 <- d0[complete.cases(d0[, c("logpgp95", "avexpr", "logem4")]), ]  # base sample = 64
+d_full <- as.data.frame(colonial)
 
-# ---- generic spec runner -----------------------------------------------
-# controls: character vector of control variable names (added to both
-# stages as exogenous regressors/instruments), or character(0) for none.
-run_spec <- function(dat, controls, label) {
-  rhs_struct <- paste(c("avexpr", controls), collapse = " + ")
-  rhs_inst   <- paste(c("logem4", controls), collapse = " + ")
-  form <- as.formula(paste0("logpgp95 ~ ", rhs_struct, " | ", rhs_inst))
+# ---------------------------------------------------------------------------
+# Helper: run OLS + 2SLS + first-stage for a data subset and optional controls
+# ---------------------------------------------------------------------------
+run_spec <- function(dat, controls = character(0), label) {
+  ctrl_str <- if (length(controls) > 0) paste(controls, collapse = " + ") else NULL
 
-  ols_form <- as.formula(paste0("logpgp95 ~ ", rhs_struct))
-  ols_fit  <- lm(ols_form, data = dat)
-  ols_coef <- unname(coef(ols_fit)["avexpr"])
+  ols_formula <- if (is.null(ctrl_str)) {
+    as.formula("logpgp95 ~ avexpr")
+  } else {
+    as.formula(paste("logpgp95 ~ avexpr +", ctrl_str))
+  }
 
-  iv_fit   <- ivreg(form, data = dat)
-  iv_coef  <- unname(coef(iv_fit)["avexpr"])
+  iv_formula <- if (is.null(ctrl_str)) {
+    as.formula("logpgp95 ~ avexpr | logem4")
+  } else {
+    as.formula(paste("logpgp95 ~ avexpr +", ctrl_str, "| logem4 +", ctrl_str))
+  }
 
-  fs_form <- as.formula(paste0("avexpr ~ ", rhs_inst))
-  fs_fit  <- lm(fs_form, data = dat)
-  fs_coef <- unname(coef(fs_fit)["logem4"])
-  fs_F    <- linearHypothesis(fs_fit, "logem4 = 0")$F[2]
+  fs_formula <- if (is.null(ctrl_str)) {
+    as.formula("avexpr ~ logem4")
+  } else {
+    as.formula(paste("avexpr ~ logem4 +", ctrl_str))
+  }
 
-  data.frame(
-    spec       = label,
-    n          = nrow(dat),
-    ols_coef   = ols_coef,
-    iv_coef    = iv_coef,
-    fs_coef    = fs_coef,
-    fs_F       = fs_F,
-    weak       = fs_F < 10,
-    stringsAsFactors = FALSE
+  ols_fit <- lm(ols_formula, data = dat)
+  iv_fit  <- ivreg(iv_formula, data = dat)
+  fs_fit  <- lm(fs_formula, data = dat)
+
+  ols_coef <- coef(summary(ols_fit))["avexpr", "Estimate"]
+  ols_se   <- coef(summary(ols_fit))["avexpr", "Std. Error"]
+
+  iv_coef <- coef(summary(iv_fit))["avexpr", "Estimate"]
+  iv_se   <- coef(summary(iv_fit))["avexpr", "Std. Error"]
+
+  fs_coef <- coef(summary(fs_fit))["logem4", "Estimate"]
+  fs_se   <- coef(summary(fs_fit))["logem4", "Std. Error"]
+
+  # Homoskedastic first-stage F on the excluded instrument
+  lh_homo <- car::linearHypothesis(fs_fit, "logem4 = 0")
+  f_homo  <- lh_homo$F[2]
+
+  # HC1-robust first-stage F (secondary check)
+  lh_hc1 <- car::linearHypothesis(fs_fit, "logem4 = 0", white.adjust = "hc1")
+  f_hc1  <- lh_hc1$F[2]
+
+  verdict <- if (f_homo >= 10) {
+    "strong"
+  } else if (f_homo >= 5) {
+    "weak (F<10)"
+  } else {
+    "collapsed"
+  }
+
+  list(
+    label = label,
+    n = nrow(dat),
+    ols_coef = ols_coef, ols_se = ols_se,
+    iv_coef = iv_coef, iv_se = iv_se,
+    fs_coef = fs_coef, fs_se = fs_se,
+    f_homo = f_homo, f_hc1 = f_hc1,
+    verdict = verdict,
+    iv_fit = iv_fit
   )
 }
 
-# ---- five specifications -------------------------------------------------
-specs <- list(
-  list(dat = d0, controls = character(0), label = "base"),
-  list(dat = d0, controls = "lat_abst", label = "add latitude"),
-  list(dat = d0, controls = c("africa", "asia"), label = "add continents"),
-  list(dat = d0[!(d0$shortnam %in% c("AUS", "CAN", "NZL", "USA")), ],
-       controls = character(0), label = "drop neo-Europes"),
-  list(dat = d0[d0$africa == 1, ], controls = character(0), label = "Africa only")
-)
+# ---------------------------------------------------------------------------
+# The 5 specifications
+# ---------------------------------------------------------------------------
+spec1 <- run_spec(d_full, character(0), "1. Baseline (bivariate)")
+spec2 <- run_spec(d_full, "lat_abst", "2. + latitude")
+spec3 <- run_spec(d_full, c("africa", "asia"), "3. + continent controls")
 
-results <- do.call(rbind, lapply(specs, function(s) run_spec(s$dat, s$controls, s$label)))
-rownames(results) <- NULL
+d_no_neo <- d_full[!(d_full$shortnam %in% c("AUS", "CAN", "NZL", "USA")), ]
+spec4 <- run_spec(d_no_neo, character(0), "4. Drop neo-Europes")
 
-print(results)
+d_africa <- d_full[d_full$africa == 1, ]
+spec5 <- run_spec(d_africa, character(0), "5. Africa only")
 
-# ---- write robustness-table.md ------------------------------------------
-ident <- ifelse(results$spec %in% c("base", "add latitude"), "strong",
-          ifelse(results$spec == "add continents", "marginal",
-          ifelse(results$spec == "drop neo-Europes", "weak — F<10",
-          ifelse(results$spec == "Africa only", "collapsed", NA))))
+specs <- list(spec1, spec2, spec3, spec4, spec5)
 
-fmt3 <- function(x) formatC(x, format = "f", digits = 3)
-fmt2 <- function(x) formatC(x, format = "f", digits = 2)
+# ---------------------------------------------------------------------------
+# Sanity check: cross-check spec 1's F-stat against AER's built-in
+# weak-instrument diagnostic
+# ---------------------------------------------------------------------------
+diag_f <- summary(spec1$iv_fit, diagnostics = TRUE)$diagnostics["Weak instruments", "statistic"]
+stopifnot(abs(diag_f - spec1$f_homo) < 1e-6)
+cat(sprintf(
+  "Sanity check passed: spec 1 F-stat matches AER diagnostics (%.6f vs %.6f)\n",
+  spec1$f_homo, diag_f
+))
 
-md_lines <- c(
-  "| Specification | n | OLS β(avexpr) | 2SLS β(avexpr) | First-stage coef (logem4) | First-stage F | Identification |",
-  "|---|---|---|---|---|---|---|"
-)
-for (i in seq_len(nrow(results))) {
-  md_lines <- c(md_lines, sprintf(
-    "| %s | %d | %s | %s | %s | %s | %s |",
-    results$spec[i], results$n[i],
-    fmt3(results$ols_coef[i]), fmt3(results$iv_coef[i]),
-    fmt3(results$fs_coef[i]), fmt2(results$fs_F[i]),
-    ident[i]
-  ))
+# ---------------------------------------------------------------------------
+# Build markdown table
+# ---------------------------------------------------------------------------
+fmt_coef_se <- function(coef, se, digits = 3) {
+  sprintf("%.*f (%.*f)", digits, coef, digits, se)
 }
+
+rows <- lapply(specs, function(s) {
+  c(
+    label   = s$label,
+    n       = as.character(s$n),
+    ols     = fmt_coef_se(s$ols_coef, s$ols_se),
+    iv      = fmt_coef_se(s$iv_coef, s$iv_se),
+    fs      = fmt_coef_se(s$fs_coef, s$fs_se),
+    f_homo  = sprintf("%.2f", s$f_homo),
+    f_hc1   = sprintf("%.2f", s$f_hc1),
+    verdict = s$verdict
+  )
+})
+
+header <- c("Spec", "n", "OLS coef (SE)", "2SLS coef (SE)",
+            "First-stage logem4 coef (SE)", "First-stage F (homosk.)",
+            "First-stage F (HC1)", "Verdict")
+
 md_lines <- c(
-  md_lines,
-  "",
-  "F is the first-stage F on the excluded instrument logem4; rule of thumb F<10 = weak; 2SLS estimates in weakly/un-identified specs are not reliable and are shown for completeness only."
+  paste0("| ", paste(header, collapse = " | "), " |"),
+  paste0("| ", paste(rep("---", length(header)), collapse = " | "), " |")
 )
-writeLines(md_lines, "robustness-table.md")
+for (r in rows) {
+  md_lines <- c(md_lines, paste0("| ", paste(r, collapse = " | "), " |"))
+}
 
-# ---- optional figure: first-stage F by spec ------------------------------
-plot_df <- results
-plot_df$spec <- factor(plot_df$spec, levels = rev(results$spec))
-plot_df$strength <- ifelse(plot_df$weak, "weak (F<10)", "strong/marginal")
+flagged <- sapply(specs, function(s) s$verdict != "strong")
+flagged_labels <- sapply(specs[flagged], function(s) s$label)
+note <- sprintf(
+  "\nNote: weak-instrument rule of thumb (Stock-Yogo/Staiger-Stock heuristic): first-stage F >= 10 is \"strong\", 5 <= F < 10 is \"weak (F<10)\", F < 5 is \"collapsed\". Flagged non-strong: %s.",
+  if (length(flagged_labels) > 0) paste(flagged_labels, collapse = "; ") else "none"
+)
 
-p <- ggplot(plot_df, aes(x = fs_F, y = spec, color = strength)) +
-  geom_vline(xintercept = 10, linetype = "dashed", color = "grey50") +
-  geom_point(size = 3) +
-  scale_color_manual(values = c("weak (F<10)" = okabe_ito[6], "strong/marginal" = okabe_ito[5])) +
-  labs(x = "First-stage F (excluded instrument: logem4)", y = NULL, color = NULL) +
-  theme_report +
-  theme(legend.position = "bottom")
+out <- c(
+  "# Robustness table: AJR (2001) colonial origins IV estimates",
+  "",
+  md_lines,
+  note
+)
 
-ggsave("figures/first-stage.png", plot = p, width = 7, height = 4.5, dpi = 300)
-
-cat("Done.\n")
+writeLines(out, "robustness-table.md")
+cat("Wrote robustness-table.md\n")

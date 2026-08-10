@@ -86,7 +86,8 @@
   .row{display:flex; align-items:baseline; gap:6px}
   .row-head{display:flex; align-items:baseline; gap:10px; flex:1; min-width:0}
   .tag-cat{flex:0 0 auto; font:700 11px/1 Menlo,"SF Mono",ui-monospace,monospace; color:var(--grey); border:1px solid var(--line); border-radius:4px; padding:3px 5px; letter-spacing:.02em}
-  .name{flex:0 0 auto; font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:19px; transition:color .12s}
+  .name{flex:0 0 auto; font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:19px; color:inherit; text-decoration:none; transition:color .12s}
+  .name:hover{text-decoration:underline}
   .leader{flex:1; align-self:center; border-bottom:1px dotted var(--line); margin:0 2px; min-width:16px; transition:border-color .12s}
   .cmd{flex:0 0 auto; font:12.5px/1 Menlo,"SF Mono",ui-monospace,monospace; color:var(--grey)}
   .tag-plat{flex:0 0 auto; font:700 10px/1 Menlo,"SF Mono",ui-monospace,monospace; border:1px solid var(--line); border-radius:4px; padding:3px 6px; letter-spacing:.02em; white-space:nowrap; color:var(--grey)}
@@ -97,6 +98,10 @@
   .cmd-sep{color:var(--line)}
   .ext-link{flex:0 0 auto; text-decoration:none; color:var(--grey); opacity:.75; font-size:.85em; padding:4px 6px; margin:-4px -6px -4px 0; border-radius:4px; transition:color .12s,opacity .12s}
   .ext-link:hover{color:var(--cobalt); opacity:1}
+  .row:has(.name:hover) .name, .row:has(.name:hover) .ext-link,
+  .row:has(.ext-link:hover) .name, .row:has(.ext-link:hover) .ext-link{color:var(--cobalt)}
+  .row:has(.name:hover) .ext-link{opacity:1}
+  .name:focus-visible, .ext-link:focus-visible{outline:2px solid var(--cobalt); outline-offset:2px; border-radius:3px}
   .desc{margin:7px 0 0; padding-left:44px; font-size:15.5px; color:var(--ink); opacity:.88; max-width:60ch}
 
   #empty{display:none; padding:40px 0; text-align:center; color:var(--grey); font-size:16px}
@@ -170,7 +175,7 @@
       <button type="button" class="seg-btn" data-plat="codex" aria-pressed="false">Codex</button>
     </div>
   </div>
-  <p class="count" id="skill-count" aria-live="polite">Showing all 40 skills</p>
+  <p class="count" id="skill-count" aria-live="polite">Showing all 43 skills</p>
 </div></nav>
 
 <main class="wrap">
@@ -180,7 +185,7 @@
         <li class="entry" id="research-repo" data-cat="ps" data-plat="both" data-search="research-repo project setup scaffold audit research project repo folders claude.md /oss:research-repo $research-repo codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">PS</span><span class="name">research-repo</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">PS</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/research-repo/SKILL.md">research-repo</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/research-repo/SKILL.md" aria-label="Open research-repo on GitHub">↗</a>
       </div>
@@ -194,7 +199,7 @@
         <li class="entry" id="fable-orchestrate" data-cat="wo" data-plat="claude" data-search="fable-orchestrate workflow orchestration multi-model fable 5 opus sonnet codex gpt-5.6 /oss:fable-orchestrate claude only">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">WO</span><span class="name">fable-orchestrate</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
+          <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fable-orchestrate/SKILL.md">fable-orchestrate</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fable-orchestrate/SKILL.md" aria-label="Open fable-orchestrate on GitHub">↗</a>
       </div>
@@ -204,7 +209,7 @@
         <li class="entry" id="opus-orchestrate" data-cat="wo" data-plat="claude" data-search="opus-orchestrate workflow orchestration multi-model opus 5 lead medium effort sonnet codex gpt-5.6 /oss:opus-orchestrate claude only">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">WO</span><span class="name">opus-orchestrate</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
+          <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/opus-orchestrate/SKILL.md">opus-orchestrate</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/opus-orchestrate/SKILL.md" aria-label="Open opus-orchestrate on GitHub">↗</a>
       </div>
@@ -214,7 +219,7 @@
     <li class="entry" id="46-orchestrate" data-cat="wo" data-plat="codex" data-search="46-orchestrate workflow orchestration codex orchestrator gpt-5.6 sol high terra luna lead delegate $46-orchestrate codex only">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">WO</span><span class="name">46-orchestrate</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-codex">Codex&nbsp;only</span>
+          <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/codex/46-orchestrate/SKILL.md">46-orchestrate</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-codex">Codex&nbsp;only</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/codex/46-orchestrate/SKILL.md" aria-label="Open 46-orchestrate on GitHub">↗</a>
       </div>
@@ -224,7 +229,7 @@
     <li class="entry" id="advisor" data-cat="wo" data-plat="both" data-search="advisor second opinion independent reviewer consult fable 5 max effort opus 5 sonnet 5 main seat gpt-5.6 sol xhigh read-only /oss:advisor $advisor codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">WO</span><span class="name">advisor</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/advisor/SKILL.md">advisor</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/advisor/SKILL.md" aria-label="Open advisor on GitHub">↗</a>
       </div>
@@ -234,7 +239,7 @@
       <li class="entry" id="spawn" data-cat="wo" data-plat="both" data-search="spawn needs review spawn full peer sessions in new terminal panes — real sessions, not subagents — each in its own git worktree on a directed task with a contract brief. detects herdr, tmux, or a plain terminal and takes the strongest path; the lead monitors without babysitting and merges each branch back. /oss:spawn $spawn codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">WO</span><span class="name">spawn</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/spawn/SKILL.md">spawn</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/spawn/SKILL.md" aria-label="Open spawn on GitHub">↗</a>
       </div>
@@ -248,7 +253,7 @@
         <li class="entry" id="diverge" data-cat="id" data-plat="both" data-search="diverge ideation brainstorm distinct approaches before implementing /oss:diverge $diverge codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">ID</span><span class="name">diverge</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">ID</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge/SKILL.md">diverge</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge/SKILL.md" aria-label="Open diverge on GitHub">↗</a>
       </div>
@@ -258,7 +263,7 @@
         <li class="entry" id="diverge-codex" data-cat="id" data-plat="both" data-search="diverge-codex ideation brainstorm cross-model codex gpt-5.6 sol xhigh /oss:diverge-codex $diverge-codex codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">ID</span><span class="name">diverge-codex</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">ID</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge-codex/SKILL.md">diverge-codex</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge-codex/SKILL.md" aria-label="Open diverge-codex on GitHub">↗</a>
       </div>
@@ -272,7 +277,7 @@
         <li class="entry" id="conjoint-design" data-cat="rd" data-plat="both" data-search="conjoint-design research design attributes amce amie power analysis /oss:conjoint-design $conjoint-design codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RD</span><span class="name">conjoint-design</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RD</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-design/SKILL.md">conjoint-design</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-design/SKILL.md" aria-label="Open conjoint-design on GitHub">↗</a>
       </div>
@@ -282,7 +287,7 @@
         <li class="entry" id="conjoint-diagnostics" data-cat="rd" data-plat="both" data-search="conjoint-diagnostics research design checklist validity /oss:conjoint-diagnostics $conjoint-diagnostics codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RD</span><span class="name">conjoint-diagnostics</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RD</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-diagnostics/SKILL.md">conjoint-diagnostics</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-diagnostics/SKILL.md" aria-label="Open conjoint-diagnostics on GitHub">↗</a>
       </div>
@@ -292,7 +297,7 @@
         <li class="entry" id="conjoint-cleaning" data-cat="rd" data-plat="both" data-search="conjoint-cleaning research design qualtrics export cleanup /oss:conjoint-cleaning $conjoint-cleaning codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RD</span><span class="name">conjoint-cleaning</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RD</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-cleaning/SKILL.md">conjoint-cleaning</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/conjoint-cleaning/SKILL.md" aria-label="Open conjoint-cleaning on GitHub">↗</a>
       </div>
@@ -302,7 +307,7 @@
         <li class="entry" id="survey-design" data-cat="rd" data-plat="both" data-search="survey-design research design questions scales social desirability /oss:survey-design $survey-design codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RD</span><span class="name">survey-design</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RD</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/survey-design/SKILL.md">survey-design</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/survey-design/SKILL.md" aria-label="Open survey-design on GitHub">↗</a>
       </div>
@@ -312,7 +317,7 @@
         <li class="entry" id="qualtrics-ops" data-cat="rd" data-plat="both" data-search="qualtrics-ops research design live survey operations publish quotas flow routing vendor redirects /oss:qualtrics-ops $qualtrics-ops codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RD</span><span class="name">qualtrics-ops</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RD</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/qualtrics-ops/SKILL.md">qualtrics-ops</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/qualtrics-ops/SKILL.md" aria-label="Open qualtrics-ops on GitHub">↗</a>
       </div>
@@ -322,7 +327,7 @@
         <li class="entry" id="survey-flow-audit" data-cat="rd" data-plat="both" data-search="survey-flow-audit research design pre-fielding audit consent publish state quotas vendor redirects anti-bot /oss:survey-flow-audit $survey-flow-audit codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RD</span><span class="name">survey-flow-audit</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RD</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/survey-flow-audit/SKILL.md">survey-flow-audit</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/survey-flow-audit/SKILL.md" aria-label="Open survey-flow-audit on GitHub">↗</a>
       </div>
@@ -332,7 +337,7 @@
         <li class="entry" id="survey-data-audit" data-cat="rd" data-plat="both" data-search="survey-data-audit research design fielded response data quality bot ai automation screening sample integrity /oss:survey-data-audit $survey-data-audit codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RD</span><span class="name">survey-data-audit</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RD</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/survey-data-audit/SKILL.md">survey-data-audit</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/survey-data-audit/SKILL.md" aria-label="Open survey-data-audit on GitHub">↗</a>
       </div>
@@ -342,7 +347,7 @@
         <li class="entry" id="cross-national-design" data-cat="rd" data-plat="both" data-search="cross-national-design research design multi-country power localization bias /oss:cross-national-design $cross-national-design codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RD</span><span class="name">cross-national-design</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RD</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/cross-national-design/SKILL.md">cross-national-design</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/cross-national-design/SKILL.md" aria-label="Open cross-national-design on GitHub">↗</a>
       </div>
@@ -352,7 +357,7 @@
         <li class="entry" id="list-experiment" data-cat="rd" data-plat="both" data-search="list-experiment research design item count technique sensitive topics /oss:list-experiment $list-experiment codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RD</span><span class="name">list-experiment</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RD</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/list-experiment/SKILL.md">list-experiment</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/list-experiment/SKILL.md" aria-label="Open list-experiment on GitHub">↗</a>
       </div>
@@ -362,7 +367,7 @@
       <li class="entry" id="research-wayfinder" data-cat="rd" data-plat="both" data-search="research-wayfinder needs review plan a study as a decision map that outlives any single session — typed tickets for estimand, identification, power, and measurement, resolved one per session until the design is pre-registerable. adapted from matt pocock's wayfinder. /oss:research-wayfinder $research-wayfinder codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RD</span><span class="name">research-wayfinder</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RD</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/research-wayfinder/SKILL.md">research-wayfinder</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/research-wayfinder/SKILL.md" aria-label="Open research-wayfinder on GitHub">↗</a>
       </div>
@@ -376,7 +381,7 @@
         <li class="entry" id="topic-modeling" data-cat="an" data-plat="both" data-search="topic-modeling analysis structural topic model stm covariates coherence /oss:topic-modeling $topic-modeling codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">AN</span><span class="name">topic-modeling</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">AN</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/topic-modeling/SKILL.md">topic-modeling</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/topic-modeling/SKILL.md" aria-label="Open topic-modeling on GitHub">↗</a>
       </div>
@@ -386,7 +391,7 @@
         <li class="entry" id="text-classification" data-cat="an" data-plat="both" data-search="text-classification analysis llm codebook validation coding /oss:text-classification $text-classification codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">AN</span><span class="name">text-classification</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">AN</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/text-classification/SKILL.md">text-classification</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/text-classification/SKILL.md" aria-label="Open text-classification on GitHub">↗</a>
       </div>
@@ -396,7 +401,7 @@
         <li class="entry" id="model-council-voting" data-cat="an" data-plat="both" data-search="model-council-voting analysis panel llm coders agreement kappa /oss:model-council-voting $model-council-voting codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">AN</span><span class="name">model-council-voting</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">AN</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-council-voting/SKILL.md">model-council-voting</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-council-voting/SKILL.md" aria-label="Open model-council-voting on GitHub">↗</a>
       </div>
@@ -406,7 +411,7 @@
         <li class="entry" id="model-committee" data-cat="an" data-plat="both" data-search="model-committee analysis gpt opus fable sol chair deliberative judgment committee /oss:model-committee /oss:model-committee-fable /oss:model-committee-sol $model-committee codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">AN</span><span class="name">model-committee</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">AN</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-committee/SKILL.md">model-committee</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-committee/SKILL.md" aria-label="Open model-committee on GitHub">↗</a>
       </div>
@@ -416,7 +421,7 @@
         <li class="entry" id="llm-calibration-logprobs" data-cat="an" data-plat="both" data-search="llm-calibration-logprobs analysis confidence token probabilities calibration ece brier /oss:llm-calibration-logprobs $llm-calibration-logprobs codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">AN</span><span class="name">llm-calibration-logprobs</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">AN</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/llm-calibration-logprobs/SKILL.md">llm-calibration-logprobs</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/llm-calibration-logprobs/SKILL.md" aria-label="Open llm-calibration-logprobs on GitHub">↗</a>
       </div>
@@ -430,7 +435,7 @@
         <li class="entry" id="vlm-ocr-pipeline" data-cat="cp" data-plat="both" data-search="vlm-ocr-pipeline corpus processing vision language model ocr scanned documents /oss:vlm-ocr-pipeline $vlm-ocr-pipeline codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">CP</span><span class="name">vlm-ocr-pipeline</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">CP</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-pipeline/SKILL.md">vlm-ocr-pipeline</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-pipeline/SKILL.md" aria-label="Open vlm-ocr-pipeline on GitHub">↗</a>
       </div>
@@ -440,7 +445,7 @@
         <li class="entry" id="post-ocr-cleanup" data-cat="cp" data-plat="both" data-search="post-ocr-cleanup corpus processing correction qa multilingual /oss:post-ocr-cleanup $post-ocr-cleanup codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">CP</span><span class="name">post-ocr-cleanup</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">CP</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/post-ocr-cleanup/SKILL.md">post-ocr-cleanup</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/post-ocr-cleanup/SKILL.md" aria-label="Open post-ocr-cleanup on GitHub">↗</a>
       </div>
@@ -450,7 +455,7 @@
         <li class="entry" id="vlm-ocr-evaluation" data-cat="cp" data-plat="both" data-search="vlm-ocr-evaluation corpus processing compare candidate systems ground truth cer wer /oss:vlm-ocr-evaluation $vlm-ocr-evaluation codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">CP</span><span class="name">vlm-ocr-evaluation</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">CP</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-evaluation/SKILL.md">vlm-ocr-evaluation</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-evaluation/SKILL.md" aria-label="Open vlm-ocr-evaluation on GitHub">↗</a>
       </div>
@@ -464,7 +469,7 @@
         <li class="entry" id="hypothesis-building" data-cat="wr" data-plat="both" data-search="hypothesis-building writing reporting falsifiable dag equivalence testing /oss:hypothesis-building $hypothesis-building codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">WR</span><span class="name">hypothesis-building</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">WR</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/hypothesis-building/SKILL.md">hypothesis-building</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/hypothesis-building/SKILL.md" aria-label="Open hypothesis-building on GitHub">↗</a>
       </div>
@@ -474,7 +479,7 @@
         <li class="entry" id="literature-review" data-cat="wr" data-plat="both" data-search="literature-review writing reporting evidence map gaps synthesis /oss:literature-review $literature-review codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">WR</span><span class="name">literature-review</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">WR</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/literature-review/SKILL.md">literature-review</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/literature-review/SKILL.md" aria-label="Open literature-review on GitHub">↗</a>
       </div>
@@ -484,7 +489,7 @@
         <li class="entry" id="narrative-building" data-cat="wr" data-plat="both" data-search="narrative-building writing reporting introduction argument logic funnel /oss:narrative-building $narrative-building codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">WR</span><span class="name">narrative-building</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">WR</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/narrative-building/SKILL.md">narrative-building</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/narrative-building/SKILL.md" aria-label="Open narrative-building on GitHub">↗</a>
       </div>
@@ -494,7 +499,7 @@
         <li class="entry" id="pre-registration-writing" data-cat="wr" data-plat="both" data-search="pre-registration-writing writing reporting pap analysis plan registry /oss:pre-registration-writing $pre-registration-writing codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">WR</span><span class="name">pre-registration-writing</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">WR</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/pre-registration-writing/SKILL.md">pre-registration-writing</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/pre-registration-writing/SKILL.md" aria-label="Open pre-registration-writing on GitHub">↗</a>
       </div>
@@ -504,7 +509,7 @@
         <li class="entry" id="methods-reporting" data-cat="wr" data-plat="both" data-search="methods-reporting writing reporting consort jars da-rt checklist /oss:methods-reporting $methods-reporting codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">WR</span><span class="name">methods-reporting</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">WR</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/methods-reporting/SKILL.md">methods-reporting</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/methods-reporting/SKILL.md" aria-label="Open methods-reporting on GitHub">↗</a>
       </div>
@@ -514,7 +519,7 @@
         <li class="entry" id="paper-tex" data-cat="wr" data-plat="both" data-search="paper-tex writing reporting latex typeset journal formatting /oss:paper-tex $paper-tex codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">WR</span><span class="name">paper-tex</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">WR</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-tex/SKILL.md">paper-tex</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-tex/SKILL.md" aria-label="Open paper-tex on GitHub">↗</a>
       </div>
@@ -528,7 +533,7 @@
         <li class="entry" id="figures" data-cat="ft" data-plat="both" data-search="figures figures tables chart design color legends captions /oss:figures $figures codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">FT</span><span class="name">figures</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">FT</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/figures/SKILL.md">figures</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/figures/SKILL.md" aria-label="Open figures on GitHub">↗</a>
       </div>
@@ -538,7 +543,7 @@
         <li class="entry" id="tables" data-cat="ft" data-plat="both" data-search="tables figures tables columns rows precision notes /oss:tables $tables codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">FT</span><span class="name">tables</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">FT</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/tables/SKILL.md">tables</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/tables/SKILL.md" aria-label="Open tables on GitHub">↗</a>
       </div>
@@ -552,7 +557,7 @@
         <li class="entry" id="fair-check" data-cat="mq" data-plat="both" data-search="fair-check manuscript qa fair data code materials availability audit /oss:fair-check $fair-check codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">MQ</span><span class="name">fair-check</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">MQ</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fair-check/SKILL.md">fair-check</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fair-check/SKILL.md" aria-label="Open fair-check on GitHub">↗</a>
       </div>
@@ -562,7 +567,7 @@
         <li class="entry" id="citation-check" data-cat="mq" data-plat="both" data-search="citation-check manuscript qa references fabrication parity doi /oss:citation-check $citation-check codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">MQ</span><span class="name">citation-check</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">MQ</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/citation-check/SKILL.md">citation-check</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/citation-check/SKILL.md" aria-label="Open citation-check on GitHub">↗</a>
       </div>
@@ -572,7 +577,7 @@
         <li class="entry" id="fact-check" data-cat="mq" data-plat="both" data-search="fact-check manuscript qa sources claims support verify /oss:fact-check $fact-check codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">MQ</span><span class="name">fact-check</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">MQ</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fact-check/SKILL.md">fact-check</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fact-check/SKILL.md" aria-label="Open fact-check on GitHub">↗</a>
       </div>
@@ -582,7 +587,7 @@
         <li class="entry" id="figure-table-audit" data-cat="mq" data-plat="both" data-search="figure-table-audit manuscript qa captions cross-references statistical notes /oss:figure-table-audit $figure-table-audit codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">MQ</span><span class="name">figure-table-audit</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">MQ</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/figure-table-audit/SKILL.md">figure-table-audit</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/figure-table-audit/SKILL.md" aria-label="Open figure-table-audit on GitHub">↗</a>
       </div>
@@ -592,7 +597,7 @@
         <li class="entry" id="replication-package" data-cat="mq" data-plat="both" data-search="replication-package manuscript qa reproduce data code documentation /oss:replication-package $replication-package codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">MQ</span><span class="name">replication-package</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">MQ</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/replication-package/SKILL.md">replication-package</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/replication-package/SKILL.md" aria-label="Open replication-package on GitHub">↗</a>
       </div>
@@ -606,7 +611,7 @@
         <li class="entry" id="paper-review-lite" data-cat="rs" data-plat="both" data-search="paper-review-lite review submission pre-submission audit quote-grounded /oss:paper-review-lite $paper-review-lite codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RS</span><span class="name">paper-review-lite</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RS</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-review-lite/SKILL.md">paper-review-lite</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-review-lite/SKILL.md" aria-label="Open paper-review-lite on GitHub">↗</a>
       </div>
@@ -616,7 +621,7 @@
         <li class="entry" id="paper-review-lite-codex" data-cat="rs" data-plat="both" data-search="paper-review-lite-codex review submission cross-model adversarial gpt-5.6 sol xhigh /oss:paper-review-lite-codex $paper-review-lite-codex codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RS</span><span class="name">paper-review-lite-codex</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RS</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-review-lite-codex/SKILL.md">paper-review-lite-codex</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-review-lite-codex/SKILL.md" aria-label="Open paper-review-lite-codex on GitHub">↗</a>
       </div>
@@ -626,7 +631,7 @@
         <li class="entry" id="presubmit" data-cat="rs" data-plat="claude" data-search="presubmit review submission wizard cli 30 stage pipeline /oss:presubmit claude only haiku sonnet opus fable model tiers">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RS</span><span class="name">presubmit</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
+          <span class="tag-cat">RS</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/presubmit/SKILL.md">presubmit</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/presubmit/SKILL.md" aria-label="Open presubmit on GitHub">↗</a>
       </div>
@@ -636,7 +641,7 @@
         <li class="entry" id="journal-review" data-cat="rs" data-plat="both" data-search="journal-review review submission referee report third party /oss:journal-review $journal-review codex claude both">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">RS</span><span class="name">journal-review</span><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+          <span class="tag-cat">RS</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/journal-review/SKILL.md">journal-review</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/journal-review/SKILL.md" aria-label="Open journal-review on GitHub">↗</a>
       </div>

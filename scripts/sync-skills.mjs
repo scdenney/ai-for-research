@@ -3,6 +3,12 @@
 // (README.md's "## Skills" section) and docs/skills/index.html, and appends
 // clearly-flagged draft entries / removal notices. Never rewrites or deletes
 // existing hand-authored prose — a human always reviews the resulting PR.
+//
+// NOT auto-updated by this script: the static "Showing all N skills" text
+// (#skill-count, near the top of the page). It's only a pre-JS-paint
+// fallback — the live count is recomputed client-side from .entry elements
+// — but bump it by hand whenever entries are added or removed, or it goes
+// stale until the next full reconciliation pass.
 
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -90,12 +96,13 @@ function buildEntryHtml(slug, code, description, codexSlugs) {
   const search = `${slug} needs review ${description} /oss:${slug} ${searchExtra}`.toLowerCase().replace(/[`"]/g, "");
   // Markup matches the 2026-07-11 page design: descriptions are always
   // visible (no hidden attribute, no row-toggle button, no aria wiring).
+  const href = `https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/${slug}/SKILL.md`;
   return `    <li class="entry" id="${slug}" data-cat="${code}" data-plat="${plat}" data-search="${search}">
       <div class="row">
         <div class="row-head">
-          <span class="tag-cat">${code.toUpperCase()}</span><span class="name">${slug}</span><span class="leader" aria-hidden="true"></span>${badge}
+          <span class="tag-cat">${code.toUpperCase()}</span><a class="name" href="${href}">${slug}</a><span class="leader" aria-hidden="true"></span>${badge}
         </div>
-        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/${slug}/SKILL.md" aria-label="Open ${slug} on GitHub">↗</a>
+        <a class="ext-link" href="${href}" aria-label="Open ${slug} on GitHub">↗</a>
       </div>
       <div class="cmds">${cmds}</div>
       <p class="desc" id="desc-${slug}"><em>[needs review — paraphrase in plain language, source repo says:]</em> ${description}</p>

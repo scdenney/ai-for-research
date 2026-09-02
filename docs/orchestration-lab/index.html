@@ -313,7 +313,7 @@ for s in ~/open-science-skills/codex/*/; do ln -sfn "${s%/}" ~/.agents/skills/"$
       }
     },
     'opus': {
-      info: 'Opus 4.8 at ultracode, run interactively — the lead reasons in place and delegates to the same pool. Our six briefs: $1.59–$3.26, 6–16 min each.',
+      info: 'Opus 4.8 at ultracode (the model the August 2026 runs used; /oss:opus-orchestrate is now an alias of /oss:orchestrate), run interactively — the lead reasons in place and delegates to the same pool. Our six briefs: $1.59–$3.26, 6–16 min each.',
       cmd: function(b){
         return 'mkdir -p myruns/opus/' + b + ' && cd myruns/opus/' + b + ' && claude\n' +
           '# interactive arm — in the session that opens:\n' +

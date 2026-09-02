@@ -163,7 +163,7 @@ claude</code></pre>
     <div class="n">5</div>
     <div class="body">
       <h2>Using Codex instead <span class="opt">alternative</span></h2>
-      <p>The Open Science Skills ship a parallel, Codex-native library of 40 of the toolkit’s 43 skills. Codex isn't a drop-in replacement for Claude Code — there's no plugin marketplace, and invocation looks different — but the skills themselves cover the same ground.</p>
+      <p>The Open Science Skills ship a parallel, Codex-native library of 37 of the toolkit’s 38 skills. Codex isn't a drop-in replacement for Claude Code — there's no plugin marketplace, and invocation looks different — but the skills themselves cover the same ground.</p>
       <p>Install the Codex CLI itself first; that step isn't part of this toolkit, so follow OpenAI's own instructions at <a href="https://developers.openai.com/codex/skills">developers.openai.com/codex/skills</a>. Once Codex is installed and signed in, clone the Open Science Skills repo and symlink its skills into Codex's user-wide skills folder:</p>
       <pre><code>git clone https://github.com/scdenney/open-science-skills
 cd open-science-skills
@@ -173,7 +173,7 @@ for skill in "$PWD"/codex/*/; do
 done</code></pre>
       <p>Where Claude Code uses a slash command like <code>/oss:citation-check</code>, Codex invokes the same skill with a <code>$</code> prefix:</p>
       <pre><code>$citation-check manuscript.md references.bib</code></pre>
-      <p class="note">Codex can also pick up a skill implicitly from how you describe the task, without typing the <code>$</code> form. The two libraries track each other closely but aren't identical — <code>presubmit</code> has no Codex equivalent, and <code>fable-orchestrate</code> is named <code>46-orchestrate</code> on the Codex side. See <a href="https://github.com/scdenney/open-science-skills/blob/main/codex/README.md">codex/README.md</a> for the full catalog, including repo-scoped and single-skill installs.</p>
+      <p class="note">Codex can also pick up a skill implicitly from how you describe the task, without typing the <code>$</code> form. The two libraries track each other closely but aren't identical — <code>presubmit</code> has no Codex equivalent, and the Codex <code>orchestrate</code> is led by GPT-5.6 Sol rather than detecting the session model. The older names retired in v2.25.0 (<code>fable-orchestrate</code>, <code>diverge-codex</code>, <code>survey-flow-audit</code>, <code>fair-check</code>, the three OCR names) still work on Claude Code as aliases; on Codex, name the mode instead (<code>$diverge --codex</code>, <code>$qualtrics-ops audit</code>, <code>$vlm-ocr clean</code>). See <a href="https://github.com/scdenney/open-science-skills/blob/main/codex/README.md">codex/README.md</a> for the full catalog, including repo-scoped and single-skill installs.</p>
     </div>
   </div>
 
@@ -184,7 +184,7 @@ done</code></pre>
       <p>This step is only for the <strong>source-claim check</strong>, which reads your sources to see whether they support a claim. The <strong>reference check</strong> does not need it.</p>
       <p>Keep each source's PDF in <code>sources/og/</code> and a Markdown version in <code>sources/md/</code>, which is what the checker reads. The <code>research-repo</code> skill sets this folder structure up for you, and <code>process-source</code> converts a PDF to Markdown.</p>
       <pre><code>/oss:research-repo            # scaffold the sources/ folders
-/oss:process-source paper.pdf # convert one PDF into the knowledge base</code></pre>
+/oss:doc-to-markdown paper.pdf   # convert one PDF into the knowledge base</code></pre>
     </div>
   </div>
 

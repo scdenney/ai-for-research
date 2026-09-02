@@ -4,11 +4,10 @@
 // clearly-flagged draft entries / removal notices. Never rewrites or deletes
 // existing hand-authored prose — a human always reviews the resulting PR.
 //
-// NOT auto-updated by this script: the static "Showing all N skills" text
-// (#skill-count, near the top of the page). It's only a pre-JS-paint
-// fallback — the live count is recomputed client-side from .entry elements
-// — but bump it by hand whenever entries are added or removed, or it goes
-// stale until the next full reconciliation pass.
+// Also kept current on every run, from the source repo's manifests and
+// directory counts: the colophon's version, date, and Claude/Codex skill
+// counts, and the pre-JS-paint "Showing all N skills" fallback (#skill-count),
+// which is recomputed from the page's own .entry elements.
 
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -168,17 +167,25 @@ for (const [slug, { cat }] of pageEntries) {
   }
 }
 
-// Opportunistically keep the colophon's version number current.
+// Keep the colophon (version, date, counts) and the pre-paint skill count current.
+const before = page;
 try {
   const pluginJson = JSON.parse(readFileSync(join(ossPath, "plugin", ".claude-plugin", "plugin.json"), "utf8"));
   if (pluginJson.version) {
     page = page.replace(/v\d+\.\d+\.\d+(?=\)\.)/, `v${pluginJson.version}`);
   }
+  const claudeCount = readdirSync(join(ossPath, "plugin", "skills"), { withFileTypes: true }).filter((d) => d.isDirectory()).length;
+  const codexCount = readdirSync(join(ossPath, "codex"), { withFileTypes: true }).filter((d) => d.isDirectory() && d.name !== "assets").length;
+  const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  page = page.replace(/as of \d+ [A-Z][a-z]+ \d{4} \(v/, `as of ${today} (v`);
+  page = page.replace(/(\)\. )\d+( skills on Claude Code \(<code>\/oss:name<\/code>\) and )\d+( on Codex)/, `$1${claudeCount}$2${codexCount}$3`);
 } catch {
-  // no plugin.json — leave the colophon version untouched
+  // no plugin.json or skills dirs — leave the colophon untouched
 }
+const entryCount = (page.match(/<li class="entry" id="/g) || []).length;
+page = page.replace(/Showing all \d+ skills/, `Showing all ${entryCount} skills`);
 
-const changed = summary.newSkills.length > 0 || summary.removedSkills.length > 0 || summary.newCategories.length > 0;
+const changed = summary.newSkills.length > 0 || summary.removedSkills.length > 0 || summary.newCategories.length > 0 || page !== before;
 
 if (changed) {
   writeFileSync(PAGE_PATH, page);

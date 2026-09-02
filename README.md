@@ -14,9 +14,13 @@ ai-for-research/
 │   ├── index.html              #   landing page (getting started · demos · lectures · skills)
 │   ├── getting-started/        #   setup walkthrough (Claude Code and Codex, via terminal)
 │   ├── skills/                 #   index of every Open Science Skills skill
-│   └── reference-check/        #   walkthrough for the reference-check demo
+│   ├── reference-check/        #   walkthrough for the reference-check demo
+│   ├── orchestration-lab/      #   walkthrough for the orchestration-lab demo
+│   ├── talk-to-your-terminal/  #   working in the terminal with an agent
+│   └── lectures/               #   the lectures page
 ├── demos/                      # self-contained projects you can clone and run
-│   └── reference-check/        #   reference + source-claim checking
+│   ├── reference-check/        #   reference + source-claim checking
+│   └── orchestration-lab/      #   four ways of running frontier models, scored
 └── lectures/                   # slide decks and notes from talks and workshops
 ```
 
@@ -45,12 +49,13 @@ Every skill in the toolkit, indexed with a plain-language explanation of what it
 | Demo | What it teaches |
 |------|-----------------|
 | [**reference-check**](demos/reference-check/) | Catch fabricated or malformed citations against your **reference list** (no knowledge base needed), then check whether each cited source actually supports the claim, against a small **knowledge base** of your sources. Runs on local files (no web sources needed) on a synthetic manuscript with planted errors. |
-| [**orchestration-lab**](demos/orchestration-lab/) | Compare four ways of running frontier models — a Fable lead (Fable 5, max effort), an Opus lead (Opus 4.8, ultracode), a single advisor consult, and a Codex lead (gpt-5.6-sol) — on five real analyses at three rungs of difficulty (a conjoint study, an IV replication, a matching methods dispute), used identically on every brief and scored against pre-built answer keys. Each arm's exact model and effort settings are documented. Ships the captured runs (run logs, token counts, routing traces, figures) plus re-run instructions. Calls hosted models, not offline. |
+| [**orchestration-lab**](demos/orchestration-lab/) | Compare four ways of running frontier models — a Fable lead (Fable 5, max effort), an Opus lead (Opus 4.8, ultracode; the models named are the ones the August 2026 runs used), a single advisor consult, and a Codex lead (gpt-5.6-sol) — on five real analyses at three rungs of difficulty (a conjoint study, an IV replication, a matching methods dispute), used identically on every brief and scored against pre-built answer keys. Each arm's exact model and effort settings are documented. Ships the captured runs (run logs, token counts, routing traces, figures) plus re-run instructions. Calls hosted models, not offline. |
 
 More to come. Each demo ships sample files, the exact prompts, expected output, and a note on where the human still has to verify.
 
 ## Lectures
 
+- [**No Previews in Pyongyang**](https://scdenney.github.io/assets/slides/no-previews-in-pyongyang/) — an LLM, embeddings, and AI-assisted workflows to build and validate a dictionary of reform language, then three decades of a North Korean economics journal.
 - [**From Pixels to Patterns**](https://scdenney.github.io/assets/slides/from-pixels-to-patterns/#1) — computer vision and language models in empirical social science and the digital humanities.
 
 New decks go in [`lectures/`](lectures/) as talks are given.

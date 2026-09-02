@@ -11,12 +11,12 @@
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --cobalt:#1F4E9B; --gold:#E0A526; --ochre:#9A6B14; --ink:#17171A;
-    --grey:#6E6E73; --paper:#F3EFE3; --paper-2:#ECE6D6; --line:#d9d2bf; --maxw:760px;
+    --cobalt:#1F4E9B; --gold:#E0A526; --ochre:#8B5F10; --ink:#17171A;
+    --grey:#68686D; --paper:#F3EFE3; --paper-2:#ECE6D6; --line:#d9d2bf; --maxw:760px;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --cobalt:#3D6FCB; --gold:#E8B23E; --ochre:#E8B23E; --ink:#EFE8D7;
+      --cobalt:#5485E0; --gold:#E8B23E; --ochre:#E8B23E; --ink:#EFE8D7;
       --grey:#9b9ba3; --paper:#14161C; --paper-2:#1b1e26; --line:#2c3038;
     }
   }
@@ -25,6 +25,9 @@
     font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
   .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
   a{color:var(--cobalt)}
+  a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--cobalt); outline-offset:3px}
+  .skip-link{position:fixed; top:10px; left:12px; z-index:100; padding:8px 12px; border-radius:7px; background:var(--ink); color:var(--paper); text-decoration:none; transform:translateY(-160%)}
+  .skip-link:focus{transform:translateY(0)}
 
   .nav{position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:saturate(160%) blur(10px)}
   .nav .row{max-width:var(--maxw); margin:0 auto; padding:13px 24px 14px; display:flex; align-items:center; justify-content:space-between; gap:18px; border-bottom:1px solid var(--line)}
@@ -35,6 +38,8 @@
   .topmenu a{color:var(--grey); text-decoration:none; padding:4px 0}
   .topmenu a:hover{color:var(--cobalt)}
   .topmenu a.ext::after{content:" ↗"; font-size:.85em; opacity:.7}
+  .topmenu a[aria-current="page"]{color:var(--ink); box-shadow:inset 0 -2px 0 var(--gold)}
+  .home-link,.mobile-label{display:none}
 
   header.hero{padding:46px 0 0; border-bottom:0}
   header.hero .wrap{padding-bottom:22px; border-bottom:1px solid var(--line)}
@@ -68,7 +73,7 @@
   @media (prefers-color-scheme: dark){ .seg-btn[aria-pressed="true"]{color:#0b0d12} }
 
   main{padding:10px 0 40px}
-  .chapter{display:flex; align-items:baseline; gap:14px; margin:38px 0 6px; padding:4px 0; scroll-margin-top:150px; cursor:pointer; border-radius:6px}
+  .chapter{display:flex; width:100%; align-items:baseline; gap:14px; margin:38px 0 6px; padding:4px 0; border:0; background:transparent; color:inherit; font:inherit; text-align:left; scroll-margin-top:150px; cursor:pointer; border-radius:6px}
   .chapter:first-of-type{margin-top:26px}
   .chapter:hover .rule{border-bottom-color:var(--cobalt)}
   .chapter:hover h2{color:var(--cobalt)}
@@ -114,9 +119,13 @@
   .foot-links{margin:0; font-size:14.5px; line-height:1.45}
 
   @media (max-width:700px){
-    .nav .row{flex-wrap:wrap; row-gap:8px}
-    .topmenu{width:100%; justify-content:flex-start; font-size:15px; gap:16px}
-    nav.filter-bar{top:105px}
+    .brand{display:none}
+    .nav .row{padding:10px 24px; gap:0}
+    .topmenu{width:100%; justify-content:space-between; gap:10px; flex-wrap:nowrap; font-size:14px}
+    .home-link,.mobile-label{display:inline}
+    .desktop-label{display:none}
+    nav.filter-bar{position:static; top:auto}
+    header.hero{padding-top:32px}
   }
   @media (max-width:560px){
     .desc{padding-left:0}
@@ -125,20 +134,32 @@
     .cmds{padding-left:0}
     .chapter h2{font-size:19px}
   }
+  @media (max-width:360px){
+    .chapter{gap:10px}
+    .chapter h2{white-space:normal}
+    .chapter .n{display:none}
+    .chapter .chev{margin-left:auto}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{transition-duration:.01ms!important; animation-duration:.01ms!important; animation-iteration-count:1!important}
+  }
 </style>
 </head>
 <body>
 
-<nav class="nav"><div class="row">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav class="nav" aria-label="Primary"><div class="row">
   <a class="brand" href="../">
     <span class="mark">▁▂▃<b>▅</b><b>▂</b>▁</span>
     <span class="name">AI for Research</span>
   </a>
   <div class="topmenu">
-    <a href="../getting-started/">Getting started</a>
+    <a class="home-link" href="../">Home</a>
+    <a href="../getting-started/" aria-label="Getting started"><span class="desktop-label">Getting started</span><span class="mobile-label" aria-hidden="true">Start</span></a>
     <a href="../demos/">Demos</a>
     <a href="../lectures/">Lectures</a>
-    <a href="../skills/">Skills</a>
+    <a href="../skills/" aria-current="page">Skills</a>
   </div>
 </div></nav>
 
@@ -149,7 +170,7 @@
   <p class="lede">Every skill in the Open Science Skills toolkit — on both Claude Code and OpenAI Codex.</p>
 </div></header>
 
-<nav class="filter-bar"><div class="filter-inner">
+<nav class="filter-bar" aria-label="Skill filters"><div class="filter-inner">
   <div class="search-row">
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
     <input type="search" id="skill-search" placeholder="Search by name, description, or category…" aria-label="Search skills by name, description, or category">
@@ -178,9 +199,9 @@
   <p class="count" id="skill-count" aria-live="polite">Showing all 38 skills</p>
 </div></nav>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
-  <div class="chapter" data-cat="ps" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-ps"><span class="num">I</span><h2>Project Setup</h2><span class="rule"></span><span class="n">1 skill</span><span class="chev" aria-hidden="true">›</span></div>
+  <button type="button" class="chapter" data-cat="ps" aria-expanded="false" aria-controls="entries-ps"><span class="num">I</span><h2>Project Setup</h2><span class="rule"></span><span class="n">1 skill</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-ps" hidden>
         <li class="entry" id="research-repo" data-cat="ps" data-plat="both" data-search="research-repo project setup scaffold audit research project repo folders claude.md /oss:research-repo $research-repo codex claude both">
       <div class="row">
@@ -194,7 +215,7 @@
     </li>
   </ul>
 
-  <div class="chapter" data-cat="wo" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-wo"><span class="num">II</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">3 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <button type="button" class="chapter" data-cat="wo" aria-expanded="false" aria-controls="entries-wo"><span class="num">II</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">3 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-wo" hidden>
     <li class="entry" id="advisor" data-cat="wo" data-plat="both" data-search="advisor second opinion independent reviewer consult fable 5 max effort opus 5 sonnet 5 main seat gpt-5.6 sol xhigh read-only /oss:advisor $advisor codex claude both">
       <div class="row">
@@ -228,7 +249,7 @@
     </li>
   </ul>
 
-  <div class="chapter" data-cat="id" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-id"><span class="num">III</span><h2>Ideation</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <button type="button" class="chapter" data-cat="id" aria-expanded="false" aria-controls="entries-id"><span class="num">III</span><h2>Ideation</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-id" hidden>
         <li class="entry" id="diverge" data-cat="id" data-plat="both" data-search="diverge-codex codex mode diverge ideation brainstorm distinct approaches before implementing /oss:diverge $diverge codex claude both">
       <div class="row">
@@ -252,7 +273,7 @@
     </li>
   </ul>
 
-  <div class="chapter" data-cat="rd" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-rd"><span class="num">IV</span><h2>Research Design</h2><span class="rule"></span><span class="n">9 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <button type="button" class="chapter" data-cat="rd" aria-expanded="false" aria-controls="entries-rd"><span class="num">IV</span><h2>Research Design</h2><span class="rule"></span><span class="n">9 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-rd" hidden>
       <li class="entry" id="research-wayfinder" data-cat="rd" data-plat="both" data-search="research-wayfinder">
       <div class="row">
@@ -346,7 +367,7 @@
     </li>
   </ul>
 
-  <div class="chapter" data-cat="an" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-an"><span class="num">V</span><h2>Analysis</h2><span class="rule"></span><span class="n">5 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <button type="button" class="chapter" data-cat="an" aria-expanded="false" aria-controls="entries-an"><span class="num">V</span><h2>Analysis</h2><span class="rule"></span><span class="n">5 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-an" hidden>
         <li class="entry" id="topic-modeling" data-cat="an" data-plat="both" data-search="topic-modeling analysis structural topic model stm covariates coherence /oss:topic-modeling $topic-modeling codex claude both">
       <div class="row">
@@ -400,7 +421,7 @@
     </li>
   </ul>
 
-  <div class="chapter" data-cat="cp" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-cp"><span class="num">VI</span><h2>Corpus Processing</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <button type="button" class="chapter" data-cat="cp" aria-expanded="false" aria-controls="entries-cp"><span class="num">VI</span><h2>Corpus Processing</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-cp" hidden>
         <li class="entry" id="doc-to-markdown" data-cat="cp" data-plat="both" data-search="doc-to-markdown corpus processing pdf word docx powerpoint excel epub convert markdown read document extract tables scanned /oss:doc-to-markdown $doc-to-markdown codex claude both">
       <div class="row">
@@ -424,7 +445,7 @@
     </li>
   </ul>
 
-  <div class="chapter" data-cat="wr" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-wr"><span class="num">VII</span><h2>Writing &amp; Reporting</h2><span class="rule"></span><span class="n">6 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <button type="button" class="chapter" data-cat="wr" aria-expanded="false" aria-controls="entries-wr"><span class="num">VII</span><h2>Writing &amp; Reporting</h2><span class="rule"></span><span class="n">6 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-wr" hidden>
         <li class="entry" id="hypothesis-building" data-cat="wr" data-plat="both" data-search="hypothesis-building writing reporting falsifiable dag equivalence testing /oss:hypothesis-building $hypothesis-building codex claude both">
       <div class="row">
@@ -488,7 +509,7 @@
     </li>
   </ul>
 
-  <div class="chapter" data-cat="ft" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-ft"><span class="num">VIII</span><h2>Figures &amp; Tables</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <button type="button" class="chapter" data-cat="ft" aria-expanded="false" aria-controls="entries-ft"><span class="num">VIII</span><h2>Figures &amp; Tables</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-ft" hidden>
         <li class="entry" id="figures" data-cat="ft" data-plat="both" data-search="figures figures tables chart design color legends captions /oss:figures $figures codex claude both">
       <div class="row">
@@ -512,7 +533,7 @@
     </li>
   </ul>
 
-  <div class="chapter" data-cat="mq" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-mq"><span class="num">IX</span><h2>Manuscript QA</h2><span class="rule"></span><span class="n">4 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <button type="button" class="chapter" data-cat="mq" aria-expanded="false" aria-controls="entries-mq"><span class="num">IX</span><h2>Manuscript QA</h2><span class="rule"></span><span class="n">4 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-mq" hidden>
         <li class="entry" id="citation-check" data-cat="mq" data-plat="both" data-search="citation-check manuscript qa references fabrication parity doi /oss:citation-check $citation-check codex claude both">
       <div class="row">
@@ -556,7 +577,7 @@
     </li>
   </ul>
 
-  <div class="chapter" data-cat="rs" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-rs"><span class="num">X</span><h2>Review &amp; Submission</h2><span class="rule"></span><span class="n">4 skills</span><span class="chev" aria-hidden="true">›</span></div>
+  <button type="button" class="chapter" data-cat="rs" aria-expanded="false" aria-controls="entries-rs"><span class="num">X</span><h2>Review &amp; Submission</h2><span class="rule"></span><span class="n">4 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-rs" hidden>
         <li class="entry" id="paper-review-lite" data-cat="rs" data-plat="both" data-search="paper-review-lite-codex codex cross-model paper-review-lite review submission pre-submission audit quote-grounded /oss:paper-review-lite $paper-review-lite codex claude both">
       <div class="row">
@@ -637,12 +658,6 @@
     chapter.addEventListener('click', function(){
       var isOpen = chapter.getAttribute('aria-expanded') === 'true';
       setChapterOpen(chapter, !isOpen);
-    });
-    chapter.addEventListener('keydown', function(e){
-      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){
-        e.preventDefault();
-        chapter.click();
-      }
     });
   });
 

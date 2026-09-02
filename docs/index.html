@@ -11,12 +11,12 @@
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --cobalt:#1F4E9B; --gold:#E0A526; --ochre:#9A6B14; --ink:#17171A;
-    --grey:#6E6E73; --paper:#F3EFE3; --paper-2:#ECE6D6; --line:#d9d2bf; --maxw:760px;
+    --cobalt:#1F4E9B; --gold:#E0A526; --ochre:#8B5F10; --ink:#17171A;
+    --grey:#68686D; --paper:#F3EFE3; --paper-2:#ECE6D6; --line:#d9d2bf; --maxw:760px;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --cobalt:#3D6FCB; --gold:#E8B23E; --ochre:#E8B23E; --ink:#EFE8D7;
+      --cobalt:#5485E0; --gold:#E8B23E; --ochre:#E8B23E; --ink:#EFE8D7;
       --grey:#9b9ba3; --paper:#14161C; --paper-2:#1b1e26; --line:#2c3038;
     }
   }
@@ -25,8 +25,23 @@
     font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
   .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
   a{color:var(--cobalt)}
+  a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--cobalt); outline-offset:3px}
+  .skip-link{position:fixed; top:10px; left:12px; z-index:100; padding:8px 12px; border-radius:7px; background:var(--ink); color:var(--paper); text-decoration:none; transform:translateY(-160%)}
+  .skip-link:focus{transform:translateY(0)}
 
-  header.hero{padding:60px 0 0; border-bottom:0}
+  .nav{position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:saturate(160%) blur(10px)}
+  .nav .row{max-width:var(--maxw); margin:0 auto; padding:13px 24px 14px; display:flex; align-items:center; justify-content:space-between; gap:18px; border-bottom:1px solid var(--line)}
+  .brand{display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit; white-space:nowrap}
+  .brand .mark{font-size:15px; letter-spacing:.26em; color:var(--cobalt)} .brand .mark b{color:var(--gold); font-weight:inherit}
+  .brand .name{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:21px; letter-spacing:.01em}
+  .brand[aria-current="page"] .name{box-shadow:inset 0 -2px 0 var(--gold)}
+  .topmenu{display:flex; align-items:center; gap:22px; font-size:15px; letter-spacing:.01em; flex-wrap:wrap; justify-content:flex-end}
+  .topmenu a{color:var(--grey); text-decoration:none; padding:4px 0}
+  .topmenu a:hover{color:var(--cobalt)}
+  .topmenu a[aria-current="page"]{color:var(--ink); box-shadow:inset 0 -2px 0 var(--gold)}
+  .home-link,.mobile-label{display:none}
+
+  header.hero{padding:46px 0 0; border-bottom:0}
   header.hero .wrap{padding-bottom:22px; border-bottom:1px solid var(--line)}
   .wave{font-size:28px; letter-spacing:.3em; margin:0 0 10px; color:var(--cobalt)} .wave b{color:var(--gold); font-weight:inherit}
   h1{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:52px; line-height:1.05; margin:.06em 0 .28em; letter-spacing:-.01em}
@@ -44,9 +59,9 @@
   code{font:14px/1.5 Menlo,"SF Mono",ui-monospace,monospace; background:var(--paper-2); padding:.12em .4em; border-radius:4px}
   .cards{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:26px 0}
   @media (max-width:700px){ .cards{grid-template-columns:1fr} }
-  .card{display:flex; flex-direction:column; border:1px solid var(--line); border-radius:13px; padding:18px 22px; text-decoration:none; color:inherit; background:var(--paper-2); transition:border-color .15s, transform .15s}
-  .card:hover{border-color:var(--cobalt); transform:translateY(-1px)}
-  .card:hover .go{transform:translateX(3px)}
+  .card{display:flex; flex-direction:column; border:1px solid var(--line); border-radius:13px; padding:18px 22px; text-decoration:none; color:inherit; background:var(--paper-2); transition:border-color .15s, transform .15s, box-shadow .15s}
+  .card:hover,.card:focus-visible{border-color:var(--cobalt); transform:translateY(-2px); box-shadow:0 10px 24px rgba(0,0,0,.08)}
+  .card:hover .go,.card:focus-visible .go{transform:translateX(3px)}
   .card h3{margin:0 0 5px; font-size:20px; color:var(--cobalt); display:flex; align-items:center; gap:.5em}
   .go{font-size:1.5em; line-height:1; font-weight:700; transition:transform .15s; display:inline-block}
   .card p{margin:.15em 0 0; font-size:15.5px; color:var(--ink); opacity:.9}
@@ -55,9 +70,36 @@
   footer a{color:var(--cobalt); text-decoration:none}
   footer a:hover{text-decoration:underline}
   .foot-links{margin:0; font-size:14.5px; line-height:1.45}
+  @media (max-width:700px){
+    .brand{display:none}
+    .nav .row{padding:10px 24px; gap:0}
+    .topmenu{width:100%; justify-content:space-between; gap:10px; flex-wrap:nowrap; font-size:14px}
+    .home-link,.mobile-label{display:inline}
+    .desktop-label{display:none}
+    header.hero{padding-top:32px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{transition-duration:.01ms!important; animation-duration:.01ms!important; animation-iteration-count:1!important}
+  }
 </style>
 </head>
 <body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<nav class="nav" aria-label="Primary"><div class="row">
+  <a class="brand" href="./" aria-current="page">
+    <span class="mark">▁▂▃<b>▅</b><b>▂</b>▁</span>
+    <span class="name">AI for Research</span>
+  </a>
+  <div class="topmenu">
+    <a class="home-link" href="./" aria-current="page">Home</a>
+    <a href="getting-started/" aria-label="Getting started"><span class="desktop-label">Getting started</span><span class="mobile-label" aria-hidden="true">Start</span></a>
+    <a href="demos/">Demos</a>
+    <a href="lectures/">Lectures</a>
+    <a href="skills/">Skills</a>
+  </div>
+</div></nav>
 
 <header class="hero"><div class="wrap">
   <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
@@ -66,7 +108,7 @@
   <p class="sub">A companion to the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> toolkit, maintained by <a href="https://scdenney.net">Steven Denney</a>.</p>
 </div></header>
 
-<main class="wrap">
+<main class="wrap" id="main">
   <section aria-label="Explore">
     <div class="cards">
       <a class="card" href="getting-started/">

@@ -11,12 +11,12 @@
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --cobalt:#1F4E9B; --gold:#E0A526; --ochre:#9A6B14; --ink:#17171A;
-    --grey:#6E6E73; --paper:#F3EFE3; --paper-2:#ECE6D6; --line:#d9d2bf; --maxw:760px;
+    --cobalt:#1F4E9B; --gold:#E0A526; --ochre:#8B5F10; --ink:#17171A;
+    --grey:#68686D; --paper:#F3EFE3; --paper-2:#ECE6D6; --line:#d9d2bf; --maxw:760px;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --cobalt:#3D6FCB; --gold:#E8B23E; --ochre:#E8B23E; --ink:#EFE8D7;
+      --cobalt:#5485E0; --gold:#E8B23E; --ochre:#E8B23E; --ink:#EFE8D7;
       --grey:#9b9ba3; --paper:#14161C; --paper-2:#1b1e26; --line:#2c3038;
     }
   }
@@ -25,6 +25,9 @@
     font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
   .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
   a{color:var(--cobalt)}
+  a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--cobalt); outline-offset:3px}
+  .skip-link{position:fixed; top:10px; left:12px; z-index:100; padding:8px 12px; border-radius:7px; background:var(--ink); color:var(--paper); text-decoration:none; transform:translateY(-160%)}
+  .skip-link:focus{transform:translateY(0)}
 
   .nav{position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:saturate(160%) blur(10px)}
   .nav .row{max-width:var(--maxw); margin:0 auto; padding:13px 24px 14px; display:flex; align-items:center; justify-content:space-between; gap:18px; border-bottom:1px solid var(--line)}
@@ -35,9 +38,14 @@
   .topmenu a{color:var(--grey); text-decoration:none; padding:4px 0}
   .topmenu a:hover{color:var(--cobalt)}
   .topmenu a.ext::after{content:" ↗"; font-size:.85em; opacity:.7}
+  .topmenu a[aria-current="page"]{color:var(--ink); box-shadow:inset 0 -2px 0 var(--gold)}
+  .home-link,.mobile-label{display:none}
   @media (max-width:700px){
-    .nav .row{flex-wrap:wrap; row-gap:8px}
-    .topmenu{width:100%; justify-content:flex-start; font-size:15px; gap:16px}
+    .brand{display:none}
+    .nav .row{padding:10px 24px; gap:0}
+    .topmenu{width:100%; justify-content:space-between; gap:10px; flex-wrap:nowrap; font-size:14px}
+    .home-link,.mobile-label{display:inline}
+    .desktop-label{display:none}
   }
 
   header.hero{padding:46px 0 0; border-bottom:0}
@@ -65,8 +73,8 @@
   .note{font-size:15.5px; color:var(--grey)}
   .rule{border-left:3px solid var(--gold); background:var(--paper-2); border-radius:0 10px 10px 0; padding:13px 18px; margin:1.4em 0; font-size:17px}
   .rule b{color:var(--ochre)}
-  .next{display:flex; flex-direction:column; border:1px solid var(--line); border-radius:13px; padding:18px 22px; text-decoration:none; color:inherit; background:var(--paper-2); margin:1.4em 0; transition:border-color .15s}
-  .next:hover{border-color:var(--cobalt)}
+  .next{display:flex; flex-direction:column; border:1px solid var(--line); border-radius:13px; padding:18px 22px; text-decoration:none; color:inherit; background:var(--paper-2); margin:1.4em 0; transition:border-color .15s, transform .15s, box-shadow .15s}
+  .next:hover,.next:focus-visible{border-color:var(--cobalt); transform:translateY(-2px); box-shadow:0 10px 24px rgba(0,0,0,.08)}
   .next h3{margin:0 0 4px; font-size:19px; color:var(--cobalt)}
   .next p{margin:0; font-size:15.5px; opacity:.9}
   footer{color:var(--grey); font-size:14px; padding:52px 0 64px; text-align:center; border-top:1px solid var(--line)}
@@ -78,18 +86,25 @@
   .copy:hover{opacity:1; color:var(--cobalt); border-color:var(--cobalt)}
   .copy.done{color:#2c7a4b; border-color:#2c7a4b; opacity:1}
   .copy svg{display:block}
+  @media (max-width:700px){header.hero{padding-top:32px}}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{transition-duration:.01ms!important; animation-duration:.01ms!important; animation-iteration-count:1!important}
+  }
 </style>
 </head>
 <body>
 
-<nav class="nav"><div class="row">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav class="nav" aria-label="Primary"><div class="row">
   <a class="brand" href="../">
     <span class="mark">▁▂▃<b>▅</b><b>▂</b>▁</span>
     <span class="name">AI for Research</span>
   </a>
   <div class="topmenu">
-    <a href="../getting-started/">Getting started</a>
-    <a href="../demos/">Demos</a>
+    <a class="home-link" href="../">Home</a>
+    <a href="../getting-started/" aria-label="Getting started"><span class="desktop-label">Getting started</span><span class="mobile-label" aria-hidden="true">Start</span></a>
+    <a href="../demos/" aria-current="page">Demos</a>
     <a href="../lectures/">Lectures</a>
     <a href="../skills/">Skills</a>
   </div>
@@ -102,7 +117,7 @@
   <p class="lede">Small projects you clone and run end to end, each with sample files, the exact prompts, and the expected output. Click through for the full walkthrough.</p>
 </div></header>
 
-<main class="wrap">
+<main class="wrap" id="main">
 
   <a class="next" href="../reference-check/">
     <h3>Reference &amp; source-claim checking</h3>

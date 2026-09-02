@@ -196,7 +196,8 @@
 
   <div class="chapter" data-cat="wo" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-wo"><span class="num">II</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">5 skills</span><span class="chev" aria-hidden="true">›</span></div>
   <ul class="entries" id="entries-wo" hidden>
-        <li class="entry" id="fable-orchestrate" data-cat="wo" data-plat="claude" data-search="fable-orchestrate workflow orchestration multi-model fable 5 opus sonnet codex gpt-5.6 /oss:fable-orchestrate claude only">
+        <!-- REMOVED UPSTREAM: fable-orchestrate is no longer in plugin/skills/ as of today. Review and remove if confirmed. -->
+    <li class="entry" id="fable-orchestrate" data-cat="wo" data-plat="claude" data-search="fable-orchestrate workflow orchestration multi-model fable 5 opus sonnet codex gpt-5.6 /oss:fable-orchestrate claude only">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fable-orchestrate/SKILL.md">fable-orchestrate</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
@@ -206,7 +207,8 @@
       <div class="cmds"><code class="cmd">/oss:fable-orchestrate</code></div>
       <p class="desc" id="desc-fable-orchestrate">Run a hard task past three AI models at once, with Fable 5, the top model, as lead. Because it is the strongest reasoner on the team it keeps the hard thinking itself, handing off only the fast mechanical work (Sonnet), reasoning that is wide rather than hard (Opus subagents in parallel), and the outside check on high-stakes calls it cannot verify (Codex, GPT-5.6 &quot;Sol&quot; at xhigh effort), instead of trusting a single model's answer.</p>
     </li>
-        <li class="entry" id="opus-orchestrate" data-cat="wo" data-plat="claude" data-search="opus-orchestrate workflow orchestration multi-model opus 5 lead medium effort sonnet codex gpt-5.6 /oss:opus-orchestrate claude only">
+        <!-- REMOVED UPSTREAM: opus-orchestrate is no longer in plugin/skills/ as of today. Review and remove if confirmed. -->
+    <li class="entry" id="opus-orchestrate" data-cat="wo" data-plat="claude" data-search="opus-orchestrate workflow orchestration multi-model opus 5 lead medium effort sonnet codex gpt-5.6 /oss:opus-orchestrate claude only">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/opus-orchestrate/SKILL.md">opus-orchestrate</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-claude">Claude&nbsp;only</span>
@@ -216,6 +218,7 @@
       <div class="cmds"><code class="cmd">/oss:opus-orchestrate</code></div>
       <p class="desc" id="desc-opus-orchestrate">The same three-model teamwork as <code>fable-orchestrate</code>, but led by Claude Opus 5 at medium reasoning effort by default (raised for reasoning-heavy sessions) — the lead does the hard thinking itself and hands off only parallel reasoning (Opus subagents, pinned high), mechanical work (Sonnet), and the outside check (Codex, GPT-5.6 "Sol" at xhigh effort).</p>
     </li>
+    <!-- REMOVED UPSTREAM: 46-orchestrate is no longer in plugin/skills/ as of today. Review and remove if confirmed. -->
     <li class="entry" id="46-orchestrate" data-cat="wo" data-plat="codex" data-search="46-orchestrate workflow orchestration codex orchestrator gpt-5.6 sol high terra luna lead delegate $46-orchestrate codex only">
       <div class="row">
         <div class="row-head">
@@ -246,6 +249,16 @@
       <div class="cmds"><code class="cmd">/oss:spawn</code> <span class="cmd-sep">·</span> <code class="cmd">$spawn</code></div>
       <p class="desc" id="desc-spawn">Launch full, independent AI sessions to work on separate tasks at the same time — not quick helpers, but complete sessions you can watch and steer in their own window, each in its own copy of your project so nothing collides. Picks the strongest way to do this that's available (a terminal manager called herdr, then tmux, then a plain background process) and merges each one's finished work back in once it passes.</p>
     </li>
+      <li class="entry" id="orchestrate" data-cat="wo" data-plat="both" data-search="orchestrate needs review run a multi-model workflow. reads the session model and takes the matching lead role: fable 5.1 keeps the hard reasoning in-lead and delegates mechanical and wide work; opus 5 is itself the deep reasoner and delegates to fan out. routes to sonnet fast-workers, opus deep-reasoners, a gpt-5.6 codex peer, and spawn. the two aliases force the lead. on codex, gpt-5.6 sol leads. /oss:orchestrate $orchestrate codex claude both">
+      <div class="row">
+        <div class="row-head">
+          <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/orchestrate/SKILL.md">orchestrate</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+        </div>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/orchestrate/SKILL.md" aria-label="Open orchestrate on GitHub">↗</a>
+      </div>
+      <div class="cmds"><code class="cmd">/oss:orchestrate</code> <span class="cmd-sep">·</span> <code class="cmd">$orchestrate</code></div>
+      <p class="desc" id="desc-orchestrate"><em>[needs review — paraphrase in plain language, source repo says:]</em> Run a multi-model workflow. Reads the session model and takes the matching lead role: Fable 5.1 keeps the hard reasoning in-lead and delegates mechanical and wide work; Opus 5 is itself the deep reasoner and delegates to fan out. Routes to Sonnet fast-workers, Opus deep-reasoners, a GPT-5.6 Codex peer, and `spawn`. The two aliases force the lead. On Codex, GPT-5.6 Sol leads.</p>
+    </li>
   </ul>
 
   <div class="chapter" data-cat="id" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-id"><span class="num">III</span><h2>Ideation</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></div>
@@ -260,7 +273,8 @@
       <div class="cmds"><code class="cmd">/oss:diverge</code> <span class="cmd-sep">·</span> <code class="cmd">$diverge</code></div>
       <p class="desc" id="desc-diverge">Before committing to one approach, generate three to five different ones, from the safe option to the deliberately unconventional, so you're choosing between real options instead of the first idea. Runs entirely in whatever model and effort your current session already has, with no separate model call.</p>
     </li>
-        <li class="entry" id="diverge-codex" data-cat="id" data-plat="both" data-search="diverge-codex ideation brainstorm cross-model codex gpt-5.6 sol xhigh /oss:diverge-codex $diverge-codex codex claude both">
+        <!-- REMOVED UPSTREAM: diverge-codex is no longer in plugin/skills/ as of today. Review and remove if confirmed. -->
+    <li class="entry" id="diverge-codex" data-cat="id" data-plat="both" data-search="diverge-codex ideation brainstorm cross-model codex gpt-5.6 sol xhigh /oss:diverge-codex $diverge-codex codex claude both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">ID</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/diverge-codex/SKILL.md">diverge-codex</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
@@ -324,7 +338,8 @@
       <div class="cmds"><code class="cmd">/oss:qualtrics-ops</code> <span class="cmd-sep">·</span> <code class="cmd">$qualtrics-ops</code></div>
       <p class="desc" id="desc-qualtrics-ops">Make changes to a live Qualtrics survey through the API without breaking what respondents see — publishing, quotas, flow routing, and vendor redirects, each verified by reading the result back.</p>
     </li>
-        <li class="entry" id="survey-flow-audit" data-cat="rd" data-plat="both" data-search="survey-flow-audit research design pre-fielding audit consent publish state quotas vendor redirects anti-bot /oss:survey-flow-audit $survey-flow-audit codex claude both">
+        <!-- REMOVED UPSTREAM: survey-flow-audit is no longer in plugin/skills/ as of today. Review and remove if confirmed. -->
+    <li class="entry" id="survey-flow-audit" data-cat="rd" data-plat="both" data-search="survey-flow-audit research design pre-fielding audit consent publish state quotas vendor redirects anti-bot /oss:survey-flow-audit $survey-flow-audit codex claude both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">RD</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/survey-flow-audit/SKILL.md">survey-flow-audit</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
@@ -373,6 +388,16 @@
       </div>
       <div class="cmds"><code class="cmd">/oss:research-wayfinder</code> <span class="cmd-sep">·</span> <code class="cmd">$research-wayfinder</code></div>
       <p class="desc" id="desc-research-wayfinder">Plans a study across many sessions instead of one long conversation, so the big open decisions in a design — what you're actually estimating, how you'll identify it, whether you have the statistical power, how you'll measure it — get resolved one at a time and written down, instead of re-argued every time you sit down. Ends with a pre-analysis plan ready to write up. Adapted from Matt Pocock's <code>wayfinder</code>, a similar tool built for planning software projects.</p>
+    </li>
+      <li class="entry" id="research-grill" data-cat="rd" data-plat="both" data-search="research-grill needs review interview the researcher in rounds until nothing is silently assumed: idea → falsifiable question, question → full design, design or draft → the reviewer's objections. plain-language questions with a recommended answer each, facts fetched rather than asked, decisions written to a wayfinder ticket or decisions.md. works for a ba thesis or a grant. /oss:research-grill $research-grill codex claude both">
+      <div class="row">
+        <div class="row-head">
+          <span class="tag-cat">RD</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/research-grill/SKILL.md">research-grill</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+        </div>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/research-grill/SKILL.md" aria-label="Open research-grill on GitHub">↗</a>
+      </div>
+      <div class="cmds"><code class="cmd">/oss:research-grill</code> <span class="cmd-sep">·</span> <code class="cmd">$research-grill</code></div>
+      <p class="desc" id="desc-research-grill"><em>[needs review — paraphrase in plain language, source repo says:]</em> Interview the researcher in rounds until nothing is silently assumed: idea → falsifiable question, question → full design, design or draft → the reviewer's objections. Plain-language questions with a recommended answer each, facts fetched rather than asked, decisions written to a wayfinder ticket or `decisions.md`. Works for a BA thesis or a grant.</p>
     </li>
   </ul>
 
@@ -442,7 +467,8 @@
       <div class="cmds"><code class="cmd">/oss:doc-to-markdown</code> <span class="cmd-sep">·</span> <code class="cmd">$doc-to-markdown</code></div>
       <p class="desc" id="desc-doc-to-markdown">Hand the model a PDF, Word file, or slide deck and get a sensible read of it — deciding when the file can simply be read, when it needs converting, which converter suits that particular document, and whether the resulting text is worth keeping.</p>
     </li>
-        <li class="entry" id="vlm-ocr-pipeline" data-cat="cp" data-plat="both" data-search="vlm-ocr-pipeline corpus processing vision language model ocr scanned documents /oss:vlm-ocr-pipeline $vlm-ocr-pipeline codex claude both">
+        <!-- REMOVED UPSTREAM: vlm-ocr-pipeline is no longer in plugin/skills/ as of today. Review and remove if confirmed. -->
+    <li class="entry" id="vlm-ocr-pipeline" data-cat="cp" data-plat="both" data-search="vlm-ocr-pipeline corpus processing vision language model ocr scanned documents /oss:vlm-ocr-pipeline $vlm-ocr-pipeline codex claude both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">CP</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-pipeline/SKILL.md">vlm-ocr-pipeline</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
@@ -452,7 +478,8 @@
       <div class="cmds"><code class="cmd">/oss:vlm-ocr-pipeline</code> <span class="cmd-sep">·</span> <code class="cmd">$vlm-ocr-pipeline</code></div>
       <p class="desc" id="desc-vlm-ocr-pipeline">Design a pipeline that uses a vision-language model to read text out of scanned documents or images, instead of a traditional OCR engine.</p>
     </li>
-        <li class="entry" id="post-ocr-cleanup" data-cat="cp" data-plat="both" data-search="post-ocr-cleanup corpus processing correction qa multilingual /oss:post-ocr-cleanup $post-ocr-cleanup codex claude both">
+        <!-- REMOVED UPSTREAM: post-ocr-cleanup is no longer in plugin/skills/ as of today. Review and remove if confirmed. -->
+    <li class="entry" id="post-ocr-cleanup" data-cat="cp" data-plat="both" data-search="post-ocr-cleanup corpus processing correction qa multilingual /oss:post-ocr-cleanup $post-ocr-cleanup codex claude both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">CP</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/post-ocr-cleanup/SKILL.md">post-ocr-cleanup</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
@@ -462,7 +489,8 @@
       <div class="cmds"><code class="cmd">/oss:post-ocr-cleanup</code> <span class="cmd-sep">·</span> <code class="cmd">$post-ocr-cleanup</code></div>
       <p class="desc" id="desc-post-ocr-cleanup">Clean up and quality-check text after it's been pulled out by OCR, catching the kinds of errors OCR typically introduces.</p>
     </li>
-        <li class="entry" id="vlm-ocr-evaluation" data-cat="cp" data-plat="both" data-search="vlm-ocr-evaluation corpus processing compare candidate systems ground truth cer wer /oss:vlm-ocr-evaluation $vlm-ocr-evaluation codex claude both">
+        <!-- REMOVED UPSTREAM: vlm-ocr-evaluation is no longer in plugin/skills/ as of today. Review and remove if confirmed. -->
+    <li class="entry" id="vlm-ocr-evaluation" data-cat="cp" data-plat="both" data-search="vlm-ocr-evaluation corpus processing compare candidate systems ground truth cer wer /oss:vlm-ocr-evaluation $vlm-ocr-evaluation codex claude both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">CP</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-evaluation/SKILL.md">vlm-ocr-evaluation</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
@@ -471,6 +499,16 @@
       </div>
       <div class="cmds"><code class="cmd">/oss:vlm-ocr-evaluation</code> <span class="cmd-sep">·</span> <code class="cmd">$vlm-ocr-evaluation</code></div>
       <p class="desc" id="desc-vlm-ocr-evaluation">Before running OCR on a large batch of documents, compare a few candidate OCR systems on a small test set to see which is actually most accurate for your material.</p>
+    </li>
+      <li class="entry" id="vlm-ocr" data-cat="cp" data-plat="both" data-search="vlm-ocr needs review ocr for scanned material in three phases. evaluate compares ocr systems on stratified ground truth with cer/wer per language and script; run builds the vision-language-model pipeline (model choice, image handling, prompts, batching, provenance); clean corrects the output with llm and rule-based passes, quality diagnostics, and multilingual handling. the three aliases force a phase. /oss:vlm-ocr $vlm-ocr codex claude both">
+      <div class="row">
+        <div class="row-head">
+          <span class="tag-cat">CP</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr/SKILL.md">vlm-ocr</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+        </div>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr/SKILL.md" aria-label="Open vlm-ocr on GitHub">↗</a>
+      </div>
+      <div class="cmds"><code class="cmd">/oss:vlm-ocr</code> <span class="cmd-sep">·</span> <code class="cmd">$vlm-ocr</code></div>
+      <p class="desc" id="desc-vlm-ocr"><em>[needs review — paraphrase in plain language, source repo says:]</em> OCR for scanned material in three phases. `evaluate` compares OCR systems on stratified ground truth with CER/WER per language and script; `run` builds the vision-language-model pipeline (model choice, image handling, prompts, batching, provenance); `clean` corrects the output with LLM and rule-based passes, quality diagnostics, and multilingual handling. The three aliases force a phase.</p>
     </li>
   </ul>
 
@@ -564,7 +602,8 @@
 
   <div class="chapter" data-cat="mq" role="button" tabindex="0" aria-expanded="false" aria-controls="entries-mq"><span class="num">IX</span><h2>Manuscript QA</h2><span class="rule"></span><span class="n">5 skills</span><span class="chev" aria-hidden="true">›</span></div>
   <ul class="entries" id="entries-mq" hidden>
-        <li class="entry" id="fair-check" data-cat="mq" data-plat="both" data-search="fair-check manuscript qa fair data code materials availability audit /oss:fair-check $fair-check codex claude both">
+        <!-- REMOVED UPSTREAM: fair-check is no longer in plugin/skills/ as of today. Review and remove if confirmed. -->
+    <li class="entry" id="fair-check" data-cat="mq" data-plat="both" data-search="fair-check manuscript qa fair data code materials availability audit /oss:fair-check $fair-check codex claude both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">MQ</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/fair-check/SKILL.md">fair-check</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
@@ -628,7 +667,8 @@
       <div class="cmds"><code class="cmd">/oss:paper-review-lite</code> <span class="cmd-sep">·</span> <code class="cmd">$paper-review-lite</code></div>
       <p class="desc" id="desc-paper-review-lite">Run a manuscript through a pre-submission review that checks its claims against actual quotes from the text, catching overclaiming before a real reviewer does.</p>
     </li>
-        <li class="entry" id="paper-review-lite-codex" data-cat="rs" data-plat="both" data-search="paper-review-lite-codex review submission cross-model adversarial gpt-5.6 sol xhigh /oss:paper-review-lite-codex $paper-review-lite-codex codex claude both">
+        <!-- REMOVED UPSTREAM: paper-review-lite-codex is no longer in plugin/skills/ as of today. Review and remove if confirmed. -->
+    <li class="entry" id="paper-review-lite-codex" data-cat="rs" data-plat="both" data-search="paper-review-lite-codex review submission cross-model adversarial gpt-5.6 sol xhigh /oss:paper-review-lite-codex $paper-review-lite-codex codex claude both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">RS</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/paper-review-lite-codex/SKILL.md">paper-review-lite-codex</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
@@ -658,11 +698,21 @@
       <div class="cmds"><code class="cmd">/oss:journal-review</code> <span class="cmd-sep">·</span> <code class="cmd">$journal-review</code></div>
       <p class="desc" id="desc-journal-review">Draft a referee report on someone else's manuscript, as if you were reviewing it for a journal.</p>
     </li>
+      <li class="entry" id="referee-response" data-cat="rs" data-plat="both" data-search="referee-response needs review organize and format your response to reviewers: extract every referee point with severity and type, order the revision by dependency, flag defensible pushbacks as questions, and build the response letter with the substantive answers left to you. never writes the science. /oss:referee-response $referee-response codex claude both">
+      <div class="row">
+        <div class="row-head">
+          <span class="tag-cat">RS</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/referee-response/SKILL.md">referee-response</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+        </div>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/referee-response/SKILL.md" aria-label="Open referee-response on GitHub">↗</a>
+      </div>
+      <div class="cmds"><code class="cmd">/oss:referee-response</code> <span class="cmd-sep">·</span> <code class="cmd">$referee-response</code></div>
+      <p class="desc" id="desc-referee-response"><em>[needs review — paraphrase in plain language, source repo says:]</em> Organize and format your response to reviewers: extract every referee point with severity and type, order the revision by dependency, flag defensible pushbacks as questions, and build the response letter with the substantive answers left to you. Never writes the science.</p>
+    </li>
   </ul>
 
   <p id="empty">No skills match your search. Try a different word, or clear the category filter.</p>
 
-  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 10 August 2026 (v2.23.0). 42 skills on Claude Code (<code>/oss:name</code>) and 40 on Codex (<code>$name</code>); most run on both, a few are platform-specific.</p>
+  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 10 August 2026 (v2.25.0). 42 skills on Claude Code (<code>/oss:name</code>) and 40 on Codex (<code>$name</code>); most run on both, a few are platform-specific.</p>
 
 </main>
 

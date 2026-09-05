@@ -196,6 +196,7 @@
       <button type="button" class="seg-btn" data-plat="codex" aria-pressed="false">Codex</button>
     </div>
   </div>
+  <p class="note">Since v2.27.0 only eleven skills load on their own when a task matches — <code>citation-check</code>, <code>doc-to-markdown</code>, <code>fact-check</code>, <code>figures</code>, <code>literature-review</code>, <code>paper-review-lite</code>, <code>qualtrics-ops</code>, <code>referee-response</code>, <code>replication-package</code>, <code>research-repo</code>, <code>spawn</code>. The other 27 are on-demand: they cost nothing in a session until you invoke them by name, and every alias still works. The Codex library applies the same rule on its own usage evidence.</p>
   <p class="count" id="skill-count" aria-live="polite">Showing all 38 skills</p>
 </div></nav>
 
@@ -225,9 +226,9 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/advisor/SKILL.md" aria-label="Open advisor on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:advisor</code> <span class="cmd-sep">·</span> <code class="cmd">$advisor</code></div>
-      <p class="desc" id="desc-advisor">Ask for a second opinion before you commit to a decision or call work done. In Claude Code your own session holds the main seat, on Opus 5 or on Sonnet 5 for cheaper sustained work, and the advisor seat is always Fable 5.1, pinned to max reasoning effort no matter what your session runs at. In Codex it is always Sol at xhigh, the flagship tier at its top effort setting, because the point of asking is a stronger reviewer rather than a cheap one. Advice only. It never edits your files.</p>
+      <p class="desc" id="desc-advisor">Ask for a second opinion before you commit to a decision or call work done. In Claude Code your own session holds the main seat, on Opus 5 or on Sonnet 5 for cheaper sustained work, and the advisor seat is always Fable 5.1, pinned to max reasoning effort no matter what your session runs at. In Codex it is always GPT-6 Astra at xhigh, the flagship tier at its top effort setting, because the point of asking is a stronger reviewer rather than a cheap one. It is an escalation from a working model, not a peer check: a Fable session should reach for orchestrate's Astra peer or the committee instead. Advice only. It never edits your files.</p>
     </li>
-        <li class="entry" id="orchestrate" data-cat="wo" data-plat="both" data-search="orchestrate fable-orchestrate opus-orchestrate 46-orchestrate workflow orchestration multi-model fable 5.1 opus 5 sonnet codex gpt-5.6 lead detection /oss:orchestrate $orchestrate claude codex both">
+        <li class="entry" id="orchestrate" data-cat="wo" data-plat="both" data-search="orchestrate fable-orchestrate opus-orchestrate 46-orchestrate workflow orchestration multi-model fable 5.1 opus 5 sonnet codex gpt-6 astra gpt-5.6 lead detection /oss:orchestrate $orchestrate claude codex both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/orchestrate/SKILL.md">orchestrate</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
@@ -235,7 +236,7 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/orchestrate/SKILL.md" aria-label="Open orchestrate on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:orchestrate</code><code class="cmd">/oss:fable-orchestrate</code><code class="cmd">/oss:opus-orchestrate</code><code class="cmd">$orchestrate</code></div>
-      <p class="desc" id="desc-orchestrate">Run a hard task past several AI models at once. The skill reads which model your session is on and takes the matching lead role: Fable 5.1 keeps the hard thinking itself and hands off only mechanical work (Sonnet), wide parallel reasoning (Opus subagents), and an outside check on high-stakes calls (Codex, GPT-5.6 "Sol"); Opus 5 is itself the deep reasoner and delegates to fan out. The two older names still work and force the lead. On Codex, GPT-5.6 Sol leads.</p>
+      <p class="desc" id="desc-orchestrate">Run a hard task past several AI models at once. The skill reads which model your session is on and takes the matching lead role: Fable 5.1 keeps the hard thinking itself and hands off only mechanical work (Sonnet), wide parallel reasoning (Opus subagents), and an outside check on high-stakes calls (Codex, GPT-6 Astra — at high effort for a routine consult, xhigh for the blind cross-check); Opus 5 is itself the deep reasoner and delegates to fan out. The two older names still work and force the lead. On Codex, GPT-6 Astra leads.</p>
     </li>
       <li class="entry" id="spawn" data-cat="wo" data-plat="both" data-search="spawn">
       <div class="row">
@@ -406,8 +407,8 @@
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-committee/SKILL.md" aria-label="Open model-committee on GitHub">↗</a>
       </div>
-      <div class="cmds"><code class="cmd">/oss:model-committee</code> <span class="cmd-sep">·</span> <code class="cmd">/oss:model-committee-fable</code> <span class="cmd-sep">·</span> <code class="cmd">/oss:model-committee-sol</code> <span class="cmd-sep">·</span> <code class="cmd">$model-committee</code></div>
-      <p class="desc" id="desc-model-committee">Have two AI models (GPT-5.6 and Claude Opus 5) discuss a judgment call with each other before settling on an answer, instead of asking just one. The chair is a parameter now, not a separate skill: <code>/oss:model-committee</code> has Claude Opus 5 run the meeting, <code>/oss:model-committee-fable</code> hands the gavel to Fable 5.1, and <code>/oss:model-committee-sol</code> lets GPT-5.6 "Sol" chair — in which case the GPT debater drops to the "Terra" tier so the chair is never grading its own family's twin.</p>
+      <div class="cmds"><code class="cmd">/oss:model-committee</code> <span class="cmd-sep">·</span> <code class="cmd">/oss:model-committee-astra</code> <span class="cmd-sep">·</span> <code class="cmd">/oss:model-committee-opus</code> <span class="cmd-sep">·</span> <code class="cmd">/oss:model-committee-fable</code> <span class="cmd-sep">·</span> <code class="cmd">/oss:model-committee-sol</code> <span class="cmd-sep">·</span> <code class="cmd">$model-committee</code></div>
+      <p class="desc" id="desc-model-committee">Have two AI models (GPT-6 Astra and Claude Opus 5) discuss a judgment call with each other before settling on an answer, instead of asking just one. The chair is a parameter, not a separate skill, and it is a premier model that never sits on the committee: <code>/oss:model-committee</code> has Fable 5.1 run the meeting, <code>/oss:model-committee-astra</code> hands the gavel to GPT-6 Astra — in which case the GPT debater drops to the Sol tier so the chair is never grading its own family's twin — <code>/oss:model-committee-opus</code> keeps the cheap in-session Opus chair, and <code>/oss:model-committee-sol</code> is the legacy GPT-5.6 chair with a Terra debater.</p>
     </li>
         <li class="entry" id="llm-calibration-logprobs" data-cat="an" data-plat="both" data-search="llm-calibration-logprobs analysis confidence token probabilities calibration ece brier /oss:llm-calibration-logprobs $llm-calibration-logprobs codex claude both">
       <div class="row">
@@ -623,7 +624,7 @@
 
   <p id="empty">No skills match your search. Try a different word, or clear the category filter.</p>
 
-  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 2 September 2026 (v2.25.1). 38 skills on Claude Code (<code>/oss:name</code>) and 37 on Codex (<code>$name</code>); most run on both, a few are platform-specific.</p>
+  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 5 September 2026 (v2.27.0). 38 skills on Claude Code (<code>/oss:name</code>) and 37 on Codex (<code>$name</code>); most run on both, a few are platform-specific.</p>
 
 </main>
 

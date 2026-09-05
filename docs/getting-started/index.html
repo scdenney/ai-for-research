@@ -180,16 +180,14 @@ claude</code></pre>
     <div class="body">
       <h2>Using Codex instead <span class="opt">alternative</span></h2>
       <p>The Open Science Skills ship a parallel, Codex-native library of 37 of the toolkit’s 38 skills. Codex isn't a drop-in replacement for Claude Code — there's no plugin marketplace, and invocation looks different — but the skills themselves cover the same ground.</p>
-      <p>Install the Codex CLI itself first; that step isn't part of this toolkit, so follow OpenAI's own instructions at <a href="https://developers.openai.com/codex/skills">developers.openai.com/codex/skills</a>. Once Codex is installed and signed in, clone the Open Science Skills repo and symlink its skills into Codex's user-wide skills folder:</p>
+      <p>Install the Codex CLI itself first; that step isn't part of this toolkit, so follow OpenAI's own instructions at <a href="https://developers.openai.com/codex/skills">developers.openai.com/codex/skills</a>. Once Codex is installed and signed in, clone the Open Science Skills repo and run its non-overwriting installer:</p>
       <pre><code>git clone https://github.com/scdenney/open-science-skills
 cd open-science-skills
-mkdir -p "$HOME/.agents/skills"
-for skill in "$PWD"/codex/*/; do
-  ln -sfn "${skill%/}" "$HOME/.agents/skills/$(basename "$skill")"
-done</code></pre>
+python3 plugin/scripts/install-codex.py --all --dry-run
+python3 plugin/scripts/install-codex.py --all</code></pre>
       <p>Where Claude Code uses a slash command like <code>/oss:citation-check</code>, Codex invokes the same skill with a <code>$</code> prefix:</p>
       <pre><code>$citation-check manuscript.md references.bib</code></pre>
-      <p class="note">Codex can also pick up a skill implicitly from how you describe the task, without typing the <code>$</code> form. The two libraries track each other closely but aren't identical — <code>presubmit</code> has no Codex equivalent, and the Codex <code>orchestrate</code> is led by GPT-5.6 Sol rather than detecting the session model. The older names retired in v2.25.0 (<code>fable-orchestrate</code>, <code>diverge-codex</code>, <code>survey-flow-audit</code>, <code>fair-check</code>, the three OCR names) still work on Claude Code as aliases; on Codex, name the mode instead (<code>$diverge --codex</code>, <code>$qualtrics-ops audit</code>, <code>$vlm-ocr clean</code>). See <a href="https://github.com/scdenney/open-science-skills/blob/main/codex/README.md">codex/README.md</a> for the full catalog, including repo-scoped and single-skill installs.</p>
+      <p class="note">Codex can also pick up commonly used skills implicitly from how you describe the task; specialist and orchestration skills remain available by their <code>$name</code> without occupying the model-visible catalog. The two libraries track each other closely but aren't identical — <code>presubmit</code> has no Codex equivalent, and Codex <code>$orchestrate</code> detects either an active GPT-6 Astra or GPT-5.6 Sol lead. Astra keeps compact hard reasoning in-session; Sol escalates unusually difficult units to Astra. The older names retired in v2.25.0 (<code>fable-orchestrate</code>, <code>diverge-codex</code>, <code>survey-flow-audit</code>, <code>fair-check</code>, the three OCR names) still work on Claude Code as aliases; on Codex, name the mode instead (<code>$diverge --codex</code>, <code>$qualtrics-ops audit</code>, <code>$vlm-ocr clean</code>). See <a href="https://github.com/scdenney/open-science-skills/blob/main/codex/README.md">codex/README.md</a> for the full catalog, including repo-scoped and single-skill installs.</p>
     </div>
   </div>
 

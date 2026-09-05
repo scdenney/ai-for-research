@@ -165,8 +165,9 @@ cd ai-for-research/demos/orchestration-lab
 # Codex arm only — the Codex CLI plus the toolkit's Codex-side skills:
 npm install -g @openai/codex
 git clone https://github.com/scdenney/open-science-skills.git ~/open-science-skills
-mkdir -p ~/.agents/skills
-for s in ~/open-science-skills/codex/*/; do ln -sfn "${s%/}" ~/.agents/skills/"$(basename "$s")"; done</code></pre>
+cd ~/open-science-skills
+python3 plugin/scripts/install-codex.py --all --dry-run
+python3 plugin/scripts/install-codex.py --all</code></pre>
     <p class="note">Every brief uses public data that ships with an R package — nothing to download. The runs call hosted models and cost real money: in our captures, $0.98 to $4.99 per cell on the Claude arms. Keep <code>ANTHROPIC_API_KEY</code> unset so headless runs bill your claude.ai plan, not an API account.</p>
   </section>
 
@@ -280,7 +281,7 @@ for s in ~/open-science-skills/codex/*/; do ln -sfn "${s%/}" ~/.agents/skills/"$
       <tr><th>Setup</th><th>When to reach for it</th></tr>
       <tr><td><strong>Fable lead</strong></td><td><strong>When the task is too big to hold in one context</strong> — a broad migration, a multi-file audit, a many-source survey. That regime is untested here. Cheapest and fastest Claude orchestrator on these briefs, but the easy brief landed at Pass rather than a higher band, a reminder that speed doesn't buy the extra diagnostic thoroughness a second read supplies.</td></tr>
       <tr><td><strong>Opus lead</strong></td><td><strong>Rarely, on work this size.</strong> Ties or beats the Fable lead on the harder rungs at higher cost; its edge is write-up thoroughness, not correctness — and it hit the same easy-brief miss Fable did. Reserve it for a task hard enough to strain a top model.</td></tr>
-      <tr><td><strong>Codex lead</strong></td><td><strong>A cross-vendor read on the same brief.</strong> The Sol-lead capture reaches Distinction on five of six briefs at xhigh effort with a genuine Fable-5 cross-vendor peer, missing only completeness on the standard-estimation brief. Reach for it when you want the second opinion to come from a different vendor entirely.</td></tr>
+      <tr><td><strong>Codex lead</strong></td><td><strong>A cross-vendor read on the same brief.</strong> The historical Sol-lead capture reaches Distinction on five of six briefs at xhigh effort with a genuine Fable-5 cross-vendor peer, missing only completeness on the standard-estimation brief. The current skill accepts either an active Astra or Sol lead: Astra keeps compact hard reasoning in-session, while Sol escalates unusually difficult units to Astra. Reach for it when you want the second opinion to come from a different vendor entirely.</td></tr>
       <tr><td><strong>Advisor</strong></td><td><strong>The default for a single, well-scoped analysis.</strong> Its second read re-computes the work rather than eyeballing it, and it's the only arm that caught a real analytical error (a misread comparison-type label) on the extreme brief before it shipped. Reach for it first.</td></tr>
     </table></div>
     <p>Our captures are one draw each. Re-run a cell and expect yours to differ — that's not a caveat, it's the point.</p>

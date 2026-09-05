@@ -228,7 +228,7 @@
       <div class="cmds"><code class="cmd">/oss:advisor</code> <span class="cmd-sep">·</span> <code class="cmd">$advisor</code></div>
       <p class="desc" id="desc-advisor">Ask for a second opinion before you commit to a decision or call work done. In Claude Code your own session holds the main seat, on Opus 5 or on Sonnet 5 for cheaper sustained work, and the advisor seat is always Fable 5.1, pinned to max reasoning effort no matter what your session runs at. In Codex it is always GPT-6 Astra at xhigh, the flagship tier at its top effort setting, because the point of asking is a stronger reviewer rather than a cheap one. It is an escalation from a working model, not a peer check: a Fable session should reach for orchestrate's Astra peer or the committee instead. Advice only. It never edits your files.</p>
     </li>
-        <li class="entry" id="orchestrate" data-cat="wo" data-plat="both" data-search="orchestrate fable-orchestrate opus-orchestrate 46-orchestrate workflow orchestration multi-model fable 5.1 opus 5 sonnet codex gpt-6 astra gpt-5.6 lead detection /oss:orchestrate $orchestrate claude codex both">
+        <li class="entry" id="orchestrate" data-cat="wo" data-plat="both" data-search="orchestrate fable-orchestrate opus-orchestrate 46-orchestrate workflow orchestration multi-model fable 5.1 opus 5 sonnet codex gpt-6 astra gpt-5.6 sol lead detection /oss:orchestrate $orchestrate claude codex both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/orchestrate/SKILL.md">orchestrate</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
@@ -236,7 +236,7 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/orchestrate/SKILL.md" aria-label="Open orchestrate on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:orchestrate</code><code class="cmd">/oss:fable-orchestrate</code><code class="cmd">/oss:opus-orchestrate</code><code class="cmd">$orchestrate</code></div>
-      <p class="desc" id="desc-orchestrate">Run a hard task past several AI models at once. The skill reads which model your session is on and takes the matching lead role: Fable 5.1 keeps the hard thinking itself and hands off only mechanical work (Sonnet), wide parallel reasoning (Opus subagents), and an outside check on high-stakes calls (Codex, GPT-6 Astra — at high effort for a routine consult, xhigh for the blind cross-check); Opus 5 is itself the deep reasoner and delegates to fan out. The two older names still work and force the lead. On Codex, GPT-6 Astra leads.</p>
+      <p class="desc" id="desc-orchestrate">Run a hard task past several AI models at once. The skill reads which model your session is on and takes the matching lead role. In Claude Code, Fable 5.1 keeps the hard thinking itself and hands off mechanical work to Sonnet, wide parallel reasoning to Opus subagents, and selected outside checks to GPT-6 Astra; Opus 5 is itself the deep reasoner and delegates to fan out. The two older Claude names still work and force the lead. In Codex, an active GPT-6 Astra or GPT-5.6 Sol session can lead: Astra keeps compact hard reasoning in-session, while Sol escalates unusually difficult units to Astra. Both modes route bounded and mechanical work to lower GPT-5.6 tiers and can use a Claude peer.</p>
     </li>
       <li class="entry" id="spawn" data-cat="wo" data-plat="both" data-search="spawn">
       <div class="row">
@@ -624,7 +624,7 @@
 
   <p id="empty">No skills match your search. Try a different word, or clear the category filter.</p>
 
-  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 5 September 2026 (v2.27.0). It includes 38 skills on Claude Code (<code>/oss:name</code>) and 37 on Codex (<code>$name</code>). Most run on both platforms, with a few platform-specific exceptions.</p>
+  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 5 September 2026 (v2.28.0). It includes 38 skills on Claude Code (<code>/oss:name</code>) and 37 on Codex (<code>$name</code>). Most run on both platforms, with a few platform-specific exceptions.</p>
   <p class="note note-cont">Eleven skills load automatically when relevant. The other 27 load only when invoked by name, so they use no session resources until needed. All aliases still work. The Codex library follows the same logic.</p>
 
 </main>

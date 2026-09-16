@@ -33,6 +33,17 @@
    "source": "bib",
    "status": "VERIFIED"
   },
+  "c102f821de0d": {
+   "bib_key": "karpathy2026",
+   "checked_at": "2026-09-16",
+   "file": "content.md",
+   "first_seen": "2026-09-16",
+   "kind": "author-year",
+   "line": 234,
+   "ref": "The synopsis layer follows Karpathy 2026",
+   "source": "bib",
+   "status": "VERIFIED"
+  },
   "d6627d98cbba": {
    "bib_key": "kenny2026",
    "checked_at": "2026-09-16",

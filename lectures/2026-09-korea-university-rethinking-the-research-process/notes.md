@@ -159,6 +159,8 @@ cites files, not memory: Kohn, Brubaker, Connor, Smith, Tamir, each with the fil
 On the right is one entry from the synopsis index, Kohn 1955, so you can see what the machine
 is reading. Forty-four source files, one hundred and twenty-seven bibliography entries, and
 every entry marked as full text or synopsis-only, so the answer carries its own provenance.
+One more thing a second reader caught: the synopsis says Kohn "originates" the dichotomy in
+1955, but he first drew it in 1944. The synopsis layer is a summary too. That is the point.
 
 ## 20. Verification (20:30 → 22:30)
 
@@ -206,10 +208,12 @@ build. Poland and South Korea, 1948 to 2020, nearly a hundred thousand pages.
 ## 25. The OCR demonstration (27:00 → 28:30)
 
 Home ground. A 1956 South Korean history textbook, the page on Dangun and Gojoseon. The
-vision-language model reads the whole page at once and returns the hangul and the hanja
-glosses in order, with no Korean-specific setup. Traditional OCR, Tesseract, returns noise on
-the same scan. For non-Latin and historical print this is the quiet revolution of the last
-two years. Read the Korean aloud if the room is Korean.
+vision-language model, here Claude Sonnet 4.6 from the comparison run, returns the sentence
+exactly as printed, hangul and the hanja gloss in order, with no Korean-specific setup.
+Tesseract with only its English model returns noise on the same scan. With a Korean language
+pack it would do better, and the point is the setup, not the defeat: the vision model needs
+none. For non-Latin and historical print this is the quiet revolution of the last two years.
+Read the Korean aloud if the room is Korean.
 
 ## 26. Every arrow is a decision (28:30 → 30:30)
 
@@ -231,12 +235,15 @@ language, it can masquerade as a cross-national difference in content.
 
 ## 28. What can become data (32:00 → 33:30)
 
-What the corpus that already exists made possible. Sixty-seven Korean history textbooks from
-1895 to 2016, eleven million characters of machine-readable text. Terms counted only when
-three of four open models from four countries agree. And a finding: regime type sets the
-character of change and institutions set its timing; nothing detectable moves at 1987; the
-shift comes with the sixth curriculum in the nineties and the 2002 reform. Observational, not
-causal. The technology changed what could become data.
+What a corpus that already exists made possible. This is a separate collection, built
+earlier: sixty-seven Korean history textbooks from 1895 to 2016, fifty-one from the National
+Institute of Korean History's online collection and sixteen from the GEI scans, eleven
+million characters of machine-readable text. Terms counted only when three of four open
+models from four countries agree. And a finding about the identity terms in those books:
+they do not shift detectably at democratization in 1987. Their character follows regime type
+and their timing follows curriculum reform, the sixth curriculum of 1992 to 1997 and the
+2002 reform. Observational, not causal. The technology changed what could become data, and
+the 438 volumes will grow this corpus once their transcription is done.
 
 ## 29. Two uses (33:30 → 35:00)
 
@@ -277,7 +284,7 @@ Stop on the rose line.
 
 ## 34. Working in the open (41:30 → 43:00)
 
-Everything I showed is public. The skills library, the AI for Research site with the demos
+Everything on this slide is public. The skills library, the AI for Research site with the demos
 and this deck, and the Substack where the corpus methods are written up with code. Thank you.
 Leave this slide up for the discussion.
 
@@ -303,6 +310,31 @@ Leave this slide up for the discussion.
 - **textbook_kr: 67 books, 1895 to 2016, 11,287,661 characters** (`00_data/PREPROCESSING_REPORT.md`;
   the README's "13 million" is stale). Council: four models, 3-of-4 vote, nine terms cleared,
   six unanimous. The finding sentence follows `gei_textbooks/talk/machine-collaborators-2026-06-25.md` S25.
+- **The Korean end-year prohibition is for the GEI corpus only.** The separate `textbook_kr`
+  corpus is 67 books, 1895 to 2016, verified from `00_data/nikh_corpus_merged.csv` (51 from
+  the National Institute of Korean History, 16 from GEI scans). Its 1895 to 2016 range may be
+  stated.
+- **The curriculum dates** on slide 28 (the sixth curriculum, 1992 to 1997, and the 2002 reform)
+  and the 1987 null follow `gei_textbooks/talk/machine-collaborators-2026-06-25.md` S25.
+- **Slide 25**: the vision-model line is Claude Sonnet 4.6's transcription of comparison page
+  P034 (`ocr_pipeline/comparison/comparison_output/claude_sonnet/P034.txt`), which matches the
+  scan character for character (the June deck's version added a hanja gloss the page does not
+  carry). The Tesseract line was reproduced locally on 2026-09-16 with Tesseract 5.5.1 and
+  only the English model installed. The comparison run's Tesseract configuration is not
+  verified locally, so the slide names the local configuration.
+- **Appendix 1** copies `ocr_pipeline/OCR_PLAN.md`: model identities, precisions, and seconds
+  per page from the 7 April 2026 run on one NVIDIA A40 (vLLM only for Qwen3.5-35B; API rows
+  include network time; Tesseract on CPU).
+- **Retrieval slide works** (data on the slide, not the deck's own citations): Kohn 1955
+  (*Nationalism: Its Meaning and History*; the dichotomy first appears in his 1944 *The Idea of
+  Nationalism*), Brubaker 1992, Connor 1994, Smith 1991, Tamir 2019 (*Annual Review of
+  Political Science* 22). Entries added to `references.bib` for the record.
+- **Skill counts**: 41 Claude Code skills and 40 Codex skills, from the open-science-skills
+  README (v2.29.1). **Eight pipeline steps** from `docs/deliverable-pipeline.md`.
+- **Slide 20** numbers (three to four points, two election cycles, the three cite keys) are
+  the synthetic sample project's own text, `demos/reference-check/expected-output/fact-check-report.md`.
+- **Event metadata** (Special Lecture 01, Friday 18 September 2026, 1:30 to 3:30 PM, Zoom,
+  moderator Sung Eun Kim) is from the poster.
 - **Dictation: 662 dictations, 54,796 words, one month, about $8**
   (`ai-for-research/demos/talk-to-your-terminal/README.md`).
 - **Political-regimes project: 44 source files, 127 bibliography entries**, synopsis index at

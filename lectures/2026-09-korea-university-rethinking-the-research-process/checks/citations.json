@@ -6,7 +6,7 @@
    "file": "content.md",
    "first_seen": "2026-09-16",
    "kind": "author-year",
-   "line": 154,
+   "line": 150,
    "ref": "Kenny 2026",
    "source": "bib",
    "status": "VERIFIED"
@@ -28,7 +28,7 @@
    "file": "content.md",
    "first_seen": "2026-09-16",
    "kind": "author-year",
-   "line": 184,
+   "line": 180,
    "ref": "After Kenny 2026",
    "source": "bib",
    "status": "VERIFIED"
@@ -39,7 +39,7 @@
    "file": "content.md",
    "first_seen": "2026-09-16",
    "kind": "author-year",
-   "line": 234,
+   "line": 230,
    "ref": "The synopsis layer follows Karpathy 2026",
    "source": "bib",
    "status": "VERIFIED"
@@ -50,7 +50,7 @@
    "file": "content.md",
    "first_seen": "2026-09-16",
    "kind": "author-year",
-   "line": 46,
+   "line": 45,
    "ref": "The loop after Kenny 2026",
    "source": "bib",
    "status": "VERIFIED"

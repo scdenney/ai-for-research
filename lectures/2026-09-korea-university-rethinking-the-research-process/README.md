@@ -15,7 +15,7 @@ desk. Part 3 walks that project from grant to conference talk and shows what sta
 
 | File | What it is |
 |---|---|
-| `overleaf/` | The deck, as a git submodule of the Overleaf project. `main.tex` inputs `preamble.tex` (the Chalk and Mulberry design system) and `parts/00-open.tex` to `05-appendix.tex`. Build: `latexmk -xelatex main.tex`. Fonts are Noto, which Overleaf ships; locally, install the Noto casks through Homebrew. |
+| `overleaf/` | The deck, as a git submodule of the Overleaf project. `main.tex` inputs `preamble.tex` (the Ivory and Chestnut design system) and `parts/00-open.tex` to `05-appendix.tex`. Build: `latexmk -xelatex main.tex`. Fonts are Noto, which Overleaf ships; locally, install the Noto casks through Homebrew. |
 | `overleaf/main.pdf` | The compiled deck, 52 pages: 43 content slides, 3 dividers, 6 appendix pages. Published copy: `docs/lectures/rethinking-the-research-process/slides.pdf`. |
 | `notes.md` | Speaker notes, one section per slide with cumulative timings ending at 57:00, and the accuracy guardrails: every number on a slide with the file it was verified against, and what stays off the slides by decision. |
 | `planning/` | The wiki. `01-framework-and-structure.md` is the argument of record; `08-open-questions.md`; `palette-options/` holds both Codex palette proposals. |
@@ -38,8 +38,9 @@ is updated after each push there. Nothing is pushed to Overleaf without the auth
 
 ## Design
 
-Codex's Option A, Chalk and Mulberry: a cool grey-lilac page, carbon ink, mulberry for structure,
-eucalyptus as the single emphasis colour, pine, bronze, and cranberry as verdict marks only. Noto
+Ivory and Chestnut: warm ivory pages, brown-black ink, chestnut structure, and dark olive
+emphasis. Green, ochre, and brick are reserved for verdicts. The three mode tints derive from
+these named colours. The preamble records sRGB contrast ratios for every text role on every fill. Noto
 Sans throughout, English and Korean alike. Beamer's default theme, XeLaTeX, 16:9. One artifact per
 slide: a statement, a table, a diagram, a code box, or a before-and-after pair. Contrast floors
-were raised for Zoom screen-share, and the densest slides were checked at 720p.
+were raised for Zoom screen-share, and the full 52-page deck was rendered and inspected after the palette and spacing revision.

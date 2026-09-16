@@ -11,11 +11,15 @@ talk adds its own numbered file here rather than opening a second wiki.
 | `00-README.md` | This map, the sources of truth, decisions recorded here |
 | `01-framework-and-structure.md` | **The working document.** Framework, the mechanism, teaching versus research, the three-part structure, the Part 2 skill taxonomy, and the build decisions |
 | `08-open-questions.md` | Open list plus a resolved log |
+| `palette-options/` | The two Codex palette proposals; Option A is in use |
+| `../overleaf/` | The Beamer deck, an Overleaf submodule |
+| `../notes.md` | Speaker notes, timings, guardrails |
+| `../_superseded/html-deck/` | The rejected first attempt |
 
 ## Sources of truth
 
 - **The argument and the plan**: `01-framework-and-structure.md`.
-- **Slide text and speaker notes**: the Beamer source on Overleaf, once it exists.
+- **Slide text**: `../overleaf/parts/*.tex`. **Speaker notes and every number's source**: `../notes.md`.
 - **Citations**: `../references.bib`.
 - **Numbers**: each number on a slide is listed in `../notes.md` under "Accuracy guardrails"
   with the file it was verified against.

@@ -25,34 +25,28 @@ claim: >-
   that ends in inference) show the same rule from both sides: automate the machinery, not
   the judgment.
 done: >-
-  Thirty-four slides plus four appendix slides, delivered in 45 minutes over Zoom; every
-  citation on a slide resolves in references.bib; every number on a slide appears in
-  notes.md with its source path and passes the guardrail list; index.html published on the
-  AI for Research site at the URL the QR code encodes, with a card on the lectures page.
-status: built 2026-09-16; to be delivered 2026-09-18
+  Forty-three content slides plus five appendix slides in Beamer, delivered in up to an hour
+  over Zoom; every number on a slide appears in notes.md with its source path and passes the
+  guardrail list; slides.pdf published on the AI for Research site at the URL the QR code
+  encodes, with a card on the lectures page.
+status: rebuilt in Beamer 2026-09-16; to be delivered 2026-09-18
 sources_of_truth:
-  - content.md
+  - overleaf/main.tex
   - notes.md
-  - references.bib
+  - planning/01-framework-and-structure.md
 published_url: https://scdenney.github.io/ai-for-research/lectures/rethinking-the-research-process/
 planning_dir: planning
 handoff: HANDOFF.md
-sections_from: content-keys
-sections_files: [content.md]
+sections_from: latex
+sections_files: [overleaf/parts/00-open.tex, overleaf/parts/01-part1.tex, overleaf/parts/02-part2.tex, overleaf/parts/03-part3.tex, overleaf/parts/04-close.tex]
 voice: writing-toolkit@9a7faa7
 build:
-  command: python3 src/build.py --html
-  artifacts: [index.html]
+  command: latexmk -xelatex -interaction=nonstopmode -cd overleaf/main.tex
+  artifacts: [overleaf/main.pdf]
 checks:
   credentials: true
-  citations:
-    bib: references.bib
-    scan: [content.md]
-    cite_fields: true
-    pandoc: false
-    verify_bib: false
   prose_tells:
-    scan: [notes.md, content.md]
+    scan: [notes.md, overleaf/parts/00-open.tex, overleaf/parts/01-part1.tex, overleaf/parts/02-part2.tex, overleaf/parts/03-part3.tex, overleaf/parts/04-close.tex]
   deck_budget: false   # budgets for the house deck classes not yet measured; see deck-template README
 night_shift:
   enabled: false

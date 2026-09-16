@@ -1,364 +1,382 @@
 # Speaker notes
 
-Forty-five minutes, thirty-five slides, then discussion. Times are cumulative targets and
-end at 42:45, leaving slack before the moderator takes over. Every number spoken here is
-listed at the end with the file it was verified against.
-
-## 1. Cover (0:00 → 0:30)
-
-Thank the moderator and the hosts, the Office of Graduate School, the BK21 sociology
-program, the Department of Political Science and International Relations, and the SDGs
-group. One sentence on the shape: a way of thinking first, then two things from my own work,
-then what it means for students and for professors.
-
-## 2. Cold open (0:30 → 1:30)
-
-Earlier this year I ran a check over a manuscript of mine. A source I had cited twice, a book
-on the meanings of democracy in East Asia, did not make the claim I had attached to it. The
-reference was perfectly formed. The claim was simply not in the text. The machine that found
-it was not writing anything. It was reading, on my behalf, the one thing I had not gone back to
-read. I will show you the tool at slide twenty. Hold the story: the interesting uses of these
-systems are often the ones that point backwards, at what we have already written.
-
-## 3. What changed (1:30 → 3:00)
-
-Everyone in this room has used a chat window. The tools I am talking about are different in
-kind. An agent is a model with tools: it can read the files in a project, run a command, see
-what came back, and decide the next step, and it loops until the task is done or you stop it.
-Kenny's diagram has the loop exactly right. The consequence is that the machine now acts inside
-your research environment, not beside it.
+Up to an hour, 43 numbered slides (section dividers carry no number), then discussion. Times are cumulative targets and end at 57:00,
+which leaves three minutes before the moderator takes over. Every number spoken here is listed at
+the end with the file it was verified against. No em dashes, no semicolons.
 
-## 4. The question (3:00 → 4:00)
-
-So the question is no longer whether academics should use AI. It already sits in the
-terminal. The question is where in the process we automate, where we deliberately preserve
-human cognitive effort, and where we redesign the process around collaboration. Three verbs.
-I will say them once now and once at the end: automate, protect, collaborate.
-
-## 5. The map (4:00 → 5:00)
+## 1. Title (0:00 to 0:30)
 
-Three spaces. The assembly line is where doing the work adds nothing to the result, and the
-rule is to automate. The apprenticeship is where doing the work is how expertise forms, and
-the rule is to protect. The workbench is where the machine changes the scale, speed, or form
-of what can be done, and the rule is to collaborate. Part one walks the three. Part two stays
-at the workbench.
+Thank the moderator and the hosts. One sentence on the shape: a way of thinking first, then the
+tools I actually use, then one project from grant to conference talk.
 
-## 6. Part one (5:00)
+## 2. Where I am speaking from (0:30 to 2:00)
 
-Ten minutes.
-
-## 7. Automate (5:00 → 6:45)
-
-These are things I actually automate, and I want to be concrete because the abstract version
-sounds like a slogan. Session state lives in an append-only handoff file, so nothing important
-exists only in an agent's memory. A drive of fourteen thousand scanned files became four
-hundred and thirty-eight catalogued volumes under one naming scheme. In one month I dictated
-six hundred and sixty-two times, fifty-five thousand words, each cleaned by a model, for about
-eight dollars. One Markdown feedback letter builds to PDF and Word in one command. Every PDF a
-project cites becomes a Markdown file that the checks can read. And citations and numbers are
-verified at every commit before any model reads a word. Pick two of these to say aloud; the
-rest can be read.
-
-## 8. The claim (6:45 → 7:45)
-
-The claim is not that the machine can do these things. Of course it can. The claim is that
-they are poor uses of scarce attention. One condition, spoken rather than shown: automation that leaves no trace is not
-automation, it is loss. The plain-text log, the diff, the gate receipt: those are what make the
-assembly line auditable.
-
-## 9. Protect (7:45 → 9:30)
-
-The same form as the last ledger, on purpose, because the rows differ in kind, not in
-difficulty. Reading: the source, not the summary, because a summary cannot tell you what it
-left out. First ideas, before any model has framed them. Learning a procedure by running it
-yourself once, so you can tell later when it is wrong. Some writing, because editing what a
-machine wrote is a different skill from thinking. Some coding, enough to read a diff and know
-what it did to your data. In-class assessment. Oral reasoning. None of these is hard for the
-machine. All of them are how a researcher is made.
-
-## 10. The test (9:30 → 11:00)
-
-Here is the test I use. The question is not whether the machine can do the task. It is whether
-you must do it in order to become able to judge the machine. That is where the student and
-the professor part ways. What I can responsibly offload after twenty years is often exactly
-the thing a student needs to struggle through to acquire those twenty years. If there is time,
-Kremer's O-ring argument in one sentence: when inputs get cheap and fast, the return to
-judgment rises rather than falls, so protecting the formation of judgment matters more, not
-less.
-
-## 11. Collaborate, defined (11:00 → 12:00)
-
-"Human in the loop" is becoming an empty phrase. Say instead who holds epistemic
-responsibility. My working definition: the human retains epistemic responsibility while the
-machine changes the scale, speed, or form of what can be done. Responsibility is the word.
-Scale, speed, or form is what changes.
-
-## 12. Kenny's grid (12:00 → 13:15)
-
-Inside the workbench, how you work with the machine depends on two things: how complex the
-task is and how objectively its output can be checked. This is Christopher Kenny's grid, from
-his Princeton talk last week, adapting Colin Swaney's workshop. Pair programming when the task
-is hard and the output is a matter of judgment. A planning commission when it is hard but
-checkable: you write the plan, the machine implements. A review board when it is easy but
-subjective: the machine drafts, you review. Autopilot when it is easy and checkable. Research
-lives mostly in the top row.
-
-## 13. The gate (13:15 → 14:00)
-
-My one addition. Kenny's grid sorts how to delegate. Before the grid there is a gate: does
-doing this build the judgment I need to check it? If yes, stay off the grid and do it yourself.
-That is the apprenticeship. If no, enter the grid and choose a mode. There is also a fifth mode
-the grid does not show, where the machine interviews you until your assumptions are explicit
-and you implement. I use it to plan studies. It is the most human-agency-preserving mode there
-is.
-
-## 14. Research raises the bar (14:00 → 14:30)
-
-Kenny again, condensed to the governing comparison. In software the goal is a product that
-works, mistakes are usually patched in the next release, and no one person needs to understand
-every part. In research the goal is to know why or how something works, mistakes have to be
-found before publication, and the authors vouch for all of it. So the workbench needs an audit
-trail. That is Part two.
-
-## 15. Part two (14:30)
-
-Twenty-five minutes. Two demonstrations, then a coda.
-
-## 16. The workbench (14:30 → 16:00)
-
-Three things. An agent, Claude Code or Codex, that reads files, runs commands, and reports
-back. A repository: sources, bibliography, manuscript, data, under git. And written standards.
-The library I maintain, Open Science Skills, is forty-one of these: each a document that tells
-the agent how the field thinks about a task, a conjoint design, a pre-registration, a
-citation audit. A skill encodes how to think, not just what to do. It is where the standard
-lives, so the machine cannot take the software shortcut on a methods question.
-
-## 17. Disconnected objects (16:00 → 16:45)
-
-Start from the familiar problem, not the machinery. Research runs on objects that do not talk
-to each other: PDFs, notes, citations, a BibTeX file, drafts, and the claims inside them. Each
-is real. None can vouch for the others. A citation key does not know whether the PDF says what
-the draft says it says.
-
-## 18. The knowledge base (16:45 → 18:30)
-
-Build it from the bottom. Original PDFs, immutable, the source of record, rarely read
-directly. Markdown conversions, verbatim and tracked in git: this is the layer every check
-reads. A bibliography with one entry per source and every key resolvable to its file. A
-synopsis index, one entry per cited work saying what it establishes, where its boundary is,
-and which claim of mine it supports. And at the top, the manuscript's claims, each pointing
-down the stack to text a reader can open. The top layer is Karpathy's LLM wiki idea, the one
-Kenny demonstrated. The difference I insist on is that it sits on the verbatim layer. A wiki
-page is a summary. A summary cannot verify a claim.
-
-## 19. Retrieval (18:30 → 20:00)
-
-One retrieval, captured from a real project of mine on nationalism in China and Taiwan. The
-question: what do my sources say about ethnic and civic conceptions of the nation? Two of the
-answer's lines are on the slide, each with its provenance mark: Kohn, held as a synopsis, and
-Tamir, held in full text. Brubaker, Connor, and Smith follow in the same form. On the right is
-the Kohn entry from the synopsis index, so you can see what the machine is reading. Forty-four
-source files, one hundred and twenty-seven bibliography entries, every entry marked as full text
-or synopsis-only. One more thing a second reader caught: the synopsis says Kohn "originates"
-the dichotomy in 1955, but he first drew it in 1944. The synopsis layer is a summary too. That
-is the point.
-
-## 20. Verification (20:00 → 22:00)
-
-Now the direction I promised. Check whether the manuscript says what the source says. This is
-the fact-check skill on a sample project with planted errors, which anyone can download from
-the AI for Research site. One claim is supported, with the source passage quoted. One is
-partial: the manuscript says trust causes turnout, the source documents an association and
-says so. One is contradicted: the manuscript says compulsory voting raises political
-knowledge, the source says whatever compulsory voting does, it does not appear to teach. Every
-reference here passes every format check. Only reading the source catches the reversal. That
-is the tool that found my own error in the cold open: a source cited twice for a claim it
-never makes.
-
-## 21. The chain (22:00 → 23:15)
-
-The checks run in a chain, and the cheap deterministic ones run first. Is the source file
-there. Does the DOI resolve to this work. Do the BibTeX entry and the text agree. Does every
-in-text citation have a reference and the reverse. Those are scripts, they cost nothing, and
-they run at every commit. Only then does a model read the verbatim text and ask whether the
-source says this. And whatever was not checked is reported as not checked. Nothing is assumed.
-
-## 22. The reverse direction (23:15 → 24:00)
-
-Most of the conversation about generative AI is about generation. I am increasingly
-interested in the opposite direction: using these systems to inspect, retrieve, verify, and
-challenge what I have written. The machine is not producing prose. It is keeping an audit
-trail.
-
-## 23. Not yet data (24:00 → 25:00)
-
-The knowledge base starts from scholarship that already exists as digital documents. What
-happens when the material we need is not yet data at all? This is a history textbook from
-1951 in the Georg Eckert Institute's library in Braunschweig, the largest textbook collection
-in the world. Four hundred and thirty-eight scanned volumes, twenty-four gigabytes of page
-images, and not one searchable word.
-
-## 24. The pipeline (25:00 → 26:30)
-
-Seven steps. A physical textbook becomes page images. The images become an organized archive,
-one naming scheme, every volume catalogued. A vision-language model transcribes the pages.
-The text is validated, structured into a corpus, and analysed. Each step was possible before.
-What changed is the cost of each, and therefore what a single researcher can realistically
-build. Poland and South Korea, 1948 to 2020, nearly a hundred thousand pages.
-
-## 25. The OCR demonstration (26:30 → 28:00)
-
-Home ground. A 1956 South Korean history textbook, the page on Dangun and Gojoseon. The
-vision-language model, here Claude Sonnet 4.6 from the comparison run, returns the sentence
-exactly as printed, hangul and the hanja gloss in order, with no Korean-specific setup.
-Tesseract with only its English model returns noise on the same scan. With a Korean language
-pack it would do better, and the point is the setup, not the defeat: the vision model needs
-none. For non-Latin and historical print this is the quiet revolution of the last two years.
-Read the Korean aloud if the room is Korean.
-
-## 26. Every arrow is a decision (28:00 → 30:00)
-
-The same seven steps, with the question under each arrow. What counts as a source? What gets
-scanned, and how is a page identified? How accurate is the transcription, and how would we
-know? What happens to tables, captions, and marginalia? What is the unit of analysis? What
-claims can this text support? None of these is answered by the machine. This is research
-design, not assistance.
-
-## 27. The proxy as warning (30:00 → 31:30)
-
-Take the accuracy question seriously. There is no human ground truth for this corpus, by a
-decision I recorded rather than hid: transcribing sixty-four pages by hand in two languages
-was not worth what it would have bought. So accuracy is a proxy: how much nine different OCR
-systems disagree with each other, character by character. On Polish pages they disagree by
-about two percent. On Korean pages, about twenty-five percent. Say "cross-model agreement",
-never a character error rate. The point is the warning. When transcription error tracks
-language, it can masquerade as a cross-national difference in content.
-
-## 28. What can become data (31:30 → 32:30)
-
-What a corpus that already exists made possible. This is a separate collection, built
-earlier: sixty-seven Korean history textbooks, fifty-one from the National Institute of Korean
-History's online collection and sixteen from the GEI scans, from 1895 to 2016, eleven million
-characters of machine-readable text. Terms counted only when three of four open models from
-four countries agree. This corpus exists because transcription became cheap, and the 438
-volumes will grow it once their transcription is done.
-
-## 29. What it made knowable (32:30 → 33:15)
-
-The finding, on its own slide so the outcome is named. The identity terms in those textbooks
-do not shift detectably at democratization in 1987. Their character follows regime type and
-their timing follows curriculum reform, the sixth curriculum of 1992 to 1997 and the 2002
-reform. Observational, not causal, and only as good as the term list the council agreed on.
-
-## 30. Two uses (33:15 → 34:45)
-
-Why the two demonstrations belong together. One organizes existing knowledge; the other
-produces new research data. Literature against primary material. Retrieval against
-extraction. Verification against transformation. Claim checking against corpus construction.
-What do we know, and what can we make knowable. Both run on the same rule: automate the
-machinery, not the judgment.
-
-## 31. The supervision desk (34:45 → 36:15)
-
-The same logic runs teaching. When I supervise a thesis, I read it, I annotate it, and I
-dictate my substantive reactions. The machine then structures the feedback against the
-assessment criteria, checks that every quote appears at the page I cited, and formats the
-letter, which has a hard cap of nine hundred words. I sign it. The judgment stays mine. The
-machinery around the judgment is increasingly automated.
-
-## 32. Students and professors (36:15 → 38:15)
-
-The title promised this. For students: automate the clerical, protect reading, first ideas,
-and every procedure you are still learning, and collaborate only where you can check the
-output yourself. For professors: automate more of your own machinery and leave a trace,
-protect the formation of your students' judgment, the seminar, the exam, the supervision, and
-redesign the process around what has become feasible.
-
-## 33. Allocation, not adoption (38:15 → 39:45)
-
-The question for universities is not whether AI belongs in research and teaching. It already
-does. The question is which cognitive work we want humans to keep doing, which we are content
-to hand over, and where new combinations of human judgment and machine capability make the
-previously impractical practical.
-
-## 34. Three imperatives (39:45 → 41:15)
-
-Read the three lines slowly. Automate what does not deserve our attention. Protect the work
-through which expertise is built. Collaborate where machines expand what researchers can do.
-Stop on the rose line.
-
-## 35. Working in the open (41:15 → 42:45)
-
-Everything on this slide is public. The skills library, the AI for Research site with the demos
-and this deck, and the Substack where the corpus methods are written up with code. Thank you.
-Leave this slide up for the discussion.
+Leiden, area studies, Korea. Surveys and conjoint experiments, and text as data. Two public
+repositories: a library of standards that coding agents load, and a site with the demonstrations
+and lectures, including this one. One project runs through the whole talk so you learn it once.
+
+## 3. One pipeline, taught and run (2:00 to 4:00)
+
+The subject is the research pipeline. Idea, sources, data, analysis, writing, citation, claim. We
+teach it to students and we run it ourselves, and the question of where AI belongs in it is the
+same question from two sides. Three parts: where we are, building the check, one project start to
+finish.
+
+## 4. These tools were built for software (4:00 to 5:30)
+
+A chat window answers a question. An agent is a model with tools. It reads your files, runs a
+command, sees what came back, and decides the next step, and it loops until the task is done or
+you stop it. That loop was built for programmers. Christopher Kenny drew it this way last week at
+Princeton and I am borrowing it.
+
+## 5. Code runs or it fails. A claim does not. (5:30 to 7:30)
+
+This is the mechanism behind everything else. In software the loop closes because there is a
+cheap, fast, mechanical correctness check: the compiler and the tests answer, and the answer is
+legible without domain expertise. Tests take work to write, but once written they run for free. That is why an agent can work unsupervised on code. It can check
+itself. A research claim has no compiler. Nothing errors. The mistake surfaces at peer review, in
+someone else's citation of you, or never.
+
+## 6. Three consequences (7:30 to 9:00)
+
+Errors are silent and they compound: a bad transcription becomes a bad count becomes a claim
+becomes someone's citation of your claim. Checking often needs the very skill you were handing
+over: you cannot tell whether a summary of Brubaker is right unless you have read Brubaker. And
+the inputs are not in the training data and should not be: your archive, your unpublished data,
+a scanned textbook nobody has transcribed.
+
+## 7. Three modes (9:00 to 11:00)
+
+The framework, plainly. Automate: hand off the work, efficiency is the goal. Protect: keep the
+cognitive work, because doing it is how knowledge, skill, or judgment develops or is
+demonstrated. Collaborate: combine human judgment with machine capability, and the goal is reach,
+work you could not do alone at a scale you could not reach alone. The sentence underneath is the
+whole talk: the question is not whether AI can do a task, but what role human cognition should
+play in doing it. Protection is the principle. Sandboxing is how you do it.
+
+## 8. Each mode has a mechanism (11:00 to 12:00)
+
+Now tie the three modes to slide five. Automate where a wrong answer is cheap or obvious. Protect
+where the only way to check the work is to have the skill yourself. Collaborate where you can
+build the check that research never had. That last line is Part 2.
+
+## 9. Mode 1. Aggressively and shamelessly automate (12:00 to 13:30)
+
+I mean shamelessly. Cognitive offloading is good. Planning and management. Sorting email.
+Tracking what I am working on. Chores and admin. One number: in a month of heavy use I dictated
+662 times, about fifty-five thousand words, on two machines, and a model cleaned every one for
+about eight dollars in API fees.
+
+## 10. Mode 2. Protect. Little to no AI (13:30 to 15:00)
+
+Where I am sure: grading, maybe all of it. The final manuscript. Most teaching. Reading, above
+all. Where I am not sure, and I would like to hear from you in the discussion: writing before the
+final draft, and the seeds of ideas. I have written those two with question marks in my own
+notebook and I am leaving them that way.
+
+## 11. Who bears the cost (15:00 to 16:00)
+
+Protection means something different in research and in teaching, and the difference is who
+bears the cost. In research I am protecting my own skill formation. I can waive it, and I know
+what I gave up. In teaching I am protecting a student's formation, and I cannot waive that on
+their behalf. The student has an interest in the outcome, and only I can protect it. A preference
+becomes an obligation.
+
+## 12. Same stage, different mode (16:00 to 17:00)
+
+The same pipeline stage sits in different modes depending on who is standing at it. Reading is
+the clearest case: for the student it is protected, for me it is collaborative, because I have
+done the reading that lets me judge what the machine gives back. Many of you are both, since
+graduate students teach, so you sit on both sides of one decision.
+
+## 13. Mode 3. Collaborate (17:00 to 18:00)
+
+The common category from my notes: research scaffolding and knowledge bases, bibliometrics and
+formatting, data collection through visualization, ideation and quality assurance, supervision.
+The rest of the talk is four controls, built. Three of them on one project, the fourth at the
+supervision desk.
+
+## 14. One project, one pipeline, four controls (18:00 to 19:30)
+
+The project. An NWO grant, fifty thousand euros, October 2025 to September 2026. Do citizens
+judge immigration policy only by what it does, or also by how governments exercise authority in
+making it. A conjoint experiment, ten thousand respondents after quality checks across the United
+States, Germany, South Korea, and Singapore. Three papers, one conference talk, one
+pre-registration. The repository holds 447 commits, 80 handoff entries, 54 session logs.
+
+## 15. A skill is a written standard (19:30 to 20:30)
+
+This is what a skill is: a text file with a name and a description, and then instructions. The
+agent loads it when the task matches the description or when I name it. Forty-one of them in the
+library. This one is the citation checker, and its description already tells you what it will
+not do: it marks whatever it did not check as not checked.
+
+## 16. The boring folder structure is load-bearing (20:30 to 22:00)
+
+The first control is not a check. It is the folder structure that makes checking possible. This
+is what the research-repo skill writes into an empty project. Originals in one folder, never
+edited. Markdown conversions in another, tracked in git. A drop zone. One bibliography entry per
+source. The source library is the spine and everything else grows from it. Without this, the
+later checks cannot run.
+
+## 17. As built (22:00 to 23:00)
+
+The same structure as it stands in the project today. A hundred and nineteen Markdown files, a
+hundred and three of them verbatim conversions, fifteen notes for works we do not hold. A hundred
+and three originals. A hundred and twenty-six bibliography entries. Nothing waiting in the drop
+zone. In June there were fifty-nine files.
+
+## 18. What a converted source looks like (23:00 to 24:00)
+
+Plain text. The running head, the DOI, the title, the authors. The model reads this directly.
+That is the whole trick behind a grounded check: the model reads the file, not its memory.
+
+## 19. A note is not a source (24:00 to 25:30)
+
+When we cannot hold a work, we write a note about it from publisher pages and reviews, and every
+note opens with this banner. A note is not a source. Nothing in it may verify a claim, and a
+fact-check must record such a claim as unverifiable. Paper 2 cites 74 works: 62 with the real
+text, 12 with a note, none with nothing. That last clause is the standard.
+
+## 20. The nearest thing to a compiler (25:30 to 27:00)
+
+The second control is deterministic. Do the title, author, and year match an indexed work?
+Does the DOI point at this work. Does the exact title exist anywhere. Does the title appear in the
+real author's list of works. One rule to take home: never treat a DOI that resolves as a DOI that
+is correct. A live DOI pointing at a different real paper is the classic fabrication signature.
+
+## 21. What citation-check can say (27:00 to 28:00)
+
+Its whole vocabulary. Missing DOI, dead DOI, DOI resolving to a different work, metadata
+mismatch, title drift, status update, needs author verification, likely fabricated. The lookups
+are mechanical: an index either holds the work or it does not. The skill as a whole is run by an
+agent, which is why the next slide matters: the gate strips the agent out.
+
+## 22. What it found, June 2026 (28:00 to 30:00)
+
+In June we checked the 37 cited works that had no source file yet. All 37 exist. But eight
+bibliography entries were wrong, and one of them was invented: wrong authors, wrong title, wrong
+journal, all attached to one key. The real work is Anxious Publics in Comparative Political
+Studies. That entry had survived in my working bibliography until a systematic pass. All eight
+were corrected the same day.
+
+## 23. The gate never calls a model (30:00 to 32:00)
+
+The same logic as a script that runs at every commit. This is its output on the deck I gave at
+APSA two weeks ago. Three citations on slides that the script could not resolve. A hundred and forty-seven numbers
+on the slides, each traced to one checksummed data snapshot. Four style warnings. Exit code one,
+so the commit is blocked. It runs in seconds and it never calls a language model.
+
+## 24. What happened next (32:00 to 33:00)
+
+Five days later this commit landed in the paper's bibliography. Read the second sentence: the
+gate checks every slide citation against this file, so the entry lives here even though the paper
+does not yet cite it. The check changed what I did, not just what I knew. Twenty-three references
+verified in the cache today.
+
+## 25. It refuses to run on an empty base (33:00 to 34:00)
+
+The third control is a model reading the sources, and the first thing to know about it is when
+it refuses. No knowledge base, or unconverted files, or coverage below two-thirds of the cited
+works, and it stops with this notice. A check that runs around a hole gives false reassurance,
+which is worse than no check.
+
+## 26. What fact-check can say (34:00 to 35:00)
+
+Supported, partially supported, unsupported, contradicted, misattributed, source insufficient,
+not in the knowledge base. And the rule that makes the verdicts mean something: a verdict of
+support or contradiction carries a verbatim quote from the source file. A missing source is
+reported as missing, not judged.
+
+## 27. What it found, August 2026 (35:00 to 37:00)
+
+In August every claim in Paper 2 was checked against the source text where we hold it, not the
+citation. Where we hold only a note, the claim was recorded as unverifiable.
+Nineteen corrections. Four citations had been supporting the opposite of what their source
+found. Hangartner is a study of Greece and I had it as Germany. Tichenor argues immigration cut
+across party lines. Hooghe and Marks have nothing on asylum. Citrin and colleagues in 1997 report
+a null on personal economic competition. Every one of those references was well formed. Every
+one would have passed the deterministic check.
+
+## 28. One finding in full (37:00 to 38:30)
+
+One in full, because the shape matters. The claim: an AMCE is defined over the levels a
+researcher writes. The source, the conjoint chapter by Bansak, Hainmueller, Hopkins and
+Yamamoto: an AMCE is always defined with respect to a baseline value and the randomization
+distribution. Zero hits in the chapter for the words my sentence rested on. The fix: rewrite the
+sentence to what the chapter says. This was the last unverified citation in the paper.
+
+## 29. Two checks, two different failures (38:30 to 39:30)
+
+Side by side, from the public sample project on the site, with errors planted on purpose. The
+reference is real and correctly written, so the citation check passes it. The claim runs
+backwards, and only reading the source catches that. Formatting-clean is not the same as true.
+
+## 30. The gate reads what it is told to read (39:30 to 41:00)
+
+One place the control failed, on my own deck, and I want to show it rather than hide it. The
+script reads citations from the fields marked as citations. One citation sat in a plain text
+field, so the script never saw it, and it stood on a slide that was already at a public URL. The
+model-based review found it. The first run that morning caught two of three. The scan was
+widened the same day, and the second run caught all three. A check is only as wide as its scan,
+and you have to know where the edges are.
+
+## 31. The same logic runs the supervision desk (41:00 to 42:30)
+
+Teaching. When I supervise a thesis, I read it, I annotate it, and I dictate my reactions. Those
+three are mine. Then the machine structures the feedback against the assessment criteria, checks
+every quote against the page, and formats the letter. Then I sign it. The judgment stays with
+the supervisor. The machinery around the judgment is automated.
+
+## 32. Dictation, before and after (42:30 to 43:30)
+
+The dictation step, from my own log. The raw transcript on the left, the cleaned text a second
+later on the right. One word repaired. Nothing rewritten. The words are still mine.
+
+## 33. Structure and check (43:30 to 45:00)
+
+Five readers in parallel, one per assessment criterion, each writing findings with a page anchor.
+Then one cross-checker that verifies every quoted span appears at the page cited, and drops what
+it cannot find. The rule in every reader's instructions: quote the span verbatim with its page
+anchor, and if you cannot quote it, do not assert it. A hard cap of 900 words. And one criterion,
+the student's learning process, is never marked by the machine. That one is mine alone.
+
+## 34. The same letter, a third shorter (45:00 to 46:30)
+
+The last step, on a piece of feedback about a book chapter rather than a thesis, so no student is
+on the screen. The opening paragraph, first draft on the left, 89 words. After the editing pass
+on the right, 61. The evaluative adverbs are gone, and the criticism that the first draft made
+three paragraphs later now sits in the last sentence of the opening. The letter's judgment is
+unchanged. Its shape is not.
+
+## 35. Automate the machinery, not the judgment (46:30 to 47:00)
+
+Read it once and stop.
+
+## 36. Twelve months, eight stages (47:00 to 49:30)
+
+The same project from grant to conference talk, stage by stage, with what the machine did and
+what stayed human. Grant and ethics in 2025: nothing on record, all human. Design and the
+pre-analysis plan: adversarial reviews and bibliography audits by the machine, every design
+decision by me and logged. Instrument: the machine built the survey from a text specification and ran
+blind translation reviews, native speakers checked the languages. Pre-registration deposited on
+10 August: documents generated from the LaTeX source, the deposit itself deferred until I signed.
+Fielding, first response 11 August to close on 31 August: quota grids and publish gating by the
+machine, vendor letters and quota rulings by me. Analysis: figures, the numbers file, and the
+runs by the machine, the estimand and the decision rule by me, handed over without the
+hypothesized sign. Writing: prose passes and pre-submission review by the machine, every word
+and every push by me. The talk on 4 September: the deck build by the machine, the notes and the
+order by me, and the gate and the lint ran on 9 September, after delivery, and found what they
+found.
+
+## 37. What stayed human, by rule (49:30 to 51:00)
+
+Three rules from the project's own files. Confirmatory analysis is blind to the hypothesized
+sign: the agent gets the estimand and the decision rule, not the direction I hope for, so it
+cannot quietly search for the specification that pleases me. Do not change a paper's confirmatory
+hypothesis structure without discussion. Never push to Overleaf without my say-so.
+
+## 38. Every number resolves to one snapshot (51:00 to 52:30)
+
+Every result number in the paper resolves through a macro to a generated file, pinned to one
+data snapshot with a timestamp. The file says do not edit at the top, and a guard compares
+snapshots and reports whether any decision-level number changed verdict. In Paper 2, none of
+107 guarded keys moved between the last two snapshots.
+
+## 39. Disclosure (52:30 to 53:30)
+
+The statement in the manuscript. Read the last sentence: all design decisions, hypotheses,
+estimands, analysis, and interpretations are the author's, who carefully reviewed all input and
+takes full responsibility for the content. That sentence is the point of the whole architecture.
+The checks exist so that I can sign it.
+
+## 40. What it took (53:30 to 54:30)
+
+Four hundred and forty-seven commits. Eighty handoff entries. Fifty-four session logs. And a paper
+at eleven thousand seven hundred words against a ceiling of ten thousand. The machinery was
+automated. The paper is still being written.
+
+## 41. For students, for professors (54:30 to 56:00)
+
+The title promised this. Students: automate the clerical; protect reading, first ideas, and the
+procedures you are still learning; collaborate only where you can check the output yourself.
+Professors: automate more of your own machinery and leave a trace; protect the formation of your
+students' judgment; collaborate where the machine changes what is feasible.
+
+## 42. The governing sentence (56:00 to 56:30)
+
+Read it once.
+
+## 43. Everything shown today is public (56:30 to 57:00)
+
+The skills, the site with the demonstrations, and these slides. Thank you. Leave this slide up
+for the discussion.
 
 ---
 
 ## Accuracy guardrails (do not misstate on stage)
 
-- **438 volumes, 24 GB.** Verified on disk in `research/projects/gei_textbooks/corpus/`
-  (438 PDFs; `du -sh` 24G). **98,295 pages** is documented in `metadata/DATA_DICTIONARY.md`
-  and `overleaf/main.tex`, not checkable from the committed inventory. **1948 to 2020** is the
-  corpus range; the Korean end-year disagrees between two files, so never state it.
-- **Bulk OCR has not run.** Say the corpus is scanned and catalogued, never that it is
-  transcribed. No token count exists for it.
-- **No CER or WER exists** for the GEI corpus, by the decision recorded in
-  `review/2026-06-18-decision-set-aside-ground-truth.md`. The slide-27 figures are cross-model
-  divergence, character level, top-six cluster on body-text pages: Polish 2.3 percent, Korean
-  24.6 percent, from `overleaf/technical_report.tex` (Table `tab:quality_lang`). They are not
-  yet in the committed `preliminary_analysis.txt`; say "preliminary".
-- **Nine systems, 64 pages, eight books, four decades** (`ocr_pipeline/OCR_PLAN.md`). Gemma 4
-  is the **E4B** variant at BF16, not 31B.
-- **14,238 files** is the pre-reorganisation manifest of scanned PDFs
-  (`_archive/pre_reorg_manifest.txt`); the corpus after consolidation is 438 volumes.
-- **textbook_kr: 67 books, 1895 to 2016, 11,287,661 characters** (`00_data/PREPROCESSING_REPORT.md`;
-  the README's "13 million" is stale). Council: four models, 3-of-4 vote, nine terms cleared,
-  six unanimous. The finding sentence follows `gei_textbooks/talk/machine-collaborators-2026-06-25.md` S25.
-- **The Korean end-year prohibition is for the GEI corpus only.** The separate `textbook_kr`
-  corpus is 67 books, 1895 to 2016, verified from `00_data/nikh_corpus_merged.csv` (51 from
-  the National Institute of Korean History, 16 from GEI scans). Its 1895 to 2016 range may be
-  stated.
-- **The curriculum dates** on slide 28 (the sixth curriculum, 1992 to 1997, and the 2002 reform)
-  and the 1987 null follow `gei_textbooks/talk/machine-collaborators-2026-06-25.md` S25.
-- **Slide 25**: the vision-model line is Claude Sonnet 4.6's transcription of comparison page
-  P034 (`ocr_pipeline/comparison/comparison_output/claude_sonnet/P034.txt`), which matches the
-  scan character for character (the June deck's version added a hanja gloss the page does not
-  carry). The Tesseract line was reproduced locally on 2026-09-16 with Tesseract 5.5.1 and
-  only the English model installed. The comparison run's Tesseract configuration is not
-  verified locally, so the slide names the local configuration.
-- **Appendix 1** copies `ocr_pipeline/OCR_PLAN.md`: model identities, precisions, and seconds
-  per page from the 7 April 2026 run on one NVIDIA A40 (vLLM only for Qwen3.5-35B; API rows
-  include network time; Tesseract on CPU).
-- **Retrieval slide works** (data on the slide, not the deck's own citations): Kohn 1955
-  (*Nationalism: Its Meaning and History*; the dichotomy first appears in his 1944 *The Idea of
-  Nationalism*), Brubaker 1992, Connor 1994, Smith 1991, Tamir 2019 (*Annual Review of
-  Political Science* 22). Entries added to `references.bib` for the record.
-- **Skill counts**: 41 Claude Code skills and 40 Codex skills, from the open-science-skills
-  README (v2.29.1). **Eight pipeline steps** from `docs/deliverable-pipeline.md`.
-- **Slide 20** numbers (three to four points, two election cycles, the three cite keys) are
-  the synthetic sample project's own text, `demos/reference-check/expected-output/fact-check-report.md`.
-- **Event metadata** (Special Lecture 01, Friday 18 September 2026, 1:30 to 3:30 PM, Zoom,
-  moderator Sung Eun Kim) is from the poster.
-- **Appendix 4 bibliographic details** come from `references.bib`: Kremer 1993, *Quarterly Journal
-  of Economics* 108(3): 551–575, doi 10.2307/2118400; Paglayan 2026, *Annual Review of Political
-  Science* 29: 525–546 (as held in the GEI repo's sources); the Karpathy gist page shows
-  4 April 2026.
-- **Slide 19's synopsis entry** is rendered from `SOURCES_SYNOPSES.md` with one semicolon changed
-  to a period for house style. Slide 8's trace condition and the Brubaker, Connor, and Smith
-  lines are spoken, not shown, after the second-reader review.
-- **Dictation: 662 dictations, 54,796 words, one month, about $8**
-  (`ai-for-research/demos/talk-to-your-terminal/README.md`).
-- **Political-regimes project: 44 source files, 127 bibliography entries**, synopsis index at
-  `sources/md/SOURCES_SYNOPSES.md`; Kohn, Brubaker, Connor, Smith are synopsis-only, Tamir is
-  full text.
-- **The cold-open catch**: `demo_nat_reconsidered/sources/CITATION_AUDIT.md` (chu2010, cited
-  twice for claims it does not make; fixed). Do not name the manuscript on stage.
-- **Slide 20** is the synthetic sample project (`ai-for-research/demos/reference-check/`),
-  planted errors, public.
-- **Kenny 2026** is verified (talk 10 September 2026, `github.com/christopherkenny/skills`,
-  `csdp-llm-wiki`). The four modes are Kenny's adaptation of Swaney's 20 March 2026 workshop;
-  they are not in Swaney's public materials, so attribute to Kenny. Do not quote the ALARM
-  GenAI guidelines; they could not be located.
-- **Supervision coda**: the finders and the cross-checker exist (private `/thesis:*` plugin);
-  annotation is by hand; dictation is general infrastructure. No student material on any slide.
+- **Grant.** NWO Open Competition XS 2025 round 1, 406.XS.25.01.065, €50,000, 2025-10-01 to
+  2026-09-30 (`nwo26-immigration-backlash/README.md`).
+- **Samples.** DE 2,502, KR 2,500, SG 2,500, US 2,498, pooled 10,000, snapshot 2026-08-31T1349Z
+  (`papers/2-legitimacy-policy-process/README.md`). The root README's US 2,458 is superseded.
+- **Repository.** 447 commits (first 2026-05-29, last 2026-09-15), 80 handoff entries (from
+  2026-03-18), 54 session logs (git log; `HANDOFF.md`; `logs/`).
+- **Design and outputs.** Within-subject conjoint, 360 cells, ten tasks plus one repeat
+  (`osf/registration_2026-08-06/registration_P2_procedural-legitimacy.md`). Three papers, one
+  talk, one pre-registration in three OSF submissions (`README.md`).
+- **Dates.** Germany activated 2026-08-05; OSF deposit 2026-08-10; first response 2026-08-11;
+  United States closed 2026-08-31 (`HANDOFF.md` entries of those dates; `logs/2026-09-15_16-12.md`).
+  The talk was delivered 2026-09-04; the gate and lint first ran 2026-09-09.
+- **Skills.** 41 Claude Code skills, 40 Codex skills (open-science-skills `README.md`, v2.29.1,
+  2026-09-08).
+- **Gate details.** 18 files scanned for credentials (`fast.json`); the pipeline guide says the
+  gate "runs in seconds" (`docs/deliverable-pipeline.md`); the first run that morning
+  (`checks/pilot-first-run.json`, 13:04) flagged two Aviña strings, the second (`fast.json`,
+  13:20) all three.
+- **Coverage rule.** Two-thirds of cited works (`fact-check/SKILL.md`, pre-flight gate).
+- **Appendix review line.** `papers/2-legitimacy-policy-process/design/p2_presubmit_review_2026-08-30.md`:
+  nine dimension agents, two cross-checkers, 0 hallucinated quotes, 8 inference errors dropped,
+  9 critical, 40 recommended, about 70 minor, seven of thirteen criticals reopened.
+- **Converter table.** `doc-to-markdown/SKILL.md`: fourteen formats for anydoc. The 30 ms figure
+  there is not on the slide.
+- **Quoted artifacts** (the skill frontmatter, the source file header, the `.NOTE.md` banner, the
+  commit message, the numbers.tex header, the disclosure) are copied from the files named on each
+  slide, abridged where the slide says so.
+- **Knowledge base, measured 2026-09-16.** 119 Markdown files: 103 verbatim conversions, 15
+  `.NOTE.md`, one index. 103 originals. 126 master bib entries (`CLAUDE.md`'s 114 is stale).
+  Growth 59 → 72 (2026-06-30, `HANDOFF.md`) → 119.
+- **Paper 2 coverage.** 74 cited works, 62 with real text, 12 with a note, none with nothing
+  (`notes/OVERVIEW.md`, 2026-08-27).
+- **June pass.** 37 cited works without a source file, all verified to exist; 8 bib fixes the same
+  day, listed verbatim in `HANDOFF.md` 2026-06-30; the invented key is
+  `FitzgeraldCurtisCorliss2012`, real work "Anxious Publics," CPS 45(4). 13 open-access sources
+  acquired per the sentence in `sources/inventory.md` (its list names 14; say 13).
+- **August pass.** Nineteen corrections per `notes/OVERVIEW.md` (`TODO.md` says seventeen; say
+  nineteen). The four reversed citations and the Bansak finding are quoted from `OVERVIEW.md`.
+- **Gate output.** `talks/apsa-2026/checks/2026-09-09/fast.json`: PASS 3, FAIL 3, WARN 4, INFO 1,
+  exit 1; 147 table values; snapshot 2026-08-31T1349Z. Slide lines are abridged; the full FAIL
+  message also names the accept command.
+- **The commit.** Submodule commit `563f103`, 2026-09-14, "Add Ogura et al. 2026 to the
+  bibliography." Cache `checks/citations.json`: 23 VERIFIED. Do not explain why Aviña later
+  verified; the cause is not documented.
+- **Lint F011.** `talks/apsa-2026/checks/2026-09-09/report.md`, 9 September 2026; the deck was
+  delivered 4 September and published before the gate first ran.
+- **Dictation.** 662 dictations, 54,796 words, one month, two machines, about $8
+  (`ai-for-research/demos/talk-to-your-terminal/README.md`). The shown pair is the 2026-06-04
+  record in `~/.config/macwhspr/cleanup_log.jsonl`.
+- **Supervision.** Five finders, one cross-checker, 900-word cap, Learning Skills never marked by
+  the skill (`thesis` plugin 0.3.1, `_shared/agents.md`, `_shared/output-template.md`). The
+  fidelity rule is quoted verbatim.
+- **Letter.** `~/Desktop/temp/Book Chapter 2 - Feedback.md` (596 words) and the sci-edited
+  version (484 words); the shown opening paragraph is 89 → 61 words by whitespace count. No names.
+- **numbers.tex.** Header abridged; snapshot 2026-08-31T1349Z, 2,018 keys. Verdict guard: 0 of
+  107 guarded Paper 2 keys moved (`HANDOFF.md` 2026-08-31). Do not mention Paper 3's moving key.
+- **Word count.** 11,772 all-in against 10,000 (`HANDOFF.md` 2026-09-15).
+- **Disclosure.** Quoted verbatim from `manuscript/main.tex`, section Use of AI.
+- **Kenny 2026** verified (talk 10 September 2026; `github.com/christopherkenny/skills`). The
+  four working modes are Kenny's adaptation of Swaney's 20 March 2026 workshop, not in Swaney's
+  public materials. Never quote the ALARM guidelines; they could not be located.
+- **Off the slides by decision.** The 2026-09-15 pretest and registration matter; the hardcoded
+  paths, the fabricated-numbers PDF, and the live token; any student material; text-to-data and
+  the OCR corpus; research-grill and research-wayfinder.

@@ -56,9 +56,9 @@ def arrow(x1, y1, x2, y2, color=MUTED, sw=4, head=14):
 
 # ---------------------------------------------------------------- slide 5, 6, 15, 33
 SPACES = [
-    ("Assembly line", "Automate", ["Work whose doing adds nothing", "to the result."]),
-    ("Apprenticeship", "Protect", ["Work whose doing is how", "expertise forms."]),
-    ("Workbench", "Collaborate", ["Work the machine changes in", "scale, speed, or form."]),
+    ("Assembly line", "Automate", ["Doing it adds nothing."]),
+    ("Apprenticeship", "Protect", ["Doing it builds expertise."]),
+    ("Workbench", "Collaborate", ["The machine changes the scale."]),
 ]
 
 
@@ -87,10 +87,10 @@ def chart_three_spaces_p2():
 
 # ---------------------------------------------------------------- slide 12, 13
 CELLS = [
-    ("1", "Pair programming", ["Human and machine work", "together on every step"]),
-    ("2", "Planning commission", ["Human builds the plan,", "machine implements"]),
-    ("3", "Review board", ["Machine plans and implements,", "human reviews"]),
-    ("4", "Autopilot", ["Human instructs, machine", "implements and validates"]),
+    ("1", "Pair programming", ["Work together on every step"]),
+    ("2", "Planning commission", ["You plan, the machine implements"]),
+    ("3", "Review board", ["The machine drafts, you review"]),
+    ("4", "Autopilot", ["You instruct, the machine validates"]),
 ]
 
 
@@ -154,11 +154,11 @@ def chart_gate():
 
 # ---------------------------------------------------------------- slide 18
 LAYERS = [  # bottom first
-    ("Original PDFs", "immutable and archived: the source of record, rarely read directly"),
-    ("Markdown conversions", "verbatim and tracked in git: the text every check reads"),
-    ("Bibliography", "one entry per source, each key resolvable to its file"),
-    ("Synopsis index", "Establishes, Boundary, Supports for each cited work: the wiki layer"),
-    ("Manuscript claims", "each citation points down the stack to text a reader can open"),
+    ("Original PDFs", "the archive, never edited"),
+    ("Markdown conversions", "verbatim and tracked: what the checks read"),
+    ("Bibliography", "one key per source, resolvable to a file"),
+    ("Synopsis index", "Establishes, Boundary, Supports: the wiki layer"),
+    ("Manuscript claims", "each citation points to text a reader can open"),
 ]
 
 

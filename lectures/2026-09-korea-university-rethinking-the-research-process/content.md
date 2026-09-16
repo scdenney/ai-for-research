@@ -23,8 +23,7 @@ Korea University · Friday 18 September 2026 · Moderator: Sung Eun Kim
 
 ## 2 · Cold open
 @2.big
-A source I had cited twice did not say what I said it said. A machine found it.
-
+A source I had cited twice did not say what I claimed. A machine found it.
 ## 3 · What changed
 @3.h
 The tools changed in kind, not degree. They read your files, run your code, and come back.
@@ -96,9 +95,6 @@ Citations and numbers are verified at every commit, before any model reads a wor
 ## 8 · Automate, the claim
 @8.big
 The claim is not that the machine can do these. It is that they are poor uses of scarce attention.
-@8.sub
-Automation that leaves no trace is not automation. It is loss.
-
 ## 9 · Protect
 @9.h
 Protect the work through which expertise is built.
@@ -165,19 +161,19 @@ Research raises the bar. The author certifies correctness.
 @14.l.k
 Software
 @14.l.t1
-The goal is a product that works.
+Goal: a product that works.
 @14.l.t2
-Mistakes are patched in the next release.
+Mistakes: usually patched in the next release.
 @14.l.t3
-No one person needs to understand every part.
+Understanding: no one person needs all of it.
 @14.r.k
 Research
 @14.r.t1
-The goal is to know why or how something works.
+Goal: to know why or how something works.
 @14.r.t2
-Mistakes must be found before the paper is written.
+Mistakes: found before publication, not after.
 @14.r.t3
-The authors must understand it all, and vouch for it.
+Understanding: the authors vouch for all of it.
 @14.bridge
 So the workbench needs an audit trail.
 @14.cite
@@ -197,15 +193,15 @@ The workbench is an agent, a repository, and written standards.
 @16.n1
 Agent
 @16.s1
-Claude Code or Codex: reads files, runs commands, reports back
+Claude Code or Codex
 @16.n2
 Repository
 @16.s2
-Sources, bibliography, manuscript, and data, under version control
+Sources, bibliography, manuscript, data, under version control
 @16.n3
 Standards
 @16.s3
-Open Science Skills: 41 skills, each loaded by name
+Open Science Skills: 41 for Claude Code, 40 for Codex
 @16.line
 A skill encodes how the field thinks, not just what to do. It is where the standard lives.
 
@@ -219,7 +215,7 @@ Notes
 @17.n3
 Citations
 @17.n4
-BibTeX
+Bibliography file
 @17.n5
 Drafts
 @17.n6
@@ -240,21 +236,17 @@ What do my sources say about ethnic and civic conceptions of the nation?
 @19.a1
 <b>Kohn 1955</b> gives the classic statement of the dichotomy: membership by political principle versus by descent. <span class="anchor">synopsis · SOURCES_SYNOPSES.md §1</span>
 @19.a2
-<b>Brubaker 1992</b> grounds it in citizenship law, France against Germany, and warns that the binary is an ideal type, not a clean split. <span class="anchor">synopsis</span>
-@19.a3
-<b>Connor 1994</b> and <b>Smith 1991</b> put a felt common ancestry at the core of ethnic identity. <span class="anchor">synopses</span>
-@19.a4
 <b>Tamir 2019</b> argues the boundary is blurred and that "civic" often exempts a nationalism from scrutiny. <span class="anchor">full text held</span>
 @19.box.k
 Kohn 1955 · one entry in the synopsis index
 @19.box.e
 Originates the influential dichotomy between a Western, rational, voluntarist-political (civic) nationalism and an Eastern, organic, cultural-ethnic nationalism.
 @19.box.b
-A foundational historical-typological essay; the West/East geography of the binary is widely critiqued as overdrawn.
+A foundational historical-typological essay. The West/East geography of the binary is widely critiqued as overdrawn.
 @19.box.s
 The civic conception centered on shared political principles and citizenship.
 @19.foot
-The answer cites files, not memory. 44 source files, 127 bibliography entries, and every entry marked as full text or synopsis.
+The answer cites files, not memory, and marks each source as synopsis or full text.
 ## 20 · Verification
 @20.h
 Now check whether the manuscript says what the source says.
@@ -265,7 +257,7 @@ Now check whether the manuscript says what the source says.
 @20.v1.c
 "a modest, short-lived increase in youth turnout that fades within two election cycles"
 @20.v1.s
-Source, lindqvist2019: "The turnout premium is modest, on the order of three to four points, and it does not survive beyond the second election."
+Source, lindqvist2019: "modest, on the order of three to four points, and it does not survive beyond the second election."
 @20.v2.m
 ∼ Partial
 @20.v2.c
@@ -279,31 +271,30 @@ Source, osei2020: "We document an association, not a mechanism." Suggested: <i>i
 @20.v3.s
 Source, ferreira-nair2021: "Whatever compulsory voting does, it does not appear to teach."
 @20.foot
-A sample project with planted errors, from the AI for Research demos. Every reference here passes the format checks. Only reading the source catches the reversal.
-
+A sample project with planted errors, public on the AI for Research site. Every reference passes the format checks. Only reading the source catches the reversal.
 ## 21 · The chain of checks
 @21.h
 The checks run in a chain, and the cheap deterministic ones run first.
 @21.n1
 Provenance
 @21.s1
-Is the source file there?
+Is the file there?
 @21.n2
 Bibliographic
 @21.s2
-Does the DOI resolve to this work?
+Does the DOI match this work?
 @21.n3
 BibTeX
 @21.s3
-Do the entry and the text agree?
+Do entry and text agree?
 @21.n4
 Citation
 @21.s4
-Does every in-text cite have a reference, and the reverse?
+Does every cite have a reference?
 @21.n5
 Claim
 @21.s5
-Does the source say this? A model reads the verbatim text.
+Does the source say this? A model reads the text.
 @21.line
 Scripts first, at every commit. The model reads last. Whatever was not checked is reported as NOT CHECKED.
 
@@ -322,7 +313,6 @@ The knowledge base begins from documents that already exist. What if the materia
 438 scanned volumes, 24 gigabytes of page images, and not one searchable word.
 @23.cap
 Historia Polski, 1951. Georg Eckert Institute library, Braunschweig.
-
 ## 24 · The pipeline
 @24.h
 Seven steps turn a textbook into data. The machine changed the cost of each.
@@ -336,11 +326,11 @@ Vision-language model (Claude Sonnet 4.6, comparison run)
 @25.good.t
 단군은 실상 제사장의 이름으로서, 천왕을 받들어 위하던 고조선의 제주(祭主)요 군장이었다.
 @25.bad.k
-Traditional OCR (Tesseract 5, English model only)
+Optical character recognition (Tesseract 5, English model only)
 @25.bad.t
 AAs 2H] ade Ate ACM an, 2 ate … no usable output
 @25.cap
-A 1956 history textbook on Dangun and Gojoseon. Same scan, same page, no Korean-specific setup on either side.
+A 1956 history textbook, the page on Dangun and Gojoseon. Same scan, same page.
 ## 26 · Every arrow is a decision
 @26.h
 Every arrow is a methodological decision.
@@ -360,17 +350,25 @@ The technology changes what can become data.
 @28.n1.v
 67
 @28.n1.l
-Korean history textbooks in a separate corpus that is already machine-readable, 1895 to 2016
+Korean history textbooks in a separate corpus, already machine-readable
 @28.n2.v
 11.3M
 @28.n2.l
-characters of text, cleaned and tokenized
+characters of cleaned text
 @28.n3.v
 3 of 4
 @28.n3.l
-open models that must agree before a term counts
+open models must agree before a term counts
 @28.line
-The identity terms in the textbooks do not shift detectably at democratization in 1987. Their character follows regime type and their timing follows curriculum reform, in 1992 to 1997 and again in 2002. Observational, not causal.
+This corpus exists because transcription became cheap. The 438 volumes will grow it once their transcription is done.
+## 28b · What it made knowable
+@28b.h
+The identity terms in the textbooks do not shift detectably at democratization in 1987.
+@28b.v
+Their character follows regime type and their timing follows curriculum reform, in 1992 to 1997 and again in 2002.
+@28b.sub
+Sixty-seven textbooks. A term counts only when three of four open models agree. Observational, not causal.
+
 ## 29 · Two uses
 @29.h
 One demonstration organizes what we know. The other makes new material knowable.
@@ -437,25 +435,24 @@ The allocation differs for students and for professors.
 @31.l.k
 Students
 @31.l.t1
-Automate the clerical: formatting, filing, conversion.
+Automate the clerical.
 @31.l.t2
-Protect reading, first ideas, and every procedure you are still learning.
+Protect reading, first ideas, and the procedures you are still learning.
 @31.l.t3
-Collaborate only where you can check the output yourself.
+Collaborate only where you can check the output.
 @31.r.k
 Professors
 @31.r.t1
-Automate more of your own machinery, and leave a trace.
+Automate more of your machinery, and leave a trace.
 @31.r.t2
-Protect the formation of your students' judgment: the seminar, the exam, the supervision.
+Protect the formation of your students' judgment.
 @31.r.t3
-Collaborate: redesign the process around what has become feasible.
+Collaborate: redesign the process around what is now feasible.
 ## 32 · Allocation, not adoption
 @32.big
 The question for universities is allocation, not adoption.
 @32.sub
-Which cognitive work do we keep, which do we hand over, and where do new combinations make the impractical practical?
-
+Which work we keep, which we hand over, and where new combinations make the impractical practical.
 ## 33 · Standout
 @33.l1
 Automate what does not deserve our attention.
@@ -474,19 +471,19 @@ The skills, the site, and the methods are public.
 @34.c1.k
 Skills
 @34.c1.t
-Open Science Skills: 41 skills for Claude Code, 40 for Codex, grounded in published methods sources.
+Open Science Skills: 41 for Claude Code, 40 for Codex.
 @34.c1.u
 github.com/scdenney/open-science-skills
 @34.c2.k
 Site
 @34.c2.t
-AI for Research: setup, demos, lectures, and this deck.
+AI for Research: setup, demos, lectures, this deck.
 @34.c2.u
 scdenney.github.io/ai-for-research
 @34.c3.k
 Substack
 @34.c3.t
-Pixels and Patterns: the methods behind the corpus work, with code.
+Pixels and Patterns: the corpus methods, with code.
 @34.c3.u
 pixelsandpatterns.substack.com
 @34.contact
@@ -585,9 +582,9 @@ Draft
 @A2.s5
 Gate
 @A2.s6
-Lint
+Lint (model review)
 @A2.s7
-React
+React (author decides)
 @A2.s8
 Ship
 @A2.line
@@ -605,7 +602,7 @@ Then name a skill, such as /oss:fact-check, or describe the task and let the mat
 
 ## A4 · References
 @A4.h
-Appendix. References.
+Appendix. Everything cited on these slides, in full.
 @A4.r1.who
 Kenny 2026
 @A4.r1.text
@@ -633,4 +630,4 @@ Steven Denney, "From Pixels to Patterns: Vision-Language OCR and LLM-Based Text 
 @A4.r7.who
 Denney and van de Pol 2026
 @A4.r7.text
-Steven Denney and Aron van de Pol, "Constructing the Nation," working paper on Korean history textbooks, 1895 to 2016.
+Steven Denney and Aron van de Pol, "Constructing the Nation," working paper on Korean history textbooks.

@@ -55,6 +55,7 @@ More to come. Each demo ships sample files, the exact prompts, expected output, 
 
 ## Lectures
 
+- [**Rethinking the Research Process**](https://scdenney.github.io/ai-for-research/lectures/rethinking-the-research-process/) — how AI is changing research for students and professors; Korea University, 18 September 2026. Source, notes, and diagrams in [`lectures/2026-09-korea-university-rethinking-the-research-process/`](lectures/2026-09-korea-university-rethinking-the-research-process/).
 - [**No Previews in Pyongyang**](https://scdenney.github.io/assets/slides/no-previews-in-pyongyang/) — an LLM, embeddings, and AI-assisted workflows to build and validate a dictionary of reform language, then three decades of a North Korean economics journal.
 - [**From Pixels to Patterns**](https://scdenney.github.io/assets/slides/from-pixels-to-patterns/#1) — computer vision and language models in empirical social science and the digital humanities.
 

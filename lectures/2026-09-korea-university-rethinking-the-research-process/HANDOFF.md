@@ -1,5 +1,17 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-16 · Foundations, evidence, and cosmetic revision
+
+**Current state:** approved consolidated plan implemented. 32 main slides including cover, three dividers, five appendices: 40 PDF pages. Seven foundations now precede Automate/Protect/Collaborate. The cover carries the title once; ordinary slides have no running title or section label and only necessary citations. Arrows, diagrams, real OSS/Hub captures, two primary-source evidence plots, and the replication handoff are in place. Notes map every slide and sum to 55:00.
+
+**Validation:** all 40 pages rendered and inspected; independent review; six 720p compressed examples checked; numbering, source quotations, exact historical diff, units/intervals, embedded fonts, and text bounds verified. Final gate passes all three checks. Matplotlib's PDF font warning was fixed through its supported PGF/XeLaTeX backend. See `planning/10-foundations-validation.md` and `planning/review-2026-09-16/`.
+
+**Delivery:** full deck committed and pushed to Overleaf main at **180d608**. Entry point `main.tex`, XeLaTeX, project https://www.overleaf.com/project/6aaa697efc7ddb608ab4c4d1. This parent repository remains local; no GitHub push or website PDF replacement. The standalone design preview and pre-existing untracked codex brief remain intact.
+
+**Next:** author review, timed rehearsal, and a real Zoom screen-share check. Later presentation-skill lessons are recorded in the validation document; no new skill was created. Chrome Playwright was actually used for all public-page captures. Browser credentials and cross-machine configuration live outside the lecture repository.
+
+---
+
 ## 2026-09-16 · Full serif rebuild after preview approval
 
 **Current state:** the five-page design was approved and the user requested the full deck pushed to the existing Overleaf project. The full source now implements 30 content slides, three dividers, and three appendix slides, with matching speaker notes budgeted to 55 minutes. The source library and collaboration infrastructure occupy Part 2; a single historical claim correction occupies Part 3. Replication-package is one slide. All Korean text is removed from the main deck.

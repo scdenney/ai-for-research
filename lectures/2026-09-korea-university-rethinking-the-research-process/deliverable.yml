@@ -22,10 +22,10 @@ claim: >-
   and collaborate using an inspectable workspace. Build the source library before checking
   claims, distinguish source evidence from derived notes, and retain human responsibility.
 done: >-
-  Thirty content slides, three section dividers, and three appendix slides in Beamer;
+  Thirty-two main slides including the cover, three section dividers, and five appendix slides in Beamer;
   matching notes budgeted to 55 minutes; all pages rendered and inspected; source excerpts
   verified against original files and historical manuscript changes; pushed to Overleaf.
-status: full serif rebuild 2026-09-16; to be delivered 2026-09-18
+status: foundations and evidence revision 2026-09-16; to be delivered 2026-09-18
 sources_of_truth:
   - overleaf/main.tex
   - notes.md
@@ -34,7 +34,7 @@ published_url: https://scdenney.github.io/ai-for-research/lectures/rethinking-th
 planning_dir: planning
 handoff: HANDOFF.md
 sections_from: latex
-sections_files: [overleaf/parts/00-open.tex, overleaf/parts/01-part1.tex, overleaf/parts/02-part2.tex, overleaf/parts/03-part3.tex, overleaf/parts/04-close.tex]
+sections_files: [overleaf/parts/00-open.tex, overleaf/parts/00-foundations.tex, overleaf/parts/01-part1.tex, overleaf/parts/02-part2.tex, overleaf/parts/03-part3.tex, overleaf/parts/04-close.tex]
 voice: writing-toolkit@9a7faa7
 build:
   command: latexmk -xelatex -interaction=nonstopmode -cd overleaf/main.tex
@@ -42,7 +42,7 @@ build:
 checks:
   credentials: true
   prose_tells:
-    scan: [notes.md, overleaf/parts/00-open.tex, overleaf/parts/01-part1.tex, overleaf/parts/02-part2.tex, overleaf/parts/03-part3.tex, overleaf/parts/04-close.tex]
+    scan: [notes.md, overleaf/parts/00-open.tex, overleaf/parts/00-foundations.tex, overleaf/parts/01-part1.tex, overleaf/parts/02-part2.tex, overleaf/parts/03-part3.tex, overleaf/parts/04-close.tex]
   deck_budget: false   # budgets for the house deck classes not yet measured; see deck-template README
 night_shift:
   enabled: false

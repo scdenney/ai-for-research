@@ -6,7 +6,7 @@ talk adds its own numbered file here rather than opening a second wiki.
 
 ## Current build — 16 September 2026
 
-The approved rebuild is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It supersedes the earlier build decisions below: Kenny-led serif design, no Korean, infrastructure-led Part 2, one brief claim demonstration, and a five-page preview before rebuilding the main deck. The preview was approved and the user then requested the full deck on Overleaf. The full rebuild now has 36 pages, matching notes, and a validation record. Earlier entries remain as history.
+The approved rebuild is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It supersedes the earlier build decisions below: Kenny-led serif design, no Korean, infrastructure-led Part 2, one brief claim demonstration, and a five-page preview before rebuilding the main deck. The preview was approved and the user then requested the full deck on Overleaf. The subsequent foundations/evidence revision now has 40 pages, matching 55-minute notes, genuine Chrome captures, and a new validation record. Earlier entries remain as history.
 
 ## Folder map
 
@@ -14,8 +14,11 @@ The approved rebuild is recorded in [02-rebuild-storyboard.md](02-rebuild-storyb
 |---|---|
 | `00-README.md` | This map, the sources of truth, decisions recorded here |
 | `01-framework-and-structure.md` | **Historical framework record.** Framework, the mechanism, teaching versus research, the three-part structure, the Part 2 skill taxonomy, and the build decisions |
-| `02-rebuild-storyboard.md` | **Current plan:** 30 content slides, three dividers, evidence and transitions |
-| `03-full-deck-validation.md` | Build, evidence, and visual checks for the full deck |
+| `02-rebuild-storyboard.md` | **Current plan:** 32 main slides, three dividers, five appendices |
+| `03-full-deck-validation.md` | Historical checks for the earlier 36-page rebuild |
+| `10-foundations-validation.md` | Current 40-page validation and lessons for a later skill |
+| `09-evidence-protect.md` | Relayed literature leads and qualifications |
+| `browser-captures/` | Authentic repository/catalog captures from Chrome |
 | `preview/` | Five rendered sample slides and visual validation |
 | `08-open-questions.md` | Open list plus a resolved log |
 | `palette-options/` | Historical palette proposals; superseded for the rebuild |

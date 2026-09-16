@@ -13,27 +13,23 @@ title: "Rethinking the Research Process: How AI Is Changing Research for Student
 audience: >-
   Korea University, "AI Literacy for Social Scientists" Special Lecture Series, Lecture 01.
   Friday 18 September 2026, 1:30 to 3:30 PM KST, online via Zoom, open to all; graduate students
-  and faculty in sociology and political science, moderated by Sung Eun Kim. A 45-minute talk
+  and faculty in sociology and political science, moderated by Sung Eun Kim. A 55-minute talk
   followed by moderated discussion. Afterwards, anyone who opens the deck on the AI for
   Research site.
 deadline: 2026-09-18
 claim: >-
-  The question for researchers and universities is not whether to use AI but where to
-  automate, what to protect, and where to collaborate; at the workbench the human keeps
-  epistemic responsibility while the machine changes scale, speed, or form, and the two
-  demonstrations (a verbatim knowledge base that ends in claim-checking, a textbook corpus
-  that ends in inference) show the same rule from both sides: automate the machinery, not
-  the judgment.
+  Automate routine work, protect the practice through which knowledge and judgment develop,
+  and collaborate using an inspectable workspace. Build the source library before checking
+  claims, distinguish source evidence from derived notes, and retain human responsibility.
 done: >-
-  Forty-three content slides plus five appendix slides in Beamer, delivered in up to an hour
-  over Zoom; every number on a slide appears in notes.md with its source path and passes the
-  guardrail list; slides.pdf published on the AI for Research site at the URL the QR code
-  encodes, with a card on the lectures page.
-status: rebuilt in Beamer 2026-09-16; to be delivered 2026-09-18
+  Thirty content slides, three section dividers, and three appendix slides in Beamer;
+  matching notes budgeted to 55 minutes; all pages rendered and inspected; source excerpts
+  verified against original files and historical manuscript changes; pushed to Overleaf.
+status: full serif rebuild 2026-09-16; to be delivered 2026-09-18
 sources_of_truth:
   - overleaf/main.tex
   - notes.md
-  - planning/01-framework-and-structure.md
+  - planning/02-rebuild-storyboard.md
 published_url: https://scdenney.github.io/ai-for-research/lectures/rethinking-the-research-process/
 planning_dir: planning
 handoff: HANDOFF.md

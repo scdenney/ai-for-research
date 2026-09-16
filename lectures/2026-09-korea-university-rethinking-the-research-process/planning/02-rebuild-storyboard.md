@@ -1,5 +1,8 @@
 # Rebuild storyboard — review checkpoint, 16 September 2026
 
+> **Implementation update, 16 September:** The five-slide design was approved. The user then requested the full deck be pushed to Overleaf. Main source and matching notes now implement the 30-slide sequence plus three dividers and three appendix slides. The original checkpoint wording below records the earlier scope, rather than restricting the approved full build. See `03-full-deck-validation.md`. Publication on the website remains unchanged.
+
+
 This is the current plan of record, approved for implementation as a complete outline and five rendered samples. It supersedes the build, timing, Korean-text, and skill-taxonomy decisions in `01-framework-and-structure.md`. That file remains a historical record. The current main deck and speaker notes have not yet been rewritten to this plan.
 
 ## Argument and teaching sequence

@@ -4,9 +4,9 @@ The wiki for the 18 September 2026 lecture "Rethinking the Research Process". Op
 2026-09-16 with the deck. One wiki per piece of research: a Substack post derived from this
 talk adds its own numbered file here rather than opening a second wiki.
 
-## Current checkpoint — 16 September 2026
+## Current build — 16 September 2026
 
-The approved rebuild is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It supersedes the earlier build decisions below: Kenny-led serif design, no Korean, infrastructure-led Part 2, one brief claim demonstration, and a five-page preview before rebuilding the main deck. Earlier entries remain as history.
+The approved rebuild is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It supersedes the earlier build decisions below: Kenny-led serif design, no Korean, infrastructure-led Part 2, one brief claim demonstration, and a five-page preview before rebuilding the main deck. The preview was approved and the user then requested the full deck on Overleaf. The full rebuild now has 36 pages, matching notes, and a validation record. Earlier entries remain as history.
 
 ## Folder map
 
@@ -15,6 +15,7 @@ The approved rebuild is recorded in [02-rebuild-storyboard.md](02-rebuild-storyb
 | `00-README.md` | This map, the sources of truth, decisions recorded here |
 | `01-framework-and-structure.md` | **Historical framework record.** Framework, the mechanism, teaching versus research, the three-part structure, the Part 2 skill taxonomy, and the build decisions |
 | `02-rebuild-storyboard.md` | **Current plan:** 30 content slides, three dividers, evidence and transitions |
+| `03-full-deck-validation.md` | Build, evidence, and visual checks for the full deck |
 | `preview/` | Five rendered sample slides and visual validation |
 | `08-open-questions.md` | Open list plus a resolved log |
 | `palette-options/` | Historical palette proposals; superseded for the rebuild |
@@ -26,7 +27,7 @@ The approved rebuild is recorded in [02-rebuild-storyboard.md](02-rebuild-storyb
 
 - **The current argument and plan**: `02-rebuild-storyboard.md`. Earlier framework history: `01-framework-and-structure.md`.
 - **Slide text**: `../overleaf/parts/*.tex`. **Speaker notes and every number's source**: `../notes.md`.
-- **Citations**: `../references.bib`.
+- **Current slide citations and artifact provenance**: `../notes.md` and `02-rebuild-storyboard.md`. The existing `../references.bib` also retains references from earlier versions.
 - **Numbers**: each number on a slide is listed in `../notes.md` under "Accuracy guardrails"
   with the file it was verified against.
 - **The earlier plan (historical)**: `~/.claude/plans/find-the-slides-on-inherited-honey.md` (the

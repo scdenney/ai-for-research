@@ -1,5 +1,16 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-16 · Full serif rebuild after preview approval
+
+**Current state:** the five-page design was approved and the user requested the full deck pushed to the existing Overleaf project. The full source now implements 30 content slides, three dividers, and three appendix slides, with matching speaker notes budgeted to 55 minutes. The source library and collaboration infrastructure occupy Part 2; a single historical claim correction occupies Part 3. Replication-package is one slide. All Korean text is removed from the main deck.
+
+**Validation:** all 36 pages rendered and visually inspected at 1280 × 720; five dense/source pages inspected under simulated compression. Font embedding, text bounds, content numbering, note timings, source excerpts, and final compile checked. See `planning/03-full-deck-validation.md`. Source-PDF crop provenance is in `overleaf/figures/README.md`.
+
+**Delivery scope:** Overleaf only. Full entry point is `main.tex`, not the retained `design-preview.tex`. Parent-repository changes are committed locally. The website's previously published PDF remains unchanged.
+
+**Next:** author review and a timed rehearsal, then an actual Zoom screen-share check. Publish the replacement website PDF when requested. Prior sections below describe superseded versions and remain as history.
+
+
 Read by `/sitrep` (start of session) and updated by `/finished` (end of session).
 Newest entry at the top; don't rewrite history — append.
 

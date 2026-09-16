@@ -1,5 +1,10 @@
 # Open questions
 
+## Full-build update
+
+The preview was approved and the full deck requested for Overleaf. Self-introduction, instruction excerpts, original-source comparison, and resource links are now implemented. Remaining delivery work: timed rehearsal, actual Zoom screen-share check, and any further content revisions from the author. Website publication is separate from the requested Overleaf push.
+
+
 ## Current review checkpoint
 
 The later approved decisions are in [02-rebuild-storyboard.md](02-rebuild-storyboard.md): Kenny-led serif hybrid; no Korean; short agent/instructions/skills primer; infrastructure and knowledge base before checks; one NWO claim as the brief demo; replication-package gets one slide; outline plus five rendered samples before the full build. Review the current samples for visual direction and the outline for teaching sequence.

@@ -1,5 +1,18 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-16 · Narrative and skills revision
+
+**Current state:** 31 main pages, including cover and three dividers, plus six appendices: 37 PDF pages. A historical citation-support question anchors the opening and returns in Part 3. Definitions of agents, the tool loop and context precede explicit Automate/Protect/Collaborate decision rules. Part 2 teaches skill construction, invocation and inspection using actual research-repo instructions, a source conversion, and new read-only audit receipts. Notes total 55:00.
+
+**Validation:** all pages rendered and inspected; dense pages reviewed at full size and selected pages under 720p compression. Clean XeLaTeX build; embedded fonts; continuous footer numbers 1–33; no out-of-page text. Citation identity and claim support checked separately for two historical keys. Reference project unchanged. See `planning/11-narrative-skills-validation.md`, `planning/receipts-2026-09-16/`, and `planning/review-narrative-2026-09-16/`.
+
+**Delivery:** full deck pushed to Overleaf main at **42ff7ff2e321c1947e22f911577717f1f203a403**; remote hash verified. Author's earlier remote edit a304738 preserved. Entry point `main.tex`, XeLaTeX. Parent GitHub branch remains local; website PDF and design-preview.tex unchanged; pre-existing untracked brief preserved.
+
+**Remaining:** Overleaf browser shows Restricted because the connected Chrome profile is signed out, so the server-compiled PDF has not been inspected. Local PDF is validated. Author review, timed rehearsal and real Zoom screen-share check remain. Playwright Chrome extension was actually used for public-source captures. Credentials stay outside the repository.
+
+---
+
+
 ## 2026-09-16 · Foundations, evidence, and cosmetic revision
 
 **Current state:** approved consolidated plan implemented. 32 main slides including cover, three dividers, five appendices: 40 PDF pages. Seven foundations now precede Automate/Protect/Collaborate. The cover carries the title once; ordinary slides have no running title or section label and only necessary citations. Arrows, diagrams, real OSS/Hub captures, two primary-source evidence plots, and the replication handoff are in place. Notes map every slide and sum to 55:00.

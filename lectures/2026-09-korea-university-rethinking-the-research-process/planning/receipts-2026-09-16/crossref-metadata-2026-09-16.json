@@ -1,0 +1,32 @@
+{
+  "retrieved_at": "2026-09-16T17:37:31Z",
+  "method": "DOI content negotiation with Accept: application/vnd.citationstyles.csl+json; curl -sS -L",
+  "doi_resolution_headers": [
+    {"doi": "10.1086/683433", "status": "HTTP/2 302", "location": "https://api.crossref.org/v1/works/10.1086%2F683433/transform"},
+    {"doi": "10.1111/ajps.12262", "status": "HTTP/2 302", "location": "https://api.crossref.org/v1/works/10.1111%2Fajps.12262/transform"}
+  ],
+  "selected_crossref_response_fields": [
+    {
+      "DOI": "10.1086/683433",
+      "publisher": "University of Chicago Press",
+      "title": "Unilateral Powers, Public Opinion, and the Presidency",
+      "author": ["Andrew Reeves", "Jon C. Rogowski"],
+      "container-title": "The Journal of Politics",
+      "volume": "78",
+      "issue": "1",
+      "page": "137-151",
+      "published-print": "2016-01"
+    },
+    {
+      "DOI": "10.1111/ajps.12262",
+      "publisher": "Wiley",
+      "title": "Constitutional Qualms or Politics as Usual? The Factors Shaping Public Support for Unilateral Action",
+      "author": ["Dino P. Christenson", "Douglas L. Kriner"],
+      "container-title": "American Journal of Political Science",
+      "volume": "61",
+      "issue": "2",
+      "page": "335-349",
+      "published-print": "2017-04"
+    }
+  ]
+}

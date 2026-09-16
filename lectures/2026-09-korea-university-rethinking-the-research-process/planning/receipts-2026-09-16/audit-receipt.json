@@ -1,0 +1,27 @@
+{
+  "date": "2026-09-16",
+  "scope": "read-only audit of nwo26-immigration-backlash; output written only to lecture receipts directory",
+  "research_repo": {
+    "mode": "audit",
+    "archetype": "multi-paper empirical project",
+    "canonical_bibliography": "sources/references_master.bib",
+    "counts": {"og_files": 102, "md_files": 119, "unprocessed_files": 1, "bib_entries": 126, "og_without_md": 0, "md_without_og": 17},
+    "findings": {"source_library": "present", "intake_pipeline": "present", "project_instructions": "present", "inventory_documentation": "partial; stale counts"}
+  },
+  "citation_check": {
+    "historical_manuscript": "Paper 2 submodule e50d2788ae8df3d3de63e4e9d26be919d4dea971 (parent of 75366c6ca9ecc96148acba4840a4853c73f47c43):sections/frontmatter/front_matter.tex",
+    "entries": [
+      {"key": "ReevesRogowski2016", "doi": "10.1086/683433", "status": "VERIFIED — DOI resolves to cited work"},
+      {"key": "ChristensonKriner2017", "doi": "10.1111/ajps.12262", "status": "VERIFIED — DOI resolves to cited work"}
+    ]
+  },
+  "fact_check": {
+    "claim": "Studies of unilateral policymaking similarly show that citizens penalize executive action relative to legislative action.",
+    "preflight": "READY; 2/2 cited sources have local full-text Markdown and citation identities verified",
+    "verdict": "UNSUPPORTED",
+    "per_source": {
+      "ReevesRogowski2016": "PARTIALLY SUPPORTED: low generalized support, but no direct legislative-versus-executive comparison",
+      "ChristensonKriner2017": "UNSUPPORTED: direct comparisons report statistically insignificant route effects; this neither establishes a penalty nor equivalence"
+    }
+  }
+}

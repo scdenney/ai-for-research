@@ -1,28 +1,46 @@
-# Research decisions, agents, and skills — approved rebuild
+# AI in research and teaching — current storyboard
 
-Approved 16 September 2026. One historical citation-support question anchors the opening and returns in Part 3. Definitions are introduced through that task. The presentation then distinguishes purpose (Automate / Protect / Collaborate), delegation, and the infrastructure for inspecting collaborative work.
+Approved revision, 16 September 2026. This replaces the prior audit-led opening. The talk explains how to incorporate AI into research and teaching: what to automate, what to protect, and how to collaborate. The skills demonstrate the lecturer’s approach to collaboration. The historical source-and-claim example supports that argument.
 
-| Section | PDF pages | Minutes | Purpose |
-|---|---|---:|---|
-| Opening | 1–5 | 7 | Case and objective; chat/agent capabilities; model–tool loop; project/context |
-| Part 1 | 6–14 | 15 | Three modes; automation; protected cognition and evidence; collaboration; delegation; validation |
-| Part 2 | 15–25 | 23 | Why/how to write skills; authentic instructions; bounded invocation and actual audit; persistent knowledge; intake; citation and claim checks; limits |
-| Part 3 | 26–29 | 7 | Archived claim; new check of its sources; historical revision |
-| Closing | 30–31 | 3 | Three choices and resources |
-| Appendix | 32–37 | — | Intake, readiness, disclosure, evidence comparisons, prior knowledge, replication handoff |
+## Introduction — 8 minutes
 
-31 main PDF pages include the cover and three dividers. Six appendices produce 37 total PDF pages. Ordinary slide numbers run 1–33; the cover and dividers remain unnumbered.
+Cover, followed by five content slides:
 
-## Implementation decisions
+1. AI in research and teaching: the three modes, the lecturer’s knowledge base and skills, and a short source-check example.
+2. Generative AI and agentic AI: plain definitions of generative AI, LLM, and agentic AI; related concepts, not mutually exclusive technologies.
+3. From a conversation to carrying out a task: basic prompt/response beside an agent using tools; concrete actions and Claude Code/Codex examples.
+4. What changes when we use agents for research? Software execution/test feedback compared with source interpretation and research judgment. Tests are useful but do not establish complete correctness.
+5. A claim we will return to: clearly introduce the actual historical claim and two references, reserving the verdict for Part 3.
 
-- Preserve the serif design. Remove routine green takeaway lines; retain only two empirical qualifications, the Part 1–2 bridge, and the historical revision conclusion.
-- Use real research-repo instructions to teach skill authoring. The audit output and citation report come from the new dated read-only receipts, not illustrative or invented execution.
-- Part 2 shows source identity and conversion, reserving the decisive claim-support finding for Part 3.
-- Cite Karpathy's original LLM Wiki and Kenny's research application. Credit the four delegation patterns as Kenny's adaptation of Colin Swaney's workshop.
-- Source support, source scientific validity, and correctness of the research project remain different questions. Nonsignificance is not equivalence.
-- Preserve Autor and Bastani qualifications; keep the further evidence in notes/appendices.
-- Reference projects remain read-only. Skill/report versions and inspection scope are recorded.
+## Part 1 — 15 minutes
 
-## Delivery
+Main transition and three-mode table: Mode / Use it when / Examples. No knowledge-base jargon before its introduction. Separate transitions for Automate, Protect, and Collaborate.
 
-Build from latest Overleaf main, preserving the intervening author edit at a304738. Render every page and review the actual Overleaf PDF where browser authentication permits. Update notes and validation, commit locally, and push only the Overleaf submodule. Do not push GitHub or replace the website PDF. Retain the standalone design preview and pre-existing untracked codex brief.
+- Automate: routine work that consumes attention without advancing the researcher’s thinking. Scheduling, tracking, organizing, formatting. One simple examples slide.
+- Protect: work that develops or demonstrates understanding. Close reading, forming an initial argument, explaining a method. Firm principle and selected examples, not categorical bans on writing or teaching.
+- Two evidence figures distinguish assisted performance from unaided outcomes. Identify patent lawyers and experience groups; explain reviewing/revising a patent without AI. Define unrestricted/guided assistance in the mathematics study. Preserve uncertainty and the junior dispersion/guardrail qualifications.
+- Collaborate: human judgment with machine assistance across sources, analysis, writing, and supervision. Four delegation patterns sit within this mode. End on how the lecturer organizes this collaboration.
+
+## Part 2 — 22 minutes
+
+Transition plus nine content slides:
+
+1. What is a skill? Reusable instructions, optional scripts/templates, purpose and a brief authentic excerpt. Open Science Skills and AI for Research links.
+2. Research-repo builds the foundation. Explain repository and knowledge base; originals, readable source text and bibliography support further research work. Briefly credit Karpathy’s LLM Wiki idea.
+3. Version control: review a diff, commit an explained checkpoint, and push to GitHub. Trace source, code, and manuscript revisions.
+4. Using research-repo. Claude Code/Codex invocations and a plain setup request. New setup and existing-project review.
+5. From a PDF to readable source text. A literal clean abstract excerpt beside the matching original-PDF crop. Intake identifies/preserves/converts/registers the source.
+6. Keeping the source and citation connected. Real BibTeX entry, corresponding source and citation key. No reconstructed metadata list.
+7. Checking references with citation-check. Visible invocations, checks explained, compact actual identity-check result.
+8. Checking claims with fact-check. Visible invocations; claim and local source lead to support judgment with quoted evidence. Reserve the historical verdict for Part 3.
+9. Preparing a replication package. Companion skill for analysis code, data, documentation and reproducible outputs. Harvard Dataverse is a possible destination, not an upload performed by this skill.
+
+Current templates use OpenDataLoader for prose PDFs; the agent-managed intake creates the bibliography entry separately. No unverified speed claim. Detailed audit counts, receipts, limitations and implementation provenance belong in notes/supporting records.
+
+## Retained material and production
+
+Part 3 content remains unchanged for a later review (7 minutes). Closing remains 3 minutes. Total 55 minutes. Existing appendices remain available.
+
+Preserve serif theme and clean title slide. Use original explanatory visuals, genuine source excerpts and meaningful citations. Remove routine takeaways, internal QA wording and repeated adaptation credits. All horizontal arrow stems share explicit vertical coordinates, equal gaps and fixed label geometry. Callouts are centered inside their containers.
+
+Render every revised page; inspect diagrams individually and source/code examples at 720p. Update notes and source records. Commit locally and push the full deck only to the existing Overleaf project. Preserve author changes, design-preview.tex, the untracked brief, reference projects and website PDF. Parent GitHub publication remains outside this delivery.

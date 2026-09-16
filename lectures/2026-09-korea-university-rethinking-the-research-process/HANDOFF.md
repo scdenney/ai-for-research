@@ -1,5 +1,18 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-16 · Purpose, foundations, skills and version control
+
+**Current state:** 39 PDF pages: 33 main pages including cover, three part dividers and three mode transitions; six appendices. The purpose and plain definitions precede the historical claim. Part 1 separates Automate, Protect and Collaborate. Part 2 follows research-repo through Git/GitHub history, source intake, citation-check, fact-check and replication-package. Notes remain 55:00. Part 3 content is unchanged pending the author's later review.
+
+**Validation:** rendered all pages; inspected revised diagrams and dense source/code pages; independent Sol/Terra work and review. Clean XeLaTeX build, embedded fonts, footer sequence 1–32, no automated bounds/overlap/fill-crossing/diagonal findings. Literal Markdown/BibTeX checked; plot data unchanged. Deliverable gate passes. See `planning/12-purpose-foundations-validation.md` and `planning/review-purpose-2026-09-16/`.
+
+**Delivery:** pushed full deck to Overleaf main at **0486a4f144636719767ed45f834243196580565d**; remote hash verified. Parent GitHub branch committed locally only. Website PDF, design-preview.tex, reference research project and untracked brief preserved.
+
+**Remaining:** author review, timed rehearsal and screen-share check. Chrome Playwright extension used, but Overleaf browser remained Restricted/403 because that profile is signed out. Server compilation preview is not verified; local PDF is validated.
+
+---
+
+
 ## 2026-09-16 · Narrative and skills revision
 
 **Current state:** 31 main pages, including cover and three dividers, plus six appendices: 37 PDF pages. A historical citation-support question anchors the opening and returns in Part 3. Definitions of agents, the tool loop and context precede explicit Automate/Protect/Collaborate decision rules. Part 2 teaches skill construction, invocation and inspection using actual research-repo instructions, a source conversion, and new read-only audit receipts. Notes total 55:00.

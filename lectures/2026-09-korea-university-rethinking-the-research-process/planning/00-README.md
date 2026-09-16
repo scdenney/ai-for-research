@@ -6,7 +6,7 @@ talk adds its own numbered file here rather than opening a second wiki.
 
 ## Current build — 16 September 2026
 
-The approved rebuild is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It supersedes the earlier build decisions below: Kenny-led serif design, no Korean, infrastructure-led Part 2, one brief claim demonstration, and a five-page preview before rebuilding the main deck. The preview was approved and the user then requested the full deck on Overleaf. The subsequent foundations/evidence revision now has 40 pages, matching 55-minute notes, genuine Chrome captures, and a new validation record. Earlier entries remain as history.
+The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It restores the talk’s research-and-teaching purpose, introduces basic vocabulary before the running example, distinguishes the three modes, and puts the research-repo knowledge base before downstream checks. Current validation: [12-purpose-foundations-validation.md](12-purpose-foundations-validation.md). Earlier plans and review records remain as history.
 
 ## Folder map
 
@@ -14,9 +14,10 @@ The approved rebuild is recorded in [02-rebuild-storyboard.md](02-rebuild-storyb
 |---|---|
 | `00-README.md` | This map, the sources of truth, decisions recorded here |
 | `01-framework-and-structure.md` | **Historical framework record.** Framework, the mechanism, teaching versus research, the three-part structure, the Part 2 skill taxonomy, and the build decisions |
-| `02-rebuild-storyboard.md` | **Current plan:** 32 main slides, three dividers, five appendices |
+| `02-rebuild-storyboard.md` | **Current plan:** purpose, vocabulary, three modes, research-repo and companion skills |
 | `03-full-deck-validation.md` | Historical checks for the earlier 36-page rebuild |
-| `10-foundations-validation.md` | Current 40-page validation and lessons for a later skill |
+| `10-foundations-validation.md` | Historical 40-page validation and lessons for a later skill |
+| `12-purpose-foundations-validation.md` | Current revision validation and delivery |
 | `09-evidence-protect.md` | Relayed literature leads and qualifications |
 | `browser-captures/` | Authentic repository/catalog captures from Chrome |
 | `preview/` | Five rendered sample slides and visual validation |

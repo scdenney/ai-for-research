@@ -1,21 +1,35 @@
 # Open questions
 
+Updated 2026-09-16 after the design conversation that restarted the talk.
+
 ## Still open
 
-1. **Time zone on the day.** 1:30 PM KST is 6:30 AM CEST. Confirm the Zoom link and the
-   screen-share test with the moderator the day before.
-2. **Live run or not.** The deck stands without one. If the room and the connection allow, a
-   single live `/oss:fact-check` on the synthetic demo after slide 20 is the only candidate.
-3. **Korean end-years of the GEI corpus.** Two project files disagree; the slides state
-   1948 to 2020 for the whole corpus and never state the Korean end-year. Resolve in the GEI
-   repo (`review/REVIEW_LOG.md` item 6), not here.
-4. **The by-language divergence figures** are in the technical report but not in the committed
-   analysis file. The slide says "preliminary". Regenerate in the GEI repo before the Substack
-   post quotes them.
+1. **One running example or two?** Recommendation on the table: use NWO for both Part 2 and
+   Part 3, so the audience learns one project. Not decided.
+2. **Does NWO satisfy the skills' preconditions?** An earlier sweep found
+   `nwo26-immigration-backlash` has sources and Markdown conversions but no top-level
+   `sources/references.bib`, since each paper carries its own. `fact-check` runs a pre-flight gate
+   that may refuse the repo as it stands. Verify before building the Part 2 demonstration on it.
+3. **One word in the handwritten notes is unread.** Page 2, under the knowledge-base line, after
+   "documentation": an arrow to something like "d—t skills."
+4. **Mode 2 contents.** The notes attach confidence marks: reading has three exclamation points,
+   writing and seed ideas have question marks. Decide which are asserted and which are put to the
+   room as open questions.
+5. **The third goal cell.** "Efficiency" and "learning" are specific. "Better research" is not,
+   since it is also the goal of the other two. Proposed replacement is reach: work you could not
+   do alone, at a scale you could not reach alone.
+6. **Framework header.** "Three modes of AI engagement" makes AI the subject; the governing
+   sentence makes human cognition the subject. Decide which, and make them agree.
+7. **Self-introduction.** What goes in it, and how long.
+8. **Time zone on the day.** 1:30 PM KST is 6:30 AM CEST. Confirm the Zoom link and a screen-share
+   test with the moderator the day before.
 
 ## Resolved
 
-- 2026-09-16: middle space named "apprenticeship" (user's choice among apprenticeship, sandbox
-  with a definition, practice room).
-- 2026-09-16: demonstrations captured on slides (user's choice).
-- 2026-09-16: occasion fixed from the poster (Korea University, 18 September, Zoom).
+- 2026-09-16: three modes named Automate, Protect, Collaborate. Plain labels, no metaphor.
+- 2026-09-16: "automate" over "delegate"; sandboxing is the method, protection is the principle;
+  "collaborate" over "augmentation".
+- 2026-09-16: `research-grill` and `research-wayfinder` held aside. Text-to-data and the GEI
+  corpus held for later, per the handwritten notes.
+- 2026-09-16: Part 2 built on `research-repo`, `citation-check`, `fact-check`, and supervision.
+- 2026-09-16: Beamer, authored on Overleaf, palette from Codex. The HTML deck is superseded.

@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{T:1.title}}</title>
+<link rel="icon" href="data:,">
+<style>
+{{FONTS}}
+</style>
+<style>
+/* ============================================================
+   Tokens. Palette and grammar from the Pixels-to-Patterns deck
+   (research/projects/gei_textbooks/talk/c_design/claude-design-brief.md):
+   cream page, warm ink, oxblood structure, teal as the only emphasis,
+   sage / ochre / brick as verdict marks only, oatmeal box fill, rose on
+   the single dark slide. Contrast floors raised for Zoom screen-share.
+   ============================================================ */
+:root {
+  --paper: #FBF7EF; --surface: #FFFFFF; --dark: #161310;
+  --ink: #2E2A26; --muted: #5F564B; --hairline: #D8CDB8; --oat: #EFE7D6;
+  --ox: #6E3B34; --teal: #2E5E5B; --sage: #4F7046; --ochre: #9C6B1A; --brick: #A6442F; --rose: #E8C4A6;
+  --font-editorial: "EB Garamond Deck", "EB Garamond", Georgia, serif;
+  --font-functional: "Noto Sans Deck", "Noto Sans", Arial, sans-serif;
+  --font-kr: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --type-h1: 46px; --type-body: 31px;
+  --slide-x: 84px;
+}
+*, *::before, *::after { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; background: var(--dark); color: var(--ink); font-family: var(--font-editorial); }
+b, strong { font-weight: 700; }
+i, em { font-style: italic; }
+
+/* ============================================================
+   Stage and slide chrome
+   ============================================================ */
+#stage { position: fixed; top: 50%; left: 50%; width: 1920px; height: 1080px; transform: translate(-50%,-50%); transform-origin: center; }
+.slide { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; display: none; flex-direction: column;
+  padding: 56px var(--slide-x) 60px; background: var(--paper); color: var(--ink);
+  font-family: var(--font-editorial); font-size: var(--type-body); line-height: 1.36; }
+.slide.active { display: flex; }
+.slide::before { content: attr(data-eyebrow); position: absolute; top: 50px; left: var(--slide-x); font-family: var(--font-functional);
+  font-size: 20px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); line-height: 1; }
+.slide::after { content: attr(data-slide); position: absolute; top: 50px; right: var(--slide-x); font-family: var(--font-functional);
+  font-size: 20px; font-weight: 600; letter-spacing: .06em; color: var(--muted); line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
+.bar { margin: 46px 0 0; background: var(--ox); color: var(--paper); padding: 22px 34px;
+  font-family: var(--font-editorial); font-size: var(--type-h1); font-weight: 600; line-height: 1.16; text-wrap: balance; }
+.body { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-top: 40px; }
+.body.center { justify-content: center; }
+.body.mid { justify-content: center; }
+.muted { color: var(--muted); }
+.teal { color: var(--teal); }
+.kr { font-family: var(--font-kr); }
+aside.notes { display: none !important; }
+body.no-anim *, body.no-anim *::before, body.no-anim *::after { transition: none !important; animation: none !important; }
+
+/* fragments: used only for the two pipeline builds and the knowledge-base stack */
+.fragment { opacity: 0; transition: opacity .4s ease; }
+.fragment.visible { opacity: 1; }
+
+/* overlays */
+#counter { display: none; }
+#notes { display: none; position: fixed; left: 0; right: 0; bottom: 0; max-height: 34vh; overflow: auto; padding: 18px 28px;
+  background: rgba(22,19,16,.94); color: var(--paper); font-family: var(--font-functional); font-size: 20px; line-height: 1.4; border-top: 3px solid var(--ox); }
+body.show-notes #notes { display: block; }
+body.blackout #stage { visibility: hidden; }
+#help { display: none; position: fixed; right: 14px; bottom: 10px; color: rgba(251,247,239,.45); font-family: var(--font-functional); font-size: 12px; letter-spacing: .04em; }
+#nav { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 6px) scale(.92); display: flex; align-items: center; gap: 4px;
+  padding: 4px; border-radius: 999px; background: #000; color: #fff; font-family: var(--font-functional); font-size: 12px; letter-spacing: .01em;
+  opacity: 0; pointer-events: none; filter: blur(6px); transition: opacity .26s ease, transform .26s cubic-bezier(.2,.8,.2,1), filter .26s ease; z-index: 20; user-select: none; }
+body.nav-visible #nav { opacity: 1; pointer-events: auto; transform: translate(-50%, 0) scale(1); filter: blur(0); }
+#nav button { appearance: none; background: transparent; border: 0; margin: 0; padding: 0; color: rgba(255,255,255,.72); font: inherit; cursor: default;
+  display: inline-flex; align-items: center; justify-content: center; height: 28px; min-width: 28px; border-radius: 999px; transition: background .14s, color .14s; }
+#nav button:hover { background: rgba(255,255,255,.12); color: #fff; }
+#nav button:focus, #nav button:focus-visible { outline: none; }
+#nav button svg { width: 14px; height: 14px; display: block; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+#nav .n { font-variant-numeric: tabular-nums; color: #fff; font-weight: 500; padding: 0 8px; min-width: 42px; text-align: center; white-space: nowrap; }
+#nav .n span { color: rgba(255,255,255,.45); margin: 0 3px; font-weight: 400; }
+#nav .sep { width: 1px; height: 14px; background: rgba(255,255,255,.18); margin: 0 4px; }
+#nav .reset { font-size: 11px; font-weight: 500; letter-spacing: .02em; padding: 0 10px 0 12px; gap: 6px; }
+#nav kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; padding: 0 4px;
+  font-family: var(--font-mono); font-size: 10px; line-height: 1; color: rgba(255,255,255,.88); background: rgba(255,255,255,.12); border-radius: 4px; }
+
+/* ============================================================
+   Components
+   ============================================================ */
+/* one big statement, nothing else */
+.big { font-size: 74px; line-height: 1.14; font-weight: 600; max-width: 1580px; text-wrap: balance; letter-spacing: -.01em; }
+.big .em { color: var(--teal); }
+.sub { margin-top: 34px; font-size: 36px; line-height: 1.3; color: var(--muted); max-width: 1500px; }
+.verbs { margin-top: 44px; font-size: 54px; font-weight: 600; color: var(--teal); letter-spacing: .01em; }
+
+/* a line under a diagram */
+.line { font-size: 34px; line-height: 1.3; margin-top: 32px; max-width: 1700px; }
+.line.tight { margin-top: 20px; }
+
+/* quote panel: oatmeal, oxblood rule */
+.quote { background: var(--oat); border-left: 10px solid var(--ox); border-radius: 0 6px 6px 0; padding: 40px 52px;
+  font-size: 52px; line-height: 1.22; font-weight: 500; max-width: 1700px; text-wrap: balance; }
+
+/* definition panel: white, teal rule */
+.def { background: var(--surface); border: 2px solid var(--hairline); border-left: 10px solid var(--teal); border-radius: 0 6px 6px 0; padding: 36px 48px; max-width: 1700px; }
+.def .k { font-family: var(--font-functional); font-size: 20px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--teal); margin-bottom: 14px; }
+.def .v { font-size: 50px; line-height: 1.2; font-weight: 600; margin: 0; text-wrap: balance; }
+
+/* ledger: label column, one sentence per row */
+.ledger { list-style: none; margin: 0; padding: 0; }
+.ledger li { display: grid; grid-template-columns: 430px 1fr; gap: 40px; align-items: baseline; padding: 15px 0; border-top: 2px solid var(--hairline); font-size: 30px; line-height: 1.32; }
+.ledger li:last-child { border-bottom: 2px solid var(--hairline); }
+.ledger .who { font-size: 36px; font-weight: 600; color: var(--ox); line-height: 1.1; }
+
+/* flow: a row of nodes with arrows */
+.flow { display: flex; align-items: stretch; width: 100%; }
+.flow .node { flex: 1 1 0; background: var(--surface); border: 2px solid var(--hairline); border-top: 8px solid var(--ox); border-radius: 6px;
+  padding: 22px 18px; display: flex; flex-direction: column; justify-content: center; text-align: center; min-height: 176px; }
+.flow .node .v { font-size: 32px; font-weight: 600; line-height: 1.15; }
+.flow .node .s { margin-top: 10px; font-family: var(--font-functional); font-size: 21px; line-height: 1.28; color: var(--muted); }
+.flow .node.human { border-top-color: var(--ink); }
+.flow .node.machine { border-top-color: var(--ox); }
+.flow .node.human .s { color: var(--ink); font-weight: 600; }
+.flow .node.machine .s { color: var(--ox); font-weight: 600; }
+.flow .arrow { flex: 0 0 56px; display: flex; align-items: center; justify-content: center; font-size: 42px; color: var(--muted); line-height: 1; }
+.flow .arrow.gap::before { content: ""; width: 34px; border-top: 4px dashed var(--brick); }
+.flow.loop .node:nth-child(3), .flow.loop .node:nth-child(9) { border-top-color: var(--teal); }
+.flow.wide .node { min-height: 210px; }
+.flow.wide .node .v { font-size: 36px; }
+.flow.wide .node .s { font-size: 24px; }
+
+/* two columns */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; }
+.two-col .col { border-top: 6px solid var(--ox); padding-top: 22px; }
+.two-col .k { font-size: 40px; font-weight: 600; color: var(--ox); margin: 0 0 20px; line-height: 1.1; }
+.two-col p { font-size: 32px; line-height: 1.34; margin: 0 0 20px; }
+
+/* terminal card: what the agent was asked and what came back */
+.term { background: var(--oat); border: 2px solid var(--hairline); border-radius: 8px; padding: 28px 34px; }
+.term .p { font-family: var(--font-mono); font-size: 27px; font-weight: 700; color: var(--ox); line-height: 1.4; }
+.term .p::before { content: "\203A  "; }
+.term .a { font-size: 29px; line-height: 1.34; margin-top: 16px; }
+.term .a .anchor { font-family: var(--font-mono); font-size: 21px; color: var(--muted); white-space: nowrap; }
+.vrow { display: grid; grid-template-columns: 250px 1fr; gap: 26px; padding: 18px 0; border-top: 2px solid var(--hairline); margin-top: 0; }
+.vrow:first-of-type { margin-top: 18px; }
+.vmark { font-family: var(--font-functional); font-weight: 700; font-size: 25px; letter-spacing: .06em; text-transform: uppercase; line-height: 1.3; padding-top: 4px; }
+.vmark.ok { color: var(--sage); } .vmark.part { color: var(--ochre); } .vmark.fail { color: var(--brick); }
+.vrow .claim { font-size: 30px; line-height: 1.3; }
+.vrow .src { font-size: 26px; line-height: 1.3; color: var(--muted); margin-top: 8px; }
+.vrow .src .anchor { font-family: var(--font-mono); font-size: 20px; }
+.foot { margin-top: auto; padding-top: 18px; font-size: 27px; line-height: 1.35; color: var(--muted); max-width: 1700px; }
+
+/* semantic box: colored header over an oatmeal body */
+.box { border-radius: 6px; overflow: hidden; box-shadow: 0 8px 22px rgba(46,42,38,.12); }
+.box__h { padding: 14px 26px; color: var(--paper); font-family: var(--font-functional); font-size: 24px; font-weight: 700; letter-spacing: .02em; }
+.box--sage .box__h { background: var(--sage); } .box--brick .box__h { background: var(--brick); }
+.box--ox .box__h { background: var(--ox); } .box--ochre .box__h { background: var(--ochre); }
+.box__b { background: var(--oat); padding: 24px 28px; font-size: 30px; line-height: 1.42; }
+.box__b .f { display: grid; grid-template-columns: 190px 1fr; gap: 16px; padding: 8px 0; }
+.box__b .f .k { font-family: var(--font-functional); font-size: 20px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding-top: 8px; }
+.box__b .f .t { font-size: 27px; line-height: 1.32; }
+.stack { display: flex; flex-direction: column; gap: 26px; }
+
+/* two-column with a figure on the left */
+.fig2 { display: grid; grid-template-columns: 560px 1fr; gap: 60px; align-items: center; flex: 1; min-height: 0; }
+.fig2 .pic { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 0; }
+.fig2 img { max-height: 600px; max-width: 100%; object-fit: contain; border: 2px solid rgba(46,42,38,.25); box-shadow: 0 10px 28px rgba(46,42,38,.18); }
+.cap { margin-top: 16px; font-size: 24px; font-style: italic; line-height: 1.35; color: var(--muted); text-align: center; max-width: 560px; }
+.fig2 .big { font-size: 60px; }
+
+/* two-column with a terminal on the left and a box on the right */
+.split { display: grid; grid-template-columns: 1.15fr 1fr; gap: 48px; align-items: start; }
+
+/* booktabs table */
+table.bt { width: 100%; border-collapse: collapse; border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink); }
+.bt th { text-align: left; font-family: var(--font-functional); font-size: 22px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 16px 18px; border-bottom: 2px solid var(--ink); }
+.bt td { padding: 17px 18px; font-size: 32px; line-height: 1.25; border-top: 1px solid var(--hairline); vertical-align: top; }
+.bt tr:first-child td { border-top: 0; }
+.bt td.n { font-family: var(--font-functional); font-size: 26px; font-variant-numeric: tabular-nums; text-align: right; }
+table.bt.compact td { font-size: 27px; padding: 12px 18px; }
+table.bt.compact th { font-size: 20px; padding: 12px 18px; }
+
+/* big numbers */
+.bigs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.bign { background: var(--surface); border: 2px solid var(--hairline); border-top: 8px solid var(--ox); border-radius: 6px; padding: 28px 32px 26px; }
+.bign .v { font-size: 96px; font-weight: 600; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums lining-nums; }
+.bign .l { margin-top: 14px; font-family: var(--font-functional); font-size: 23px; line-height: 1.3; color: var(--muted); }
+
+/* cards */
+.cards3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.card { background: var(--surface); border: 2px solid var(--hairline); border-radius: 6px; padding: 30px 34px; }
+.card .k { font-family: var(--font-functional); font-size: 20px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--ochre); }
+.card .t { margin-top: 12px; font-size: 30px; line-height: 1.3; }
+.card .u { margin-top: 14px; font-family: var(--font-functional); font-size: 23px; color: var(--teal); font-weight: 600; }
+
+/* code lines */
+.cmd { font-family: var(--font-mono); font-size: 28px; background: var(--oat); border: 2px solid var(--hairline); border-radius: 6px; padding: 18px 26px; margin: 0 0 18px; }
+
+/* the closing line of a slide */
+.bridge { margin-top: auto; padding-top: 22px; border-top: 2px solid var(--hairline); font-size: 42px; font-weight: 600; line-height: 1.15; color: var(--ox); }
+.srcnote { margin-top: auto; padding-top: 18px; font-family: var(--font-functional); font-size: 21px; line-height: 1.35; color: var(--muted); max-width: 1700px; }
+.body.mid .srcnote { position: absolute; left: var(--slide-x); right: var(--slide-x); bottom: 44px; margin-top: 0; padding-top: 0; }
+.body.mid .bridge { position: absolute; left: var(--slide-x); right: var(--slide-x); bottom: 60px; margin-top: 0; }
+.body.mid .foot { position: absolute; left: var(--slide-x); right: var(--slide-x); bottom: 48px; margin-top: 0; padding-top: 0; }
+.strip { margin-top: 28px; font-family: var(--font-functional); font-size: 26px; font-weight: 600; color: var(--muted); letter-spacing: .02em; }
+
+/* charts */
+.chart { display: block; overflow: visible; max-width: 100%; }
+
+/* ============================================================
+   Slide kinds
+   ============================================================ */
+/* cover */
+.slide--cover { justify-content: center; }
+.slide--cover::before, .slide--cover::after { content: none; }
+.cov-eyebrow { font-family: var(--font-functional); font-size: 24px; letter-spacing: .2em; text-transform: uppercase; color: var(--ochre); font-weight: 700; }
+.cov-kr { font-family: var(--font-kr); font-size: 26px; color: var(--muted); margin-top: 12px; }
+.cov-title { margin-top: 40px; align-self: flex-start; background: var(--ox); color: var(--paper); padding: 30px 48px; font-size: 74px; font-weight: 600; line-height: 1.1; max-width: 1620px; text-wrap: balance; }
+.cov-author { margin-top: 52px; font-size: 40px; font-weight: 600; line-height: 1.2; }
+.cov-aff { font-size: 30px; color: var(--muted); margin-top: 4px; }
+.cov-meta { margin-top: 26px; font-family: var(--font-functional); font-size: 24px; color: var(--muted); }
+
+/* divider */
+.slide--divider::before, .slide--divider::after { content: none; }
+.div-eyebrow { margin-top: 44px; font-family: var(--font-functional); font-size: 26px; letter-spacing: .26em; text-transform: uppercase; color: var(--ochre); font-weight: 700; }
+.div-title { margin-top: 18px; font-size: 92px; font-weight: 600; color: var(--ox); line-height: 1.04; letter-spacing: -.01em; }
+.div-sub { margin-top: 14px; font-size: 36px; font-style: italic; color: var(--muted); }
+.div-map { margin-top: 54px; }
+.progress { margin-top: auto; display: flex; gap: 16px; }
+.progress span { flex: 1; height: 8px; background: var(--hairline); }
+.progress span.on { background: var(--ox); }
+
+/* standout: the deck's only dark page */
+.slide--standout { background: var(--ox); color: var(--paper); justify-content: center; }
+.slide--standout::before, .slide--standout::after { content: none; }
+.so-line { font-size: 66px; font-weight: 600; line-height: 1.16; margin: 0 0 30px; max-width: 1640px; text-wrap: balance; }
+.so-cta { margin-top: 56px; font-size: 52px; font-style: italic; color: var(--rose); }
+.so-by { position: absolute; left: var(--slide-x); bottom: 60px; font-family: var(--font-functional); font-size: 24px; color: rgba(251,247,239,.78); }
+
+/* closing: contact and QR */
+.contact { position: absolute; left: var(--slide-x); bottom: 60px; font-family: var(--font-functional); font-size: 24px; line-height: 1.4; color: var(--muted); }
+.qr { position: absolute; right: var(--slide-x); bottom: 54px; display: flex; align-items: flex-end; gap: 18px; }
+.qr__code { width: 176px; height: 176px; padding: 10px; background: #FFFFFF; border: 2px solid var(--hairline); border-radius: 6px; }
+.qr__code svg { display: block; width: 100%; height: 100%; }
+.qr__cap { font-family: var(--font-functional); font-size: 22px; line-height: 1.4; color: var(--muted); text-align: right; white-space: nowrap; }
+
+/* ============================================================
+   Print (one slide per page) and print-mode preview
+   ============================================================ */
+@page { size: 1920px 1080px; margin: 0; }
+body.print-mode { background: #fff; }
+body.print-mode #stage { position: static; width: auto; height: auto; transform: none; }
+body.print-mode .slide { position: relative; display: flex; break-after: page; page-break-after: always; }
+body.print-mode .slide:last-child { break-after: auto; page-break-after: auto; }
+body.print-mode .fragment { opacity: 1; transition: none; }
+body.print-mode .screen-only, body.print-mode #help, body.print-mode #notes, body.print-mode #nav, body.blackout #nav, body.no-anim #nav { display: none !important; }
+@media print {
+  body { background: #fff; }
+  #stage { position: static; width: auto; height: auto; transform: none !important; }
+  .slide { position: relative; display: flex !important; break-after: page; page-break-after: always; }
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+  .fragment { opacity: 1 !important; }
+  .screen-only, #help, #notes, #nav { display: none !important; }
+}
+</style>
+</head>
+<body>
+{{FLAGS}}
+<div id="stage">
+
+<!-- 1 · Cover -->
+<section class="slide slide--cover" data-label="Cover">
+  <div class="cov-eyebrow">{{T:1.eyebrow}}</div>
+  <div class="cov-kr">{{T:1.kr}}</div>
+  <div class="cov-title">{{T:1.title}}</div>
+  <div class="cov-author">{{T:1.author}}</div>
+  <div class="cov-aff">{{T:1.aff}}</div>
+  <div class="cov-meta">{{T:1.meta}}</div>
+  <aside class="notes"><p>Thank the moderator and the hosts. One sentence on what the next forty-five minutes are for.</p></aside>
+</section>
+
+<!-- 2 · Cold open -->
+<section class="slide" data-eyebrow="Where we start" data-slide="2 / 34" data-label="2 / 34">
+  <div class="body center"><p class="big">{{T:2.big}}</p></div>
+  <aside class="notes"><p>Tell it in three sentences. Promise the tool for slide 20.</p></aside>
+</section>
+
+<!-- 3 · What changed -->
+<section class="slide" data-eyebrow="What changed" data-slide="3 / 34" data-label="3 / 34">
+  <div class="bar">{{T:3.h}}</div>
+  <div class="body mid">
+    <div class="flow loop">
+      <div class="node"><div class="v">{{T:3.n1}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node"><div class="v">{{T:3.n2}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node"><div class="v">{{T:3.n3}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node"><div class="v">{{T:3.n4}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node"><div class="v">{{T:3.n5}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node"><div class="v">{{T:3.n6}}</div></div>
+    </div>
+    <p class="line">{{T:3.line}}</p>
+    <div class="srcnote">{{T:3.cite}}</div>
+  </div>
+  <aside class="notes"><p>Chat answers. An agent acts, sees the result, decides the next step.</p></aside>
+</section>
+
+<!-- 4 · The question -->
+<section class="slide" data-eyebrow="The question" data-slide="4 / 34" data-label="4 / 34">
+  <div class="body center">
+    <p class="big">{{T:4.big}}</p>
+    <div class="verbs">{{T:4.verbs}}</div>
+  </div>
+  <aside class="notes"><p>The three verbs. Say them once here and once at the end.</p></aside>
+</section>
+
+<!-- 5 · Three spaces -->
+<section class="slide" data-eyebrow="The map" data-slide="5 / 34" data-label="5 / 34">
+  <div class="bar">{{T:5.h}}</div>
+  <div class="body mid">
+    {{CHART:three_spaces_all}}
+    <p class="line tight muted">{{T:5.line}}</p>
+  </div>
+  <aside class="notes"><p>The map returns at each divider. Do not read the definitions aloud; say what each space is for.</p></aside>
+</section>
+
+<!-- 6 · Divider: Part one -->
+<section class="slide slide--divider" data-label="Part one">
+  <div class="div-eyebrow">{{T:6.eyebrow}}</div>
+  <div class="div-title">{{T:6.title}}</div>
+  <div class="div-sub">{{T:6.sub}}</div>
+  <div class="div-map">{{CHART:three_spaces_all}}</div>
+  <div class="progress"><span class="on"></span><span></span><span></span></div>
+  <aside class="notes"><p>Ten minutes for Part one.</p></aside>
+</section>
+
+<!-- 7 · Automate -->
+<section class="slide" data-eyebrow="Part one · Automate" data-slide="7 / 34" data-label="7 / 34">
+  <div class="bar">{{T:7.h}}</div>
+  <div class="body mid">
+    <ul class="ledger">
+      <li><span class="who">{{T:7.r1.who}}</span><div>{{T:7.r1.text}}</div></li>
+      <li><span class="who">{{T:7.r2.who}}</span><div>{{T:7.r2.text}}</div></li>
+      <li><span class="who">{{T:7.r3.who}}</span><div>{{T:7.r3.text}}</div></li>
+      <li><span class="who">{{T:7.r4.who}}</span><div>{{T:7.r4.text}}</div></li>
+      <li><span class="who">{{T:7.r5.who}}</span><div>{{T:7.r5.text}}</div></li>
+      <li><span class="who">{{T:7.r6.who}}</span><div>{{T:7.r6.text}}</div></li>
+    </ul>
+  </div>
+  <aside class="notes"><p>Each row is something I actually do. Pick two to say aloud.</p></aside>
+</section>
+
+<!-- 8 · Automate, the claim -->
+<section class="slide" data-eyebrow="Part one · Automate" data-slide="8 / 34" data-label="8 / 34">
+  <div class="body center">
+    <p class="big">{{T:8.big}}</p>
+    <p class="sub">{{T:8.sub}}</p>
+  </div>
+  <aside class="notes"><p>The trace: a plain-text log, a diff, a gate receipt. Automation you cannot audit is not automation.</p></aside>
+</section>
+
+<!-- 9 · Protect -->
+<section class="slide" data-eyebrow="Part one · Protect" data-slide="9 / 34" data-label="9 / 34">
+  <div class="bar">{{T:9.h}}</div>
+  <div class="body mid">
+    <ul class="ledger">
+      <li><span class="who">{{T:9.r1.who}}</span><div>{{T:9.r1.text}}</div></li>
+      <li><span class="who">{{T:9.r2.who}}</span><div>{{T:9.r2.text}}</div></li>
+      <li><span class="who">{{T:9.r3.who}}</span><div>{{T:9.r3.text}}</div></li>
+      <li><span class="who">{{T:9.r4.who}}</span><div>{{T:9.r4.text}}</div></li>
+      <li><span class="who">{{T:9.r5.who}}</span><div>{{T:9.r5.text}}</div></li>
+      <li><span class="who">{{T:9.r6.who}}</span><div>{{T:9.r6.text}}</div></li>
+      <li><span class="who">{{T:9.r7.who}}</span><div>{{T:9.r7.text}}</div></li>
+    </ul>
+  </div>
+  <aside class="notes"><p>Same form as the automate ledger on purpose. The rows differ in kind, not in difficulty.</p></aside>
+</section>
+
+<!-- 10 · Protect, the test -->
+<section class="slide" data-eyebrow="Part one · Protect" data-slide="10 / 34" data-label="10 / 34">
+  <div class="bar">{{T:10.h}}</div>
+  <div class="body mid">
+    <div class="quote">{{T:10.q}}</div>
+    <p class="sub">{{T:10.sub}}</p>
+  </div>
+  <aside class="notes"><p>The student and professor distinction. Kremer's O-ring in one sentence if there is time.</p></aside>
+</section>
+
+<!-- 11 · Collaborate, defined -->
+<section class="slide" data-eyebrow="Part one · Collaborate" data-slide="11 / 34" data-label="11 / 34">
+  <div class="bar">{{T:11.h}}</div>
+  <div class="body mid">
+    <div class="def"><div class="k">{{T:11.k}}</div><p class="v">{{T:11.v}}</p></div>
+  </div>
+  <aside class="notes"><p>Responsibility is the word. Scale, speed, or form is what the machine changes.</p></aside>
+</section>
+
+<!-- 12 · Kenny's grid -->
+<section class="slide" data-eyebrow="Part one · Collaborate" data-slide="12 / 34" data-label="12 / 34">
+  <div class="bar">{{T:12.h}}</div>
+  <div class="body mid">
+    {{CHART:grid}}
+    <div class="srcnote">{{T:12.cite}}</div>
+  </div>
+  <aside class="notes"><p>Walk the four cells clockwise from top left. Credit Kenny and Swaney aloud.</p></aside>
+</section>
+
+<!-- 13 · The gate -->
+<section class="slide" data-eyebrow="Part one · Collaborate" data-slide="13 / 34" data-label="13 / 34">
+  <div class="bar">{{T:13.h}}</div>
+  <div class="body mid">
+    {{CHART:gate}}
+    <p class="line tight">{{T:13.note}}</p>
+  </div>
+  <aside class="notes"><p>The riff. His grid sorts delegation; the gate adds the case where you do not delegate.</p></aside>
+</section>
+
+<!-- 14 · Research raises the bar -->
+<section class="slide" data-eyebrow="Part one · Collaborate" data-slide="14 / 34" data-label="14 / 34">
+  <div class="bar">{{T:14.h}}</div>
+  <div class="body mid">
+    <div class="two-col">
+      <div class="col"><p class="k">{{T:14.l.k}}</p><p>{{T:14.l.t1}}</p><p>{{T:14.l.t2}}</p><p>{{T:14.l.t3}}</p></div>
+      <div class="col"><p class="k">{{T:14.r.k}}</p><p>{{T:14.r.t1}}</p><p>{{T:14.r.t2}}</p><p>{{T:14.r.t3}}</p></div>
+    </div>
+    <div class="bridge" style="bottom:104px">{{T:14.bridge}}</div>
+    <div class="srcnote">{{T:14.cite}}</div>
+  </div>
+  <aside class="notes"><p>The bridge into Part two.</p></aside>
+</section>
+
+<!-- 15 · Divider: Part two -->
+<section class="slide slide--divider" data-label="Part two">
+  <div class="div-eyebrow">{{T:15.eyebrow}}</div>
+  <div class="div-title">{{T:15.title}}</div>
+  <div class="div-sub">{{T:15.sub}}</div>
+  <div class="div-map">{{CHART:three_spaces_p2}}</div>
+  <div class="progress"><span class="on"></span><span class="on"></span><span></span></div>
+  <aside class="notes"><p>Twenty-five minutes. Two demonstrations, then the coda.</p></aside>
+</section>
+
+<!-- 16 · The workbench -->
+<section class="slide" data-eyebrow="Part two · The workbench" data-slide="16 / 34" data-label="16 / 34">
+  <div class="bar">{{T:16.h}}</div>
+  <div class="body mid">
+    <div class="flow wide">
+      <div class="node"><div class="v">{{T:16.n1}}</div><div class="s">{{T:16.s1}}</div></div><div class="arrow">&harr;</div>
+      <div class="node"><div class="v">{{T:16.n2}}</div><div class="s">{{T:16.s2}}</div></div><div class="arrow">&harr;</div>
+      <div class="node"><div class="v">{{T:16.n3}}</div><div class="s">{{T:16.s3}}</div></div>
+    </div>
+    <p class="line">{{T:16.line}}</p>
+  </div>
+  <aside class="notes"><p>Introduce the skills library in one breath. The skill is where the field's standard lives.</p></aside>
+</section>
+
+<!-- 17 · Disconnected objects -->
+<section class="slide" data-eyebrow="Part two · Demo 1 · A research knowledge base" data-slide="17 / 34" data-label="17 / 34">
+  <div class="bar">{{T:17.h}}</div>
+  <div class="body mid">
+    <div class="flow">
+      <div class="node"><div class="v">{{T:17.n1}}</div></div><div class="arrow gap"></div>
+      <div class="node"><div class="v">{{T:17.n2}}</div></div><div class="arrow gap"></div>
+      <div class="node"><div class="v">{{T:17.n3}}</div></div><div class="arrow gap"></div>
+      <div class="node"><div class="v">{{T:17.n4}}</div></div><div class="arrow gap"></div>
+      <div class="node"><div class="v">{{T:17.n5}}</div></div><div class="arrow gap"></div>
+      <div class="node"><div class="v">{{T:17.n6}}</div></div>
+    </div>
+    <p class="line">{{T:17.line}}</p>
+  </div>
+  <aside class="notes"><p>The familiar scholarly problem before any machinery.</p></aside>
+</section>
+
+<!-- 18 · The knowledge base -->
+<section class="slide" data-eyebrow="Part two · Demo 1 · A research knowledge base" data-slide="18 / 34" data-label="18 / 34">
+  <div class="bar">{{T:18.h}}</div>
+  <div class="body mid" style="justify-content:flex-start;padding-top:6px">
+    {{CHART:kb_stack}}
+    <div class="srcnote">{{T:18.cite}}</div>
+  </div>
+  <aside class="notes"><p>Build it bottom up. The verbatim layer is the point; the wiki sits on it.</p></aside>
+</section>
+
+<!-- 19 · Retrieval -->
+<section class="slide" data-eyebrow="Part two · Demo 1 · A research knowledge base" data-slide="19 / 34" data-label="19 / 34">
+  <div class="bar">{{T:19.h}}</div>
+  <div class="body mid" style="justify-content:flex-start;padding-top:10px">
+    <div class="split">
+      <div class="term">
+        <div class="p">{{T:19.prompt}}</div>
+        <div class="a">{{T:19.a1}}</div>
+        <div class="a">{{T:19.a2}}</div>
+        <div class="a">{{T:19.a3}}</div>
+        <div class="a">{{T:19.a4}}</div>
+      </div>
+      <div class="box box--ox">
+        <div class="box__h">{{T:19.box.k}}</div>
+        <div class="box__b">
+          <div class="f"><div class="k">Establishes</div><div class="t">{{T:19.box.e}}</div></div>
+          <div class="f"><div class="k">Boundary</div><div class="t">{{T:19.box.b}}</div></div>
+          <div class="f"><div class="k">Supports</div><div class="t">{{T:19.box.s}}</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="foot">{{T:19.foot}}</div>
+  </div>
+  <aside class="notes"><p>Captured from the political-regimes project. The answer cites files, and the right panel is one of them.</p></aside>
+</section>
+
+<!-- 20 · Verification -->
+<section class="slide" data-eyebrow="Part two · Demo 1 · A research knowledge base" data-slide="20 / 34" data-label="20 / 34">
+  <div class="bar">{{T:20.h}}</div>
+  <div class="body mid" style="justify-content:flex-start;padding-top:10px">
+    <div class="term">
+      <div class="p">{{T:20.prompt}}</div>
+      <div class="vrow"><div class="vmark ok">{{T:20.v1.m}}</div><div><div class="claim">{{T:20.v1.c}}</div><div class="src">{{T:20.v1.s}}</div></div></div>
+      <div class="vrow"><div class="vmark part">{{T:20.v2.m}}</div><div><div class="claim">{{T:20.v2.c}}</div><div class="src">{{T:20.v2.s}}</div></div></div>
+      <div class="vrow"><div class="vmark fail">{{T:20.v3.m}}</div><div><div class="claim">{{T:20.v3.c}}</div><div class="src">{{T:20.v3.s}}</div></div></div>
+    </div>
+    <div class="foot">{{T:20.foot}}</div>
+  </div>
+  <aside class="notes"><p>The synthetic project from the site's demos. Then the real one, in one sentence: the source cited twice.</p></aside>
+</section>
+
+<!-- 21 · The chain of checks -->
+<section class="slide" data-eyebrow="Part two · Demo 1 · A research knowledge base" data-slide="21 / 34" data-label="21 / 34">
+  <div class="bar">{{T:21.h}}</div>
+  <div class="body mid">
+    <div class="flow wide">
+      <div class="node machine"><div class="v">{{T:21.n1}}</div><div class="s">{{T:21.s1}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node machine"><div class="v">{{T:21.n2}}</div><div class="s">{{T:21.s2}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node machine"><div class="v">{{T:21.n3}}</div><div class="s">{{T:21.s3}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node machine"><div class="v">{{T:21.n4}}</div><div class="s">{{T:21.s4}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node human"><div class="v">{{T:21.n5}}</div><div class="s">{{T:21.s5}}</div></div>
+    </div>
+    <p class="line">{{T:21.line}}</p>
+  </div>
+  <aside class="notes"><p>Deterministic before generative. The cheap checks run at every commit; the model reads last.</p></aside>
+</section>
+
+<!-- 22 · The reverse direction -->
+<section class="slide" data-eyebrow="Part two · Demo 1 · A research knowledge base" data-slide="22 / 34" data-label="22 / 34">
+  <div class="bar">{{T:22.h}}</div>
+  <div class="body mid">
+    <div class="quote">{{T:22.q}}</div>
+    <p class="sub">{{T:22.sub}}</p>
+  </div>
+  <aside class="notes"><p>The point of Demo 1 in one line, then pivot.</p></aside>
+</section>
+
+<!-- 23 · Not yet data -->
+<section class="slide" data-eyebrow="Part two · Demo 2 · From bookshelf to corpus" data-slide="23 / 34" data-label="23 / 34">
+  <div class="bar">{{T:23.h}}</div>
+  <div class="body">
+    <div class="fig2">
+      <div class="pic"><img src="{{FIG:page_polish_title_1951.png}}" alt="Title page of a 1951 Polish history textbook, scanned at the Georg Eckert Institute"><div class="cap">{{T:23.cap}}</div></div>
+      <p class="big">{{T:23.line}}</p>
+    </div>
+  </div>
+  <aside class="notes"><p>The pivot. Scholarship that already exists as documents versus material that is not yet data.</p></aside>
+</section>
+
+<!-- 24 · The pipeline -->
+<section class="slide" data-eyebrow="Part two · Demo 2 · From bookshelf to corpus" data-slide="24 / 34" data-label="24 / 34">
+  <div class="bar">{{T:24.h}}</div>
+  <div class="body mid">
+    {{CHART:gei_pipeline}}
+    <div class="strip">{{T:24.strip}}</div>
+  </div>
+  <aside class="notes"><p>Build node by node. Say the counts once.</p></aside>
+</section>
+
+<!-- 25 · OCR demo, winner first -->
+<section class="slide" data-eyebrow="Part two · Demo 2 · From bookshelf to corpus" data-slide="25 / 34" data-label="25 / 34">
+  <div class="bar">{{T:25.h}}</div>
+  <div class="body">
+    <div class="fig2">
+      <div class="pic"><img src="{{FIG:page_korean_1956.png}}" alt="A page from a 1956 South Korean history textbook on Dangun and Gojoseon"><div class="cap">{{T:25.cap}}</div></div>
+      <div class="stack">
+        <div class="box box--sage"><div class="box__h">{{T:25.good.k}}</div><div class="box__b kr">{{T:25.good.t}}</div></div>
+        <div class="box box--brick"><div class="box__h">{{T:25.bad.k}}</div><div class="box__b">{{T:25.bad.t}}</div></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes"><p>Read the Korean aloud if the room is Korean. Hangul and the hanja glosses, from one scan, no setup.</p></aside>
+</section>
+
+<!-- 26 · Every arrow is a decision -->
+<section class="slide" data-eyebrow="Part two · Demo 2 · From bookshelf to corpus" data-slide="26 / 34" data-label="26 / 34">
+  <div class="bar">{{T:26.h}}</div>
+  <div class="body mid">
+    {{CHART:decisions}}
+    <p class="line tight">{{T:26.line}}</p>
+  </div>
+  <aside class="notes"><p>Same drawing as two slides ago, with the questions under the arrows. This is research design.</p></aside>
+</section>
+
+<!-- 27 · Proxy as warning -->
+<section class="slide" data-eyebrow="Part two · Demo 2 · From bookshelf to corpus" data-slide="27 / 34" data-label="27 / 34">
+  <div class="bar">{{T:27.h}}</div>
+  <div class="body mid">
+    {{CHART:divergence}}
+    <p class="line">{{T:27.line}}</p>
+    <div class="srcnote">{{T:27.src}}</div>
+  </div>
+  <aside class="notes"><p>Say "cross-model agreement", never a character error rate. There is no ground truth by decision.</p></aside>
+</section>
+
+<!-- 28 · What can become data -->
+<section class="slide" data-eyebrow="Part two · Demo 2 · From bookshelf to corpus" data-slide="28 / 34" data-label="28 / 34">
+  <div class="bar">{{T:28.h}}</div>
+  <div class="body mid">
+    <div class="bigs">
+      <div class="bign"><div class="v">{{T:28.n1.v}}</div><div class="l">{{T:28.n1.l}}</div></div>
+      <div class="bign"><div class="v">{{T:28.n2.v}}</div><div class="l">{{T:28.n2.l}}</div></div>
+      <div class="bign"><div class="v">{{T:28.n3.v}}</div><div class="l">{{T:28.n3.l}}</div></div>
+    </div>
+    <p class="line">{{T:28.line}}</p>
+  </div>
+  <aside class="notes"><p>The corpus that already exists and what it showed. Observational, not causal.</p></aside>
+</section>
+
+<!-- 29 · Two uses -->
+<section class="slide" data-eyebrow="Part two · Two uses of the workbench" data-slide="29 / 34" data-label="29 / 34">
+  <div class="bar">{{T:29.h}}</div>
+  <div class="body mid">
+    <table class="bt">
+      <thead><tr><th>{{T:29.c1}}</th><th>{{T:29.c2}}</th></tr></thead>
+      <tbody>
+        <tr><td>{{T:29.r1.a}}</td><td>{{T:29.r1.b}}</td></tr>
+        <tr><td>{{T:29.r2.a}}</td><td>{{T:29.r2.b}}</td></tr>
+        <tr><td>{{T:29.r3.a}}</td><td>{{T:29.r3.b}}</td></tr>
+        <tr><td>{{T:29.r4.a}}</td><td>{{T:29.r4.b}}</td></tr>
+        <tr><td>{{T:29.r5.a}}</td><td>{{T:29.r5.b}}</td></tr>
+      </tbody>
+    </table>
+    <div class="bridge">{{T:29.bridge}}</div>
+  </div>
+  <aside class="notes"><p>Why the two demonstrations belong together. The bridge line is the thesis.</p></aside>
+</section>
+
+<!-- 30 · Supervision coda -->
+<section class="slide" data-eyebrow="Part two · Coda · Supervision" data-slide="30 / 34" data-label="30 / 34">
+  <div class="bar">{{T:30.h}}</div>
+  <div class="body mid">
+    <div class="flow wide">
+      <div class="node human"><div class="v">{{T:30.n1}}</div><div class="s">{{T:30.s1}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node human"><div class="v">{{T:30.n2}}</div><div class="s">{{T:30.s2}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node human"><div class="v">{{T:30.n3}}</div><div class="s">{{T:30.s3}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node machine"><div class="v">{{T:30.n4}}</div><div class="s">{{T:30.s4}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node machine"><div class="v">{{T:30.n5}}</div><div class="s">{{T:30.s5}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node human"><div class="v">{{T:30.n6}}</div><div class="s">{{T:30.s6}}</div></div>
+    </div>
+    <p class="line">{{T:30.line}}</p>
+  </div>
+  <aside class="notes"><p>Sixty to ninety seconds. Reconnects the research middle to teaching.</p></aside>
+</section>
+
+<!-- 31 · Students and professors -->
+<section class="slide" data-eyebrow="Conclusion" data-slide="31 / 34" data-label="31 / 34">
+  <div class="bar">{{T:31.h}}</div>
+  <div class="body mid">
+    <div class="two-col">
+      <div class="col"><p class="k">{{T:31.l.k}}</p><p>{{T:31.l.t1}}</p><p>{{T:31.l.t2}}</p><p>{{T:31.l.t3}}</p></div>
+      <div class="col"><p class="k">{{T:31.r.k}}</p><p>{{T:31.r.t1}}</p><p>{{T:31.r.t2}}</p><p>{{T:31.r.t3}}</p></div>
+    </div>
+  </div>
+  <aside class="notes"><p>This slide answers the title. Three sentences a side.</p></aside>
+</section>
+
+<!-- 32 · Allocation, not adoption -->
+<section class="slide" data-eyebrow="Conclusion" data-slide="32 / 34" data-label="32 / 34">
+  <div class="body center">
+    <p class="big">{{T:32.big}}</p>
+    <p class="sub">{{T:32.sub}}</p>
+  </div>
+  <aside class="notes"><p>The allocation problem, restated for the university.</p></aside>
+</section>
+
+<!-- 33 · Standout -->
+<section class="slide slide--standout" data-label="33 / 34">
+  <p class="so-line">{{T:33.l1}}</p>
+  <p class="so-line">{{T:33.l2}}</p>
+  <p class="so-line">{{T:33.l3}}</p>
+  <p class="so-cta">{{T:33.cta}}</p>
+  <div class="so-by">{{T:33.by}}</div>
+  <aside class="notes"><p>Read the three lines slowly. Stop on the rose line.</p></aside>
+</section>
+
+<!-- 34 · Working in the open -->
+<section class="slide" data-eyebrow="Resources" data-slide="34 / 34" data-label="34 / 34">
+  <div class="bar">{{T:34.h}}</div>
+  <div class="body mid" style="justify-content:flex-start;padding-top:60px">
+    <div class="cards3">
+      <div class="card"><div class="k">{{T:34.c1.k}}</div><div class="t">{{T:34.c1.t}}</div><div class="u">{{T:34.c1.u}}</div></div>
+      <div class="card"><div class="k">{{T:34.c2.k}}</div><div class="t">{{T:34.c2.t}}</div><div class="u">{{T:34.c2.u}}</div></div>
+      <div class="card"><div class="k">{{T:34.c3.k}}</div><div class="t">{{T:34.c3.t}}</div><div class="u">{{T:34.c3.u}}</div></div>
+    </div>
+  </div>
+  <div class="contact">{{T:34.contact}}</div>
+  <div class="qr"><div class="qr__code">{{QR}}</div><div class="qr__cap">{{T:34.qrcap}}</div></div>
+  <aside class="notes"><p>Thank you. Leave this up for the discussion.</p></aside>
+</section>
+
+<!-- A1 · The nine systems -->
+<section class="slide" data-eyebrow="Appendix" data-slide="Appendix 1" data-label="Appendix 1">
+  <div class="bar">{{T:A1.h}}</div>
+  <div class="body mid">
+    <table class="bt compact">
+      <thead><tr><th>Model</th><th>Parameters</th><th>Precision</th><th style="text-align:right">Seconds per page</th></tr></thead>
+      <tbody>
+        <tr><td>{{T:A1.r1.m}}</td><td>{{T:A1.r1.p}}</td><td>{{T:A1.r1.q}}</td><td class="n">{{T:A1.r1.s}}</td></tr>
+        <tr><td>{{T:A1.r2.m}}</td><td>{{T:A1.r2.p}}</td><td>{{T:A1.r2.q}}</td><td class="n">{{T:A1.r2.s}}</td></tr>
+        <tr><td>{{T:A1.r3.m}}</td><td>{{T:A1.r3.p}}</td><td>{{T:A1.r3.q}}</td><td class="n">{{T:A1.r3.s}}</td></tr>
+        <tr><td>{{T:A1.r4.m}}</td><td>{{T:A1.r4.p}}</td><td>{{T:A1.r4.q}}</td><td class="n">{{T:A1.r4.s}}</td></tr>
+        <tr><td>{{T:A1.r5.m}}</td><td>{{T:A1.r5.p}}</td><td>{{T:A1.r5.q}}</td><td class="n">{{T:A1.r5.s}}</td></tr>
+        <tr><td>{{T:A1.r6.m}}</td><td>{{T:A1.r6.p}}</td><td>{{T:A1.r6.q}}</td><td class="n">{{T:A1.r6.s}}</td></tr>
+        <tr><td>{{T:A1.r7.m}}</td><td>{{T:A1.r7.p}}</td><td>{{T:A1.r7.q}}</td><td class="n">{{T:A1.r7.s}}</td></tr>
+        <tr><td>{{T:A1.r8.m}}</td><td>{{T:A1.r8.p}}</td><td>{{T:A1.r8.q}}</td><td class="n">{{T:A1.r8.s}}</td></tr>
+        <tr><td>{{T:A1.r9.m}}</td><td>{{T:A1.r9.p}}</td><td>{{T:A1.r9.q}}</td><td class="n">{{T:A1.r9.s}}</td></tr>
+      </tbody>
+    </table>
+    <div class="srcnote">{{T:A1.src}}</div>
+  </div>
+</section>
+
+<!-- A2 · The deliverable pipeline -->
+<section class="slide" data-eyebrow="Appendix" data-slide="Appendix 2" data-label="Appendix 2">
+  <div class="bar">{{T:A2.h}}</div>
+  <div class="body mid">
+    <div class="flow">
+      <div class="node"><div class="v">{{T:A2.s1}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node"><div class="v">{{T:A2.s2}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node"><div class="v">{{T:A2.s3}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node"><div class="v">{{T:A2.s4}}</div></div>
+    </div>
+    <div class="flow" style="margin-top:56px">
+      <div class="node machine"><div class="v">{{T:A2.s5}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node"><div class="v">{{T:A2.s6}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node"><div class="v">{{T:A2.s7}}</div></div><div class="arrow">&rarr;</div>
+      <div class="node"><div class="v">{{T:A2.s8}}</div></div>
+    </div>
+    <p class="line">{{T:A2.line}}</p>
+  </div>
+</section>
+
+<!-- A3 · Installing the skills -->
+<section class="slide" data-eyebrow="Appendix" data-slide="Appendix 3" data-label="Appendix 3">
+  <div class="bar">{{T:A3.h}}</div>
+  <div class="body mid">
+    <div class="cmd">{{T:A3.cmd1}}</div>
+    <div class="cmd">{{T:A3.cmd2}}</div>
+    <p class="line">{{T:A3.line}}</p>
+  </div>
+</section>
+
+<!-- A4 · References -->
+<section class="slide" data-eyebrow="Appendix" data-slide="Appendix 4" data-label="Appendix 4">
+  <div class="bar">{{T:A4.h}}</div>
+  <div class="body mid">
+    <ul class="ledger">
+      <li><span class="who">{{T:A4.r1.who}}</span><div>{{T:A4.r1.text}}</div></li>
+      <li><span class="who">{{T:A4.r2.who}}</span><div>{{T:A4.r2.text}}</div></li>
+      <li><span class="who">{{T:A4.r3.who}}</span><div>{{T:A4.r3.text}}</div></li>
+      <li><span class="who">{{T:A4.r4.who}}</span><div>{{T:A4.r4.text}}</div></li>
+      <li><span class="who">{{T:A4.r5.who}}</span><div>{{T:A4.r5.text}}</div></li>
+      <li><span class="who">{{T:A4.r6.who}}</span><div>{{T:A4.r6.text}}</div></li>
+      <li><span class="who">{{T:A4.r7.who}}</span><div>{{T:A4.r7.text}}</div></li>
+    </ul>
+  </div>
+</section>
+
+</div>
+
+<nav id="nav" class="screen-only" aria-label="Slide navigation">
+  <button id="nav-prev" type="button" aria-label="Previous slide"><svg viewBox="0 0 16 16"><path d="M10 3L5 8l5 5"/></svg></button>
+  <span class="n" id="nav-label">1<span>/</span>34</span>
+  <button id="nav-next" type="button" aria-label="Next slide"><svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button>
+  <div class="sep"></div>
+  <button id="nav-reset" class="reset" type="button" aria-label="Back to the first slide">Reset<kbd>R</kbd></button>
+</nav>
+<div id="help" class="screen-only">&larr; &rarr; navigate · R reset · F fullscreen · N notes · B blackout · P print preview</div>
+<div id="notes"></div>
+<span id="counter"></span>
+<script>
+{{RUNTIME}}
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+ "entries": {
+  "06b7996e36b9": {
+   "bib_key": "kenny2026",
+   "checked_at": "2026-09-16",
+   "file": "content.md",
+   "first_seen": "2026-09-16",
+   "kind": "author-year",
+   "line": 154,
+   "ref": "Kenny 2026",
+   "source": "bib",
+   "status": "VERIFIED"
+  },
+  "385e9227dff9": {
+   "bib_key": "karpathy2026",
+   "checked_at": "2026-09-16",
+   "file": "content.md",
+   "first_seen": "2026-09-16",
+   "kind": "author-year",
+   "line": 234,
+   "ref": "The top layer is Karpathy 2026",
+   "source": "bib",
+   "status": "VERIFIED"
+  },
+  "3aa8c2e45b24": {
+   "bib_key": "kenny2026",
+   "checked_at": "2026-09-16",
+   "file": "content.md",
+   "first_seen": "2026-09-16",
+   "kind": "author-year",
+   "line": 184,
+   "ref": "After Kenny 2026",
+   "source": "bib",
+   "status": "VERIFIED"
+  },
+  "d6627d98cbba": {
+   "bib_key": "kenny2026",
+   "checked_at": "2026-09-16",
+   "file": "content.md",
+   "first_seen": "2026-09-16",
+   "kind": "author-year",
+   "line": 46,
+   "ref": "The loop after Kenny 2026",
+   "source": "bib",
+   "status": "VERIFIED"
+  }
+ },
+ "version": 1
+}

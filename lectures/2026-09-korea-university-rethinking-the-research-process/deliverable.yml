@@ -1,0 +1,60 @@
+# Deliverable manifest -- read by check_deliverable.py, deliverable-intake, deliverable-lint,
+# the SessionStart hook, and /sitrep. Paths are relative to this directory.
+schema: 1
+agent:                      # vendor-neutral routing; Claude runs /oss:<name>, Codex runs $<name>
+  on_braindump: deliverable-intake
+  on_review_request: deliverable-lint
+  on_session_end: finished
+  preserve_raw_captures: true
+  session_state: HANDOFF.md
+id: afr-korea-university-2026-09-talk
+kind: talk
+title: "Rethinking the Research Process: How AI Is Changing Research for Students and Professors"
+audience: >-
+  Korea University, "AI Literacy for Social Scientists" Special Lecture Series, Lecture 01.
+  Friday 18 September 2026, 1:30 to 3:30 PM KST, online via Zoom, open to all; graduate students
+  and faculty in sociology and political science, moderated by Sung Eun Kim. A 45-minute talk
+  followed by moderated discussion. Afterwards, anyone who opens the deck on the AI for
+  Research site.
+deadline: 2026-09-18
+claim: >-
+  The question for researchers and universities is not whether to use AI but where to
+  automate, what to protect, and where to collaborate; at the workbench the human keeps
+  epistemic responsibility while the machine changes scale, speed, or form, and the two
+  demonstrations (a verbatim knowledge base that ends in claim-checking, a textbook corpus
+  that ends in inference) show the same rule from both sides: automate the machinery, not
+  the judgment.
+done: >-
+  Thirty-four slides plus four appendix slides, delivered in 45 minutes over Zoom; every
+  citation on a slide resolves in references.bib; every number on a slide appears in
+  notes.md with its source path and passes the guardrail list; index.html published on the
+  AI for Research site at the URL the QR code encodes, with a card on the lectures page.
+status: built 2026-09-16; to be delivered 2026-09-18
+sources_of_truth:
+  - content.md
+  - notes.md
+  - references.bib
+published_url: https://scdenney.github.io/ai-for-research/lectures/rethinking-the-research-process/
+planning_dir: planning
+handoff: HANDOFF.md
+sections_from: content-keys
+sections_files: [content.md]
+voice: writing-toolkit@9a7faa7
+build:
+  command: python3 src/build.py --html
+  artifacts: [index.html]
+checks:
+  credentials: true
+  citations:
+    bib: references.bib
+    scan: [content.md]
+    cite_fields: true
+    pandoc: false
+    verify_bib: false
+  prose_tells:
+    scan: [notes.md, content.md]
+  deck_budget: false   # budgets for the house deck classes not yet measured; see deck-template README
+night_shift:
+  enabled: false
+  budget_usd: 3
+  model: opus

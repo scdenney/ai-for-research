@@ -173,8 +173,18 @@ decided.
 ## Build
 
 - **Format: Beamer**, not the HTML deck system used for the first attempt.
-- **Palette: ask Codex.** It does better at soft, palette-based color schemes. Ping it for the
-  Beamer theme colors before writing slide content.
+- **Palette: Option A, Chalk and Mulberry.** Chosen 2026-09-16 from two Codex proposals, with the
+  option of adjusting later. Cool grey-lilac page `#F7F7FA`, carbon ink `#24212B`, mulberry
+  structure `#6B465F`, eucalyptus emphasis `#4D6256`, pine/bronze/cranberry verdicts, porcelain
+  box fill, lilac-stone divider. Noto Sans throughout, English and Korean alike, Korean via xeCJK
+  with the Noto CJK KR families. Beamer `default` theme, XeLaTeX, 16:9. Ten colors, one role each.
+  Full preamble and a worked example frame: `palette-options/option-a-chalk-mulberry.tex`.
+  Contrast: every text-on-background pair clears 4.5:1 measured from sRGB, though not measured
+  through Zoom. Verified to compile with substitute fonts; needs one test build on Overleaf with
+  the real Noto families.
+  Two of Codex's decisions are open: it removed the dark standout slide in favour of a
+  light-tinted divider, so the deck currently has no inverted slide, and mulberry is an unusual
+  structural colour for an academic talk.
 - **Home: Overleaf.** `git clone https://git@git.overleaf.com/6aaa697efc7ddb608ab4c4d1`
   The talk source lives there. Not yet cloned; nothing written to it.
 - Existing house design references, for the look rather than the mechanism:

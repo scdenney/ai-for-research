@@ -1,0 +1,282 @@
+% Compile with XeLaTeX
+\documentclass[aspectratio=169,14pt,xcolor=table]{beamer}
+
+\usetheme{default}
+\usefonttheme{serif}
+\usefonttheme{professionalfonts}
+
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{tcolorbox}
+\usepackage{fvextra}
+\usepackage{pifont}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+
+% Fonts
+\defaultfontfeatures{Ligatures=TeX}
+\setmainfont{Noto Serif}
+\setsansfont{Noto Sans}
+\setmonofont{Noto Sans Mono}[Ligatures=NoCommon]
+
+\setCJKmainfont{Noto Serif CJK KR}[Scale=0.95]
+\setCJKsansfont{Noto Sans CJK KR}[Scale=0.95]
+\setCJKmonofont{Noto Sans Mono CJK KR}[Scale=0.95]
+\xeCJKsetup{CJKspace=true}
+
+% Exactly ten semantic colors
+\definecolor{Page}{HTML}{F6F5F1}
+\definecolor{Ink}{HTML}{292824}
+\definecolor{Muted}{HTML}{605D56}
+\definecolor{Structure}{HTML}{57544F}
+\definecolor{Emphasis}{HTML}{465F79}
+\definecolor{PassColor}{HTML}{3B654B}
+\definecolor{PartialColor}{HTML}{795A21}
+\definecolor{FailColor}{HTML}{913F38}
+\definecolor{BoxFill}{HTML}{EAE7DF}
+\definecolor{InverseAccent}{HTML}{DEDACF}
+
+% Canvas and text
+\setbeamercolor{normal text}{fg=Ink,bg=Page}
+\setbeamercolor{background canvas}{bg=Page}
+\setbeamercolor{structure}{fg=Structure}
+\setbeamercolor{local structure}{fg=Structure}
+\setbeamercolor{alerted text}{fg=Emphasis}
+\setbeamercolor{example text}{fg=Ink}
+\setbeamercolor{titlelike}{fg=Structure,bg=Page}
+\setbeamercolor{title}{fg=Structure,bg=Page}
+\setbeamercolor{subtitle}{fg=Ink,bg=Page}
+\setbeamercolor{author}{fg=Ink,bg=Page}
+\setbeamercolor{institute}{fg=Muted,bg=Page}
+\setbeamercolor{date}{fg=Muted,bg=Page}
+\setbeamercolor{frametitle}{fg=Structure,bg=Page}
+\setbeamercolor{framesubtitle}{fg=Muted,bg=Page}
+\setbeamercolor{section title}{fg=Ink,bg=InverseAccent}
+\setbeamercolor{item}{fg=Structure}
+\setbeamercolor{subitem}{fg=Structure}
+\setbeamercolor{subsubitem}{fg=Structure}
+\setbeamercolor{item projected}{fg=Ink,bg=BoxFill}
+\setbeamercolor{section in toc}{fg=Structure}
+\setbeamercolor{subsection in toc}{fg=Ink}
+\setbeamercolor{caption}{fg=Ink,bg=Page}
+\setbeamercolor{caption name}{fg=Structure,bg=Page}
+\setbeamercolor{footnote}{fg=Muted,bg=Page}
+\setbeamercolor{footnote mark}{fg=Muted,bg=Page}
+\setbeamercolor{page number in head/foot}{fg=Muted,bg=Page}
+
+% Standard blocks stay within the same color roles
+\setbeamercolor{block title}{fg=Structure,bg=Page}
+\setbeamercolor{block body}{fg=Ink,bg=BoxFill}
+\setbeamercolor{block title alerted}{fg=Emphasis,bg=Page}
+\setbeamercolor{block body alerted}{fg=Ink,bg=BoxFill}
+\setbeamercolor{block title example}{fg=Structure,bg=Page}
+\setbeamercolor{block body example}{fg=Ink,bg=BoxFill}
+
+% Typography
+\setbeamerfont{normal text}{family=\rmfamily}
+\setbeamerfont{title}{
+  family=\rmfamily,series=\bfseries,
+  size=\fontsize{26}{31}\selectfont}
+\setbeamerfont{subtitle}{
+  family=\sffamily,series=\mdseries,
+  size=\fontsize{15}{19}\selectfont}
+\setbeamerfont{frametitle}{
+  family=\rmfamily,series=\bfseries,
+  size=\fontsize{22}{27}\selectfont}
+\setbeamerfont{framesubtitle}{
+  family=\sffamily,size=\fontsize{12}{15}\selectfont}
+\setbeamerfont{section title}{
+  family=\rmfamily,series=\bfseries,
+  size=\fontsize{28}{34}\selectfont}
+\setbeamerfont{statement}{
+  family=\rmfamily,series=\mdseries,
+  size=\fontsize{28}{36}\selectfont}
+\setbeamerfont{block title}{
+  family=\sffamily,series=\bfseries}
+\setbeamerfont{alerted text}{series=\bfseries}
+\setbeamerfont{caption}{
+  family=\sffamily,size=\fontsize{11}{14}\selectfont}
+\setbeamerfont{footnote}{
+  family=\sffamily,size=\fontsize{10}{13}\selectfont}
+\setbeamerfont{page number in head/foot}{
+  family=\sffamily,size=\fontsize{10}{12}\selectfont}
+
+% Layout
+\setbeamersize{text margin left=7mm,text margin right=7mm}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{blocks}[default]
+\setbeamertemplate{itemize items}[square]
+\setbeamertemplate{caption}[numbered]
+\setbeamercovered{invisible}
+
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[
+    wd=\paperwidth,ht=3mm,dp=2mm,rightskip=7mm
+  ]{page number in head/foot}
+    \hfill
+    \usebeamerfont{page number in head/foot}
+    \insertframenumber
+  \end{beamercolorbox}%
+}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=Emphasis,
+  urlcolor=Emphasis,
+  citecolor=Emphasis
+}
+
+% Booktabs
+\setlength{\heavyrulewidth}{1.2pt}
+\setlength{\lightrulewidth}{0.9pt}
+\setlength{\cmidrulewidth}{0.9pt}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.25}
+\arrayrulecolor{Structure}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\newcommand{\tabletype}{%
+  \sffamily\fontsize{12}{15}\selectfont\color{Ink}}
+\newcommand{\thead}[1]{%
+  \textcolor{Structure}{\textbf{#1}}}
+
+% Verdicts are meaningful without color
+\newcommand{\Pass}{%
+  \textcolor{PassColor}{%
+    \mbox{\sffamily\bfseries\ding{51}\,Passes}}}
+\newcommand{\Partial}{%
+  \textcolor{PartialColor}{%
+    \mbox{\sffamily\bfseries
+      \rule[0.45ex]{0.65em}{1pt}\,Partial}}}
+\newcommand{\Fail}{%
+  \textcolor{FailColor}{%
+    \mbox{\sffamily\bfseries\ding{55}\,Fails}}}
+
+% Semantic box
+% Structure-colored header on Page, tinted body on BoxFill
+\newtcolorbox{sourcebox}[1]{
+  title={#1},
+  colback=BoxFill,
+  colframe=Structure,
+  colbacktitle=Page,
+  coltitle=Structure,
+  coltext=Ink,
+  fonttitle=\sffamily\bfseries\fontsize{12}{15}\selectfont,
+  fontupper=\sffamily\fontsize{12}{16}\selectfont,
+  boxrule=0.9pt,
+  titlerule=0.9pt,
+  arc=0pt,
+  outer arc=0pt,
+  boxsep=0pt,
+  left=3mm,right=3mm,top=2mm,bottom=2mm,
+  toptitle=2mm,bottomtitle=2mm,
+  before skip=2mm,after skip=2mm
+}
+\newcommand{\srcbox}[2]{%
+  \begin{sourcebox}{#1}#2\end{sourcebox}}
+
+% Code and terminal excerpts
+% Frames containing this environment need [fragile]
+\newcommand{\codefont}{\fontsize{11}{14}\selectfont}
+\DefineVerbatimEnvironment{code}{Verbatim}{
+  fontsize=\codefont,
+  formatcom=\color{Ink},
+  frame=single,
+  framerule=1pt,
+  rulecolor=\color{Structure},
+  framesep=2mm
+}
+
+% Pipeline nodes
+% Six nodes fit across the frame with 4 mm gaps
+\tikzset{
+  pipeline node/.style={
+    rectangle,
+    draw=Structure,
+    fill=BoxFill,
+    text=Ink,
+    line width=1pt,
+    text width=17mm,
+    minimum height=12mm,
+    inner xsep=1mm,
+    inner ysep=2mm,
+    align=center,
+    font=\sffamily\fontsize{11}{14}\selectfont
+  },
+  pipeline arrow/.style={
+    -{Stealth[length=2.5mm,width=2mm]},
+    draw=Structure,
+    line width=1.1pt
+  }
+}
+
+% Light section dividers
+\AtBeginSection[]{
+  \begingroup
+  \setbeamercolor{background canvas}{bg=InverseAccent}
+  \begin{frame}[plain]
+    \vfill
+    {\sffamily\bfseries\color{Structure}
+      PART \insertsectionnumber\par}
+    \vspace{4mm}
+    {\usebeamerfont{section title}\color{Ink}
+      \insertsectionhead\par}
+    \vfill
+  \end{frame}
+  \endgroup
+}
+
+% One-sentence statement slides
+\newcommand{\statement}[1]{%
+  \begin{frame}[plain]
+    \vfill
+    {\usebeamerfont{statement}\color{Ink}#1\par}
+    \vfill
+  \end{frame}
+}
+
+% Talk metadata
+\title{Rethinking the Research Process}
+\subtitle{How AI Is Changing Research\\
+  for Students and Professors}
+\institute{Korea University\\
+  AI Literacy for Social Scientists}
+\date{18 September 2026}
+
+\begin{document}
+
+\begin{frame}{What each check establishes}
+  \begingroup
+  \tabletype
+  \begin{tabularx}{\linewidth}{
+    @{}>{\raggedright\arraybackslash}p{28mm}
+    Y
+    >{\raggedright\arraybackslash}p{25mm}@{}
+  }
+    \toprule
+    \thead{Check} & \thead{Evidence} & \thead{Verdict} \\
+    \midrule
+    References &
+      DOI matches the cited work &
+      \Pass \\
+    \addlinespace[2mm]
+    Numbers &
+      Some reported values reproduce &
+      \Partial \\
+    \addlinespace[2mm]
+    Claims &
+      Source does not support the claim &
+      \Fail \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+
+  \srcbox{Illustrative audit}{
+    In 연구 (硏究), checks support \alert{judgment}.
+  }
+\end{frame}
+
+\end{document}

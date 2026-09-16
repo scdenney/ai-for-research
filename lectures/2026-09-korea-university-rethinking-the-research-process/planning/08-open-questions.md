@@ -21,7 +21,17 @@ Updated 2026-09-16 after the design conversation that restarted the talk.
 6. **Framework header.** "Three modes of AI engagement" makes AI the subject; the governing
    sentence makes human cognition the subject. Decide which, and make them agree.
 7. **Self-introduction.** What goes in it, and how long.
-8. **Time zone on the day.** 1:30 PM KST is 6:30 AM CEST. Confirm the Zoom link and a screen-share
+8. **Time budget across the three parts.** 45 minutes. Part 2 is the substance, so Part 1 has to
+   be tight. The split determines slide counts and should be set before slide-by-slide planning.
+9. **What "showing a skill" looks like in a static PDF.** Beamer cannot hold a recording. Options
+   are rendered terminal excerpts, code listings, screenshots, or before-and-after pairs. This
+   decides most of the Part 2 production work.
+10. **The two-hour slot.** 1:30 to 3:30 with a 45-minute talk leaves over an hour of moderated
+    discussion, which is longer than the talk. Decide what fills it and whether the deck needs a
+    substantial appendix to support it.
+11. **Korean glossing.** Whether Automate, Protect, and Collaborate carry Korean glosses on the
+    framework slide. Cheap, and the audience is largely Korean-speaking.
+12. **Time zone on the day.** 1:30 PM KST is 6:30 AM CEST. Confirm the Zoom link and a screen-share
    test with the moderator the day before.
 
 ## Resolved
@@ -32,4 +42,5 @@ Updated 2026-09-16 after the design conversation that restarted the talk.
 - 2026-09-16: `research-grill` and `research-wayfinder` held aside. Text-to-data and the GEI
   corpus held for later, per the handwritten notes.
 - 2026-09-16: Part 2 built on `research-repo`, `citation-check`, `fact-check`, and supervision.
-- 2026-09-16: Beamer, authored on Overleaf, palette from Codex. The HTML deck is superseded.
+- 2026-09-16: Beamer, authored on Overleaf, XeLaTeX. The HTML deck is superseded.
+- 2026-09-16: palette is Codex's Option A, Chalk and Mulberry, with adjustment possible later.

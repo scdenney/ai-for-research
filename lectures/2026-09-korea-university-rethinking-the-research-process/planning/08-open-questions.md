@@ -1,5 +1,13 @@
 # Open questions
 
+## Current review checkpoint
+
+The later approved decisions are in [02-rebuild-storyboard.md](02-rebuild-storyboard.md): Kenny-led serif hybrid; no Korean; short agent/instructions/skills primer; infrastructure and knowledge base before checks; one NWO claim as the brief demo; replication-package gets one slide; outline plus five rendered samples before the full build. Review the current samples for visual direction and the outline for teaching sequence.
+
+Still needed for the full build: final self-introduction wording, exact authentic instruction excerpts, source-original comparison for intake, final resource links, and rehearsal/Zoom checks. Uncertainty around protected drafting and seed ideas becomes an explicit discussion question. The unread handwritten word is not used as evidence.
+
+The entries below are the earlier question and resolution log, retained as history; they are not competing current instructions.
+
 Updated 2026-09-16 after the design conversation that restarted the talk.
 
 ## Still open

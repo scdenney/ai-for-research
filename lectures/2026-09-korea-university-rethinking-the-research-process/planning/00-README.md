@@ -4,26 +4,32 @@ The wiki for the 18 September 2026 lecture "Rethinking the Research Process". Op
 2026-09-16 with the deck. One wiki per piece of research: a Substack post derived from this
 talk adds its own numbered file here rather than opening a second wiki.
 
+## Current checkpoint — 16 September 2026
+
+The approved rebuild is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It supersedes the earlier build decisions below: Kenny-led serif design, no Korean, infrastructure-led Part 2, one brief claim demonstration, and a five-page preview before rebuilding the main deck. Earlier entries remain as history.
+
 ## Folder map
 
 | File | What it holds |
 |---|---|
 | `00-README.md` | This map, the sources of truth, decisions recorded here |
-| `01-framework-and-structure.md` | **The working document.** Framework, the mechanism, teaching versus research, the three-part structure, the Part 2 skill taxonomy, and the build decisions |
+| `01-framework-and-structure.md` | **Historical framework record.** Framework, the mechanism, teaching versus research, the three-part structure, the Part 2 skill taxonomy, and the build decisions |
+| `02-rebuild-storyboard.md` | **Current plan:** 30 content slides, three dividers, evidence and transitions |
+| `preview/` | Five rendered sample slides and visual validation |
 | `08-open-questions.md` | Open list plus a resolved log |
-| `palette-options/` | The two Codex palette proposals; Option A is in use |
+| `palette-options/` | Historical palette proposals; superseded for the rebuild |
 | `../overleaf/` | The Beamer deck, an Overleaf submodule |
 | `../notes.md` | Speaker notes, timings, guardrails |
 | `../_superseded/html-deck/` | The rejected first attempt |
 
 ## Sources of truth
 
-- **The argument and the plan**: `01-framework-and-structure.md`.
+- **The current argument and plan**: `02-rebuild-storyboard.md`. Earlier framework history: `01-framework-and-structure.md`.
 - **Slide text**: `../overleaf/parts/*.tex`. **Speaker notes and every number's source**: `../notes.md`.
 - **Citations**: `../references.bib`.
 - **Numbers**: each number on a slide is listed in `../notes.md` under "Accuracy guardrails"
   with the file it was verified against.
-- **The plan of record**: `~/.claude/plans/find-the-slides-on-inherited-honey.md` (the
+- **The earlier plan (historical)**: `~/.claude/plans/find-the-slides-on-inherited-honey.md` (the
   slide-by-slide plan, the design rules, the verified-facts list).
 
 ## Decisions recorded here

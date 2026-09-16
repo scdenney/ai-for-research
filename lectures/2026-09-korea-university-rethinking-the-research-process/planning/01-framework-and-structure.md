@@ -1,5 +1,7 @@
 # Talk design: framework, structure, and build
 
+> Historical record. The later approved rebuild in [02-rebuild-storyboard.md](02-rebuild-storyboard.md) supersedes the design, Korean text, timing, structure, and skill descriptions below. In particular, software tests do not establish complete correctness, and citation-check is not wholly deterministic or judgment-free. Retained to preserve the original discussion.
+
 Working document for the Korea University lecture, 18 September 2026. Written 2026-09-16 from a
 design conversation that replaced the first attempt. Everything below is the state of the argument
 and the plan. The first deck (self-contained HTML, 35 slides) is superseded and stays committed on

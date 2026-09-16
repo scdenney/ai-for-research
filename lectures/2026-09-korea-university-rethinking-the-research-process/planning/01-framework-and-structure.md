@@ -12,8 +12,9 @@ Korea University, *AI Literacy for Social Scientists* special lecture series, le
 Friday 18 September 2026, 1:30 to 3:30 PM KST, online via Zoom, open to all. Moderator: Sung Eun
 Kim. Hosts: Office of Graduate School, BK21 FOUR Sociology Research and Education Program,
 Department of Political Science and International Relations, and the SDGs research group on AI
-and social inequality. A 45-minute talk, then moderated discussion. Audience is graduate students
-and faculty, much of it not native English, watching over a compressed video stream.
+and social inequality. The slot is two hours. **Up to an hour of talk**, then moderated
+discussion. Audience is graduate students and faculty, much of it not native English, watching
+over a compressed video stream.
 
 ## What the talk is about
 
@@ -116,6 +117,29 @@ same stages are production steps, so they sit in Collaborate. Reading is the cle
 qualification belongs directly under the framework table, not in the conclusion, or the audience
 spends the middle of the talk generating counterexamples.
 
+## Time budget
+
+An hour of talk. Part 1 situates, Part 2 is the weight of the talk, Part 3 is lighter.
+
+| Block | Minutes |
+|---|---|
+| Open and self-introduction | 4 |
+| Part 1, situating plus the three modes | 14 |
+| Part 2, skills as controls | 30 |
+| Part 3, NWO start to finish | 9 |
+| Close | 3 |
+
+That is roughly fifty slides at academic pace, so the Part 2 production style has to be settled
+early or it will not get built.
+
+**No recordings in the deck.** It is a static PDF over a compressed stream, so every
+demonstration is rendered output, a listing, a screenshot, or a before-and-after pair.
+
+**Korean on slides, sparingly.** Glosses on the framework slide and section dividers only, not
+throughout. Proposed: AUTOMATE 자동화, PROTECT 보호, COLLABORATE 협업, with 보호 to be confirmed
+as the right sense for protected practice. Verbatim Korean from source material is separate and
+appears wherever the material calls for it.
+
 ## Structure
 
 From the handwritten outline, with the decisions above folded in.
@@ -169,6 +193,30 @@ The NWO project. Ideation through writing and analysis, with the arrow running b
 attaches a control to each pipeline stage; Part 3 runs the same project end to end. The audience
 learns one project instead of three, and Part 3 has continuity rather than a cold start. Not yet
 decided.
+
+**The repository clears the preconditions.** Checked 2026-09-16 against the `fact-check`
+pre-flight gate.
+
+| | |
+|---|---|
+| `sources/md/` | 157 conversions |
+| `sources/og/` | 103 originals |
+| Master bibliography | `sources/references_master.bib`, 126 entries |
+| Paper 2 bibliography | 83 entries, curated from the master by `tools/make_paper_bib.py` |
+| Drop zone | empty, nothing unconverted |
+| Crosswalk | `sources/inventory.md`, which the gate looks for by name |
+
+An earlier sweep reported no top-level bibliography. That was wrong. The file exists under a
+different name. Coverage sits well above the two-thirds threshold and the gate should run.
+
+**Use paper 2, not paper 3.** Paper 3's bibliography is empty. Paper 2 is the most developed, and
+it is the one that already went through the deliverable pipeline for APSA.
+
+**There is a real audit on record**, which beats the synthetic example the previous deck used.
+`sources/inventory.md` documents a June 2026 pass in which every cited work was web-verified,
+zero fabrications were found, thirteen open-access sources were acquired and converted, and eight
+bibliography metadata errors were corrected the same day. The APSA talk's own gate run separately
+found three citations on slides that did not resolve in the manuscript bibliography.
 
 ## Build
 

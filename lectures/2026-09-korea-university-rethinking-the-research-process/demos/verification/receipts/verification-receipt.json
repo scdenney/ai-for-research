@@ -1,5 +1,5 @@
 {
-  "created_utc": "2026-09-17T07:34:26+00:00",
+  "created_utc": "2026-09-17T10:19:49+00:00",
   "failed_pipeline_emitted_pass": false,
   "generated_output_sha256": "7b3e4ae53de8486bc6830f6d2b0aad5ba57cb02da0f58e1336564bf943770542",
   "pipeline_fails_closed": true,
@@ -13,7 +13,7 @@
         "--report",
         "report-corrected.md",
         "--result",
-        "/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-xwdcbpv1/verification/generated/demo-result.json"
+        "/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-04q_15rz/verification/generated/demo-result.json"
       ],
       "returncode": 0,
       "stderr": "",
@@ -48,10 +48,10 @@
         "--report",
         "report-corrected.md",
         "--result",
-        "/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-xwdcbpv1/verification/generated/demo-result.json"
+        "/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-04q_15rz/verification/generated/demo-result.json"
       ],
       "returncode": 2,
-      "stderr": "FAIL: cannot read valid inputs: [Errno 2] No such file or directory: '/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-xwdcbpv1/verification/generated/demo-result.json'\n",
+      "stderr": "FAIL: cannot read valid inputs: [Errno 2] No such file or directory: '/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-04q_15rz/verification/generated/demo-result.json'\n",
       "stdout": ""
     },
     "nonfinite_output": {
@@ -101,7 +101,7 @@
         "data/does-not-exist.csv"
       ],
       "returncode": 1,
-      "stderr": "Traceback (most recent call last):\n  File \"/private/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-xwdcbpv1/verification/generate_result.py\", line 44, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/private/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-xwdcbpv1/verification/generate_result.py\", line 21, in main\n    with args.input.open(newline=\"\", encoding=\"utf-8\") as source:\n         ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py\", line 771, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'data/does-not-exist.csv'\nFAIL: generator failed; comparator was not invoked\n",
+      "stderr": "Traceback (most recent call last):\n  File \"/private/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-04q_15rz/verification/generate_result.py\", line 49, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/private/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-04q_15rz/verification/generate_result.py\", line 41, in main\n    result = calculate_result(args.input)\n  File \"/private/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-04q_15rz/verification/generate_result.py\", line 17, in calculate_result\n    with input_path.open(newline=\"\", encoding=\"utf-8\") as source:\n         ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py\", line 771, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'data/does-not-exist.csv'\nFAIL: generator failed; comparator was not invoked\n",
       "stdout": ""
     },
     "pipeline_stale": {
@@ -122,7 +122,7 @@
         "--report",
         "report-stale.md",
         "--result",
-        "/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-xwdcbpv1/verification/generated/demo-result.json"
+        "/var/folders/sl/r1hcwjkx7hq52lh2x7xcb7t00000gn/T/illustrative-verification-04q_15rz/verification/generated/demo-result.json"
       ],
       "returncode": 2,
       "stderr": "FAIL: generated=0.28; abstract=0.31, table=0.31; stale fields: abstract, table\n",
@@ -130,13 +130,14 @@
     }
   },
   "source_sha256": {
-    "README.md": "53d439847baf26e84b95965f4dd6639af6c7079771a7ab5b4c73840209b5489e",
-    "compare_report.py": "59a7d36cf53775eac526547733bd637ced46aee9c68285189cd64a89ab225d5d",
+    "README.md": "1147a53730d5d2ef40469379dee03c268ca5e8f7a767f881877394f0140a9d6a",
+    "build_comparison_figure.py": "468af7c13cb8b441b1d1ca78e2920a29c7214121baabba4a620176ffc912ba11",
+    "compare_report.py": "cbb7e7094d3317a269515b42669856a7402ac4bba3b775292c36cfa3c186dc2c",
     "data/illustrative-binary-outcomes.csv": "aa667d3c47376876497342510502588317d2261939d7a638b97d8ffaa5c5efb0",
     "fixtures/invalid-result.json": "0868ea47090ad937ad2aaf9364c12a50e5d4194ee6484a96b6594bb09857745d",
     "fixtures/nonfinite-result.json": "1a53d7474ec8dd42943bc2c479730ab8fd70acc1113cbf629469ccb660cc275d",
     "fixtures/out-of-range-result.json": "2dbdc884da60490cc52a11c25c396890d4ce37b7f252619bf100adc975f41e17",
-    "generate_result.py": "0be93981d6af7e9c89d628e29f978a4ff86316fc785f3e76ee4c2d2122655998",
+    "generate_result.py": "d7ed45ff2c86b7dc6065939846bcdbe9dadda4bc01b4f9e1122cd6ffe52507ce",
     "report-corrected.md": "db5e9228332ee7b49db0a97b6c11c59fa6c447c9073e31daa77d56469e769d36",
     "report-stale.md": "8ce7a2fc76c65b8ac8e892c6a59df6ba4f3116b81f27087b8be63f90f4eec438",
     "run_pipeline.py": "814ffa4dd77bb183e9ed76252d67c11f35a931555dba89348ed12ff57727e4b1",

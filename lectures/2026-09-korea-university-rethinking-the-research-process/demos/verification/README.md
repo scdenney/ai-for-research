@@ -6,6 +6,14 @@ This project-specific teaching example has 25 binary rows: 7 positive and 18 neg
 
 `run_pipeline.py` is the acceptance path. Each invocation generates to a new temporary result, then compares only that fresh result. If generation fails, it stops before comparison, so a pre-existing `generated/demo-result.json` cannot supply a stale pass.
 
+`build_comparison_figure.py` reads the same retained CSV and stale report through the calculation and parsing functions used by the command-line tools. It regenerates the vector figure used in the lecture:
+
+```sh
+python3 build_comparison_figure.py
+```
+
+The default output is `../../overleaf/figures/verification-demo-comparison.pdf`. The chart is explicitly illustrative and directly labels the fresh `0.28` result (`7 / 25`) and the stale `0.31` report value.
+
 Run the self-contained demonstration and write receipts:
 
 ```sh

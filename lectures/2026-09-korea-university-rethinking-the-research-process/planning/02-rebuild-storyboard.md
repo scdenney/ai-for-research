@@ -1,67 +1,67 @@
 # Research, teaching, and verifiability — current storyboard
 
-Updated 17 September 2026 after author review. The earlier verifiability implementation remains the content baseline; the latest instructions below govern simplification and placement. Astra leads orchestration with Sol editorial review and Terra notes/visual work.
-
-## Author-directed simplification · 17 September 2026
-
-The author rejected the crowded presentation despite the prior technical validation. This pass preserves the author’s Overleaf intro edits at `86c939f`, simplifies printed slide 4, and revises Part 1 only. Parts 2 and 3 are unchanged; Part 2 needs a separate substantial design and editorial revision. Do not treat the earlier geometry pass as evidence that its slides are clear enough.
-
-Promote former footer 32 (learning evidence) and 33 (possible conditions for learning) together into Protect, after the revised conceptual slide. Promote former footer 35 (collaboration roles) immediately after the grid. Simplification means fewer messages, larger type, and visible space, with qualifications in notes.
+Updated 17 September 2026 after the author-directed Part 2 and Part 3 rebuild. This file records the current implemented narrative. Earlier storyboards and review folders remain historical.
 
 ## Structure and argument
 
-38 main physical pages including cover and transitions, six appendices: 44 pages total. Introduction 8 minutes; Part 1 15; Part 2 22; Part 3 7; closing 3. Speaker notes are a 55-minute budget, not a measured rehearsal.
+The deck has 38 main physical pages and eleven appendix pages, 49 pages total. The timed plan remains 55 minutes: introduction 8; Part 1 15; Part 2 20; Part 3 9; closing 3.
 
-Automate routine work, protect the practice that builds understanding, and collaborate through an inspectable research environment. Verifiability connects the parts: preserved sources, explicit standards, executable comparisons, and review make work more checkable. These do not by themselves establish research validity.
+Automate routine work, protect the practice that builds understanding, and collaborate through an inspectable research environment. Complexity and current verifiability determine supervision. A repository preserves the evidence behind the paper; skills make checking procedures reusable; reading, execution, and explicit value comparison answer different questions. These practices improve verifiability without establishing substantive validity.
 
 ## Introduction — pages 1–6, 8 minutes
 
-1. Title, preserving the poster wording and approved serif design.
-2. Research-and-teaching purpose and three-part agenda.
-3. Generative AI, LLM, agent: simple definitions.
-4. Tool-using workflow; CLI means terminal interface; desktop and IDE agent applications also support this work when configured with the necessary tools. Do not assert untested chatbot limitations.
-5. Software feedback versus mixed research checks. Attribute Pocock's requirement to establish a failure-revealing command before iteration. Distinguish verifiability and validity.
-6. Historical manuscript claim and references, reserving the answer for Part 3.
+1. State the research-and-teaching purpose and three-part agenda.
+2. Define generative AI, LLMs, agents, and agentic AI.
+3. Distinguish a conversation from an agent using tools and feedback.
+4. Explain why software often supplies faster repeatable checks while research combines executable checks with interpretation and judgment.
+5. Introduce the archived manuscript claim and its two references without revealing the verdict.
 
 ## Part 1 — pages 7–20, 15 minutes
 
-Three modes and routine-work examples retain their place. The Protect sequence is: transition → reasoning practice and cognitive development → selected learning evidence → conceptual conditions for learning → Autor and Bastani evidence figures. The promoted table uses Study / What was assessed / Finding; its findings preserve the senior/junior distinction, tutor mitigation without an established gain, and Bassner’s lack of an established conceptual-learning advantage. Detailed qualifications remain in notes.
+The three modes remain Automate, Protect, and Collaborate. Protect is grounded in the reasoning practice through which researchers develop judgment, followed by selected evidence on assisted performance and later unaided learning. Collaborate uses the author's wording, “Ethical machine augmentation is the goal.”
 
-Printed slide 8 explains that research judgment develops through interpreting sources, weighing evidence, and building an argument; routine AI substitution can remove that practice. The prior abstract work/capability comparison was rejected as too vague. The speaker frames AI use across research as a practical premise: complete exclusion is not a realistic general approach, while bounded restrictions remain possible.
+The Kenny/Swaney complexity–verifiability grid is applied to bounded research tasks. The final Part 1 slide then maps seven research stages across qualitative risk terrain: ideation; theory and design; sources and literature; data and analysis; interpretation; writing and reporting; publication and replication. Positions are illustrative rather than measured or permanent. A return path represents revision and new questions. The detailed plans/acts/checks role table is retained in the appendix.
 
-The Collaborate transition says “Ethical machine augmentation is the goal.” The grid now has standard arrowed axes: vertical Complexity (Easy to Hard), horizontal Verifiability (Subjective to Objective). Each quadrant contains an illustrative task from this lecture: study design, specified analysis, summary/source checking, and reference formatting. These are applications added here, not borrowed examples. Notes link their checking conditions to the Part 2 repository and distinguish implementation checks from research validity. The following role table explains who plans, acts, and checks. Both credit Kenny CSDP p.16 adapting Swaney. This separates choosing a pattern from explaining its roles.
+## Part 2 — pages 21–30, 20 minutes
 
-## Part 2 — pages 21–32, 22 minutes (content unchanged; redesign pending)
+Part 2 explains how checking conditions can be improved. It is an argument about research infrastructure rather than a catalog of skills.
 
-| Page | Content | Time |
-|---|---|---|
-| 21 | Section transition | 0:15 |
-| 22 | Skill definition, authentic procedure, Claude/Codex invocation, on-demand loading | 1:30 |
-| 23 | Research repository and source knowledge base as shared checking environment | 2:30 |
-| 24 | Authentic PDF/Markdown pairing and citation-key connection | 2:30 |
-| 25 | Git/GitHub history and sitrep/finished session continuity | 1:30 |
-| 26 | citation-check with existing scoped identity receipt | 1:30 |
-| 27 | fact-check procedure and source-support question | 1:30 |
-| 28 | Conjoint design, data checks, reporting and interpretive review | 1:30 |
-| 29 | paper-review-lite and internal numerical consistency | 2:00 |
-| 30 | Illustrative numerical result: reported .31 versus computed .28, explicit comparison and repair | 3:00 |
-| 31 | Static package checks versus authorized temporary-copy execution; /oss:verify | 2:15 |
-| 32 | replication-package as publication handoff, credit Horiuchi | 2:00 |
+| Page | Claim | Time |
+|---|---|---:|
+| 21 | Building checkability into research | 0:15 |
+| 22 | Checkability can be built into the process | 2:30 |
+| 23 | Checking the paper requires the work behind it | 2:15 |
+| 24 | A searchable source still needs its original | 2:15 |
+| 25 | A skill makes a checking procedure reusable | 1:45 |
+| 26 | Reference identity is only the first check | 1:45 |
+| 27 | The sentence determines the evidence required | 2:00 |
+| 28 | A paper can agree with itself and still be wrong | 2:15 |
+| 29 | Reading, running, and comparing answer different questions | 3:00 |
+| 30 | Two cases, one evidence trail | 2:00 |
 
-Keep the repository as the anchor rather than a catalog. Distinguish original sources from derived notes. Karpathy/Kenny supply related persistence ideas, not an identical source/bibliography architecture. Full BibTeX moves to appendix page 43. Conjoint details move to page 44. Context economics is a short on-demand explanation with fuller notes; the wrong-invariant anecdote is notes-only.
+The research pipeline sits above one shared repository rail containing specifications, preserved sources, recorded execution, review records, version history, and a rerun package. The concrete source chain uses the authentic Christenson–Kriner PDF crop, literal conversion, and citation key. The skills appear as procedures attached to questions: citation identity, claim support, manuscript consistency, package execution, and numerical agreement.
 
-The numerical example uses 7 positive observations among 25. A separate project comparator reads generated results and reported values, fails on stale or missing results, and passes after both reported values are corrected. Label illustrative data and project check; never attribute this comparator to OSS. Retain code, inputs, commands, receipts, and hashes.
+`paper-review-lite` supplies reading-based review. `/oss:verify` and `replication-package` supply static or authorized execution evidence within their stated limits. The lecture's project comparator is separate: it compares fresh numerical output with reported fields. CLI syntax, Git/session continuity, the reviewer roster, verifier internals, detailed replication packaging, and conjoint diagnostics are appendix material.
 
-The v2.31 verifier's static tier uses file checks and hashes. Its opt-in execution tier runs in a temporary copy using the current host environment and checks newly created filenames against the crosswalk. It does not compare numerical contents and is not hermetic. Nine manuscript review dimensions plus two cross-checkers do not replace that missing numerical comparison. No claim that a keyword audit proved no earlier agent ever ran code.
+## Part 3 — pages 31–36, 9 minutes
 
-## Part 3 — pages 33–36, 7 minutes (unchanged)
+| Page | Claim | Time |
+|---|---|---:|
+| 31 | Follow the evidence | 0:15 |
+| 32 | The first case requires a same-policy comparison | 1:15 |
+| 33 | The sources are relevant, but the comparison is unsupported | 2:10 |
+| 34 | The recorded revision narrows the claim | 1:25 |
+| 35 | A fresh run exposes the stale result | 2:00 |
+| 36 | The agent catches the mismatch; the researcher owns the correction | 1:55 |
 
-Transition 0:15; archived claim and cited keys 1:10; preserved source passages and scoped verdict 2:55; actual revision and faithful historical diff excerpt 2:40. Show the continuous trail from claim to sources to judgment to recorded decision. Preserve the difference between the 16 September source check and the 27 August historical correction; do not imply the later audit caused it. Nonsignificance does not establish equivalence.
+The first case is authentic historical material. The 16 September source check reconstructs why the archived comparative claim was unsupported; the actual correction occurred on 27 August and is not attributed to that later check. Nonsignificance is not described as equivalence.
+
+The second case is explicitly illustrative. Seven positive observations among twenty-five generate 0.28 while the stale abstract and table both report 0.31. A reproducible figure reads the retained CSV and stale report. The project-specific comparator fails on the stale report and passes after both fields are corrected. This is a numerical consistency check, not an NWO result, an OSS built-in comparator, or a validity test.
 
 ## Closing, appendix, and production
 
-Pages 37–38 close with audience actions and resources (3 minutes). The six remaining appendices occupy pages 39–44: source intake, source readiness, disclosure, reproducibility, literal BibTeX, and conjoint detail. Preserve warm EB Garamond and Noto Sans Mono, clean headings, native diagrams, readable authentic excerpts, and straight aligned connectors. No live terminal demo.
+Pages 37–38 close with audience actions and resources. Pages 39–49 retain source intake, collaboration roles, invocation/context, Git and session continuity, paper-review-lite architecture, `/oss:verify` internals, source readiness, AI-use disclosure, replication handoff, literal BibTeX, and conjoint checks.
 
-Preserve CSDP and supporting snapshots; record a separate v2.31 OSS snapshot with exact hashes, leaving the earlier one historical. Swaney outlines are available; the slide deck was not publicly located. Update context, open questions, provenance, manifest, and handoff consistently.
+Keep the warm EB Garamond design, direct labels, semantic arrows, and one dominant proof object per main slide. Main-slide body text should remain approximately 11 pt or larger apart from provenance footers. No live terminal demonstration is required.
 
-Build XeLaTeX, render every page, inspect full-size and compressed 720p, verify quotations/values/provenance and notes timing. Extend geometry checks to all pages. Independent content and production reviews precede lead adjudication. Commit this scoped revision locally and push the existing Overleaf project after checking intervening edits. Website PDF replacement and new GitHub publication are separate.
+Build with XeLaTeX, regenerate the numerical receipt and comparison figure, render every page, inspect the main sequence at full size and as contact sheets, verify the 55-minute note sequence, and preserve the separation between authentic and illustrative evidence. Website publication, parent GitHub push, timed rehearsal, Zoom testing, and authenticated Overleaf browser preview remain separate actions.

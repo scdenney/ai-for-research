@@ -1,10 +1,10 @@
 # Speaker notes – Rethinking the Research Process
 
-Revised 17 September 2026 after the Part 1 simplification. **38 main PDF pages, six appendices, 44 pages total.** Headings use physical pages; ordinary footer numbers run 1–37.
+Revised 17 September 2026 after the Part 2 and Part 3 reorganization. **38 main PDF pages, eleven appendices, 49 pages total.** Headings use physical pages; main-deck footers end at 31 and the appendix continues through 42. The author-edited physical page 4 intentionally omits printed footer 3.
 
-**55-minute plan:** introduction 00:00–08:00; Part 1 08:00–23:00; Part 2 23:00–45:00; Part 3 45:00–52:00; closing 52:00–55:00. These are speaking allocations, not a measured rehearsal.
+**55-minute plan:** introduction 00:00–08:00; Part 1 08:00–23:00; Part 2 23:00–43:00; Part 3 43:00–52:00; closing 52:00–55:00. These are speaking allocations, not a measured rehearsal.
 
-The purpose and basic vocabulary come first. The historical claim is introduced at the end of the introduction, then returns in Part 3. The three modes concern the whole research and teaching process. Part 2 explains the knowledge base and skills in the lecturer’s workflow. Part 3 traces the historical source check through the recorded revision; Part 2 adds a separate numerical demonstration using illustrative data.
+The purpose and basic vocabulary come first. The historical claim is introduced at the end of the introduction, then returns in Part 3. The three modes concern the whole research and teaching process. Part 2 explains the knowledge base, reusable procedures, and distinct kinds of checks in the lecturer’s workflow. Part 3 traces the authentic historical source case and then a separate numerical demonstration using illustrative data.
 
 ## 1. Rethinking the Research Process
 **00:00–00:30 · 00:30 · PDF page 1**
@@ -14,7 +14,7 @@ Welcome the audience and introduce the lecture as a practical account of how AI 
 ## 2. Today: AI in research and teaching
 **00:30–01:50 · 01:20 · PDF page 2**
 
-Give the audience the three-part agenda. First, ask what research and teaching work should be automated, protected, or done in collaboration with AI. Second, explain how I use a research knowledge base and Open Science Skills. Third, show a short example of checking a claim against its sources.
+Give the audience the three-part agenda. First, ask what research and teaching work should be automated, protected, or done in collaboration with AI. Second, explain how I use a research knowledge base and Open Science Skills. Third, follow two checks back to their evidence: one source claim and one reported result.
 
 ## 3. From generative AI to agentic AI
 **01:50–03:20 · 01:30 · PDF page 3**
@@ -157,146 +157,151 @@ Protect comes before this delegation decision: if doing a task develops the unde
 
 This is the connection to Part 2. The research repository preserves the source used to check a summary, the analysis specification and code, and the bibliography. Source checking, executable comparisons, and review supply different kinds of feedback. Better checking can make delegation more practical; it does not eliminate research judgment or prove validity.
 
-Credit Kenny’s CSDP presentation, page 16, adapting Swaney’s Claude Overload workshop. The four task examples are our illustrative applications, not examples recovered from that presentation. The role table next explains who plans, acts, and checks. Human responsibility remains in every arrangement.
+Credit Kenny’s CSDP presentation, page 16, adapting Swaney’s Claude Overload workshop. The four task examples are our illustrative applications, not examples recovered from that presentation. The appendix preserves the detailed plans/acts/checks role table.
 
-## 20. Four ways to organize collaboration
+## 20. Research moves through changing risk terrain
 **21:45–23:00 · 01:15 · PDF page 20**
 
-The role table makes the grid concrete. Explain who plans, acts, and checks in each arrangement; ultimate responsibility remains with the researcher. The table describes collaboration arrangements, not a permission structure for handing all work to an agent.
+Apply the grid to the research process without treating whole stages as permanent categories. Ideation, theory, and interpretation often remain complex and judgment-heavy. Source work, analysis, writing, and publication contain more repeatable operations, but their verifiability is brittle when the source, specification, code, output, or reported claim becomes detached from the rest of the project.
 
-Transition: Part 2 shows how I build that checking environment around a research repository.
+Read the positions as illustrative zones rather than measurements. The same stage can move when the bounded task, specification, available evidence, or checking infrastructure changes. Follow the arrows through the project, then use the dashed return path to show that findings and publication generate revisions and new questions.
 
-## 21. How I use skills in research
+Transition: Part 2 shows how a shared repository and explicit procedures improve those checking conditions.
+
+## 21. Building checkability into research
 **23:00–23:15 · 00:15 · PDF page 21**
 
-Start with the source library and project files, then show the checks that operate on them. The repository is the shared foundation across sessions.
+Part 2 asks how a research process becomes checkable enough for productive collaboration. Start with preserved sources, project files, and explicit procedures; then show the checks that operate on them. The repository is the shared foundation across sessions.
 
-## 22. What is a skill?
-**23:15–24:45 · 01:30 · PDF page 22**
-
-A skill is a reusable written procedure, optionally supported by scripts, templates, and examples. State the standard once, improve it after use, and invoke it for a specific project. Show /oss:research-repo . in Claude Code and $research-repo . in Codex. The period means the current folder. The skill can scaffold a new project or review an existing one.
-
-In OSS v2.31 all skills are explicitly invoked. Explain context economics as loading the relevant specialist when needed; do not claim an independently measured token saving or that every other skill library behaves the same way. Source: planning/oss-2.31.0/, versioned skills and invocation metadata.
-
-## 23. A repository makes the work more checkable
-**24:45–27:15 · 02:30 · PDF page 23**
+## 22. Checkability can be built into the process
+**23:15–25:45 · 02:30 · PDF page 22**
 
 A repository is the whole project folder. Its source knowledge base contains preserved originals, readable source text, and a bibliography linking cited identities to files. Analysis, drafts, instructions, and decision notes live alongside it. Derived notes and syntheses remain distinguishable from source evidence.
 
-Show the paths from these shared files to named checks and then to researcher decisions. Project instructions state evidence rules; Git records changes. Karpathy and Kenny offer related persistent-workspace ideas, but their LLM Wiki structures are not identical to research-repo. The repository can support literature synthesis without treating a generated summary as the original source.
+Show the paths from shared files to named checks and then to researcher decisions. Project instructions state evidence rules; Git records changes. Karpathy and Kenny offer related persistent-workspace ideas, but their LLM Wiki structures are not identical to research-repo. The repository can support literature synthesis without treating a generated summary as the original source.
+
+This is an infrastructure claim: preserved sources, explicit standards, and recorded transformations make inspection easier. They do not establish that a research conclusion is valid.
 
 Sources: research-repo in planning/oss-2.31.0/; planning/14-csdp-benchmark.md and 15-verifiability-and-deep-dive-context.md.
 
-## 24. One source, connected records
-**27:15–29:45 · 02:30 · PDF page 24**
+## 23. Checking the paper requires the work behind it
+**25:45–28:00 · 02:15 · PDF page 23**
 
-Compare the authentic original-PDF abstract crop with the literal Markdown conversion. Use the first three sentences, reserving the source-check verdict for Part 3. Point to ChristensonKriner2017 as the link to the manuscript and bibliography; the full literal BibTeX record is in the appendix.
+The paper is not enough to check the paper. A claim needs its cited source and a stable citation key; a reported number needs the input, analysis, generated result, and the reported fields; a revision needs the decision and history that explain it. These materials let a reviewer reconstruct what was checked.
+
+The slide deliberately avoids a directory inventory. It shows the two dependencies needed later: the sentence must lead back to its source passage, and the reported number must lead back to its data, code, and fresh result. Version history and session-continuity details are retained in the appendix.
+
+Sources: versioned research-repo, sitrep, and finished in planning/oss-2.31.0/.
+
+## 24. A searchable source still needs its original
+**28:00–30:15 · 02:15 · PDF page 24**
+
+Compare the authentic original-PDF abstract crop with the literal Markdown conversion. The crop contains the first three abstract sentences; the enlarged conversion below prints the first sentence for readability. Reserve the source-check verdict for Part 3. Point to ChristensonKriner2017 as the link to the manuscript and bibliography; the full literal BibTeX record is in the appendix.
 
 Intake identifies the work, preserves the original, converts it, inspects the conversion, and separately creates the bibliography record. OpenDataLoader handles prose conversion in the current template; it does not itself verify bibliographic identity. Retain the original for checking extraction problems.
 
+This is an authentic source record from the historical case, not the numerical illustration introduced later. A searchable conversion helps locate a passage; it cannot replace the original when extraction, tables, page references, or context are in doubt.
+
 Evidence: overleaf/figures/foundation-v2-ck-abstract-original.png and its provenance; the retained Christenson–Kriner original and Markdown; historical source bibliography entry with DOI 10.1111/ajps.12262.
 
-## 25. Keep a history, and resume from it
-**29:45–31:15 · 01:30 · PDF page 25**
+## 25. A skill makes a checking procedure reusable
+**30:15–32:00 · 01:45 · PDF page 25**
 
-Git records local changes; GitHub hosts shared history. Explain edit, inspect the diff, commit with an explanation, then push. A checkpoint makes work recoverable, but committed is not the same as verified.
+A skill is a reusable written procedure, optionally supported by scripts, templates, and examples. State the standard once, improve it after use, and invoke it for a specific project. Walk through the four source-support steps on the slide: identify the exact sentence, read the source in context, judge support and scope, and propose a revision for researcher review.
 
-At session close, finished records what changed and what was actually checked. At the next session, sitrep compares the handoff with the live repository. These procedures preserve continuity; they do not prove the analysis correct.
+The invocation forms and on-demand context details have moved to the appendix. The procedure makes its standard inspectable; it does not certify a result merely by being invoked.
 
-Sources: versioned sitrep and finished in planning/oss-2.31.0/.
+Source: planning/oss-2.31.0/, versioned skills and invocation metadata.
 
-## 26. Check reference identity with citation-check
-**31:15–32:45 · 01:30 · PDF page 26**
+## 26. Reference identity is only the first check
+**32:00–33:45 · 01:45 · PDF page 26**
 
-Show the named invocation and the existing two-reference result. Both references exist and their title, authors, journal, and pages match the DOI metadata. This is a scoped 16 September receipt, not a fresh full-bibliography audit. Citation-check also samples evidentiary use; its remit overlaps with fact-check.
+Show the existing two-reference result. Both references exist and their title, authors, journal, and pages match the DOI metadata. This is a scoped 16 September receipt, not a fresh full-bibliography audit. Citation-check also samples evidentiary use; its remit overlaps with fact-check. Invocation syntax is available in the appendix rather than on this slide.
 
 Evidence: planning/receipts-2026-09-16/audit-receipt.md and retained Crossref response. ReevesRogowski2016 resolves to 10.1086/683433; ChristensonKriner2017 to 10.1111/ajps.12262.
 
-## 27. Check claim support with fact-check
-**32:45–34:15 · 01:30 · PDF page 27**
+## 27. The sentence determines the evidence required
+**33:45–35:45 · 02:00 · PDF page 27**
 
 Start from an exact manuscript sentence and its citation key, locate the source text, and inspect the relevant passage. The report records support, direction, scope, and limitations. The researcher reads the passage in context before accepting a proposed revision. Reserve the historical answer for Part 3.
 
 The source layer must be prepared. In the NWO project, derived .NOTE.md summaries cannot substitute for source evidence. A source existing is a different question from its supporting the claim. Source: versioned fact-check plus the scoped historical receipt.
 
-## 28. Build domain-specific checks into the process
-**34:15–35:45 · 01:30 · PDF page 28**
-
-The conjoint suite illustrates the same logic across design, cleaning, reporting, technical appendices, and review. Machine-checkable conditions include expected profiles per task, one choice per task, and allowed factor levels. Research review asks whether the estimand, design, estimation, and interpretation fit the question. An AMCE is not automatically a majority preference.
-
-conjoint-design specifies the design contract; conjoint-cleaning guides a deterministic script and validation; conjoint-diagnostics reviews threats to inference and interpretation. These procedures prescribe and review checks; their existence is not evidence that a particular check ran, or that they supplied a bundled executor before v2.31. The appendix lists examples, not results of a completed conjoint audit. Sources: the three versioned conjoint skills.
-
-## 29. Review the manuscript before submission
-**35:45–37:45 · 02:00 · PDF page 29**
+## 28. A paper can agree with itself and still be wrong
+**35:45–38:00 · 02:15 · PDF page 28**
 
 paper-review-lite checks argument, numbers, references, writing, figures, design reporting, preregistration, and the replication archive as applicable. Its default workflow has nine review dimensions and two cross-checkers; experimental dimensions may be not applicable to other designs. Explain the workflow rather than reading an agent roster.
 
-Its Numbers reviewer can notice an abstract reporting 0.34 when the table reports 0.31. When both report 0.31, agreement does not establish agreement with the current analysis. In v2.31 a static package pre-pass supplies additional evidence to the Numbers and Archive reviewers; it does not calculate missing estimates. Execution remains an explicit decision.
+Its Numbers reviewer can notice an abstract reporting 0.34 when the table reports 0.31. When both report 0.31, their agreement does not show that either matches the current analysis. In v2.31 a static package pre-pass supplies additional evidence to the Numbers and Archive reviewers; it does not calculate missing estimates. Execution remains an explicit decision.
 
-Source: versioned paper-review-lite, orientation and review specification. The numbers on this slide are illustrative, not findings from a real audit.
+The displayed numbers are illustrative, not findings from a real audit. The appendix preserves the review architecture and the separate conjoint example.
 
-## 30. When the documents agree and the result does not
-**37:45–40:45 · 03:00 · PDF page 30**
+Source: versioned paper-review-lite, orientation and review specification.
 
-This is illustrative data and a project-specific numerical check. There are seven positive observations among twenty-five, so the current analysis computes 0.28. The abstract and table both still report 0.31. Their internal agreement conceals the stale result.
-
-Run the analysis, read its generated machine-readable result, and compare that result explicitly with both reported values. The comparison fails. Correct both reported values to 0.28 and repeat the same comparison; it passes. Missing output or failed analysis must never become a passing report.
-
-These are captured results from demos/verification/, not a live terminal demonstration, a real research estimate, or a built-in OSS value comparator. A pass establishes this specified numerical agreement, not the validity of the underlying research. The example implements the feedback-loop principle introduced with Pocock. Retained code, inputs, commands, output, and hashes make it reproducible.
-
-## 31. Reading and running answer different questions
-**40:45–43:00 · 02:15 · PDF page 31**
+## 29. Reading, running, and comparing answer different questions
+**38:00–41:00 · 03:00 · PDF page 29**
 
 The v2.31 bundled verifier has two tiers. The static tier reads package conditions, including entry point, seed/session markers, dependency files, selected absolute-path and credential patterns, and data hashes. These are heuristics, not guarantees of portability or complete security checks.
 
-With explicit authorization, the execution tier runs the master script in a temporary copy on the current host. It records exit status and compares newly created filenames with the figure/table crosswalk. It inherits the host environment: this is not a hermetic sandbox. It does not compare numerical values or prove output freshness/content. The preceding project comparator supplies a different, explicit check.
+With explicit authorization, the execution tier runs the master script in a temporary copy on the current host. It records exit status and compares newly created filenames with the figure/table crosswalk. It inherits the host environment: this is not a hermetic sandbox. It does not compare numerical values or prove output freshness/content.
 
-/oss:verify exposes these checks without a full submission audit. paper-review-lite consumes their evidence; replication-package uses them during package review. Skipped execution is NOT CHECKED. Existing packages can reveal missing dependencies or external data paths; that is useful evidence about portability. No general speed claim is made.
+/oss:verify exposes these checks without a full submission audit. paper-review-lite consumes their evidence; replication-package uses them during package review. Skipped execution is NOT CHECKED. The separate project comparator in the illustrative case asks a different question: whether a fresh generated value agrees with reported values.
 
-The release adds a bundled replication-package verifier. The earlier zero-keyword audit does not demonstrate that no prior skill or agent ever executed research code. Optional spoken anecdote: the author reports discovering a duplicate skill menu by looking, while the old packaging test enforced the wrong invariant. This illustrates the need to examine what a passing test actually checks. Source: release capture and pinned script.
+No general speed claim is made. The appendix records the verifier internals and its limits.
 
-## 32. Prepare a package another researcher can rerun
-**43:00–45:00 · 02:00 · PDF page 32**
+## 30. Two cases, one evidence trail
+**41:00–43:00 · 02:00 · PDF page 30**
 
-The working repository and the publication package have related but different purposes. replication-package prepares or audits code, data or access instructions, a documented entry point, environment information, and the mapping from published figures/tables to producing scripts.
+The next section follows two distinct cases. The first is an authentic historical source case: an archived manuscript sentence, its cited studies, the recorded source-check receipt, and a revision that actually occurred on 27 August. The 16 September check inspected that history; it did not cause the earlier revision.
 
-Credit Yusaku Horiuchi’s replication-package guide. The skill prepares a local package; publishing to Harvard Dataverse, OSF, Zenodo, or another archive is a separate action. An independent rerun supplies further evidence. Neither a well-formed archive nor successful execution validates every substantive claim.
+The second is an illustrative numerical case: seven positive observations among twenty-five produce 0.28, while an abstract and table both retain 0.31. Its project-specific comparator reads a fresh machine-readable result and the reported values. It is captured material in demos/verification/, not a real research estimate, a live demonstration, or a built-in OSS numerical comparator.
 
-Source: versioned replication-package and Horiuchi attribution. No NWO replication run is represented.
+Both cases preserve inputs, transformations, and a decision trail. Neither converts a passing check into a guarantee of substantive validity. The appendix keeps the replication-package handoff and conjoint examples as related, separate reference material.
 
-## 33. Part 3 – One claim, checked against its source
+## 31. Follow the evidence
+**43:00–43:15 · 00:15 · PDF page 31**
 
-**45:00–45:15 · 00:15 · PDF page 33**
+Move from the general checking environment to the evidence trail. Keep the two cases distinct: the source case is authentic historical material; the numerical case is illustrative data designed to show a specified comparison.
 
-Return to the question from the opening. This section combines a 16 September read-only check with an actual historical manuscript revision. It does not claim that today's skill invocation produced the August revision.
+## 32. The first case requires a same-policy comparison
+**43:15–44:30 · 01:15 · PDF page 32**
 
-## 34. An archived claim still needs the right evidence
-
-**45:15–46:25 · 01:10 · PDF page 34**
-
-Read the comparative claim again. It requires evidence comparing executive and legislative routes, not simply evidence that some respondents dislike executive power. Give the audience time to say what finding would establish that comparison. The full old sentence also qualified the claim with partisanship and policy agreement; retaining that qualification still does not establish the asserted route penalty.
+Read the authentic archived comparative claim again. It requires evidence comparing executive and legislative routes for the same policy, not simply evidence that some respondents dislike executive power. Give the audience time to say what finding would establish that comparison. The full old sentence also qualified the claim with partisanship and policy agreement; retaining that qualification still does not establish the asserted route penalty.
 
 **Evidence:** Old text is in manuscript parent `e50d2788ae8df3d3de63e4e9d26be919d4dea971`, `sections/frontmatter/front_matter.tex`; correction is `75366c6ca9ecc96148acba4840a4853c73f47c43`, 27 August 2026. Exact diff: `planning/receipts-2026-09-16/historical-claim-diff.txt`.
 
-## 35. What the preserved passages support
+## 33. The sources are relevant, but the comparison is unsupported
 
-**46:25–49:20 · 02:55 · PDF page 35**
+**44:30–46:40 · 02:10 · PDF page 33**
 
 The 16 September check first established that both cited works exist and match their DOI records. Its preflight then located both per-source Markdown files. The next question is substantive support, which requires reading what the studies actually tested.
 
 Reeves and Rogowski show low generalized support for unilateral power. That is relevant, but it is not a direct comparison of two routes to the same policy. Christenson and Kriner directly test routes for student-loan and immigration policies; the route estimates are not statistically significant. That result does not establish a penalty, its opposite, equivalence, or the absence of a meaningful effect. The comparative claim is unsupported by the evidence attached to it.
 
-Read the displayed abstract clause with its surrounding qualification about partisan and policy agreement. Then point to the paper's direct route tests. The receipt documents the distinction between source identity, topical relevance, measurement, and support. A fluent summary alone could blur these distinctions.
+Read the two displayed findings and connect each to the comparison required on the previous slide. The receipt documents the distinction between source identity, topical relevance, measurement, and support. A fluent summary alone could blur these distinctions.
 
 **Evidence:** 16 September scoped receipt `planning/receipts-2026-09-16/audit-receipt.md`; source conversions in NWO `sources/md/`; C&K original PDF pp. 10–12, Tables 4–5, Markdown table ranges 396–423 and 479–504 and interpretations 425, 467, 477, 506, 548; R&R survey items and findings, Markdown 114–127. Both DOIs checked via Crossref content negotiation; metadata retained next to receipt. Source-support status is UNSUPPORTED for the comparative claim, not a declaration that the underlying studies are invalid.
 
-## 36. The recorded revision narrows the claim
-
-**49:20–52:00 · 02:40 · PDF page 36**
+## 34. The recorded revision narrows the claim
+**46:40–48:05 · 01:25 · PDF page 34**
 
 Show the actual old clause, source clause, and revised clause. The historical revision separates generalized support for unilateral powers from judgments of specific unilateral acts. Christenson and Kriner are attached to the narrower latter claim. These excerpts are clauses from longer sentences; the historical diff preserves the surrounding material.
 
 The point is the chain from question through evidence to a recorded decision. The original paper, readable conversion, citation identity, explicit checking procedure, and revision history make the reasoning inspectable. A skill can help repeat the procedure; the researcher must still decide whether the interpretation and revision are warranted.
+
+## 35. A fresh run exposes the stale result
+**48:05–50:05 · 02:00 · PDF page 35**
+
+Now switch explicitly to the illustrative numerical case. There are seven positive observations among twenty-five, so the current analysis computes 0.28. The abstract and table both still report 0.31. Their internal agreement conceals the stale result.
+
+Run the analysis, read its generated machine-readable result, and compare that result explicitly with both reported values. The comparison fails. This is a captured project pipeline, not a live terminal demonstration or a result from the historical source case.
+
+## 36. The agent catches the mismatch; the researcher owns the correction
+**50:05–52:00 · 01:55 · PDF page 36**
+
+The project-specific comparator can report that generated 0.28 disagrees with abstract 0.31 and table 0.31. Correct both reported values to 0.28 and repeat the same comparison; it passes. Missing output or failed analysis must never become a passing report.
+
+The agent catches a mismatch only because the researcher supplied the input, fields, and comparison rule, then read the evidence and authorized the correction. A pass establishes this specified numerical agreement, not the validity of the underlying research. Retained code, inputs, commands, output, and hashes make the illustration reproducible.
 
 **Transition:** Return to the three choices the audience can take into their own work.
 
@@ -326,39 +331,89 @@ Explain naming and identity before conversion. The scaffold uses `sources/refere
 
 **Evidence:** RR §§3–7; doc-to-markdown; NWO conventions.
 
-### 40. When a source check is not ready
+### 40. Four ways to organize collaboration
 
 **Outside the 55-minute budget · PDF page 40**
+
+The role table makes the supervision grid concrete. In pair programming, human and agent plan, act, and check together. In a planning commission, the human plans and checks while the agent implements. In a review board, the agent plans and acts while the human reviews. In autopilot, the human instructs, the agent implements, and the agent validates against an explicit rule. Ultimate responsibility remains with the researcher in every arrangement.
+
+This table describes collaboration arrangements; it is not a permission structure for handing all research decisions to an agent. It preserves the role reference moved out of Part 1.
+
+**Evidence:** Kenny (2026), p. 16, adopting Colin Swaney’s “Claude Overload” workshop; table reorganized by role. The talk’s four research-task examples are illustrative applications, not examples recovered from that presentation.
+
+### 41. Skill invocation and relevant context
+
+**Outside the 55-minute budget · PDF page 41**
+
+A skill is a written procedure for a recurring task, with optional scripts, templates, and examples. In the preserved v2.31 snapshot, it is explicitly invoked: for example, `/oss:research-repo .` in Claude Code or `$research-repo .` in Codex, where the period names the current folder. The named procedure then supplies task-relevant instructions.
+
+This is on-demand context loading, not evidence of a measured token or time saving, a universal architecture for other skill libraries, or a successful project run. The researcher still provides the target, reads the resulting evidence, and decides what to do.
+
+**Evidence:** preserved OSS v2.31.0 skill files and invocation metadata in `planning/oss-2.31.0/`.
+
+### 42. Git, finished, and sitrep
+
+**Outside the 55-minute budget · PDF page 42**
+
+Git records local edits; GitHub keeps and shares that history. The minimal loop is edit, inspect the diff, commit with an explanation, and push. That makes a change attributable and recoverable. It does not establish that the change is correct.
+
+At the end of a session, `finished` records changes, checks actually performed, and next actions. At the beginning of the next session, `sitrep` compares that handoff with the live repository. These procedures preserve continuity and make uncertainty visible; they do not verify the research.
+
+**Evidence:** preserved OSS v2.31.0 `finished` and `sitrep` procedures.
+
+### 43. paper-review-lite: review architecture
+
+**Outside the 55-minute budget · PDF page 43**
+
+The default workflow has nine review dimensions: argument, numbers, references, DOI identity, writing, design reporting, preregistration, figures and tables, and the archive. Two cross-checkers then verify passages and filter unsupported findings. Some experimental dimensions can be not applicable for another design.
+
+The workflow can expose disagreement within a manuscript or package evidence available to reviewers. It does not calculate a missing estimate, replace source reading, prove that every concern was found, or establish research validity. The numbers used in the lecture’s numerical illustration are not findings from a real paper-review-lite audit.
+
+**Evidence:** preserved OSS v2.31.0 `paper-review-lite` orientation and review specification.
+
+### 44. /oss:verify: what it checks
+
+**Outside the 55-minute budget · PDF page 44**
+
+`/oss:verify` exposes the v2.31 replication-package verifier without a full submission audit. Its static tier checks package conditions: entry point, dependency files, seed/session markers, selected absolute-path and credential patterns, and data hashes. These are heuristics, not complete portability or security guarantees.
+
+With explicit authorization, its execution tier runs the master script in a temporary copy on the current host, records exit status, and compares newly created filenames with the figure/table crosswalk. The copy inherits the host environment, so it is not hermetic. It does not compare numerical values or prove that outputs are fresh; skipped execution is NOT CHECKED. The illustrative numerical comparator in this lecture is a separate project check.
+
+**Evidence:** preserved v2.31 verifier and command documentation in `planning/oss-2.31.0/`. The confirmed release change is a bundled replication-package verifier; an earlier keyword audit cannot establish that no prior skill or agent ever ran research code.
+
+### 45. When a source check is not ready
+
+**Outside the 55-minute budget · PDF page 45**
 
 The current fact-check skill requires a prepared per-source Markdown knowledge base and no unconverted source backlog. It treats coverage below roughly two-thirds of cited non-background works in scope as not ready. This is an operational threshold, not a statistical guarantee or permission to ignore the uncovered third. Citation-check runs first. Missing, ambiguous, or insufficient sources remain visible. NWO additionally prohibits treating `.NOTE.md` summaries as source evidence. A summary's silence does not show that the original contains no relevant passage. No fresh full-project readiness result is claimed.
 
 **Evidence:** FC §1 and §4–6; NWO AGENTS.md, Sources section. The skill can accept summaries in some settings but explicitly distinguishes their limits from faithful conversions; the local project rule is stricter.
 
-### 41. Document the use of AI
+### 46. Document the use of AI
 
-**Outside the 55-minute budget · PDF page 41**
+**Outside the 55-minute budget · PDF page 46**
 
 Ask what a reader needs to know to understand the assistance and inspect consequential decisions. Describe the task, tools and materials, human review, and limitations as relevant. This is the lecturer's discussion aid, not a universal disclosure template or a substitute for journal or institutional policy. The historical manuscript includes a Use of AI statement; its full model list is not reproduced. Absence of an AI record would not prove that a task was performed entirely without AI.
 
 **Evidence:** Historical manuscript and prior notes audit; author disclosure discussion. No current journal-policy claim is made.
 
-### 42. Make the results reproducible by others
+### 47. Make the results reproducible by others
 
-**Outside the 55-minute budget · PDF page 42**
+**Outside the 55-minute budget · PDF page 47**
 
 A research repository retains working sources, drafts, experiments, and decisions. A replication package is a curated release: README, entry script, environment, data or access instructions, and a mapping from reported outputs to producing code. An independent rerun is a separate test. The replication-package skill prepares and audits the handoff; it does not itself prove that a rerun succeeds or deposit the files. This appendix expands the companion skill introduced in Part 2 and distinguishes preparing a package from independently rerunning it.
 
 **Evidence:** OSS replication-package skill, adapted from Yusaku Horiuchi's replication-package guide. No replication audit of NWO is claimed.
 
-### 43. Literal BibTeX record
+### 48. Literal BibTeX record
 
-**Outside the 55-minute budget · PDF page 43**
+**Outside the 55-minute budget · PDF page 48**
 
 The literal BibTeX record is the same canonical ChristensonKriner2017 excerpt previously on the main slide. Omitting keywords and wrapping whitespace does not change its metadata. Connect the key to the source file and manuscript citation. DOI 10.1111/ajps.12262.
 
-### 44. Conjoint checks across the research process
+### 49. Conjoint checks across the research process
 
-**Outside the 55-minute budget · PDF page 44**
+**Outside the 55-minute budget · PDF page 49**
 
 Use design specifications and data invariants to support analysis, reporting, appendix preparation, and review. Expected row counts, choice sums, and factor levels admit executable checks; estimand clarity and interpretation still require judgment. These are specified checks rather than receipts from a study audited for this talk.
 
@@ -401,7 +456,7 @@ The published inputs, table locators, intervals, downloaded-source hashes, and i
 
 ## Accuracy and presentation boundaries
 
-- Main PDF pages: 38 including the cover, three part dividers, and three mode transitions. Appendix pages: six. Total: 44. Ordinary footer numbers: 1–37. Planned duration: 55 minutes; no timed rehearsal or live Zoom test is claimed.
+- Main PDF pages: 38 including the cover, three part dividers, and three mode transitions. Appendix pages: eleven. Total: 49. Main-deck footers end at 31 and the appendix continues through 42; physical page 4 intentionally omits printed footer 3. Planned duration: 55 minutes; no timed rehearsal or live Zoom test is claimed.
 - Agents are defined through available context, tools, and an iterative action loop. A browser interface can expose those capabilities. Project files are not automatically current context. A repository is an organised project folder with recorded versions; explain that term aloud when introducing the files.
 - The three modes are the author's framework. Delegation patterns answer a separate question about who plans, acts, and checks. Software also requires specifications, tests, evidence, and judgment; passing tests is not complete correctness.
 - Autor's junior results do not show average decline. The unaided task differs from the assisted task; greater dispersion is a separate result, not shown by the plotted mean intervals. Experience was not randomized. Bastani's tutor mitigated observed harm without establishing a learning advantage; Bassner qualifies any broader guardrail claim. Neither study establishes effects on graduate research skills.

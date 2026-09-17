@@ -30,6 +30,15 @@ def valid_proportion(name: str, value: float) -> bool:
     return True
 
 
+def extract_report_values(report: str) -> tuple[float, float]:
+    """Return abstract and table proportions from an illustrative report."""
+    abstract_match = ABSTRACT.search(report)
+    table_match = TABLE.search(report)
+    if not abstract_match or not table_match:
+        raise ValueError("report is missing a parseable abstract or table value")
+    return float(abstract_match.group(1)), float(table_match.group(1))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--report", type=Path, required=True)
@@ -46,12 +55,10 @@ def main() -> int:
 
     if not valid_proportion("generated result", generated):
         return 2
-    abstract_match = ABSTRACT.search(report)
-    table_match = TABLE.search(report)
-    if not abstract_match or not table_match:
-        return fail("report is missing a parseable abstract or table value")
-    abstract_value = float(abstract_match.group(1))
-    table_value = float(table_match.group(1))
+    try:
+        abstract_value, table_value = extract_report_values(report)
+    except ValueError as error:
+        return fail(str(error))
     if not valid_proportion("abstract value", abstract_value) or not valid_proportion("table value", table_value):
         return 2
     mismatches = [

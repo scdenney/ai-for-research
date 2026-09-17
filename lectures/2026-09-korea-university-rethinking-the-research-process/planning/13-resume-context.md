@@ -2,7 +2,15 @@
 
 This is a consolidated handoff from the Codex session launched in an Open Science Skills worktree. It records the current decisions and the user's feedback, not a verbatim transcript. Resume in **ai-for-research**, not that worktree.
 
-## Latest author review · Intro and Part 1 simplification
+## Latest author review · Part 2 and Part 3 rebuild
+
+The author approved a split bridge from the Part 1 supervision grid into a research-process overview, followed by a deeper account of machine collaboration through repositories, reusable procedures, and distinct checks. The implemented deck has 38 main pages plus eleven appendices, with the 55-minute budget divided 8 / 15 / 20 / 9 / 3.
+
+Printed slide 20 now maps seven research stages across qualitative complexity and current-verifiability terrain. Part 2 has ten slides including its divider and uses one dominant object per slide. CLI syntax, Git/session continuity, reviewer rosters, verifier internals, replication detail, and conjoint detail moved to the appendix. Part 3 has six slides including its divider and follows two separate cases: an authentic historical source correction and an explicitly illustrative 0.31-versus-0.28 numerical comparison. No protected NWO analysis output is used.
+
+Read `review-part2-rebuild-2026-09-17/` for the current validation, `02-rebuild-storyboard.md` for the live narrative, and `notes.md` for the exact timing and qualifications. Timed rehearsal, real Zoom testing, authenticated Overleaf preview, parent GitHub push, and website PDF replacement remain separate.
+
+## Previous author review · Intro and Part 1 simplification
 
 The author found the deck too crowded, particularly Part 2. That criticism supersedes the prior positive validation as an assessment of presentation quality. The current pass simplifies printed slide 4 and Part 1, preserving the author’s other Overleaf intro edits (`86c939f`). Three appendix slides move into Part 1: 38 main pages, six appendices, 44 total; notes remain budgeted to 55 minutes.
 

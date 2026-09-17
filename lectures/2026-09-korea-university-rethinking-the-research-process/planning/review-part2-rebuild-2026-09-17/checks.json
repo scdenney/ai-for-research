@@ -1,0 +1,145 @@
+{
+  "pages": 49,
+  "titles": [
+    "Rethinking the Research Process",
+    "Roadmap: AI in research and teaching",
+    "From generative AI to agentic AI",
+    "From a conversation to carrying out a task",
+    "What does it mean to use agents for research?",
+    "An example research claim",
+    "PART 1",
+    "Three modes of AI engagement",
+    "AUTOMATE",
+    "Save time and attention",
+    "PROTECT",
+    "Protect the reasoning that builds judgment",
+    "Performance and learning need different evidence",
+    "What might protect learning?",
+    "AI assistance and later unaided review",
+    "Practice with AI, then an exam without it",
+    "COLLABORATE",
+    "Collaboration across research and teaching",
+    "Match supervision to the research task",
+    "Research moves through changing risk terrain",
+    "PART 2",
+    "Checkability can be built into the process",
+    "Checking the paper requires the work behind it",
+    "A searchable source still needs its original",
+    "A skill makes a checking procedure reusable",
+    "Reference identity is only the first check",
+    "The sentence determines the evidence required",
+    "A paper can agree with itself and still be wrong",
+    "Reading, running, and comparing",
+    "Two cases, one evidence trail",
+    "PART 3",
+    "The first case requires a same-policy comparison",
+    "The sources are relevant, but the comparison is unsupported",
+    "The recorded revision narrows the claim",
+    "A fresh run exposes the stale result",
+    "The agent catches the mismatch; the researcher owns the correction",
+    "What to take into your own work",
+    "Resources and discussion",
+    "Source intake: what happens between the folders",
+    "Four ways to organize collaboration",
+    "Skill invocation and relevant context",
+    "Git, finished, and sitrep",
+    "paper-review-lite: review architecture",
+    "/oss:verify: what it checks",
+    "When a source check is not ready",
+    "Document the use of AI",
+    "Make the results reproducible by others",
+    "Literal BibTeX record",
+    "Conjoint: checks and judgment"
+  ],
+  "footer_numbers": [
+    1,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42
+  ],
+  "out_of_page_text": [],
+  "long_diagonal_segments": [
+    {
+      "page": 20,
+      "a": [
+        244.482421875,
+        73.70231628417969
+      ],
+      "b": [
+        297.1946716308594,
+        101.54643249511719
+      ]
+    },
+    {
+      "page": 20,
+      "a": [
+        310.2640075683594,
+        144.5693359375
+      ],
+      "b": [
+        201.42434692382812,
+        126.80561828613281
+      ]
+    },
+    {
+      "page": 20,
+      "a": [
+        162.99334716796875,
+        134.70513916015625
+      ],
+      "b": [
+        216.119873046875,
+        165.11849975585938
+      ]
+    }
+  ],
+  "text_overlaps": [],
+  "fill_crossings": [
+    {
+      "page": 3,
+      "text": "This talk focuses on agentic AI, which are generative models used in"
+    },
+    {
+      "page": 43,
+      "text": "validity."
+    }
+  ],
+  "sha256": "7082c65af7e57dde384fb0e8fbfd75fa551ced108fb0edb342bdfaa89ac6c2f9"
+}

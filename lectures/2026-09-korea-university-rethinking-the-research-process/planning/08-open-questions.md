@@ -1,5 +1,13 @@
 # Open questions
 
+## Resolved · Notes and appendix reorganization, 17 September 2026
+
+The approved timed notes now keep Part 1 at 08:00–23:00, make Part 2 exactly 20:00 across ten slides including its divider (23:00–43:00), make Part 3 exactly 9:00 across six slides including its divider (43:00–52:00), and retain the closing at 52:00–55:00. The main physical count remains 38 pages.
+
+Part 2 is organized as one checking environment rather than a skill catalog: building checkability; work behind a paper; source originals; reusable procedures; reference identity; claim support; internal manuscript consistency; distinct reading, execution, and value-comparison checks; then two clearly separated evidence cases. Part 3 follows the authentic historical source case before the illustrative numerical case. The former uses an archived NWO claim, cited studies, a 16 September source-check receipt, and an actual 27 August revision; the latter uses illustrative binary data and a project-specific comparator. Neither case is presented as evidence that a passing check establishes research validity.
+
+The appendix now preserves reference material moved out of the main story: the collaboration roles table, skill invocation and context limits, Git with `finished` and `sitrep`, the `paper-review-lite` architecture, and `/oss:verify` internals. Source intake/readiness, disclosure, replication, BibTeX, and conjoint reference material remain available.
+
 ## Latest follow-up · Protect rationale and applied axes
 
 The author rejected the vague work/researcher comparison and the grid’s axis treatment and lack of connection to this talk. Printed 8 now states the cognitive-development rationale: reasoning practice builds judgment, and habitual substitution can remove that practice. Printed 14 has standard arrowed X/Y axes and four illustrative research tasks. Notes explain their checking conditions, the Protect boundary, and the connection to Part 2’s sources and executable checks. Earlier acceptance of the previous versions is superseded. No Part 2 or Part 3 slide changes.

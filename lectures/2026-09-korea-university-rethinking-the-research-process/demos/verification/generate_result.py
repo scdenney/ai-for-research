@@ -12,13 +12,9 @@ import json
 from pathlib import Path
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input", type=Path, default=Path("data/illustrative-binary-outcomes.csv"))
-    parser.add_argument("--output", type=Path, default=Path("generated/demo-result.json"))
-    args = parser.parse_args()
-
-    with args.input.open(newline="", encoding="utf-8") as source:
+def calculate_result(input_path: Path) -> dict[str, object]:
+    """Calculate the illustrative positive proportion from a binary CSV."""
+    with input_path.open(newline="", encoding="utf-8") as source:
         rows = list(csv.DictReader(source))
     if not rows:
         raise ValueError("input contains no rows")
@@ -27,13 +23,22 @@ def main() -> int:
         raise ValueError("positive must be binary 0 or 1")
 
     positives = sum(int(value) for value in values)
-    result = {
+    return {
         "illustrative": True,
         "measure": "positive_proportion",
         "n": len(values),
         "positive_count": positives,
         "value": positives / len(values),
     }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", type=Path, default=Path("data/illustrative-binary-outcomes.csv"))
+    parser.add_argument("--output", type=Path, default=Path("generated/demo-result.json"))
+    args = parser.parse_args()
+
+    result = calculate_result(args.input)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(result, sort_keys=True))

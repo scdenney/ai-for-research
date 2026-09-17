@@ -1,5 +1,20 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-17 · Research-pipeline bridge and Part 2/3 rebuild
+_agent: codex · Astra-led orchestrate with Sol and Terra implementation and independent Astra review_
+
+**Author direction:** Part 2 had become crowded and catalog-like. The author wanted it to flow from machine collaboration into complexity and verifiability across the research process, then show how repositories and skills improve checking conditions. The demo needed to reconnect the opening source claim and add a separate analysis/output case.
+
+**Completed:** Replaced the final Part 1 role table with a seven-stage research risk-terrain slide and moved the table to the appendix. Rebuilt Part 2 as ten slides organized around the research repository, source evidence, reusable procedures, reference identity, claim support, manuscript-reading limits, and distinct reading/running/comparing checks. Expanded Part 3 to six slides: the authentic historical source correction followed by an explicitly illustrative 0.31-versus-0.28 consistency check and human-agent correction loop. Added a reproducible vector comparison figure generated from the retained illustrative CSV and stale report. Expanded the appendix to eleven pages and synchronized notes, storyboard, manifest, resume context, and open questions.
+
+**Validation:** 49 physical pages: 38 main and eleven appendix. Timed notes contain 38 continuous allocations totaling 55:00, with Part 2 at 20 minutes and Part 3 at 9. XeLaTeX succeeds with embedded fonts; every page was rendered and contact-sheet/full-size inspected. Geometry finds no out-of-page text or text overlaps. The numerical receipt suite passes: stale report fails, corrected report passes, and failed generation plus invalid, missing, non-finite, and out-of-range outputs fail closed. Independent Astra review found no blocking layout, code, or provenance defect after documentation drift was corrected. See `planning/review-part2-rebuild-2026-09-17/`.
+
+**Delivery:** Overleaf main pushed and remote-verified at `bf1351df4fe5f4eb76702bad8faa31165d8e6ab4`. Local PDF SHA-256: `7082c65af7e57dde384fb0e8fbfd75fa551ced108fb0edb342bdfaa89ac6c2f9`. No website PDF replacement or parent GitHub push.
+
+**Remaining:** Author review, timed rehearsal, real Zoom screen-share test, and authenticated Overleaf browser preview. The historical source case and illustrative numerical case must remain visibly distinct in any later edits.
+
+---
+
 ## 2026-09-17 · Concrete Protect rationale and applied X/Y grid
 _agent: codex · Astra-led orchestrate with Sol editorial/render review_
 

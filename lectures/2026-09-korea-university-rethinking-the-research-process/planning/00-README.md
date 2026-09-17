@@ -10,7 +10,7 @@ Start with [13-resume-context.md](13-resume-context.md) and [../HANDOFF.md](../H
 
 ## Current revision — 17 September 2026
 
-The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It restores the talk’s research-and-teaching purpose, introduces basic vocabulary before the running example, distinguishes the three modes, and puts the research-repo knowledge base before downstream checks. The 17 September implementation adds verifiability, the supervision grid, manuscript review and a separate numerical comparison. Latest author-directed pass simplifies Intro/Part 1; Part 2 remains deferred for substantial design work. Latest scoped validation: [review-protect-axes-2026-09-17/README.md](review-protect-axes-2026-09-17/README.md). Earlier plans and review records remain as history.
+The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It connects the supervision grid to a seven-stage research process, rebuilds Part 2 around repository-supported checkability, and uses Part 3 for an authentic source correction plus an explicitly illustrative numerical comparison. Latest scoped validation: [review-part2-rebuild-2026-09-17/README.md](review-part2-rebuild-2026-09-17/README.md). Earlier plans and review records remain as history.
 
 ## Folder map
 
@@ -25,6 +25,7 @@ The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebui
 | `review-verifiability-2026-09-17/` | Earlier full build and verifier evidence; visual adequacy subsequently rejected |
 | `review-part1-simplification-2026-09-17/` | Previous simplification pass; slides 8 and 14 subsequently revised |
 | `review-protect-axes-2026-09-17/` | Current cognitive-development rationale and applied X/Y grid |
+| `review-part2-rebuild-2026-09-17/` | Current research-pipeline bridge, simplified Part 2, dual-case Part 3, and final checks |
 | `09-evidence-protect.md` | Relayed literature leads and qualifications |
 | `14-csdp-benchmark.md` | CSDP comparison, preserved source revisions, clarity lessons, and Part 3 implications |
 | `15-verifiability-and-deep-dive-context.md` | Author context linking the delegation grid, software feedback loops, research verifiability, Part 2, and Part 3 |

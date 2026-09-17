@@ -87,10 +87,12 @@ Use the four rows as ordinary examples: schedule meetings and reminders; track t
 
 Protect the work through which the researcher builds or demonstrates understanding and judgment. This concerns the capability the work develops, rather than a rule about teaching or a categorical ban on AI.
 
-## 12. Protect learning and judgment
+## 12. Protect the reasoning that builds judgment
 **10:35–11:35 · 01:00 · PDF page 12**
 
-Separate the quality of a product from the capability of the person responsible for it. Ask both questions on the slide: what can we produce with AI, and what can we understand, judge, and do ourselves? Assistance can improve a product while leaving the underlying capability untested or undeveloped.
+The protected activity is the practice through which cognitive abilities develop: interpreting sources, weighing competing evidence, and constructing an argument. The point is not simply that a researcher should remain responsible for the final product. It is that routinely receiving an already completed interpretation can remove opportunities to develop the ability to interpret and assess evidence independently.
+
+AI can support this practice through questions, feedback, or criticism. The concern is habitual substitution for the reasoning the person is still learning to do. This is a conceptual rationale for selective protection, not a claim that every use of AI causes cognitive decline. The next slides distinguish assisted performance from measured learning and later unaided capability. Keep the earlier practical premise: AI is present across research; protecting selected reasoning does not require an entirely AI-free workflow.
 
 ## 13. Performance and learning need different evidence
 **11:35–13:05 · 01:30 · PDF page 13**
@@ -144,14 +146,18 @@ Collaboration can operate throughout research and teaching. An agent can retriev
 
 The researcher or teacher retains the substantive decisions: which sources matter, whether an analysis answers the question, what a draft should claim, and what judgment feedback should express.
 
-## 19. How hard is the task, and how checkable?
+## 19. Match supervision to the research task
 **20:05–21:45 · 01:40 · PDF page 19**
 
-The horizontal axis runs from subjective to objective verification; complexity runs from easy at the bottom to hard at the top. Kenny places Pair Programming at hard/subjective, Planning Commission at hard/objective, Review Board at easy/subjective, and Autopilot at easy/objective.
+Read the axes first. Complexity increases upward from easy to hard; verification becomes more objective toward the right. These are relative positions for a bounded task under its current checking conditions, not permanent categories for whole research activities.
 
-The modes answer what kind of engagement a task deserves. This grid helps decide how closely to supervise it. A task can become more checkable when it gains a specification, preserved sources, diagnostic checks, or executable comparisons. That does not make an educational task automatically appropriate to delegate: students may still need to practise it themselves. Human responsibility remains in every quadrant.
+The research examples make the borrowed framework useful here. Co-designing a study combines a complex problem with judgments about theory, measurement, and inference, so human and agent work together. Implementing a specified analysis is a candidate for delegation when the researcher has fixed the specification and can check code and outputs against it; an analysis plan alone does not make its implementation objectively verifiable. Reviewing a short summary against an available source is bounded but still requires interpretation. Formatting references to a specified style provides explicit criteria for automated checks. Bibliographic identity and claim support remain separate, substantive tasks.
 
-Credit Christopher Kenny’s CSDP presentation, page 16, which attributes the grid to Colin Swaney’s Spring 2026 Claude Overload DDSS workshop. The public workshop repository has demonstration outlines; a slide deck was not publicly located. Do not claim we independently recovered Swaney’s original quadrant.
+Protect comes before this delegation decision: if doing a task develops the understanding someone needs, ease of checking does not by itself justify outsourcing it. For tasks we do delegate, choose the supervision arrangement according to both difficulty and available checks.
+
+This is the connection to Part 2. The research repository preserves the source used to check a summary, the analysis specification and code, and the bibliography. Source checking, executable comparisons, and review supply different kinds of feedback. Better checking can make delegation more practical; it does not eliminate research judgment or prove validity.
+
+Credit Kenny’s CSDP presentation, page 16, adapting Swaney’s Claude Overload workshop. The four task examples are our illustrative applications, not examples recovered from that presentation. The role table next explains who plans, acts, and checks. Human responsibility remains in every arrangement.
 
 ## 20. Four ways to organize collaboration
 **21:45–23:00 · 01:15 · PDF page 20**

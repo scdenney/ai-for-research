@@ -10,7 +10,7 @@ Start with [13-resume-context.md](13-resume-context.md) and [../HANDOFF.md](../H
 
 ## Current revision — 17 September 2026
 
-The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It restores the talk’s research-and-teaching purpose, introduces basic vocabulary before the running example, distinguishes the three modes, and puts the research-repo knowledge base before downstream checks. The 17 September implementation adds verifiability, the supervision grid, manuscript review and a separate numerical comparison. Latest author-directed pass simplifies Intro/Part 1; Part 2 remains deferred for substantial design work. Current scoped validation: [review-part1-simplification-2026-09-17/README.md](review-part1-simplification-2026-09-17/README.md). Earlier plans and review records remain as history.
+The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It restores the talk’s research-and-teaching purpose, introduces basic vocabulary before the running example, distinguishes the three modes, and puts the research-repo knowledge base before downstream checks. The 17 September implementation adds verifiability, the supervision grid, manuscript review and a separate numerical comparison. Latest author-directed pass simplifies Intro/Part 1; Part 2 remains deferred for substantial design work. Latest scoped validation: [review-protect-axes-2026-09-17/README.md](review-protect-axes-2026-09-17/README.md). Earlier plans and review records remain as history.
 
 ## Folder map
 
@@ -23,7 +23,8 @@ The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebui
 | `10-foundations-validation.md` | Historical 40-page validation and lessons for a later skill |
 | `12-purpose-foundations-validation.md` | Historical 16 September validation and delivery |
 | `review-verifiability-2026-09-17/` | Earlier full build and verifier evidence; visual adequacy subsequently rejected |
-| `review-part1-simplification-2026-09-17/` | Current Intro/Part 1 simplification and scoped review |
+| `review-part1-simplification-2026-09-17/` | Previous simplification pass; slides 8 and 14 subsequently revised |
+| `review-protect-axes-2026-09-17/` | Current cognitive-development rationale and applied X/Y grid |
 | `09-evidence-protect.md` | Relayed literature leads and qualifications |
 | `14-csdp-benchmark.md` | CSDP comparison, preserved source revisions, clarity lessons, and Part 3 implications |
 | `15-verifiability-and-deep-dive-context.md` | Author context linking the delegation grid, software feedback loops, research verifiability, Part 2, and Part 3 |

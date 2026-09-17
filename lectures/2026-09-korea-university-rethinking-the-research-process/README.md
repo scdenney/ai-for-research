@@ -21,7 +21,7 @@ The approved serif design is implemented in the full deck: **38 main pages inclu
 | `overleaf/figures/source-excerpt.png` | Real source-PDF excerpt; provenance in the adjacent README |
 | `notes.md` | Matching notes, cumulative timings, evidence locators, and guardrails |
 | `planning/02-rebuild-storyboard.md` | Approved narrative and implementation record |
-| `planning/review-part1-simplification-2026-09-17/README.md` | Current Intro/Part 1 simplification and scoped visual review |
+| `planning/review-protect-axes-2026-09-17/README.md` | Current Protect rationale and research-grid revision |
 | `overleaf/figures/evidence-plot-provenance.md` | Verified estimates, intervals, and limitations for both evidence figures |
 | `overleaf/figures/browser-capture-provenance.md` | Real Chrome-extension screenshots and source revisions |
 | `planning/preview/` | Approved preview PDF and five page images |

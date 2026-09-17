@@ -6,7 +6,7 @@ This is a consolidated handoff from the Codex session launched in an Open Scienc
 
 The author found the deck too crowded, particularly Part 2. That criticism supersedes the prior positive validation as an assessment of presentation quality. The current pass simplifies printed slide 4 and Part 1, preserving the author’s other Overleaf intro edits (`86c939f`). Three appendix slides move into Part 1: 38 main pages, six appendices, 44 total; notes remain budgeted to 55 minutes.
 
-The Protect section now distinguishes what AI helps produce from the researcher’s own capabilities, with the learning-evidence table and conceptual learning slide promoted together. The grid is simpler and followed by the role table. The Collaborate transition uses the author’s requested wording. Read `review-part1-simplification-2026-09-17/` for current scoped checks.
+The latest follow-up replaces the rejected abstract Protect comparison with an explicit explanation of how reasoning practice develops judgment. The grid now uses arrowed axes and illustrative research tasks, with a Part 2 connection in notes. The learning-evidence table and conceptual learning slide remain promoted together; the role table follows the grid. The Collaborate transition uses the author’s requested wording. Read `review-protect-axes-2026-09-17/` for the latest two-slide checks; the previous pass is recorded separately.
 
 **Next content work is Part 2, when requested.** It is deferred and requires substantial editorial and visual simplification. Part 3 is also outside this pass. Preserve that boundary.
 

@@ -1,0 +1,28 @@
+{
+ "root": "/Users/scdenney/Documents/github/resources/ai-for-research/lectures/2026-09-korea-university-rethinking-the-research-process",
+ "id": "afr-korea-university-2026-09-talk",
+ "written": "2026-09-17T09:34:38+00:00",
+ "mode": "check --fast",
+ "items": [
+  {
+   "check": "manifest",
+   "status": "PASS",
+   "msg": "manifest ok: afr-korea-university-2026-09-talk (talk)"
+  },
+  {
+   "check": "credentials",
+   "status": "PASS",
+   "msg": "no credential patterns in 652 files"
+  },
+  {
+   "check": "prose_tells",
+   "status": "PASS",
+   "msg": "0 tells in 7 prose files"
+  }
+ ],
+ "summary": {
+  "PASS": 3
+ },
+ "exit_code": 0,
+ "receipt": null
+}

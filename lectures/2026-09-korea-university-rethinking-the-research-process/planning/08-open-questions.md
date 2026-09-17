@@ -1,5 +1,9 @@
 # Open questions
 
+## Latest follow-up · Protect rationale and applied axes
+
+The author rejected the vague work/researcher comparison and the grid’s axis treatment and lack of connection to this talk. Printed 8 now states the cognitive-development rationale: reasoning practice builds judgment, and habitual substitution can remove that practice. Printed 14 has standard arrowed X/Y axes and four illustrative research tasks. Notes explain their checking conditions, the Protect boundary, and the connection to Part 2’s sources and executable checks. Earlier acceptance of the previous versions is superseded. No Part 2 or Part 3 slide changes.
+
 ## Current checkpoint · Intro/Part 1 simplification, 17 September 2026
 
 The author rejected the crowded slides, especially Part 2. This pass preserves the author’s intro edits, simplifies printed slide 4 and Part 1, and promotes three appendices into Part 1. The deck still has 44 pages: 38 main and six appendices. The earlier technical and independent checks did not establish satisfactory presentation quality.

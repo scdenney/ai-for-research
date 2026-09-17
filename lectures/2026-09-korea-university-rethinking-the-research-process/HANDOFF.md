@@ -1,5 +1,17 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-17 · Concrete Protect rationale and applied X/Y grid
+_agent: codex · Astra-led orchestrate with Sol editorial/render review_
+
+**Feedback:** The author rejected slide 8’s abstract work/researcher comparison and the grid’s axes and lack of connection to this talk.
+
+**Completed:** Printed 8 now explicitly connects cognitive development to interpreting sources, weighing evidence, and constructing arguments. Printed 14 has standard arrowed axes and four illustrative research tasks. Notes connect the grid to the source repository and verification workflows, with task-specific limits and human responsibility retained. Only these two slide frames changed; Parts 2 and 3 remain deferred/unchanged.
+
+**Checks and delivery:** Rendered both changed slides; corrected the lower-left quadrant spacing; checked exact scope and 55-minute notes. Gate passes. Overleaf main pushed at `ab8aa693614ec6a7230fc7bdd114575b17e9dac7`; parent changes committed locally. See `planning/review-protect-axes-2026-09-17/`. No website replacement or parent GitHub push.
+
+---
+
+
 ## 2026-09-17 · Author-directed Intro/Part 1 simplification
 _agent: codex · Astra-led orchestrate; Sol editorial review; Terra notes and visual review_
 

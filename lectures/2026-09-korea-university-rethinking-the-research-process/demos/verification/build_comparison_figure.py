@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the illustrative fresh-analysis versus stale-report comparison figure."""
+"""Build the illustrative verified-analysis versus reported-analysis figure."""
 
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ def main() -> int:
 
     generated = float(result["value"])
     stale = abstract_value
-    categories = ["Fresh analysis", "Stale report"]
+    categories = ["Verified analysis", "Reported analysis"]
     values = [generated, stale]
     colors = [ACCENT, STRUCTURE]
 
@@ -54,7 +54,7 @@ def main() -> int:
     bars = axis.barh(categories, values, color=colors, height=0.48)
     axis.invert_yaxis()
     axis.set_xlim(0, 0.35)
-    axis.set_xlabel("Positive proportion (share of 25 illustrative rows)", color=INK, labelpad=8)
+    axis.set_xlabel("Value", color=INK, labelpad=8)
     axis.xaxis.set_major_locator(MultipleLocator(0.10))
     axis.xaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:.2f}"))
     axis.grid(axis="x", color=GRID, linewidth=0.7)
@@ -65,8 +65,8 @@ def main() -> int:
         spine.set_visible(False)
 
     labels = [
-        f"{generated:.2f}  computed ({result['positive_count']}/{result['n']})",
-        f"{stale:.2f}  reported twice",
+        f"{generated:.2f}  computed",
+        f"{stale:.2f}  reported",
     ]
     for bar, label, color in zip(bars, labels, colors):
         axis.text(
@@ -80,7 +80,7 @@ def main() -> int:
             fontweight="bold",
         )
 
-    figure.subplots_adjust(left=0.19, right=0.985, top=0.96, bottom=0.29)
+    figure.subplots_adjust(left=0.22, right=0.985, top=0.96, bottom=0.29)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(args.output, format="pdf", facecolor=PAGE)
     plt.close(figure)

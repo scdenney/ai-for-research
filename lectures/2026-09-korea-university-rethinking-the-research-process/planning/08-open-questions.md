@@ -1,5 +1,14 @@
 # Open questions
 
+## Current checkpoint · 17 September 2026
+
+The 39-page deck and 55-minute notes are implemented and pushed to Overleaf, but await author review. Intro/Parts 1–2 are the latest revision; Part 3 remains for later work. Rehearsal, actual Zoom check, Overleaf browser authentication/preview, and any separately requested website/GitHub publication remain. Version control has been added in Part 2. See [13-resume-context.md](13-resume-context.md).
+
+All entries below are historical checkpoints. Statements about unfinished source excerpts, a little Korean, old palettes, preview-only status, or undecided running examples have been superseded by the current storyboard. Preserve them as history, not current tasks.
+
+---
+
+
 ## Full-build update
 
 The preview was approved and the full deck requested for Overleaf. Self-introduction, instruction excerpts, original-source comparison, and resource links are now implemented. Remaining delivery work: timed rehearsal, actual Zoom screen-share check, and any further content revisions from the author. Website publication is separate from the requested Overleaf push.

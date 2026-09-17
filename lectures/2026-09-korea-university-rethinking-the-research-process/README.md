@@ -1,5 +1,8 @@
 # Rethinking the Research Process
 
+**Resuming in a new session:** read [HANDOFF.md](HANDOFF.md), then [planning/13-resume-context.md](planning/13-resume-context.md). That file consolidates the decisions, author feedback, current delivery, source locations and next actions. Imported context is indexed [here](planning/context-2026-09-17/README.md).
+
+
 Korea University, *AI Literacy for Social Scientists*, lecture 01. Steven Denney, Leiden University. 18 September 2026, 1:30–3:30 PM KST, online via Zoom. Moderator: Sung Eun Kim.
 
 The lecture explains where to automate routine work, protect learning and judgment, and collaborate with AI in research and teaching. The introduction establishes a working vocabulary and explains why research requires more than executable feedback. Part 1 develops the three modes. Part 2 shows how Open Science Skills support the lecturer’s workflow: research-repo establishes a source-based knowledge base, citation-check and fact-check use it, and replication-package prepares reproducible analysis materials. A historical claim is introduced at the end of the introduction and revisited in Part 3.

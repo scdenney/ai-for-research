@@ -1,0 +1,180 @@
+{
+  "date": "2026-09-17",
+  "oss_commit": "310509da268d7633a03e4e14f797eedd9d7df8dc",
+  "files": [
+    {
+      "source": "/Users/scdenney/.claude/projects/-Users-scdenney-Documents-GitHub-resources-open-science-skills/memory/project_korea_university_talk.md",
+      "saved_as": "planning/context-2026-09-17/historical-memory/project_korea_university_talk.md",
+      "status": "Historical session memory; current handoff takes precedence",
+      "sha256": "535d34b116fa192b80a0a3ad43439f809dbe4150b7189b480029bed6b3af0dd1"
+    },
+    {
+      "source": "/Users/scdenney/.claude/projects/-Users-scdenney-Documents-GitHub-resources-open-science-skills/memory/reference_playwright_chrome_mcp.md",
+      "saved_as": "planning/context-2026-09-17/historical-memory/reference_playwright_chrome_mcp.md",
+      "status": "Historical session memory; current handoff takes precedence",
+      "sha256": "af34a337852c0cfcde52b9946fdfd1b87023ccd6dd9641af02aeb9659ec5b595"
+    },
+    {
+      "source": "/Users/scdenney/.claude/projects/-Users-scdenney-Documents-GitHub-resources-open-science-skills/memory/reference_horiuchi_replication_guide.md",
+      "saved_as": "planning/context-2026-09-17/historical-memory/reference_horiuchi_replication_guide.md",
+      "status": "Historical session memory; current handoff takes precedence",
+      "sha256": "b45ea6102df85034134352b5ff86b931b7a0eb95dbd5d996ad34adc16d40a9d4"
+    },
+    {
+      "source": "/Users/scdenney/.claude/plans/find-the-slides-on-inherited-honey.md",
+      "saved_as": "planning/context-2026-09-17/historical-plan.md",
+      "status": "Superseded plan; not current instructions",
+      "sha256": "c91d229d9e172f7489d4716590c7ae67db06105eccc412520a9192a338911b1d"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/plugin/skills/research-repo/SKILL.md",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/claude/research-repo/SKILL.md",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "b6c6bd776dbf529d901ffa21899048b554466e0b145d8a9fe905abf8a3bb9af1"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/plugin/skills/citation-check/SKILL.md",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/claude/citation-check/SKILL.md",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "90c5de455331ab8f61fa66c2975e8fcdaaafec26c3143c36869126f52bdaeaaa"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/plugin/skills/fact-check/SKILL.md",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/claude/fact-check/SKILL.md",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "bd0c4c88546166376284c38df0f5497561fa62aad41cf82c555933f0361161af"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/plugin/skills/replication-package/SKILL.md",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/claude/replication-package/SKILL.md",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "7ef7284928f51b80887b71a52f98b1be2157a18efb26e4fb7b97f217c9b8292d"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/plugin/skills/doc-to-markdown/SKILL.md",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/claude/doc-to-markdown/SKILL.md",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "ee8b4273f52d88292fa26ef7148316a60bbca0833e12126270f3a6352dd1ef11"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/research-repo/SKILL.md",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/codex/research-repo/SKILL.md",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "26bbedac3d8ad194881e218676a330c7e61f212730fb7125371bbbbd6837ebb4"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/research-repo/agents/openai.yaml",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/codex/research-repo/agents/openai.yaml",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "12db193062948cd2fe08e1b9ce3c5586c30712031b3bf692c2b40a17ad3ab66d"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/citation-check/SKILL.md",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/codex/citation-check/SKILL.md",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "27a6cb75dda92b881e41c715191793d5fd5199871b39aff78c21286142a5e65e"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/citation-check/agents/openai.yaml",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/codex/citation-check/agents/openai.yaml",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "7b58d113e59250576e4b828e3674cc182b93c33d048486871c62e6be0658625e"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/fact-check/SKILL.md",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/codex/fact-check/SKILL.md",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "ad56efaace323e3fd9d237d95bcc1f5acea63658093ce9ccf9e1bf234573e778"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/fact-check/agents/openai.yaml",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/codex/fact-check/agents/openai.yaml",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "ca1d430cee3833618302ae3b81c13fb275b57025090c5f736c0d4ee6589a532d"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/replication-package/SKILL.md",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/codex/replication-package/SKILL.md",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "9a8e52f85b5fe95d917f108e75da8a1f4495d368dfef03e48e6a00c8f47362b5"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/replication-package/agents/openai.yaml",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/codex/replication-package/agents/openai.yaml",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "7e27f6a84fa3c697c1d2d7143a2a7e2d8b54cf2d8c14391aaf20c717c43ee11f"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/doc-to-markdown/SKILL.md",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/codex/doc-to-markdown/SKILL.md",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "eda1c5b7cd7f8ceed2a8191f8c95caf9ac58ba42b091b40bbcee91067ab9b464"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/doc-to-markdown/agents/openai.yaml",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/codex/doc-to-markdown/agents/openai.yaml",
+      "status": "Reference snapshot; not an installed skill",
+      "sha256": "0ff8eb6c87867cd2e6f74f794805bb49c3d861122c3ea2d053b7cbc793197b24"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/README.md",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/README.md",
+      "status": "OSS source reference snapshot",
+      "sha256": "7bd3aa2d8efbd4f076ae52d26b89cd55e246e8fc89bbb2778189c36e3b6974ed"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/LICENSE",
+      "saved_as": "planning/context-2026-09-17/oss-snapshot/LICENSE",
+      "status": "OSS source reference snapshot",
+      "sha256": "2243c47ec136fe4d80555eb3c4ec17092cfab7746fffc65341932158dae2922a"
+    },
+    {
+      "source": "/tmp/korea-opening-notes-v2.md",
+      "saved_as": "planning/context-2026-09-17/worker-drafts/korea-opening-notes-v2.md",
+      "status": "Superseded worker draft; integrated notes.md is authoritative",
+      "sha256": "b49bea0ea6d12c38497c3dcf907212744f4bccb917e5cfc141c6927bbd066301"
+    },
+    {
+      "source": "/tmp/korea-skills-notes-v2.md",
+      "saved_as": "planning/context-2026-09-17/worker-drafts/korea-skills-notes-v2.md",
+      "status": "Superseded worker draft; integrated notes.md is authoritative",
+      "sha256": "482e2d9add2037816d9c19309f6cf0cd69e6a96c5cf4542bcffe5c9f5b053dd7"
+    },
+    {
+      "source": "/Users/scdenney/Downloads/2026-09-10-csdp-ai.pdf",
+      "saved_as": "planning/context-2026-09-17/local-sources/2026-09-10-csdp-ai.pdf",
+      "status": "Local only; full reference deck",
+      "sha256": "8f012d0f1e2354e0092dcc24f49d97ada0215d338694e8993618fb528bc65105"
+    },
+    {
+      "source": "local conversion with pdftotext -layout",
+      "saved_as": "planning/context-2026-09-17/local-sources/2026-09-10-csdp-ai.txt",
+      "status": "Local only; extracted reference text, visual layout must be checked in PDF",
+      "sha256": "0004ecd1dba0b82649aa1a19c5100573cbc02fcfd273348f208b8855c790812f"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/research/projects/nwo26-immigration-backlash/sources/md/christenson-kriner-2017-constitutional-qualms-unilateral.md",
+      "saved_as": "planning/context-2026-09-17/local-sources/christenson-kriner-2017-constitutional-qualms-unilateral.md",
+      "status": "Local only; acquired research source, reference project unchanged",
+      "sha256": "4efcca7a76eb85ccec6f80e0b5492597cb121a58b7ca44226393aeeb95868c5e"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/research/projects/nwo26-immigration-backlash/sources/og/christenson-kriner-2017-constitutional-qualms-unilateral.pdf",
+      "saved_as": "planning/context-2026-09-17/local-sources/christenson-kriner-2017-constitutional-qualms-unilateral.pdf",
+      "status": "Local only; acquired research source, reference project unchanged",
+      "sha256": "1ded48945c2606317fdfabadbff4064f6085771dc7e0cbe47c20277ec4370ccd"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/research/projects/nwo26-immigration-backlash/sources/md/reeves-rogowski-2016-unilateral-powers-public-opinion.md",
+      "saved_as": "planning/context-2026-09-17/local-sources/reeves-rogowski-2016-unilateral-powers-public-opinion.md",
+      "status": "Local only; acquired research source, reference project unchanged",
+      "sha256": "7af456a68e42b04c6d3b0f8d854fe38bd2f0dd6ae7f7c2cd61f55d38adf376cd"
+    },
+    {
+      "source": "/Users/scdenney/Documents/github/research/projects/nwo26-immigration-backlash/sources/og/reeves-rogowski-2016-unilateral-powers-public-opinion.pdf",
+      "saved_as": "planning/context-2026-09-17/local-sources/reeves-rogowski-2016-unilateral-powers-public-opinion.pdf",
+      "status": "Local only; acquired research source, reference project unchanged",
+      "sha256": "b28a01dc8e44368ed51a0b8d154e6e28611a45e25b584e949e3cf17cd48abade"
+    }
+  ]
+}

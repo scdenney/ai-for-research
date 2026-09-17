@@ -1,0 +1,7 @@
+{
+  "manifest_files_verified": 29,
+  "deck_unchanged_sha256": "419ed70078a9db4d10cc71d51ee41899a8a952f1d6731dc8c570afee70267d27",
+  "portable_render_script": "passed: 39 pages; no geometry findings",
+  "deliverable_gate": "credentials, manifest and prose pass",
+  "local_full_texts": "present but ignored by Git"
+}

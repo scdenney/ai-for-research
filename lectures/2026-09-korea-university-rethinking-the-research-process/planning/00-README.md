@@ -4,6 +4,10 @@ The wiki for the 18 September 2026 lecture "Rethinking the Research Process". Op
 2026-09-16 with the deck. One wiki per piece of research: a Substack post derived from this
 talk adds its own numbered file here rather than opening a second wiki.
 
+## Resume checkpoint — 17 September 2026
+
+Start with [13-resume-context.md](13-resume-context.md) and [../HANDOFF.md](../HANDOFF.md). Imported Open Science Skills context and source provenance are indexed in [context-2026-09-17/README.md](context-2026-09-17/README.md).
+
 ## Current build — 16 September 2026
 
 The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It restores the talk’s research-and-teaching purpose, introduces basic vocabulary before the running example, distinguishes the three modes, and puts the research-repo knowledge base before downstream checks. Current validation: [12-purpose-foundations-validation.md](12-purpose-foundations-validation.md). Earlier plans and review records remain as history.
@@ -34,7 +38,7 @@ The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebui
 - **Current slide citations and artifact provenance**: `../notes.md` and `02-rebuild-storyboard.md`. The existing `../references.bib` also retains references from earlier versions.
 - **Numbers**: each number on a slide is listed in `../notes.md` under "Accuracy guardrails"
   with the file it was verified against.
-- **The earlier plan (historical)**: `~/.claude/plans/find-the-slides-on-inherited-honey.md` (the
+- **The earlier plan (historical)**: `context-2026-09-17/historical-plan.md` (the
   slide-by-slide plan, the design rules, the verified-facts list).
 
 ## Decisions recorded here

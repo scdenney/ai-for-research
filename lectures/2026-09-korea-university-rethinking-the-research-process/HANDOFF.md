@@ -1,5 +1,19 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-17 (Consolidate context for a new session)
+_agent: codex · 2026-09-17 05:30 UTC_
+
+**Decision:** Resume from this lecture directory in ai-for-research. The user authorized importing relevant Open Science Skills context and preserving source files. Current plan and deck take precedence over imported historical memories.
+
+**Completed:** Added `planning/13-resume-context.md` and a local `AGENTS.md` entry point. Imported lecture/browser/replication memories, the old external Claude plan, five Claude/Codex skill snapshots, and temporary worker notes into `planning/context-2026-09-17/`, with an SHA-256 source manifest. Copied the Kenny reference PDF with text extraction and available claim-check source texts/PDFs into its ignored local-sources folder. Preserved and tracked the original codex brief. Updated README, wiki index and open-questions status. Added portable render-review tooling. No deck content changed or pushed in this consolidation.
+
+**Finding:** Some OSS memories still describe rejected deck versions. They are archived explicitly as history. Current deck remains Overleaf `0486a4f`, 39 pages / 55 minutes, with parent implementation `69b326d`. Full acquired works stay local and ignored; credentials were not imported.
+
+**Next actions:** Read the resume context, then continue author review of Intro/Parts 1–2 and later Part 3. Rehearsal, Zoom check and server preview remain. Parent GitHub and website publication have not occurred. Local source copies need separate transfer for a fresh clone on another machine.
+
+---
+
+
 ## 2026-09-16 · Purpose, foundations, skills and version control
 
 **Current state:** 39 PDF pages: 33 main pages including cover, three part dividers and three mode transitions; six appendices. The purpose and plain definitions precede the historical claim. Part 1 separates Automate, Protect and Collaborate. Part 2 follows research-repo through Git/GitHub history, source intake, citation-check, fact-check and replication-package. Notes remain 55:00. Part 3 content is unchanged pending the author's later review.

@@ -1,5 +1,19 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-17 (Claude session closed; branch pushed)
+_agent: claude · session: 01Hsn8RLmmjDG7d2Z9woFRUB · 2026-09-17 UTC_
+
+**Decision:** Steven asked to close and push. Branch `korea-university-lecture` pushed to GitHub with all local commits. Website `slides.pdf` deliberately left at the earlier build; replacing it is a separate author decision because the last-slide QR points at it.
+
+**Completed:** This session recorded both relayed literature reviews in `planning/09-evidence-protect.md` (`ddb02f3`, `a878607`), including the assisted-versus-unaided axis, the Autor bifurcation correction, the Bassner qualification of guardrails, and the do-not-cite list. Relayed those corrections to the Codex peer before its foundations revision. Verified the peer's closure state: parent tree clean, Overleaf submodule at `0486a4f` (39 pages, 55-minute notes), deck free of do-not-cite items.
+
+**Finding:** The Codex peer's revisions (`408b219` through `79cfd49`) supersede the earlier "v3, 36 pages" state that this session's memory described. `planning/13-resume-context.md` is the entry point for the next session.
+
+**Next actions:** Author review on Overleaf (`main.tex`, XeLaTeX). Timed rehearsal and Zoom screen-share check. Replace `docs/lectures/rethinking-the-research-process/slides.pdf` with the delivered build and push, on the author's say-so. The HBIR AI-use statement still lacks Autor.
+
+---
+
+
 ## 2026-09-17 (Session closed)
 _agent: codex · 2026-09-17 05:40 UTC_
 

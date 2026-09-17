@@ -188,9 +188,14 @@ try {
   const shown = [...page.matchAll(/<li class="entry" id="[^"]+" data-cat="[a-z]{2}" data-plat="([a-z]+)"/g)].map((m) => m[1]);
   const claudeCount = shown.length;
   const codexCount = shown.filter((x) => x === "both" || x === "codex").length;
-  const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-  page = page.replace(/as of \d+ [A-Z][a-z]+ \d{4} \(v/, `as of ${today} (v`);
   page = page.replace(/(\)\. It includes )\d+( skills on Claude Code \(<code>\/oss:name<\/code>\) and )\d+( on Codex)/, `$1${claudeCount}$2${codexCount}$3`);
+  // The "as of" date is cosmetic. Bumping it unconditionally makes every dispatch a change,
+  // which opens a pull request that says nothing but today's date. Only touch it when the
+  // version or the counts actually moved.
+  if (page !== before) {
+    const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    page = page.replace(/as of \d+ [A-Z][a-z]+ \d{4} \(v/, `as of ${today} (v`);
+  }
 } catch {
   // no plugin.json or skills dirs — leave the colophon untouched
 }

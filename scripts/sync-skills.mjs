@@ -22,19 +22,23 @@ const PAGE_PATH = join(import.meta.dirname, "..", "docs", "skills", "index.html"
 
 // Category name (as it appears in the OSS README's ### headings) -> the
 // two-letter code and roman numeral already used on the skills page.
+// Categories deliberately not published. The deliverable pipeline is experimental and
+// manages writing projects rather than research methods, so it is excluded by choice --
+// silently, so it is never reported as a new category needing a hand-built chapter.
+const EXCLUDED_CATEGORIES = [/^Deliverable pipeline/];
+
 const CATEGORY_MAP = {
   "Project Setup": { code: "ps", roman: "I" },
   "Repo Hygiene": { code: "rh", roman: "II" },
   "Workflow & Orchestration": { code: "wo", roman: "III" },
-  "Deliverable pipeline": { code: "dp", roman: "IV" },
-  "Ideation": { code: "id", roman: "V" },
-  "Research Design": { code: "rd", roman: "VI" },
-  "Analysis": { code: "an", roman: "VII" },
-  "Corpus Processing": { code: "cp", roman: "VIII" },
-  "Writing & Reporting": { code: "wr", roman: "IX" },
-  "Figures & Tables": { code: "ft", roman: "X" },
-  "Manuscript QA": { code: "mq", roman: "XI" },
-  "Review & Submission": { code: "rs", roman: "XII" },
+  "Ideation": { code: "id", roman: "IV" },
+  "Research Design": { code: "rd", roman: "V" },
+  "Analysis": { code: "an", roman: "VI" },
+  "Corpus Processing": { code: "cp", roman: "VII" },
+  "Writing & Reporting": { code: "wr", roman: "VIII" },
+  "Figures & Tables": { code: "ft", roman: "IX" },
+  "Manuscript QA": { code: "mq", roman: "X" },
+  "Review & Submission": { code: "rs", roman: "XI" },
 };
 
 function stripHtml(html) {
@@ -138,6 +142,7 @@ const currentSlugs = new Set([...pluginSlugs, ...codexSlugs]);
 const summary = { newSkills: [], removedSkills: [], newCategories: [] };
 
 for (const cat of catalog) {
+  if (EXCLUDED_CATEGORIES.some((re) => re.test(cat.name))) continue;
   const known = CATEGORY_MAP[cat.name];
   if (!known) {
     summary.newCategories.push({ name: cat.name, skills: cat.skills.map((s) => s.slug) });
@@ -159,8 +164,11 @@ for (const cat of catalog) {
   }
 }
 
+const excludedSlugs = new Set(
+  catalog.filter((c) => EXCLUDED_CATEGORIES.some((re) => re.test(c.name))).flatMap((c) => c.skills.map((x) => x.slug))
+);
 for (const [slug, { cat }] of pageEntries) {
-  if (!currentSlugs.has(slug) && !slug.startsWith("removed-")) {
+  if (!currentSlugs.has(slug) && !excludedSlugs.has(slug) && !slug.startsWith("removed-")) {
     summary.removedSkills.push(slug);
     const liRe = new RegExp(`(<li class="entry"[^>]*id="${slug}"[\\s\\S]*?<\\/li>)`);
     if (!page.includes(`REMOVED UPSTREAM: ${slug}`)) {
@@ -176,8 +184,10 @@ try {
   if (pluginJson.version) {
     page = page.replace(/v\d+\.\d+\.\d+(?=\)\.)/, `v${pluginJson.version}`);
   }
-  const claudeCount = readdirSync(join(ossPath, "plugin", "skills"), { withFileTypes: true }).filter((d) => d.isDirectory()).length;
-  const codexCount = readdirSync(join(ossPath, "codex"), { withFileTypes: true }).filter((d) => d.isDirectory() && d.name !== "assets").length;
+  // Count what the page actually lists, since excluded categories are not published.
+  const shown = [...page.matchAll(/<li class="entry" id="[^"]+" data-cat="[a-z]{2}" data-plat="([a-z]+)"/g)].map((m) => m[1]);
+  const claudeCount = shown.length;
+  const codexCount = shown.filter((x) => x === "both" || x === "codex").length;
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
   page = page.replace(/as of \d+ [A-Z][a-z]+ \d{4} \(v/, `as of ${today} (v`);
   page = page.replace(/(\)\. It includes )\d+( skills on Claude Code \(<code>\/oss:name<\/code>\) and )\d+( on Codex)/, `$1${claudeCount}$2${codexCount}$3`);

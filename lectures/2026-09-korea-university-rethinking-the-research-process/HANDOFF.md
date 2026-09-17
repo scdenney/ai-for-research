@@ -1,5 +1,17 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-17 (Session closed)
+_agent: codex · 2026-09-17 05:40 UTC_
+
+**Decision:** Continue in this lecture directory on `korea-university-lecture`; start with `planning/13-resume-context.md`.
+
+**Completed:** Context consolidation committed as `bd3608f`; lecture implementation/validation is `69b326d`; delivered Overleaf deck is `0486a4f`. Verified all 29 imported file hashes, portable rendering of the unchanged 39-page PDF, and passing credential/manifest/prose checks. Parent and Overleaf working trees were clean at closure. This final entry changes only HANDOFF.md and is committed locally.
+
+**Next actions:** Author review of Intro/Parts 1–2, then Part 3 when requested; timed rehearsal and Zoom check; Overleaf browser preview after authentication. GitHub publication and website PDF replacement remain separate. Full source copies are locally saved but Git-ignored, as documented in the source manifest. No credentials were added and no further push was performed.
+
+---
+
+
 ## 2026-09-17 (Consolidate context for a new session)
 _agent: codex · 2026-09-17 05:30 UTC_
 

@@ -5,13 +5,13 @@
 
 Korea University, *AI Literacy for Social Scientists*, lecture 01. Steven Denney, Leiden University. 18 September 2026, 1:30–3:30 PM KST, online via Zoom. Moderator: Sung Eun Kim.
 
-The lecture explains where to automate routine work, protect learning and judgment, and collaborate with AI in research and teaching. The introduction establishes a working vocabulary and explains why research requires more than executable feedback. Part 1 develops the three modes and applies complexity and verifiability across the research process. Part 2 shows how a research repository, reusable procedures, and distinct reading, execution, and comparison checks make collaboration more inspectable. Part 3 follows an authentic historical source correction and a separate illustrative numerical mismatch.
+The lecture explains where to automate routine work, protect learning and judgment, and collaborate with AI in research and teaching. The introduction establishes a working vocabulary and explains why research requires more than executable feedback. Part 1 develops the three modes and applies complexity and verifiability across the research process. Part 2 shows how a persistent knowledge base, research repository, and reusable skills improve verifiability. Part 3 follows an authentic historical source correction and a separate illustrative numerical mismatch.
 
 ## Current deck
 
-The latest pass rebuilds the Part 1-to-Part 2 bridge, simplifies Part 2 around one research-process argument, and expands Part 3 into two linked evidence traces. It preserves the author’s introduction and the accepted Protect revisions.
+The latest pass refocuses Part 2 on skill development. It begins with the knowledge-wiki idea, grounds that memory in the research repository, then brings source intake, supervision arrangements, skill invocation, session continuity, and paper-review-lite forward from the appendix. Part 3 remains unchanged.
 
-The approved serif design is implemented in the full deck: **38 main pages including the cover, three part dividers and three mode transitions, plus eleven appendix pages; 49 PDF pages total.** Main-deck footers end at 31 and appendix footers continue through 42; physical page 4 intentionally omits printed footer 3. The speaker notes budget 55 minutes, with diagram walkthroughs and source-reading time. Rehearsal remains necessary.
+The approved serif design is implemented in the full deck: **38 main pages including the cover, three part dividers and three mode transitions, plus six appendix pages; 44 PDF pages total.** Main-deck footers end at 31 and appendix footers continue through 37; physical page 4 intentionally omits printed footer 3. The speaker notes budget 55 minutes, with diagram walkthroughs and source-reading time. Rehearsal remains necessary.
 
 | File | Purpose |
 |---|---|
@@ -21,7 +21,7 @@ The approved serif design is implemented in the full deck: **38 main pages inclu
 | `overleaf/figures/source-excerpt.png` | Real source-PDF excerpt; provenance in the adjacent README |
 | `notes.md` | Matching notes, cumulative timings, evidence locators, and guardrails |
 | `planning/02-rebuild-storyboard.md` | Approved narrative and implementation record |
-| `planning/review-part2-rebuild-2026-09-17/README.md` | Current Part 1 bridge, Part 2/3 rebuild, and validation |
+| `planning/review-part2-skills-2026-09-17/README.md` | Current Part 2 skill-development rebuild and validation |
 | `overleaf/figures/evidence-plot-provenance.md` | Verified estimates, intervals, and limitations for both evidence figures |
 | `overleaf/figures/browser-capture-provenance.md` | Real Chrome-extension screenshots and source revisions |
 | `planning/preview/` | Approved preview PDF and five page images |

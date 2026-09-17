@@ -1,10 +1,10 @@
 # Research, teaching, and verifiability — current storyboard
 
-Updated 17 September 2026 after the author-directed Part 2 and Part 3 rebuild. This file records the current implemented narrative. Earlier storyboards and review folders remain historical.
+Updated 17 September 2026 after the author-directed Part 2 skill-development rebuild. This file records the current implemented narrative. Earlier storyboards and review folders remain historical.
 
 ## Structure and argument
 
-The deck has 38 main physical pages and eleven appendix pages, 49 pages total. The timed plan remains 55 minutes: introduction 8; Part 1 15; Part 2 20; Part 3 9; closing 3.
+The deck has 38 main physical pages and six appendix pages, 44 pages total. The timed plan remains 55 minutes: introduction 8; Part 1 15; Part 2 20; Part 3 9; closing 3.
 
 Automate routine work, protect the practice that builds understanding, and collaborate through an inspectable research environment. Complexity and current verifiability determine supervision. A repository preserves the evidence behind the paper; skills make checking procedures reusable; reading, execution, and explicit value comparison answer different questions. These practices improve verifiability without establishing substantive validity.
 
@@ -20,28 +20,28 @@ Automate routine work, protect the practice that builds understanding, and colla
 
 The three modes remain Automate, Protect, and Collaborate. Protect is grounded in the reasoning practice through which researchers develop judgment, followed by selected evidence on assisted performance and later unaided learning. Collaborate uses the author's wording, “Ethical machine augmentation is the goal.”
 
-The Kenny/Swaney complexity–verifiability grid is applied to bounded research tasks. The final Part 1 slide then maps seven research stages across qualitative risk terrain: ideation; theory and design; sources and literature; data and analysis; interpretation; writing and reporting; publication and replication. Positions are illustrative rather than measured or permanent. A return path represents revision and new questions. The detailed plans/acts/checks role table is retained in the appendix.
+The Kenny/Swaney complexity–verifiability grid is applied to bounded research tasks. The final Part 1 slide then maps seven research stages across qualitative risk terrain: ideation; theory and design; sources and literature; data and analysis; interpretation; writing and reporting; publication and replication. Positions are illustrative rather than measured or permanent. A return path represents revision and new questions. The detailed plans, acts, and review table now appears in Part 2.
 
 ## Part 2 — pages 21–30, 20 minutes
 
-Part 2 explains how checking conditions can be improved. It is an argument about research infrastructure rather than a catalog of skills.
+Part 2 focuses on developing skills to improve verifiability. It begins with persistent project memory, grounds that memory in the research repository, and then shows how reusable skills operate on the shared foundation.
 
 | Page | Claim | Time |
 |---|---|---:|
-| 21 | Building checkability into research | 0:15 |
-| 22 | Checkability can be built into the process | 2:30 |
-| 23 | Checking the paper requires the work behind it | 2:15 |
-| 24 | A searchable source still needs its original | 2:15 |
-| 25 | A skill makes a checking procedure reusable | 1:45 |
-| 26 | Reference identity is only the first check | 1:45 |
-| 27 | The sentence determines the evidence required | 2:00 |
-| 28 | A paper can agree with itself and still be wrong | 2:15 |
-| 29 | Reading, running, and comparing answer different questions | 3:00 |
-| 30 | Two cases, one evidence trail | 2:00 |
+| 21 | Building skills for verifiable research | 0:15 |
+| 22 | A knowledge wiki gives the project a memory | 2:30 |
+| 23 | The research repo ties that memory to evidence | 2:15 |
+| 24 | Build the knowledge base one source at a time | 2:15 |
+| 25 | A skill gives an agent a repeatable procedure | 1:45 |
+| 26 | Match the skill to the supervision arrangement | 1:45 |
+| 27 | Invoke the skill inside the project | 2:00 |
+| 28 | Keep the work recoverable across sessions | 2:15 |
+| 29 | A review skill organizes many kinds of scrutiny | 3:00 |
+| 30 | Different skills verify different links | 2:00 |
 
-The research pipeline sits above one shared repository rail containing specifications, preserved sources, recorded execution, review records, version history, and a rerun package. The concrete source chain uses the authentic Christenson–Kriner PDF crop, literal conversion, and citation key. The skills appear as procedures attached to questions: citation identity, claim support, manuscript consistency, package execution, and numerical agreement.
+Karpathy's LLM Wiki and Kenny's demonstration introduce persistent project memory. The research-repo skill adds the stricter source contract: acquired originals, readable representations, bibliography keys, working files, and Git history remain linked. Source intake builds that knowledge base one item at a time.
 
-`paper-review-lite` supplies reading-based review. `/oss:verify` and `replication-package` supply static or authorized execution evidence within their stated limits. The lecture's project comparator is separate: it compares fresh numerical output with reported fields. CLI syntax, Git/session continuity, the reviewer roster, verifier internals, detailed replication packaging, and conjoint diagnostics are appendix material.
+A skill supplies procedures, criteria, scripts, and examples to an agent using an LLM and tools inside the project. The promoted material shows supervision arrangements, invocation, Git with finished and sitrep, and paper-review-lite. The last slide connects research-repo, citation-check, fact-check, paper-review-lite, replication-package, and `/oss:verify` to the distinct links they inspect. Verifiability improves without establishing substantive validity.
 
 ## Part 3 — pages 31–36, 9 minutes
 
@@ -60,7 +60,7 @@ The second case is explicitly illustrative. Seven positive observations among tw
 
 ## Closing, appendix, and production
 
-Pages 37–38 close with audience actions and resources. Pages 39–49 retain source intake, collaboration roles, invocation/context, Git and session continuity, paper-review-lite architecture, `/oss:verify` internals, source readiness, AI-use disclosure, replication handoff, literal BibTeX, and conjoint checks.
+Pages 37–38 close with audience actions and resources. Pages 39–44 retain `/oss:verify` internals, source readiness, AI-use disclosure, replication handoff, literal BibTeX, and conjoint checks. The five former appendix slides that define the skill workflow now sit in Part 2.
 
 Keep the warm EB Garamond design, direct labels, semantic arrows, and one dominant proof object per main slide. Main-slide body text should remain approximately 11 pt or larger apart from provenance footers. No live terminal demonstration is required.
 

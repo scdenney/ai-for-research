@@ -1,5 +1,18 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-17 · Part 2 refocused on skill development
+_agent: codex_
+
+**Author direction:** Part 2 must address verifiability through skill development. It should begin with a knowledge base, establish the research repository as the foundation, and then bring the skill material previously stored at the back of the deck into the main argument. Part 3 was to remain unchanged.
+
+**Completed:** Rebuilt the ten-page Part 2 sequence around persistent project memory, the research repository, source intake, the relationship among the repository, skill, agent, LLM, tools, and result, supervision arrangements, skill invocation, Git with finished and sitrep, paper-review-lite, and the broader verification skill stack. Promoted and simplified the former appendix slides numbered 33--37. Reduced the appendix from eleven pages to six. Part 3 is unchanged.
+
+**Validation and delivery:** The deck has 38 main pages and six appendix pages, 44 total. Timed notes remain continuous and total 55 minutes. XeLaTeX succeeds with embedded fonts. Full renders find no out-of-page text or text overlaps. Overleaf main was pushed and remote-verified at `7860f8bcd950740d94211ebe7d0593f47dd939c6`. PDF SHA-256 is `b4f718ff042944c53b4aeb201917e75d32a2259b57c4a8e06df33f4c7c2c0821`. See `planning/review-part2-skills-2026-09-17/README.md`.
+
+**Next:** Author review of Part 2, then the separate Part 3 demo discussion. No website replacement or parent GitHub push was performed.
+
+---
+
 ## 2026-09-17 · Part One visual and interpretation follow-up
 _agent: codex_
 

@@ -2,6 +2,12 @@
 
 This is a consolidated handoff from the Codex session launched in an Open Science Skills worktree. It records the current decisions and the user's feedback, not a verbatim transcript. Resume in **ai-for-research**, not that worktree.
 
+## Latest author review · Part 2 skill development
+
+Part 2 now focuses on developing skills to improve research verifiability. Its ten-page sequence begins with persistent project memory, grounds that memory in the research repository and source-intake process, defines the relationship among skills, agents, LLMs and tools, then develops supervision, invocation, session continuity, paper-review-lite, and the wider skill stack.
+
+The former appendix slides numbered 33--37 were promoted and simplified. The main deck remains 38 pages and the appendix is now six pages, 44 total. Part 3 is unchanged pending its separate review. Read `review-part2-skills-2026-09-17/`, `02-rebuild-storyboard.md`, and the latest HANDOFF entry before continuing.
+
 ## Latest author review · Part 2 and Part 3 rebuild
 
 The author approved a split bridge from the Part 1 supervision grid into a research-process overview, followed by a deeper account of machine collaboration through repositories, reusable procedures, and distinct checks. The implemented deck has 38 main pages plus eleven appendices, with the 55-minute budget divided 8 / 15 / 20 / 9 / 3.

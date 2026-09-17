@@ -1,5 +1,13 @@
 # Open questions
 
+## Current checkpoint · Part 2 skill-development rebuild, 17 September 2026
+
+Part 2 now follows the author's requested progression. It begins with persistent project memory, introduces the research repository as the evidence-bearing foundation, builds the knowledge base through source intake, defines the relationship among the repository, skill, agent, LLM, tools, and result, and then develops supervision, invocation, session continuity, paper review, and the wider skill stack.
+
+The former appendix slides numbered 33--37 were brought into the main sequence and simplified. They cover source intake, collaboration roles, skill invocation, Git with finished and sitrep, and paper-review-lite. The appendix now retains only genuinely secondary detail. Part 3 remains unchanged.
+
+**Still open:** Part 3 requires its separate author review. Timed rehearsal, Zoom testing, authenticated Overleaf browser preview, website publication, and parent GitHub push remain separate.
+
 ## Resolved · Notes and appendix reorganization, 17 September 2026
 
 The approved timed notes now keep Part 1 at 08:00–23:00, make Part 2 exactly 20:00 across ten slides including its divider (23:00–43:00), make Part 3 exactly 9:00 across six slides including its divider (43:00–52:00), and retain the closing at 52:00–55:00. The main physical count remains 38 pages.

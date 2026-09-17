@@ -5,9 +5,9 @@ _agent: codex_
 
 **Author feedback:** The labels and descriptions on printed slide 7 were not centered within their rows. The green conclusions beneath the two evidence plots also described fragments of the results instead of interpreting the plotted comparisons. Colon and semicolon constructions were unwanted in the slide prose.
 
-**Completed:** Replaced the top-anchored row text with shared midpoint anchors for both columns. Each label now centers against its description as a unit. Rewrote both green plot conclusions as concise interpretations of the assisted and later unaided results. Removed colon and semicolon constructions from the surrounding Part One prose and tightened the adjacent evidence table to retain clean row spacing. Preserved the author's concurrent Overleaf edits, including the revised order and Automate and Protect language.
+**Completed:** Replaced the top-anchored row text with shared midpoint anchors for both columns. Each label now centers against its description as a unit. Rewrote both green plot conclusions as concise interpretations of the assisted and later unaided results. Removed colon and semicolon constructions from the surrounding Part One prose and tightened the adjacent evidence table to retain clean row spacing. Matched the research-terrain axes to the preceding quadrant slide with Complexity, Hard, Easy, Verifiability, Subjective, and Objective. Preserved the author's concurrent Overleaf edits, including the revised order and Automate and Protect language.
 
-**Validation and delivery:** The combined 49-page deck compiles without an overfull box. Physical pages 10 and 13--15 were rendered and inspected at full size. Overleaf main was pushed and remote-verified at `e535faabdc22c5b3cbbd6cfded682be1ddd17d3d`. Local PDF SHA-256: `4dbf5da0985c0ccb3014ce443c5d9b7e60d90ae071238dc5857abfa22efa5030`. No website replacement or parent GitHub push.
+**Validation and delivery:** The combined 49-page deck compiles without an overfull box. Physical pages 10, 13--15, and 20 were rendered and inspected at full size. Overleaf main was pushed and remote-verified at `9395428be46adc4bbdba25dad10cf54113459a64`. Local PDF SHA-256: `764ed130bf0ede2aa0814bdf11564ff91f92d39ae9cdcc8146fb350928c47a39`. No website replacement or parent GitHub push.
 
 ---
 

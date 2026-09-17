@@ -18,10 +18,10 @@ Validation:
 - Contact sheets and full-size 720p samples show readable main slides and a varied visual rhythm.
 - Independent Astra review found no blocking slide-layout, demo-code, or provenance defect after the notes and current-storyboard drift was corrected.
 
-Local PDF SHA-256 after the Part One follow-up: `4dbf5da0985c0ccb3014ce443c5d9b7e60d90ae071238dc5857abfa22efa5030`.
+Local PDF SHA-256 after the Part One follow-up: `764ed130bf0ede2aa0814bdf11564ff91f92d39ae9cdcc8146fb350928c47a39`.
 
-Delivered Overleaf main after the Part One follow-up: `e535faabdc22c5b3cbbd6cfded682be1ddd17d3d`; the remote hash was verified after push.
+Delivered Overleaf main after the Part One follow-up: `9395428be46adc4bbdba25dad10cf54113459a64`; the remote hash was verified after push.
 
 The retained review images cover the Part 1/2 bridge, all of Part 2, Part 3, the closing, and the expanded appendix. Timed rehearsal, real Zoom screen-share testing, authenticated Overleaf browser preview, website publication, and parent GitHub push remain separate actions.
 
-Follow-up visual check: physical page 10 now anchors both columns to the vertical midpoint of each row. The wrapped Track description and its label share one center; Schedule, File, and Format use the same geometry. Physical pages 13--15 were also checked after the plot interpretations and adjacent evidence table were tightened. `720p-10.jpg` records the row-alignment render after preserving the author's concurrent Overleaf edits.
+Follow-up visual check: physical page 10 now anchors both columns to the vertical midpoint of each row. The wrapped Track description and its label share one center; Schedule, File, and Format use the same geometry. Physical pages 13--15 were checked after the plot interpretations and adjacent evidence table were tightened. Physical page 20 was checked after its axes were matched to the preceding quadrant slide. `720p-10.jpg` records the row-alignment render after preserving the author's concurrent Overleaf edits.

@@ -179,7 +179,9 @@
   <div class="chips" role="group" aria-label="Filter by category">
     <button type="button" class="chip" data-cat="all" aria-pressed="true">All</button>
     <button type="button" class="chip" data-cat="ps" aria-pressed="false">Project Setup</button>
+    <button type="button" class="chip" data-cat="rh" aria-pressed="false">Repo Hygiene</button>
     <button type="button" class="chip" data-cat="wo" aria-pressed="false">Workflow &amp; Orchestration</button>
+    <button type="button" class="chip" data-cat="dp" aria-pressed="false">Deliverable pipeline</button>
     <button type="button" class="chip" data-cat="id" aria-pressed="false">Ideation</button>
     <button type="button" class="chip" data-cat="rd" aria-pressed="false">Research Design</button>
     <button type="button" class="chip" data-cat="an" aria-pressed="false">Analysis</button>
@@ -197,7 +199,7 @@
       <button type="button" class="seg-btn" data-plat="codex" aria-pressed="false">Codex</button>
     </div>
   </div>
-  <p class="count" id="skill-count" aria-live="polite">Showing all 38 skills</p>
+  <p class="count" id="skill-count" aria-live="polite">Showing all 43 skills</p>
 </div></nav>
 
 <main class="wrap" id="main">
@@ -216,7 +218,31 @@
     </li>
   </ul>
 
-  <button type="button" class="chapter" data-cat="wo" aria-expanded="false" aria-controls="entries-wo"><span class="num">II</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">3 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <button type="button" class="chapter" data-cat="rh" aria-expanded="false" aria-controls="entries-rh"><span class="num">II</span><h2>Repo Hygiene</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <ul class="entries" id="entries-rh" hidden>
+      <li class="entry" id="sitrep" data-cat="rh" data-plat="both" data-search="sitrep report where a project actually stands. reads the handoff and log files the repository keeps, checks live git state, and flags where the documents and the repository disagree. /oss:sitrep $sitrep codex claude both">
+      <div class="row">
+        <div class="row-head">
+          <span class="tag-cat">RH</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/sitrep/SKILL.md">sitrep</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+        </div>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/sitrep/SKILL.md" aria-label="Open sitrep on GitHub">↗</a>
+      </div>
+      <div class="cmds"><code class="cmd">/oss:sitrep</code> <span class="cmd-sep">·</span> <code class="cmd">$sitrep</code></div>
+      <p class="desc" id="desc-sitrep">Find out where a project stands after time away. Reads whatever handoff and log files the repo keeps, checks what git actually shows, and says plainly where the two disagree.</p>
+    </li>
+      <li class="entry" id="finished" data-cat="rh" data-plat="both" data-search="finished close a session. records what changed into the project's own handoff and log, separating verified work from work merely attempted, and reports what was left uncommitted. /oss:finished $finished codex claude both">
+      <div class="row">
+        <div class="row-head">
+          <span class="tag-cat">RH</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/finished/SKILL.md">finished</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+        </div>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/finished/SKILL.md" aria-label="Open finished on GitHub">↗</a>
+      </div>
+      <div class="cmds"><code class="cmd">/oss:finished</code> <span class="cmd-sep">·</span> <code class="cmd">$finished</code></div>
+      <p class="desc" id="desc-finished">Close out a work session by writing down what changed, so the next one doesn't start from scratch. Separates what was verified from what was only attempted.</p>
+    </li>
+  </ul>
+
+  <button type="button" class="chapter" data-cat="wo" aria-expanded="false" aria-controls="entries-wo"><span class="num">III</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">3 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-wo" hidden>
     <li class="entry" id="advisor" data-cat="wo" data-plat="both" data-search="advisor second opinion independent reviewer consult fable 5 max effort opus 5 sonnet 5 main seat gpt-5.6 sol xhigh read-only /oss:advisor $advisor codex claude both">
       <div class="row">
@@ -250,7 +276,41 @@
     </li>
   </ul>
 
-  <button type="button" class="chapter" data-cat="id" aria-expanded="false" aria-controls="entries-id"><span class="num">III</span><h2>Ideation</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <button type="button" class="chapter" data-cat="dp" aria-expanded="false" aria-controls="entries-dp"><span class="num">IV</span><h2>Deliverable pipeline</h2><span class="rule"></span><span class="n">3 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <ul class="entries" id="entries-dp" hidden>
+      <li class="entry" id="deliverable-open" data-cat="dp" data-plat="both" data-search="deliverable-open open a talk, module, paper, chapter, or review as a pipeline unit. a rounds interview creates deliverable.yml, handoff.md, a planning/ wiki, and an inbox/ for dictated notes. talks use the house deck template. /oss:deliverable-open $deliverable-open codex claude both">
+      <div class="row">
+        <div class="row-head">
+          <span class="tag-cat">DP</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/deliverable-open/SKILL.md">deliverable-open</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+        </div>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/deliverable-open/SKILL.md" aria-label="Open deliverable-open on GitHub">↗</a>
+      </div>
+      <div class="cmds"><code class="cmd">/oss:deliverable-open</code> <span class="cmd-sep">·</span> <code class="cmd">$deliverable-open</code></div>
+      <p class="desc" id="desc-deliverable-open">Open a talk, module, paper, chapter, or review as a tracked piece of work. An interview sets up the manifest, a handoff file, and a planning wiki.</p>
+    </li>
+      <li class="entry" id="deliverable-intake" data-cat="dp" data-plat="both" data-search="deliverable-intake convert dictated or typed notes into a unified diff against the planning wiki. classify and trace each statement. keep uncertain names and citations unresolved. apply decisions only on assent. /oss:deliverable-intake $deliverable-intake codex claude both">
+      <div class="row">
+        <div class="row-head">
+          <span class="tag-cat">DP</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/deliverable-intake/SKILL.md">deliverable-intake</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+        </div>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/deliverable-intake/SKILL.md" aria-label="Open deliverable-intake on GitHub">↗</a>
+      </div>
+      <div class="cmds"><code class="cmd">/oss:deliverable-intake</code> <span class="cmd-sep">·</span> <code class="cmd">$deliverable-intake</code></div>
+      <p class="desc" id="desc-deliverable-intake">Turn dictated or typed notes into a reviewable set of changes against the planning wiki, tracing each statement back to what you said and applying nothing without your say-so.</p>
+    </li>
+      <li class="entry" id="deliverable-lint" data-cat="dp" data-plat="both" data-search="deliverable-lint run whole-deliverable editorial review in detection mode. start with build, citations, numbers, facts, and leaks. add a cheap finder per section and a strong global pass. produce anchored p0/p1/p2 findings and honest not-checked coverage within a dollar budget. the night shift runs headless. /oss:deliverable-lint $deliverable-lint codex claude both">
+      <div class="row">
+        <div class="row-head">
+          <span class="tag-cat">DP</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/deliverable-lint/SKILL.md">deliverable-lint</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
+        </div>
+        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/deliverable-lint/SKILL.md" aria-label="Open deliverable-lint on GitHub">↗</a>
+      </div>
+      <div class="cmds"><code class="cmd">/oss:deliverable-lint</code> <span class="cmd-sep">·</span> <code class="cmd">$deliverable-lint</code></div>
+      <p class="desc" id="desc-deliverable-lint">Review a finished draft section by section. Checks the mechanical things first, then reads for argument and flow, and reports anchored findings without rewriting anything.</p>
+    </li>
+  </ul>
+
+  <button type="button" class="chapter" data-cat="id" aria-expanded="false" aria-controls="entries-id"><span class="num">V</span><h2>Ideation</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-id" hidden>
         <li class="entry" id="diverge" data-cat="id" data-plat="both" data-search="diverge-codex codex mode diverge ideation brainstorm distinct approaches before implementing /oss:diverge $diverge codex claude both">
       <div class="row">
@@ -274,7 +334,7 @@
     </li>
   </ul>
 
-  <button type="button" class="chapter" data-cat="rd" aria-expanded="false" aria-controls="entries-rd"><span class="num">IV</span><h2>Research Design</h2><span class="rule"></span><span class="n">9 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <button type="button" class="chapter" data-cat="rd" aria-expanded="false" aria-controls="entries-rd"><span class="num">VI</span><h2>Research Design</h2><span class="rule"></span><span class="n">9 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-rd" hidden>
       <li class="entry" id="research-wayfinder" data-cat="rd" data-plat="both" data-search="research-wayfinder">
       <div class="row">
@@ -368,7 +428,7 @@
     </li>
   </ul>
 
-  <button type="button" class="chapter" data-cat="an" aria-expanded="false" aria-controls="entries-an"><span class="num">V</span><h2>Analysis</h2><span class="rule"></span><span class="n">5 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <button type="button" class="chapter" data-cat="an" aria-expanded="false" aria-controls="entries-an"><span class="num">VII</span><h2>Analysis</h2><span class="rule"></span><span class="n">5 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-an" hidden>
         <li class="entry" id="topic-modeling" data-cat="an" data-plat="both" data-search="topic-modeling analysis structural topic model stm covariates coherence /oss:topic-modeling $topic-modeling codex claude both">
       <div class="row">
@@ -422,7 +482,7 @@
     </li>
   </ul>
 
-  <button type="button" class="chapter" data-cat="cp" aria-expanded="false" aria-controls="entries-cp"><span class="num">VI</span><h2>Corpus Processing</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <button type="button" class="chapter" data-cat="cp" aria-expanded="false" aria-controls="entries-cp"><span class="num">VIII</span><h2>Corpus Processing</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-cp" hidden>
         <li class="entry" id="doc-to-markdown" data-cat="cp" data-plat="both" data-search="doc-to-markdown corpus processing pdf word docx powerpoint excel epub convert markdown read document extract tables scanned /oss:doc-to-markdown $doc-to-markdown codex claude both">
       <div class="row">
@@ -446,7 +506,7 @@
     </li>
   </ul>
 
-  <button type="button" class="chapter" data-cat="wr" aria-expanded="false" aria-controls="entries-wr"><span class="num">VII</span><h2>Writing &amp; Reporting</h2><span class="rule"></span><span class="n">6 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <button type="button" class="chapter" data-cat="wr" aria-expanded="false" aria-controls="entries-wr"><span class="num">IX</span><h2>Writing &amp; Reporting</h2><span class="rule"></span><span class="n">6 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-wr" hidden>
         <li class="entry" id="hypothesis-building" data-cat="wr" data-plat="both" data-search="hypothesis-building writing reporting falsifiable dag equivalence testing /oss:hypothesis-building $hypothesis-building codex claude both">
       <div class="row">
@@ -510,7 +570,7 @@
     </li>
   </ul>
 
-  <button type="button" class="chapter" data-cat="ft" aria-expanded="false" aria-controls="entries-ft"><span class="num">VIII</span><h2>Figures &amp; Tables</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <button type="button" class="chapter" data-cat="ft" aria-expanded="false" aria-controls="entries-ft"><span class="num">X</span><h2>Figures &amp; Tables</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-ft" hidden>
         <li class="entry" id="figures" data-cat="ft" data-plat="both" data-search="figures figures tables chart design color legends captions /oss:figures $figures codex claude both">
       <div class="row">
@@ -534,7 +594,7 @@
     </li>
   </ul>
 
-  <button type="button" class="chapter" data-cat="mq" aria-expanded="false" aria-controls="entries-mq"><span class="num">IX</span><h2>Manuscript QA</h2><span class="rule"></span><span class="n">4 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <button type="button" class="chapter" data-cat="mq" aria-expanded="false" aria-controls="entries-mq"><span class="num">XI</span><h2>Manuscript QA</h2><span class="rule"></span><span class="n">4 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-mq" hidden>
         <li class="entry" id="citation-check" data-cat="mq" data-plat="both" data-search="citation-check manuscript qa references fabrication parity doi /oss:citation-check $citation-check codex claude both">
       <div class="row">
@@ -578,7 +638,7 @@
     </li>
   </ul>
 
-  <button type="button" class="chapter" data-cat="rs" aria-expanded="false" aria-controls="entries-rs"><span class="num">X</span><h2>Review &amp; Submission</h2><span class="rule"></span><span class="n">4 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <button type="button" class="chapter" data-cat="rs" aria-expanded="false" aria-controls="entries-rs"><span class="num">XII</span><h2>Review &amp; Submission</h2><span class="rule"></span><span class="n">4 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-rs" hidden>
         <li class="entry" id="paper-review-lite" data-cat="rs" data-plat="both" data-search="paper-review-lite-codex codex cross-model paper-review-lite review submission pre-submission audit quote-grounded /oss:paper-review-lite $paper-review-lite codex claude both">
       <div class="row">
@@ -624,7 +684,7 @@
 
   <p id="empty">No skills match your search. Try a different word, or clear the category filter.</p>
 
-  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 8 September 2026 (v2.28.2). It includes 38 skills on Claude Code (<code>/oss:name</code>) and 37 on Codex (<code>$name</code>). Most run on both platforms, with a few platform-specific exceptions.</p>
+  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 17 September 2026 (v2.31.0). It includes 43 skills on Claude Code (<code>/oss:name</code>) and 42 on Codex (<code>$name</code>). Most run on both platforms, with a few platform-specific exceptions.</p>
   <p class="note note-cont">Eleven skills load automatically when relevant. The other 27 load only when invoked by name, so they use no session resources until needed. All aliases still work. The Codex library follows the same logic.</p>
 
 </main>

@@ -24,15 +24,17 @@ const PAGE_PATH = join(import.meta.dirname, "..", "docs", "skills", "index.html"
 // two-letter code and roman numeral already used on the skills page.
 const CATEGORY_MAP = {
   "Project Setup": { code: "ps", roman: "I" },
-  "Workflow & Orchestration": { code: "wo", roman: "II" },
-  "Ideation": { code: "id", roman: "III" },
-  "Research Design": { code: "rd", roman: "IV" },
-  "Analysis": { code: "an", roman: "V" },
-  "Corpus Processing": { code: "cp", roman: "VI" },
-  "Writing & Reporting": { code: "wr", roman: "VII" },
-  "Figures & Tables": { code: "ft", roman: "VIII" },
-  "Manuscript QA": { code: "mq", roman: "IX" },
-  "Review & Submission": { code: "rs", roman: "X" },
+  "Repo Hygiene": { code: "rh", roman: "II" },
+  "Workflow & Orchestration": { code: "wo", roman: "III" },
+  "Deliverable pipeline": { code: "dp", roman: "IV" },
+  "Ideation": { code: "id", roman: "V" },
+  "Research Design": { code: "rd", roman: "VI" },
+  "Analysis": { code: "an", roman: "VII" },
+  "Corpus Processing": { code: "cp", roman: "VIII" },
+  "Writing & Reporting": { code: "wr", roman: "IX" },
+  "Figures & Tables": { code: "ft", roman: "X" },
+  "Manuscript QA": { code: "mq", roman: "XI" },
+  "Review & Submission": { code: "rs", roman: "XII" },
 };
 
 function stripHtml(html) {
@@ -147,7 +149,7 @@ for (const cat of catalog) {
       const entryHtml = buildEntryHtml(skill.slug, known.code, skill.description, codexSlugs);
       // Append to the end of that category's <ul class="entries"> block.
       const chapterRe = new RegExp(
-        `(<div class="chapter" data-cat="${known.code}"[^>]*>[\\s\\S]*?<\\/div>\\s*<ul class="entries"[^>]*>)([\\s\\S]*?)(<\\/ul>)`
+        `(<(?:div|button)[^>]*class="chapter"[^>]*data-cat="${known.code}"[^>]*>[\\s\\S]*?<\\/(?:div|button)>\\s*<ul class="entries"[^>]*>)([\\s\\S]*?)(<\\/ul>)`
       );
       const chapMatch = page.match(chapterRe);
       if (chapMatch) {
@@ -178,7 +180,7 @@ try {
   const codexCount = readdirSync(join(ossPath, "codex"), { withFileTypes: true }).filter((d) => d.isDirectory() && d.name !== "assets").length;
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
   page = page.replace(/as of \d+ [A-Z][a-z]+ \d{4} \(v/, `as of ${today} (v`);
-  page = page.replace(/(\)\. )\d+( skills on Claude Code \(<code>\/oss:name<\/code>\) and )\d+( on Codex)/, `$1${claudeCount}$2${codexCount}$3`);
+  page = page.replace(/(\)\. It includes )\d+( skills on Claude Code \(<code>\/oss:name<\/code>\) and )\d+( on Codex)/, `$1${claudeCount}$2${codexCount}$3`);
 } catch {
   // no plugin.json or skills dirs — leave the colophon untouched
 }

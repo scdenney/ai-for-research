@@ -2,6 +2,14 @@
 
 This is a consolidated handoff from the Codex session launched in an Open Science Skills worktree. It records the current decisions and the user's feedback, not a verbatim transcript. Resume in **ai-for-research**, not that worktree.
 
+## Implemented revision · 17 September 2026
+
+The author approved the integrated verifiability plan and requested execution with Astra-led orchestrate. The current storyboard supersedes the 16 September sequence below. Implemented: 35 main pages, nine appendices, 55 minutes. Read the latest HANDOFF entry and `review-verifiability-2026-09-17/` for validation and delivery evidence.
+
+New material: Kenny/Swaney complexity–verifiability quadrant; Pocock software feedback example; repository-centered Part 2; conjoint illustration; paper-review-lite; a captured project-specific .31-versus-.28 numerical check; honest v2.31 static and temporary-copy execution limits; sitrep/finished and on-demand invocation; strengthened historical Part 3 diff. Earlier broad claims about no prior code execution are corrected in the planning notes.
+
+The source knowledge base stays central. The numerical example uses illustrative data and an explicit project comparator; OSS itself does not compare manuscript estimates with regenerated values. Main quadrant replaces the role table, now in the appendix. No live terminal demonstration, new website publication, or changes to reference research projects.
+
 ## Where to start
 
 Repository: `/Users/scdenney/Documents/github/resources/ai-for-research`, branch `korea-university-lecture`. Lecture: `lectures/2026-09-korea-university-rethinking-the-research-process/`. Read, in order:
@@ -9,13 +17,13 @@ Repository: `/Users/scdenney/Documents/github/resources/ai-for-research`, branch
 1. `../HANDOFF.md`, newest entry first.
 2. This file and `02-rebuild-storyboard.md` for current intent.
 3. `../notes.md` alongside `../overleaf/parts/*.tex` for the actual delivered version.
-4. `12-purpose-foundations-validation.md` and `review-purpose-2026-09-16/` for completed checks.
+4. `review-verifiability-2026-09-17/` for current checks; earlier validation reports are historical.
 5. `09-evidence-protect.md` and `receipts-2026-09-16/` for evidence qualifications and historical claim receipts.
 6. `context-2026-09-17/README.md` for imported external context and source files.
 
 `01-framework-and-structure.md`, the original codex brief, earlier validation reports, and imported memories/plans are historical. They contain obsolete slide counts, palettes, teaching sequences and push instructions. Later explicit user decisions, current storyboard, and current deck prevail. The lecture has not received final author approval merely because an implementation plan was approved.
 
-## Current state and delivery
+## 16 September delivery baseline (historical)
 
 39 physical PDF pages, 33 main pages including cover/transitions, six appendices, footer numbers 1–32. Speaker notes total 55 minutes: introduction 8, Part 1 15, Part 2 22, Part 3 7, closing 3. The latest deck commit is Overleaf `0486a4f144636719767ed45f834243196580565d`. The parent implementation/validation commit is `69b326d`. Later commits consolidate context only.
 
@@ -55,7 +63,7 @@ Bastani: observed harm concerns unrestricted assistance. Guardrails mitigated th
 
 Relevant prior task knowledge, not general seniority, is the appropriate moderation question. Melumad and Yun is the preferred optional third evidence example on learning through LLM synthesis versus links. Do not cite Toner-Rodgers or the retracted HSSC meta-analysis DOI 10.1038/s41599-025-04787-y. Detailed source leads, warnings, and the HBIR/course-setup-announcement relay are already in `09-evidence-protect.md`. The entire promised 30-source review was not supplied to this Codex session; do not claim that unseen document was imported.
 
-## Remaining work
+## Remaining work recorded at the earlier checkpoint (historical)
 
 1. Await/review the author's response to the latest intro and Parts 1–2. The user repeatedly said earlier iterations were still not right; implementation is not final acceptance.
 2. Revise Part 3 when requested. Its content was deliberately left unchanged during the last revision.

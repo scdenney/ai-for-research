@@ -1,0 +1,369 @@
+{
+  "all_hashes_match": true,
+  "inferred_source_commit": null,
+  "installed_cache_authority": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0",
+  "installed_version": "2.31.0",
+  "local_codex_source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex",
+  "local_source_dirty_paths": [
+    " M .claude-plugin/marketplace.json",
+    " M AUDITS.md",
+    " M CHANGELOG.md",
+    " M README.md",
+    " M codex/README.md",
+    " M codex/citation-check/agents/openai.yaml",
+    " M codex/conjoint-diagnostics/agents/openai.yaml",
+    " M codex/deliverable-lint/SKILL.md",
+    " M codex/deliverable-open/SKILL.md",
+    " M codex/diverge/agents/openai.yaml",
+    " M codex/fact-check/agents/openai.yaml",
+    " M codex/figure-table-audit/agents/openai.yaml",
+    " M codex/figures/agents/openai.yaml",
+    " M codex/hypothesis-building/agents/openai.yaml",
+    " M codex/journal-review/agents/openai.yaml",
+    " M codex/literature-review/agents/openai.yaml",
+    " M codex/narrative-building/agents/openai.yaml",
+    " M codex/paper-review-lite/SKILL.md",
+    " M codex/paper-review-lite/agents/openai.yaml",
+    " M codex/paper-tex/agents/openai.yaml",
+    " M codex/pre-registration-writing/agents/openai.yaml",
+    " M codex/replication-package/SKILL.md",
+    " M codex/research-grill/SKILL.md",
+    " M codex/research-repo/agents/openai.yaml",
+    " M codex/survey-design/agents/openai.yaml",
+    " M codex/tables/agents/openai.yaml",
+    " M codex/text-classification/agents/openai.yaml",
+    " M docs/deliverable-pipeline.md",
+    " M plugin/.claude-plugin/plugin.json",
+    " M plugin/.skills/citation-check.md",
+    " M plugin/.skills/deliverable-lint.md",
+    " M plugin/.skills/deliverable-open.md",
+    " M plugin/.skills/doc-to-markdown.md",
+    " M plugin/.skills/fact-check.md",
+    " M plugin/.skills/figures.md",
+    " M plugin/.skills/literature-review.md",
+    " M plugin/.skills/paper-review-lite.md",
+    " M plugin/.skills/qualtrics-ops.md",
+    " M plugin/.skills/referee-response.md",
+    " M plugin/.skills/replication-package.md",
+    " M plugin/.skills/research-repo.md",
+    " M plugin/.skills/spawn.md",
+    " D plugin/commands/advisor.md",
+    " D plugin/commands/citation-check.md",
+    " D plugin/commands/conjoint-cleaning.md",
+    " D plugin/commands/conjoint-design.md",
+    " D plugin/commands/conjoint-diagnostics.md",
+    " D plugin/commands/cross-national-design.md",
+    " D plugin/commands/deliverable-intake.md",
+    " D plugin/commands/deliverable-lint.md",
+    " D plugin/commands/deliverable-open.md",
+    " D plugin/commands/diverge.md",
+    " D plugin/commands/doc-to-markdown.md",
+    " D plugin/commands/fact-check.md",
+    " D plugin/commands/figure-table-audit.md",
+    " D plugin/commands/figures.md",
+    " D plugin/commands/hypothesis-building.md",
+    " D plugin/commands/journal-review.md",
+    " D plugin/commands/list-experiment.md",
+    " D plugin/commands/literature-review.md",
+    " D plugin/commands/llm-calibration-logprobs.md",
+    " D plugin/commands/methods-reporting.md",
+    " D plugin/commands/model-committee.md",
+    " D plugin/commands/model-council-voting.md",
+    " D plugin/commands/narrative-building.md",
+    " D plugin/commands/orchestrate.md",
+    " D plugin/commands/paper-review-lite.md",
+    " D plugin/commands/paper-tex.md",
+    " D plugin/commands/pre-registration-writing.md",
+    " D plugin/commands/presubmit.md",
+    " D plugin/commands/qualtrics-ops.md",
+    " D plugin/commands/referee-response.md",
+    " D plugin/commands/replication-package.md",
+    " D plugin/commands/research-grill.md",
+    " D plugin/commands/research-repo.md",
+    " D plugin/commands/research-wayfinder.md",
+    " D plugin/commands/spawn.md",
+    " D plugin/commands/survey-data-audit.md",
+    " D plugin/commands/survey-design.md",
+    " D plugin/commands/tables.md",
+    " D plugin/commands/text-classification.md",
+    " D plugin/commands/topic-modeling.md",
+    " D plugin/commands/vlm-ocr.md",
+    " M plugin/scripts/check.sh",
+    " M plugin/skills/citation-check/SKILL.md",
+    " M plugin/skills/deliverable-lint/SKILL.md",
+    " M plugin/skills/deliverable-open/SKILL.md",
+    " M plugin/skills/doc-to-markdown/SKILL.md",
+    " M plugin/skills/fact-check/SKILL.md",
+    " M plugin/skills/figures/SKILL.md",
+    " M plugin/skills/literature-review/SKILL.md",
+    " M plugin/skills/paper-review-lite/SKILL.md",
+    " M plugin/skills/qualtrics-ops/SKILL.md",
+    " M plugin/skills/referee-response/SKILL.md",
+    " M plugin/skills/replication-package/SKILL.md",
+    " M plugin/skills/research-repo/SKILL.md",
+    " M plugin/skills/spawn/SKILL.md",
+    "?? codex/finished/",
+    "?? codex/replication-package/scripts/",
+    "?? codex/sitrep/",
+    "?? plugin/.skills/finished.md",
+    "?? plugin/.skills/sitrep.md",
+    "?? plugin/commands/verify.md",
+    "?? plugin/skills/finished/",
+    "?? plugin/skills/replication-package/scripts/",
+    "?? plugin/skills/sitrep/"
+  ],
+  "records": [
+    {
+      "copy": "installed/.claude-plugin/plugin.json",
+      "copy_sha256": "d258a8524f410bd148eb8b0e22e8c9c94f240f48e260c9c84e8baec81a9bab89",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/.claude-plugin/plugin.json",
+      "source_sha256": "d258a8524f410bd148eb8b0e22e8c9c94f240f48e260c9c84e8baec81a9bab89"
+    },
+    {
+      "copy": "installed/verify.md",
+      "copy_sha256": "a5dc4f6f0d32f286567b6ede0bc47046915f465a02f336b598bfb5b6d3c4a733",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/commands/verify.md",
+      "source_sha256": "a5dc4f6f0d32f286567b6ede0bc47046915f465a02f336b598bfb5b6d3c4a733"
+    },
+    {
+      "copy": "installed/check.sh",
+      "copy_sha256": "d5afa32bb4ef8058d2c746d26cc349135a75358c7646b06c3ab3c82a13bd3fd3",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/scripts/check.sh",
+      "source_sha256": "d5afa32bb4ef8058d2c746d26cc349135a75358c7646b06c3ab3c82a13bd3fd3"
+    },
+    {
+      "copy": "installed/skills/research-repo/SKILL.md",
+      "copy_sha256": "eb2027ddfe2ef9444be5e64909bd807adbf917a2a50e4777a0e0228ef6553ae2",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/skills/research-repo/SKILL.md",
+      "source_sha256": "eb2027ddfe2ef9444be5e64909bd807adbf917a2a50e4777a0e0228ef6553ae2"
+    },
+    {
+      "copy": "codex/research-repo/SKILL.md",
+      "copy_sha256": "26bbedac3d8ad194881e218676a330c7e61f212730fb7125371bbbbd6837ebb4",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/research-repo/SKILL.md",
+      "source_sha256": "26bbedac3d8ad194881e218676a330c7e61f212730fb7125371bbbbd6837ebb4"
+    },
+    {
+      "copy": "codex/research-repo/agents/openai.yaml",
+      "copy_sha256": "68dee3be837f2cdcea6a34f14b76284ee3ed19f84eb0954c8d38797d276d809c",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/research-repo/agents/openai.yaml",
+      "source_sha256": "68dee3be837f2cdcea6a34f14b76284ee3ed19f84eb0954c8d38797d276d809c"
+    },
+    {
+      "copy": "installed/skills/citation-check/SKILL.md",
+      "copy_sha256": "64fc9af5295676edc7b64f86205d18541685e2390cd3b2d741428daff88fb0d7",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/skills/citation-check/SKILL.md",
+      "source_sha256": "64fc9af5295676edc7b64f86205d18541685e2390cd3b2d741428daff88fb0d7"
+    },
+    {
+      "copy": "codex/citation-check/SKILL.md",
+      "copy_sha256": "27a6cb75dda92b881e41c715191793d5fd5199871b39aff78c21286142a5e65e",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/citation-check/SKILL.md",
+      "source_sha256": "27a6cb75dda92b881e41c715191793d5fd5199871b39aff78c21286142a5e65e"
+    },
+    {
+      "copy": "codex/citation-check/agents/openai.yaml",
+      "copy_sha256": "12f3288d0127f4afe34372e4bcb7afe629bd2e3b1aff8c64838bb13b67ba20e4",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/citation-check/agents/openai.yaml",
+      "source_sha256": "12f3288d0127f4afe34372e4bcb7afe629bd2e3b1aff8c64838bb13b67ba20e4"
+    },
+    {
+      "copy": "installed/skills/fact-check/SKILL.md",
+      "copy_sha256": "dcd66e97cf9dd522c2f2f8bd9e9c826c6fe09361b022702839ddc842ded4d22c",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/skills/fact-check/SKILL.md",
+      "source_sha256": "dcd66e97cf9dd522c2f2f8bd9e9c826c6fe09361b022702839ddc842ded4d22c"
+    },
+    {
+      "copy": "codex/fact-check/SKILL.md",
+      "copy_sha256": "ad56efaace323e3fd9d237d95bcc1f5acea63658093ce9ccf9e1bf234573e778",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/fact-check/SKILL.md",
+      "source_sha256": "ad56efaace323e3fd9d237d95bcc1f5acea63658093ce9ccf9e1bf234573e778"
+    },
+    {
+      "copy": "codex/fact-check/agents/openai.yaml",
+      "copy_sha256": "40399d1b454de60a5440bd0627e05320c3788fe8c546ece67941270eeb3548ef",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/fact-check/agents/openai.yaml",
+      "source_sha256": "40399d1b454de60a5440bd0627e05320c3788fe8c546ece67941270eeb3548ef"
+    },
+    {
+      "copy": "installed/skills/paper-review-lite/SKILL.md",
+      "copy_sha256": "ec0366a8614accd8704950d08d5bb3f2db27b20e57042da0cfb9086f01819bbf",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/skills/paper-review-lite/SKILL.md",
+      "source_sha256": "ec0366a8614accd8704950d08d5bb3f2db27b20e57042da0cfb9086f01819bbf"
+    },
+    {
+      "copy": "codex/paper-review-lite/SKILL.md",
+      "copy_sha256": "a7088f57813c30176d273efea4fb94998634c8043e13e55cabc036163bcc9cbd",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/paper-review-lite/SKILL.md",
+      "source_sha256": "a7088f57813c30176d273efea4fb94998634c8043e13e55cabc036163bcc9cbd"
+    },
+    {
+      "copy": "codex/paper-review-lite/agents/openai.yaml",
+      "copy_sha256": "248f890f074fa1d0a72adba3b16731503820547dd38945238945a2d65ea158d7",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/paper-review-lite/agents/openai.yaml",
+      "source_sha256": "248f890f074fa1d0a72adba3b16731503820547dd38945238945a2d65ea158d7"
+    },
+    {
+      "copy": "installed/skills/replication-package/SKILL.md",
+      "copy_sha256": "2df6728b7d658a698bc528fa2acb3b14e4e8200b7baf479e5479009f81e04606",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/skills/replication-package/SKILL.md",
+      "source_sha256": "2df6728b7d658a698bc528fa2acb3b14e4e8200b7baf479e5479009f81e04606"
+    },
+    {
+      "copy": "codex/replication-package/SKILL.md",
+      "copy_sha256": "24a79cbf04f6dc3569d362aa931199b6e8765adbf5be02daa8e9091a38a8c61f",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/replication-package/SKILL.md",
+      "source_sha256": "24a79cbf04f6dc3569d362aa931199b6e8765adbf5be02daa8e9091a38a8c61f"
+    },
+    {
+      "copy": "codex/replication-package/agents/openai.yaml",
+      "copy_sha256": "7e27f6a84fa3c697c1d2d7143a2a7e2d8b54cf2d8c14391aaf20c717c43ee11f",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/replication-package/agents/openai.yaml",
+      "source_sha256": "7e27f6a84fa3c697c1d2d7143a2a7e2d8b54cf2d8c14391aaf20c717c43ee11f"
+    },
+    {
+      "copy": "installed/skills/conjoint-cleaning/SKILL.md",
+      "copy_sha256": "12bfaa37227fbe8a58ca9e7d5b9fd168b25092004e5c36c47b64e778e0c75f29",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/skills/conjoint-cleaning/SKILL.md",
+      "source_sha256": "12bfaa37227fbe8a58ca9e7d5b9fd168b25092004e5c36c47b64e778e0c75f29"
+    },
+    {
+      "copy": "codex/conjoint-cleaning/SKILL.md",
+      "copy_sha256": "f002eed643e5dac0188de3033ac6be4f8c82762ec07484bdd786917bfd5b3269",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/conjoint-cleaning/SKILL.md",
+      "source_sha256": "f002eed643e5dac0188de3033ac6be4f8c82762ec07484bdd786917bfd5b3269"
+    },
+    {
+      "copy": "codex/conjoint-cleaning/agents/openai.yaml",
+      "copy_sha256": "8771b571998f1439a62a49a9463710fb3d10f16382cb8598a4ce3c65732ee01f",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/conjoint-cleaning/agents/openai.yaml",
+      "source_sha256": "8771b571998f1439a62a49a9463710fb3d10f16382cb8598a4ce3c65732ee01f"
+    },
+    {
+      "copy": "installed/skills/conjoint-design/SKILL.md",
+      "copy_sha256": "888ff2e140342bf51f9d04173bc06ec092de616c38a37753bbb6ae6a09dc050e",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/skills/conjoint-design/SKILL.md",
+      "source_sha256": "888ff2e140342bf51f9d04173bc06ec092de616c38a37753bbb6ae6a09dc050e"
+    },
+    {
+      "copy": "codex/conjoint-design/SKILL.md",
+      "copy_sha256": "928e8f3b47e7c6c41a8dad7bfca8ef30d7003b9c053d40f55de436e10ae55c23",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/conjoint-design/SKILL.md",
+      "source_sha256": "928e8f3b47e7c6c41a8dad7bfca8ef30d7003b9c053d40f55de436e10ae55c23"
+    },
+    {
+      "copy": "codex/conjoint-design/agents/openai.yaml",
+      "copy_sha256": "2c9f418241bde0add80d214930232987b4155d87a456c5160652c9df3286e2eb",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/conjoint-design/agents/openai.yaml",
+      "source_sha256": "2c9f418241bde0add80d214930232987b4155d87a456c5160652c9df3286e2eb"
+    },
+    {
+      "copy": "installed/skills/conjoint-diagnostics/SKILL.md",
+      "copy_sha256": "30d09a3ee270fcc51a4003aa89d996e62bb611221e7bd89ccd553eac99c20b9e",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/skills/conjoint-diagnostics/SKILL.md",
+      "source_sha256": "30d09a3ee270fcc51a4003aa89d996e62bb611221e7bd89ccd553eac99c20b9e"
+    },
+    {
+      "copy": "codex/conjoint-diagnostics/SKILL.md",
+      "copy_sha256": "5b0be773902e719aae14cbe441fe93b6c0c027f49713781ae099f5988682b4a9",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/conjoint-diagnostics/SKILL.md",
+      "source_sha256": "5b0be773902e719aae14cbe441fe93b6c0c027f49713781ae099f5988682b4a9"
+    },
+    {
+      "copy": "codex/conjoint-diagnostics/agents/openai.yaml",
+      "copy_sha256": "1a199b9a68588eb1fdb6ff6038cfef148ed9e844c001282f75fc2289856141e4",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/conjoint-diagnostics/agents/openai.yaml",
+      "source_sha256": "1a199b9a68588eb1fdb6ff6038cfef148ed9e844c001282f75fc2289856141e4"
+    },
+    {
+      "copy": "installed/skills/sitrep/SKILL.md",
+      "copy_sha256": "2b99a466ce432b76d8dc49bbd261f07a5a47e8678a6b3f086ce358f1ffea3786",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/skills/sitrep/SKILL.md",
+      "source_sha256": "2b99a466ce432b76d8dc49bbd261f07a5a47e8678a6b3f086ce358f1ffea3786"
+    },
+    {
+      "copy": "codex/sitrep/SKILL.md",
+      "copy_sha256": "e2a6a2a0ff981b8b2ce2944cb7112a1a7410dec2d82e27a2955fc2dbefe14a3c",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/sitrep/SKILL.md",
+      "source_sha256": "e2a6a2a0ff981b8b2ce2944cb7112a1a7410dec2d82e27a2955fc2dbefe14a3c"
+    },
+    {
+      "copy": "codex/sitrep/agents/openai.yaml",
+      "copy_sha256": "fb574e439092ef02e2915d71f7407dc80e175828bbf4413371da0c35a294ca08",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/sitrep/agents/openai.yaml",
+      "source_sha256": "fb574e439092ef02e2915d71f7407dc80e175828bbf4413371da0c35a294ca08"
+    },
+    {
+      "copy": "installed/skills/finished/SKILL.md",
+      "copy_sha256": "2400fcc847dfe396e351e8d5cb983bdc9a34394e6b1362d2712c5ba6f54ed236",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/skills/finished/SKILL.md",
+      "source_sha256": "2400fcc847dfe396e351e8d5cb983bdc9a34394e6b1362d2712c5ba6f54ed236"
+    },
+    {
+      "copy": "codex/finished/SKILL.md",
+      "copy_sha256": "fe8e7b1d3f0e3b31dde7bb2b8ce2164fd7ef8cc092b710a6b707feff40137332",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/finished/SKILL.md",
+      "source_sha256": "fe8e7b1d3f0e3b31dde7bb2b8ce2164fd7ef8cc092b710a6b707feff40137332"
+    },
+    {
+      "copy": "codex/finished/agents/openai.yaml",
+      "copy_sha256": "55eb06278478a15e7aba9701d659c5effc902667692ec5fd4bbd51114621c26d",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/finished/agents/openai.yaml",
+      "source_sha256": "55eb06278478a15e7aba9701d659c5effc902667692ec5fd4bbd51114621c26d"
+    },
+    {
+      "copy": "installed/skills/replication-package/scripts/verify_package.py",
+      "copy_sha256": "dda34ff16ee95eb7d546beb497b3a838eeeea797e5692de08ee34281ccb357cc",
+      "matches": true,
+      "source": "/Users/scdenney/.claude/plugins/cache/open-science-skills/oss/2.31.0/skills/replication-package/scripts/verify_package.py",
+      "source_sha256": "dda34ff16ee95eb7d546beb497b3a838eeeea797e5692de08ee34281ccb357cc"
+    },
+    {
+      "copy": "codex/replication-package/scripts/verify_package.py",
+      "copy_sha256": "dda34ff16ee95eb7d546beb497b3a838eeeea797e5692de08ee34281ccb357cc",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/codex/replication-package/scripts/verify_package.py",
+      "source_sha256": "dda34ff16ee95eb7d546beb497b3a838eeeea797e5692de08ee34281ccb357cc"
+    },
+    {
+      "copy": "LICENSE",
+      "copy_sha256": "2243c47ec136fe4d80555eb3c4ec17092cfab7746fffc65341932158dae2922a",
+      "matches": true,
+      "source": "/Users/scdenney/Documents/github/resources/open-science-skills/LICENSE",
+      "source_sha256": "2243c47ec136fe4d80555eb3c4ec17092cfab7746fffc65341932158dae2922a"
+    }
+  ]
+}

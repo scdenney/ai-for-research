@@ -2,7 +2,30 @@
 
 ## Current checkpoint · 17 September 2026
 
-The 39-page deck and 55-minute notes are implemented and pushed to Overleaf, but await author review. Intro/Parts 1–2 are the latest revision; Part 3 remains for later work. Rehearsal, actual Zoom check, Overleaf browser authentication/preview, and any separately requested website/GitHub publication remain. Version control has been added in Part 2. See [13-resume-context.md](13-resume-context.md).
+The approved verifiability revision contains 44 pages (35 main, nine appendices) and 55-minute notes. It incorporates the introduction, all three parts, the numerical check, and the historical source-check revision. See [review-verifiability-2026-09-17](review-verifiability-2026-09-17/README.md) for build and delivery evidence. Author review, timed rehearsal, actual Zoom check, authenticated Overleaf browser preview, and any separately requested website/GitHub publication remain.
+
+## Resolution of the v2.31.0 capture · approved 17 September 2026
+
+The author approved the integrated plan and asked for implementation using Astra-led orchestrate. The eight previously logged conflicts are resolved as follows; the raw capture remains preserved with its original claims.
+
+1. Reading versus execution: explain software feedback in the introduction; use the small numerical example in Part 2. The author asked to keep it simple and avoid “worked example” as slide wording.
+2. paper-review-lite: add it before the numerical demonstration, with nine review dimensions plus two cross-checkers described accurately.
+3. Replication: explain the verifier tiers separately from the final package-publication handoff. The project-specific numerical comparator is additional to OSS.
+4. Part 3: retain and improve the historical source-check trace; the numerical payoff belongs in Part 2.
+5. Conjoint: brief main-deck example and appendix detail, explicitly distinguishing specified/reviewed checks from evidence that code ran.
+6. Agent surfaces: define CLI and name terminal/desktop/IDE tool-enabled workflows; no unsupported blanket claim about chatbot capability.
+7. Continuity/context: sitrep/finished alongside Git; on-demand invocation alongside skill definition; detailed context economics and wrong-invariant anecdote in notes.
+8. Versioned evidence: preserve the prior snapshot and add a separate hashed v2.31 record.
+
+### Corrections established by implementation inspection
+
+- The earlier logged assertion that no prior skill executed anything was too broad. The confirmed change is a new bundled replication-package verifier; a keyword scan cannot establish historical agent behavior.
+- The static pre-pass does not detect stale manuscript values. Even the execution tier checks exit status/new filenames, not numerical agreement. The demonstration supplies an explicitly separate comparator.
+- A temporary copy still uses the host environment; it is not a hermetic sandbox. A hash records identity, not substantive correctness.
+
+### Remaining delivery checks
+
+Timed rehearsal, real Zoom screen-share check, and authenticated Overleaf browser preview remain author/environment checks. Local build/render and remote Git delivery are assessed separately. Website PDF replacement and new GitHub publication remain separate actions.
 
 All entries below are historical checkpoints. Statements about unfinished source excerpts, a little Korean, old palettes, preview-only status, or undecided running examples have been superseded by the current storyboard. Preserve them as history, not current tasks.
 

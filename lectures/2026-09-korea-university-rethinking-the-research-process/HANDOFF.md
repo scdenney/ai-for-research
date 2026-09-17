@@ -1,5 +1,19 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-17 · Verifiability revision implemented and delivered
+_agent: codex · Astra-led orchestrate with Sol and Terra workers_
+
+**Completed:** Implemented the approved full-session plan across the introduction and Parts 1–3: Kenny/Swaney grid, Pocock software feedback lesson, repository-centered deep dive, citation/fact checks, conjoint illustration, paper-review-lite, executable illustrative numerical comparison, accurate OSS 2.31 verifier limits, and historical source-check/diff. Preserved the release capture, source provenance, and separate hashed OSS snapshot. Planning conflicts and corrected capability claims are recorded explicitly.
+
+**Validation:** 44 pages (35 main, nine appendices), 55-minute notes, footers 1–37. XeLaTeX and embedded fonts verified; every page rendered; final geometry checks clear. Independent content and visual review accepted the revision. Numerical pipeline exercises stale/corrected reports and failure cases; all 36 snapshot records match. Deliverable gate passes. See `planning/review-verifiability-2026-09-17/README.md`.
+
+**Delivery:** Overleaf main pushed to `8e35336206c849eaf9ef09115167adb616eea920`. Scoped parent changes committed locally; no new parent GitHub push or website PDF replacement. Unrelated parent working-tree changes preserved.
+
+**Next:** Author review, timed rehearsal, real Zoom check, and authenticated Overleaf browser preview. These are not established by the validated local PDF. The benchmark source copies remain local/ignored; provenance is tracked.
+
+---
+
+
 ## 2026-09-17 (Claude session closed; branch pushed)
 _agent: claude · session: 01Hsn8RLmmjDG7d2Z9woFRUB · 2026-09-17 UTC_
 

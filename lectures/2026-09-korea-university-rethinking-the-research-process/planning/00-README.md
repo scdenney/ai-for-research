@@ -8,9 +8,9 @@ talk adds its own numbered file here rather than opening a second wiki.
 
 Start with [13-resume-context.md](13-resume-context.md) and [../HANDOFF.md](../HANDOFF.md). Imported Open Science Skills context and source provenance are indexed in [context-2026-09-17/README.md](context-2026-09-17/README.md).
 
-## Current build — 16 September 2026
+## Current revision — 17 September 2026
 
-The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It restores the talk’s research-and-teaching purpose, introduces basic vocabulary before the running example, distinguishes the three modes, and puts the research-repo knowledge base before downstream checks. Current validation: [12-purpose-foundations-validation.md](12-purpose-foundations-validation.md). Earlier plans and review records remain as history.
+The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebuild-storyboard.md). It restores the talk’s research-and-teaching purpose, introduces basic vocabulary before the running example, distinguishes the three modes, and puts the research-repo knowledge base before downstream checks. The 17 September implementation adds verifiability, the supervision grid, manuscript review and a separate numerical comparison. Current validation: [review-verifiability-2026-09-17/README.md](review-verifiability-2026-09-17/README.md). Earlier plans and review records remain as history.
 
 ## Folder map
 
@@ -21,8 +21,11 @@ The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebui
 | `02-rebuild-storyboard.md` | **Current plan:** purpose, vocabulary, three modes, research-repo and companion skills |
 | `03-full-deck-validation.md` | Historical checks for the earlier 36-page rebuild |
 | `10-foundations-validation.md` | Historical 40-page validation and lessons for a later skill |
-| `12-purpose-foundations-validation.md` | Current revision validation and delivery |
+| `12-purpose-foundations-validation.md` | Historical 16 September validation and delivery |
+| `review-verifiability-2026-09-17/` | Current build, render, verification, and delivery evidence |
 | `09-evidence-protect.md` | Relayed literature leads and qualifications |
+| `14-csdp-benchmark.md` | CSDP comparison, preserved source revisions, clarity lessons, and Part 3 implications |
+| `15-verifiability-and-deep-dive-context.md` | Author context linking the delegation grid, software feedback loops, research verifiability, Part 2, and Part 3 |
 | `browser-captures/` | Authentic repository/catalog captures from Chrome |
 | `preview/` | Five rendered sample slides and visual validation |
 | `08-open-questions.md` | Open list plus a resolved log |
@@ -54,3 +57,9 @@ The current approved revision is recorded in [02-rebuild-storyboard.md](02-rebui
   framework, not the title.
 - **2026-09-16, the deck lives in `ai-for-research/lectures/` and publishes on the AI for
   Research site**, not on the personal site's `assets/slides/` as the two earlier decks did.
+
+## 17 September implementation evidence
+
+- `oss-2.31.0/`: separately pinned release files and capability boundaries.
+- `../demos/verification/`: illustrative numerical comparison, executable sources and captured receipts.
+- `review-verifiability-2026-09-17/`: full render and validation for this revision.

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Claim–Source Fact Check"
+  short_description: "Verify manuscript claims against sources"
+  default_prompt: "Use $fact-check to verify these manuscript claims against the source library."
+policy:
+  allow_implicit_invocation: false

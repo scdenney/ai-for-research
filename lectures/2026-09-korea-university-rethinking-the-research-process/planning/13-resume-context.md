@@ -2,15 +2,13 @@
 
 This is a consolidated handoff from the Codex session launched in an Open Science Skills worktree. It records the current decisions and the user's feedback, not a verbatim transcript. Resume in **ai-for-research**, not that worktree.
 
-## Latest author review · Part 2 knowledge-base rebuild
+## Latest author review · Part 2 and Part 3 rebuild
 
-The author redirected Part 2 around verifiability, with validity stated as its boundary. The implemented working build has 30 main pages and 15 appendix pages. Its 55-minute notes divide the talk into an 8-minute introduction, 15-minute Part 1, 24-minute Part 2 with two worked checks, and an 8-minute close.
+The author approved a split bridge from the Part 1 supervision grid into a research-process overview, followed by a deeper account of machine collaboration through repositories, reusable procedures, and distinct checks. The implemented deck has 38 main pages plus eleven appendices, with the 55-minute budget divided 8 / 15 / 20 / 9 / 3.
 
-Physical page 20 maps the changing complexity and verifiability of the research process. Part 2 begins on page 21 with the source verdict introduced at the opening. It then establishes Karpathy's persistent-wiki idea, the research repository as the evidence-bearing knowledge base, the relationship among skills, agents, LLMs and tools, and read, run, and compare checks. The historical source correction and illustrative 0.31-versus-0.28 mismatch follow as worked examples. Operational detail is retained after an explicit Appendix transition.
+Printed slide 20 now maps seven research stages across qualitative complexity and current-verifiability terrain. Part 2 has ten slides including its divider and uses one dominant object per slide. CLI syntax, Git/session continuity, reviewer rosters, verifier internals, replication detail, and conjoint detail moved to the appendix. Part 3 has six slides including its divider and follows two separate cases: an authentic historical source correction and an explicitly illustrative 0.31-versus-0.28 numerical comparison. No protected NWO analysis output is used.
 
-The separate Part 3 source file remains unchanged and preserved but is excluded from `main.tex` pending its own author review. The opening roadmap still anticipates that later demo and should be reconciled during the Part 3 pass.
-
-Read `review-part2-knowledge-base-2026-09-17/` for current validation, `02-rebuild-storyboard.md` for the live narrative, and `notes.md` for timing and qualifications. Timed rehearsal, real Zoom testing, authenticated Overleaf preview, parent GitHub push, and website PDF replacement remain separate.
+Read `review-part2-rebuild-2026-09-17/` for the current validation, `02-rebuild-storyboard.md` for the live narrative, and `notes.md` for the exact timing and qualifications. Timed rehearsal, real Zoom testing, authenticated Overleaf preview, parent GitHub push, and website PDF replacement remain separate.
 
 ## Previous author review · Intro and Part 1 simplification
 

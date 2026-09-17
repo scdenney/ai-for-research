@@ -1,18 +1,5 @@
 # Korea University talk (18 September 2026) — Handoff
 
-## 2026-09-17 · Part 2 rebuilt around the research knowledge base
-_agent: codex_
-
-**Author direction:** Part 2 should deepen the Collaborate argument through verifiability, with validity kept as the boundary. The knowledge base and research repository needed to precede skills, agents, and worked checks. The main slides needed substantially more space, while useful secondary material could move to an appendix. Part 3 was to remain untouched pending a separate discussion.
-
-**Completed:** Rebuilt Part 2 as eight focused slides. The source verdict now follows the research risk terrain, then the sequence moves through Karpathy's persistent-wiki idea, the evidence-bearing research repository, the relationship among skills, agents, LLMs and tools, and read, run, and compare checks. The historical correction and illustrative numerical mismatch show how the arrangement works. Added an explicit Appendix transition and moved retained operational detail behind it. The separate Part 3 source remains unchanged and preserved but is excluded from the working build.
-
-**Validation and delivery:** The deck now has 30 main pages and 15 appendix pages. The 30 timed notes remain continuous and total 55 minutes. XeLaTeX produced a 45-page PDF with embedded fonts. Full-page renders and contact sheets show no out-of-page text or text overlaps. The appendix overflow found during review was fixed. The illustrative numerical receipt suite passes. See `planning/review-part2-knowledge-base-2026-09-17/README.md`. Overleaf main was pushed and remote-verified at `3b6a2cc45556f99bce60a8315d6045a3193ce83e`. PDF SHA-256 is `b7a5028bb47e0e12f74cef4568274863932f117a5469e969069b529c3b482106`.
-
-**Next:** Review Part 3 and reconcile the opening roadmap with the eventual demo sequence. Timed rehearsal, real Zoom testing, and authenticated Overleaf preview remain. No website PDF replacement or parent GitHub push was performed.
-
----
-
 ## 2026-09-17 · Part One visual and interpretation follow-up
 _agent: codex_
 

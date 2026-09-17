@@ -11,7 +11,7 @@ The lecture explains where to automate routine work, protect learning and judgme
 
 The latest pass refocuses Part 2 on skill development. It begins with the knowledge-wiki idea, grounds that memory in the research repository, then brings source intake, supervision arrangements, skill invocation, session continuity, and paper-review-lite forward from the appendix. Part 3 remains unchanged.
 
-The approved serif design is implemented in the full deck: **38 main pages including the cover, three part dividers and three mode transitions, plus six appendix pages; 44 PDF pages total.** Main-deck footers end at 31 and appendix footers continue through 37; physical page 4 intentionally omits printed footer 3. The speaker notes budget 55 minutes, with diagram walkthroughs and source-reading time. Rehearsal remains necessary.
+The approved serif design is implemented in the presentation-ready deck: **46 PDF pages total, comprising 38 numbered slides plus eight unnumbered cover, section, and mode dividers.** The speaker notes budget 55 minutes, with diagram walkthroughs and source-reading time. Rehearsal remains necessary.
 
 | File | Purpose |
 |---|---|

@@ -1,5 +1,16 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-17 · Presentation-ready package
+_agent: codex · 2026-09-17T20:51:14Z_
+
+**Decision:** Treat the current Overleaf revision as the presentation source for 18 September. Preserve the full planning and evidence record, while keeping tomorrow's presentation files in a separate, easy-to-find local folder.
+
+**Completed:** Fast-forwarded the Overleaf submodule to `7ef72a9`, compiled the 46-page XeLaTeX deck, and confirmed the PDF metadata and 16:9 page size. Created `/Users/scdenney/Documents/Korea University Presentation - 2026-09-18/` containing the presentation PDF, speaker notes, exact Overleaf source ZIP, and a short README with the PDF hash. Removed disposable LaTeX auxiliaries, `.DS_Store` files, and the script cache from the lecture folder; retained `overleaf/main.pdf` as the local build artifact.
+
+**Finding:** Final PDF SHA-256 is `77df287d171afc60657e6df23022626b1bc9e2b0d97f70ccc68a6da50acd5112`. The Overleaf source and local build are clean. Unrelated parent-repository changes remain untouched.
+
+**Next actions:** Open the packaged PDF once in the presentation app, confirm full-screen display and link behavior, and rehearse with `Speaker-notes.md`. No further deck edits are required unless the rehearsal reveals a concrete problem.
+
 ## 2026-09-17 · Part 2 refocused on skill development
 _agent: codex_
 

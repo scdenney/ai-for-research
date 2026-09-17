@@ -1,5 +1,13 @@
 # Open questions
 
+## Current checkpoint · Part 2 knowledge-base rebuild, 17 September 2026
+
+The author rejected the remaining skill-catalog structure. Part 2 now begins with the authentic source-support failure, then introduces Karpathy’s persistent-wiki idea, the research repository as the evidence-grounded project knowledge base, and the relationship among LLMs, tools, agents, and skills. Reading, running, and comparison checks follow before the historical revision and illustrative numerical workflow.
+
+The former slides 33--37 have been brought forward as requested. Redundant process, duplicate claim-setup, internal-agreement, and two-case overview slides were removed. Original-versus-conversion, complete skill procedure, citation identity, and other implementation details now sit behind a dedicated Appendix transition.
+
+**Open and explicitly deferred:** The separate Part 3 demo requires its own author review. Its source remains preserved in `overleaf/parts/03-part3.tex` and is excluded from this working build. The introductory roadmap will be reconciled with the final Part 3 design during that pass. Timed rehearsal, Zoom testing, authenticated Overleaf browser preview, website publication, and parent GitHub push also remain separate.
+
 ## Resolved · Notes and appendix reorganization, 17 September 2026
 
 The approved timed notes now keep Part 1 at 08:00–23:00, make Part 2 exactly 20:00 across ten slides including its divider (23:00–43:00), make Part 3 exactly 9:00 across six slides including its divider (43:00–52:00), and retain the closing at 52:00–55:00. The main physical count remains 38 pages.

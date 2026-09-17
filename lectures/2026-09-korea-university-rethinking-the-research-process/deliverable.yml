@@ -22,10 +22,10 @@ claim: >-
   and collaborate using an inspectable workspace. Build the source library before checking
   claims, distinguish source evidence from derived notes, and retain human responsibility.
 done: >-
-  Thirty-eight main pages including the cover, three part dividers and three mode transitions, plus eleven appendix pages in Beamer;
-  matching notes budgeted to 55 minutes; all pages rendered and inspected; authentic source evidence
-  separated from the reproducible illustrative numerical case; pushed to Overleaf.
-status: Part 1 bridge and Parts 2–3 rebuilt and validated; 2026-09-17
+  Thirty main pages including the cover and three mode transitions, plus fifteen appendix pages in Beamer;
+  matching notes budgeted to 55 minutes; Part 2 rebuilt around the research knowledge base, repository, and skills;
+  authentic source evidence separated from the reproducible illustrative numerical case.
+status: Part 2 rebuilt, validated, and delivered to Overleaf; Part 3 held for separate author review; 2026-09-17
 sources_of_truth:
   - overleaf/main.tex
   - notes.md
@@ -34,7 +34,7 @@ published_url: https://scdenney.github.io/ai-for-research/lectures/rethinking-th
 planning_dir: planning
 handoff: HANDOFF.md
 sections_from: latex
-sections_files: [overleaf/parts/00-open.tex, overleaf/parts/00-foundations.tex, overleaf/parts/01-part1.tex, overleaf/parts/02-part2.tex, overleaf/parts/03-part3.tex, overleaf/parts/04-close.tex]
+sections_files: [overleaf/parts/00-open.tex, overleaf/parts/00-foundations.tex, overleaf/parts/01-part1.tex, overleaf/parts/02-part2.tex, overleaf/parts/04-close.tex, overleaf/parts/05-appendix.tex]
 voice: writing-toolkit@9a7faa7
 build:
   command: latexmk -xelatex -interaction=nonstopmode -cd overleaf/main.tex

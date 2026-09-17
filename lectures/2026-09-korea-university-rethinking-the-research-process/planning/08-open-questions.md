@@ -2,9 +2,11 @@
 
 ## Current checkpoint · Part 2 skill-development rebuild, 17 September 2026
 
-Part 2 now follows the author's requested progression. It begins with persistent project memory, introduces the research repository as the evidence-bearing foundation, builds the knowledge base through source intake, defines the relationship among the repository, skill, agent, LLM, tools, and result, and then develops supervision, invocation, session continuity, paper review, and the wider skill stack.
+Part 2 now follows the author's corrected progression. It begins with verifiability, defines a knowledge base through the Karpathy LLM Wiki pattern, contrasts a default project folder with a structured evidence base, defines skills and their relationship to agents, LLMs, and tools, and only then introduces research-repo.
 
-The former appendix slides numbered 33--37 were brought into the main sequence and simplified. They cover source intake, collaboration roles, skill invocation, Git with finished and sitrep, and paper-review-lite. The appendix now retains only genuinely secondary detail. Part 3 remains unchanged.
+The research-repo deep dive now uses a proper folder tree and separate slides for human-led source collection, OpenDataLoader PDF conversion, BibTeX registration, and Git linkage to Overleaf. The supervision table now follows the risk-terrain slide at the end of Part 1. The closing Part 2 slides connect research-repo, citation-check, fact-check, paper-review-lite, and replication-package before distinguishing reading from execution. Part 3 remains unchanged.
+
+The main deck now has 41 pages and the appendix has six. Part 2 remains within its 20-minute allocation across twelve pages including its divider.
 
 **Still open:** Part 3 requires its separate author review. Timed rehearsal, Zoom testing, authenticated Overleaf browser preview, website publication, and parent GitHub push remain separate.
 

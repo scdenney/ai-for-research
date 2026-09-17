@@ -1,6 +1,6 @@
 # Speaker notes – Rethinking the Research Process
 
-Revised 17 September 2026 after the Part 2 skill-development rebuild. Part 3 remains unchanged. **38 main PDF pages, six appendices, 44 pages total.** Headings use physical pages; main-deck footers end at 31 and the appendix continues through 37. The author-edited physical page 4 intentionally omits printed footer 3.
+Revised 17 September 2026 after the Part 2 skill-development rebuild. Part 3 remains unchanged. **41 main PDF pages, six appendices, 47 pages total.** Headings use physical pages; main-deck footers end at 34 and the appendix continues through 40. The author-edited physical page 4 intentionally omits printed footer 3.
 
 **55-minute plan:** introduction 00:00–08:00; Part 1 08:00–23:00; Part 2 23:00–43:00; Part 3 43:00–52:00; closing 52:00–55:00. These are speaking allocations, not a measured rehearsal.
 
@@ -147,118 +147,127 @@ Collaboration can operate throughout research and teaching. An agent can retriev
 The researcher or teacher retains the substantive decisions: which sources matter, whether an analysis answers the question, what a draft should claim, and what judgment feedback should express.
 
 ## 19. Match supervision to the research task
-**20:05–21:45 · 01:40 · PDF page 19**
+**20:05–21:20 · 01:15 · PDF page 19**
 
-Read the axes first. Complexity increases upward from easy to hard; verification becomes more objective toward the right. These are relative positions for a bounded task under its current checking conditions, not permanent categories for whole research activities.
-
-The research examples make the borrowed framework useful here. Co-designing a study combines a complex problem with judgments about theory, measurement, and inference, so human and agent work together. Implementing a specified analysis is a candidate for delegation when the researcher has fixed the specification and can check code and outputs against it; an analysis plan alone does not make its implementation objectively verifiable. Reviewing a short summary against an available source is bounded but still requires interpretation. Formatting references to a specified style provides explicit criteria for automated checks. Bibliographic identity and claim support remain separate, substantive tasks.
-
-Protect comes before this delegation decision: if doing a task develops the understanding someone needs, ease of checking does not by itself justify outsourcing it. For tasks we do delegate, choose the supervision arrangement according to both difficulty and available checks.
-
-This is the connection to Part 2. The research repository preserves the source used to check a summary, the analysis specification and code, and the bibliography. Source checking, executable comparisons, and review supply different kinds of feedback. Better checking can make delegation more practical; it does not eliminate research judgment or prove validity.
-
-Credit Kenny’s CSDP presentation, page 16, adapting Swaney’s Claude Overload workshop. The four task examples are our illustrative applications, not examples recovered from that presentation. The appendix preserves the detailed plans/acts/checks role table.
+Use the quadrant to classify a bounded task. Complexity concerns how much judgment and coordination the task requires. Verifiability concerns how directly the result can be checked against an external standard. The four arrangements are examples of supervision, not fixed labels for an entire project.
 
 ## 20. Research moves through changing risk terrain
-**21:45–23:00 · 01:15 · PDF page 20**
+**21:20–22:30 · 01:10 · PDF page 20**
 
-Apply the grid to the research process without treating whole stages as permanent categories. Ideation, theory, and interpretation often remain complex and judgment-heavy. Source work, analysis, writing, and publication contain more repeatable operations, but their verifiability is brittle when the source, specification, code, output, or reported claim becomes detached from the rest of the project.
+Walk through the research process as changing terrain. Ideation and theory remain highly interpretive. Sources, analysis, writing, and reporting introduce brittle links where an omitted passage, stale output, or unsupported inference may survive. Publication and replication are more repeatable only when the relevant materials and procedures have been preserved.
 
-Read the positions as illustrative zones rather than measurements. The same stage can move when the bounded task, specification, available evidence, or checking infrastructure changes. Follow the arrows through the project, then use the dashed return path to show that findings and publication generate revisions and new questions.
+The positions are illustrative zones rather than measurements. The point is that one supervision arrangement cannot govern the whole process.
 
-Transition: Part 2 shows how a shared repository and explicit procedures improve those checking conditions.
+## 21. Match the skill to the supervision arrangement
+**22:30–23:00 · 00:30 · PDF page 21**
 
-## 21. Building skills for verifiable research
-**23:00–23:15 · 00:15 · PDF page 21**
+Connect the four arrangements to the workflow before entering Part 2. Pair programming shares planning, action, and review. A planning commission keeps planning and review with the human. A review board delegates the first pass but retains human review. Autopilot is appropriate only where the rule and its check are explicit.
 
-Part 2 is the practical answer to the verifiability problem. Begin with a persistent knowledge base, ground it in a research repository, and then add skills that make recurring checks explicit. This section is about developing that environment rather than listing tools.
+Transition to Part 2 by asking how to improve the checking conditions that make these arrangements possible.
 
-## 22. A knowledge wiki gives the project a memory
-**23:15–25:45 · 02:30 · PDF page 22**
+## 22. Build the conditions for verification
+**23:00–23:15 · 00:15 · PDF page 22**
 
-Use Karpathy's LLM Wiki and Kenny's inspectable demonstration as the persistence idea. Raw material feeds source notes, concepts, syntheses, an index, and a log. The result is durable project memory outside any one conversation.
+Part 2 is the practical response to the verifiability problem. Build a persistent knowledge base first. Then add reusable skills that operate on the evidence it contains.
 
-The point is persistence, not a claim that a generated wiki is automatically accurate. Raw sources remain distinct from syntheses, and the project still needs provenance and evidence rules. The next slide shows the stricter research-repo contract used here.
+## 23. A knowledge base gives the agent inspectable memory
+**23:15–25:15 · 02:00 · PDF page 23**
 
-Sources: planning/14-csdp-benchmark.md and the preserved Karpathy LLM Wiki snapshot.
+Define the knowledge base before discussing research-repo. It is a set of structured files an agent can search, read, update, and cite. Markdown is useful because it is plain text, portable, versionable, and directly readable by coding agents.
 
-## 23. The research repo ties that memory to evidence
-**25:45–28:00 · 02:15 · PDF page 23**
+Draw on Karpathy's LLM Wiki as the simple pattern. The important move is from transient conversation to persistent files. Persistence does not make the contents correct. It makes the material available for inspection and revision.
 
-The research repository makes persistent memory usable for research. Originals, readable source files, and bibliography records form the source spine. Analysis, manuscripts, review records, and project instructions work from the same bounded folder. Git records change over time.
+Sources include the Karpathy LLM Wiki discussion, the Astro-Han implementation, and the MindStudio overview supplied on 17 September.
 
-Stress the contract between the citation key and the filed source. The repository improves the conditions for checking. It does not make every stored note true or establish research validity.
+## 24. A folder does not become a knowledge base by default
+**25:15–26:45 · 01:30 · PDF page 24**
 
-Source: preserved OSS 2.31.0 research-repo skill.
+An agent normally begins inside a project folder. Access alone does not create a usable evidence base. Scattered PDFs, drafts with unclear provenance, and inconsistent names remain difficult to query and harder to verify.
 
-## 24. Build the knowledge base one source at a time
-**28:00–30:15 · 02:15 · PDF page 24**
+The knowledge base must be constructed. Sources need readable forms, stable identities, and maintenance rules. This is the first place skills become useful.
 
-Walk through intake as three concrete actions. Preserve the acquired original and its identity. Convert it into readable text and inspect the conversion. Register the bibliography record so the manuscript key resolves to the source actually read and filed.
+## 25. A skill makes a recurring standard reusable
+**26:45–28:15 · 01:30 · PDF page 25**
 
-The readable conversion makes search and agent work possible. The original remains authoritative when extraction, tables, page references, or context are in doubt. This is the former appendix source-intake material brought into the center of Part 2.
+Define a skill in three steps. It is a stored procedure with optional scripts, templates, and examples. It preserves a recurring evidence standard. It is invoked for a bounded task, inspected after use, and revised when experience reveals a defect.
 
-## 25. A skill gives an agent a repeatable procedure
-**30:15–32:00 · 01:45 · PDF page 25**
+Do not present a skill as magic expertise or a guarantee. It is a way to state and reuse a procedure.
 
-Define each component. The LLM interprets context and generates language. Tools allow the agent to read, search, run, and edit. The agent combines model and tools in an iterative task. A skill supplies reusable instructions, criteria, scripts, and examples. The repository supplies the evidence and history.
+## 26. The skill directs the agent's model and tools
+**28:15–29:45 · 01:30 · PDF page 26**
 
-The skill focuses how the agent works on this project. Its result may be a finding, receipt, proposed revision, or unresolved question. Producing one does not make it correct.
+Separate the terms for an audience that may not use them. The task supplies the target and constraints. The skill supplies the procedure and checks. The agent uses an LLM to interpret the task and tools to read, search, execute, and edit. The result should leave evidence that the researcher can inspect.
 
-## 26. Match the skill to the supervision arrangement
-**32:00–33:45 · 01:45 · PDF page 26**
+The researcher remains responsible for deciding whether the evidence warrants the next step.
 
-Bring forward the former appendix role table. Pair programming keeps the human and agent together throughout. A planning commission keeps planning and review with the human. A review board delegates planning and action but retains human review. Autopilot requires an explicit rule that the agent can check.
+## 27. research-repo builds the project around its sources
+**29:45–31:45 · 02:00 · PDF page 27**
 
-Connect the table to the preceding complexity and verifiability grid. The arrangement follows the bounded task and its available checks. It is not a permanent label for an entire research stage.
+Now introduce the specific skill. The source library is the spine of the project. The drop zone holds new material. The original folder preserves acquired files locally. The Markdown folder is the tracked LLM-readable corpus. Analysis, manuscript, review, and replication work grow around that spine.
 
-Evidence: Kenny (2026), p. 16, adapting Colin Swaney's Claude Overload workshop.
+Use the connector lines to explain the hierarchy. The visual is an actual folder tree, not a list floating beside the argument. Git records changes across the project.
 
-## 27. Invoke the skill inside the project
-**33:45–35:45 · 02:00 · PDF page 27**
+Source is the current Open Science Skills research-repo procedure.
 
-Show the Claude Code and Codex invocation forms. The period identifies the current project folder. Invoking the skill loads its instructions and supporting resources for the task. The agent then works against the repository, and the researcher inspects the evidence before deciding what follows.
+## 28. Source collection keeps the researcher in the loop
+**31:45–33:15 · 01:30 · PDF page 28**
 
-This is on-demand context loading. Do not claim a measured time or token saving, a universal skill architecture, or a successful check merely because the procedure was invoked.
+The researcher chooses what belongs in the evidence base. The agent can rename and file a source, run the converter, and prepare a bibliography record. The researcher still inspects the conversion and decides whether the source is relevant and usable.
 
-## 28. Keep the work recoverable across sessions
-**35:45–38:00 · 02:15 · PDF page 28**
+Academic articles and working papers normally enter as preserved originals. Books or other material that cannot be stored as an original can enter as structured Markdown notes with clear identity and provenance.
 
-Git records the local history. The practical loop is edit, inspect the diff, commit with an explanation, and push. The finished procedure records what changed, what was checked, and what remains. Sitrep compares that handoff with the live repository when work resumes.
+## 29. OpenDataLoader PDF creates readable Markdown
+**33:15–35:15 · 02:00 · PDF page 29**
 
-This continuity is part of verifiability because another person or later session can recover what happened. Recorded work is attributable and recoverable. It is not automatically verified.
+Show the actual source excerpt and matching Markdown conversion. The current research-repo skill uses OpenDataLoader PDF for PDFs. The conversion script writes text into sources/md. When the source includes figures or tables, extracted image files sit beside the Markdown and remain linked by path.
 
-## 29. A review skill organizes many kinds of scrutiny
-**38:00–41:00 · 03:00 · PDF page 29**
+Conversion is not verification. Inspect wording, headings, tables, omissions, and image links against the preserved original when they matter.
 
-paper-review-lite runs nine focused reviews across the argument, numbers, references, writing, design reporting, preregistration, figures and tables, and the archive. Two cross-checkers then verify passages and filter unsupported findings.
+## 30. BibTeX keeps source identity connected
+**35:15–37:15 · 02:00 · PDF page 30**
 
-The sharp limit matters. Every reviewer reads the evidence it receives. A Numbers reviewer can catch an abstract reporting 0.34 against a table reporting 0.31. If both report 0.31 while the current analysis produces 0.28, reading alone cannot recover the missing truth. Execution supplies different evidence.
+Bibliography registration is a separate step after conversion. The agent extracts candidate metadata, verifies it against the DOI or publication record, and adds the BibTeX entry. The cite key connects the manuscript, the bibliography record, and the filed Markdown source.
 
-Source: preserved OSS 2.31.0 paper-review-lite workflow and the 17 September release capture.
+This contract matters because a citation should resolve to a source that was actually acquired, converted, and available for inspection.
 
-## 30. Different skills verify different links
-**41:00–43:00 · 02:00 · PDF page 30**
+## 31. Git connects the knowledge base to writing in Overleaf
+**37:15–38:30 · 01:15 · PDF page 31**
 
-Close Part 2 by returning to the shared foundation. Research-repo asks whether evidence is preserved and linked. Citation-check and fact-check ask whether source identities resolve and claims are supported. Paper-review-lite asks whether the manuscript agrees with the evidence made available to it. Replication-package and the package verifier ask whether the research artifact has the required structure and can run as specified.
+A Git connection can keep the local project and the Overleaf manuscript in the same versioned history. Sources, analysis, figures, references, and manuscript changes can be reviewed through commits and diffs. Overleaf account access determines whether Git integration is available.
 
-These are connected checks rather than an unrelated catalogue. Each answers a bounded question and leaves evidence for review. Together they improve verifiability. They do not establish the validity of the question, design, measurement, inference, or interpretation. Part 3 now follows the evidence through two concrete cases.
+The practical point is continuity. The paper does not sit apart from the evidence base used to examine it.
 
-## 31. Follow the evidence
-**43:00–43:15 · 00:15 · PDF page 31**
+## 32. Additional skills inspect different links in the chain
+**38:30–40:15 · 01:45 · PDF page 32**
+
+Research-repo creates the evidence base. Citation-check resolves source identities and bibliography parity. Fact-check compares claims with local source text. Paper-review-lite reviews the manuscript across several dimensions. Replication-package prepares the research artifact and now includes static checks plus an authorization-gated execution tier.
+
+These skills touch different points in the research process. Each also changes the appropriate supervision arrangement. The researcher may pair with the agent on interpretation, commission a specified check, review an agent's first pass, or automate a tightly bounded rule.
+
+## 33. Reading and execution answer different questions
+**40:15–43:00 · 02:45 · PDF page 33**
+
+End Part 2 with the sharp limit of reading-based review. A reviewer can catch an abstract reporting 0.34 while a table reports 0.31 because the inconsistency is in the manuscript. If both report 0.31 while the current analysis produces 0.28, the manuscript is internally consistent and still stale.
+
+The truth is outside the document being reviewed. Execution supplies the missing comparison. Paper-review-lite organizes reading. Replication-package adds static checks and an authorization-gated clean-room execution tier. Neither a clean review nor a successful run establishes the validity of the research question, design, measurement, or interpretation.
+
+Transition to Part 3 by following the evidence through the source-support case and the numerical mismatch.
+
+## 34. Follow the evidence
+**43:00–43:15 · 00:15 · PDF page 34**
 
 Move from the general checking environment to the evidence trail. Keep the two cases distinct: the source case is authentic historical material; the numerical case is illustrative data designed to show a specified comparison.
 
-## 32. The first case requires a same-policy comparison
-**43:15–44:30 · 01:15 · PDF page 32**
+## 35. The first case requires a same-policy comparison
+**43:15–44:30 · 01:15 · PDF page 35**
 
 Read the authentic archived comparative claim again. It requires evidence comparing executive and legislative routes for the same policy, not simply evidence that some respondents dislike executive power. Give the audience time to say what finding would establish that comparison. The full old sentence also qualified the claim with partisanship and policy agreement; retaining that qualification still does not establish the asserted route penalty.
 
 **Evidence:** Old text is in manuscript parent `e50d2788ae8df3d3de63e4e9d26be919d4dea971`, `sections/frontmatter/front_matter.tex`; correction is `75366c6ca9ecc96148acba4840a4853c73f47c43`, 27 August 2026. Exact diff: `planning/receipts-2026-09-16/historical-claim-diff.txt`.
 
-## 33. The sources are relevant, but the comparison is unsupported
+## 36. The sources are relevant, but the comparison is unsupported
 
-**44:30–46:40 · 02:10 · PDF page 33**
+**44:30–46:40 · 02:10 · PDF page 36**
 
 The 16 September check first established that both cited works exist and match their DOI records. Its preflight then located both per-source Markdown files. The next question is substantive support, which requires reading what the studies actually tested.
 
@@ -268,22 +277,22 @@ Read the two displayed findings and connect each to the comparison required on t
 
 **Evidence:** 16 September scoped receipt `planning/receipts-2026-09-16/audit-receipt.md`; source conversions in NWO `sources/md/`; C&K original PDF pp. 10–12, Tables 4–5, Markdown table ranges 396–423 and 479–504 and interpretations 425, 467, 477, 506, 548; R&R survey items and findings, Markdown 114–127. Both DOIs checked via Crossref content negotiation; metadata retained next to receipt. Source-support status is UNSUPPORTED for the comparative claim, not a declaration that the underlying studies are invalid.
 
-## 34. The recorded revision narrows the claim
-**46:40–48:05 · 01:25 · PDF page 34**
+## 37. The recorded revision narrows the claim
+**46:40–48:05 · 01:25 · PDF page 37**
 
 Show the actual old clause, source clause, and revised clause. The historical revision separates generalized support for unilateral powers from judgments of specific unilateral acts. Christenson and Kriner are attached to the narrower latter claim. These excerpts are clauses from longer sentences; the historical diff preserves the surrounding material.
 
 The point is the chain from question through evidence to a recorded decision. The original paper, readable conversion, citation identity, explicit checking procedure, and revision history make the reasoning inspectable. A skill can help repeat the procedure; the researcher must still decide whether the interpretation and revision are warranted.
 
-## 35. A fresh run exposes the stale result
-**48:05–50:05 · 02:00 · PDF page 35**
+## 38. A fresh run exposes the stale result
+**48:05–50:05 · 02:00 · PDF page 38**
 
 Now switch explicitly to the illustrative numerical case. There are seven positive observations among twenty-five, so the current analysis computes 0.28. The abstract and table both still report 0.31. Their internal agreement conceals the stale result.
 
 Run the analysis, read its generated machine-readable result, and compare that result explicitly with both reported values. The comparison fails. This is a captured project pipeline, not a live terminal demonstration or a result from the historical source case.
 
-## 36. The agent catches the mismatch; the researcher owns the correction
-**50:05–52:00 · 01:55 · PDF page 36**
+## 39. The agent catches the mismatch; the researcher owns the correction
+**50:05–52:00 · 01:55 · PDF page 39**
 
 The project-specific comparator can report that generated 0.28 disagrees with abstract 0.31 and table 0.31. Correct both reported values to 0.28 and repeat the same comparison; it passes. Missing output or failed analysis must never become a passing report.
 
@@ -291,17 +300,17 @@ The agent catches a mismatch only because the researcher supplied the input, fie
 
 **Transition:** Return to the three choices the audience can take into their own work.
 
-## 37. What to take into your own work
+## 40. What to take into your own work
 
-**52:00–53:30 · 01:30 · PDF page 37**
+**52:00–53:30 · 01:30 · PDF page 40**
 
 Choose one routine task to automate, one capability to protect, and one question on which to collaborate. Classify by purpose, rather than assigning tools permanently to categories. The same paper can be filed automatically, read without assistance to develop an interpretation, and later compared with a draft through an agent-assisted procedure.
 
 For collaboration, make the procedure and evidence visible. Start with a bounded question and a result that can be checked against actual files or sources.
 
-## 38. Resources and discussion
+## 41. Resources and discussion
 
-**53:30–55:00 · 01:30 · PDF page 38**
+**53:30–55:00 · 01:30 · PDF page 41**
 
 Point to AI for Research for setup and worked examples, and Open Science Skills for reusable procedures. The browser capture is the actual deployed getting-started page. Leave these links visible for discussion. Installation is outside the main lecture; the Hub is the next step for someone who wants to try this in a project.
 
@@ -309,9 +318,9 @@ Point to AI for Research for setup and worked examples, and Open Science Skills 
 
 ## Appendix notes
 
-### 39. /oss:verify: what it checks
+### 42. /oss:verify: what it checks
 
-**Outside the 55-minute budget · PDF page 39**
+**Outside the 55-minute budget · PDF page 42**
 
 `/oss:verify` exposes the v2.31 replication-package verifier without a full submission audit. Its static tier checks package conditions: entry point, dependency files, seed/session markers, selected absolute-path and credential patterns, and data hashes. These are heuristics, not complete portability or security guarantees.
 
@@ -319,39 +328,39 @@ With explicit authorization, its execution tier runs the master script in a temp
 
 **Evidence:** preserved v2.31 verifier and command documentation in `planning/oss-2.31.0/`. The confirmed release change is a bundled replication-package verifier; an earlier keyword audit cannot establish that no prior skill or agent ever ran research code.
 
-### 40. When a source check is not ready
+### 43. When a source check is not ready
 
-**Outside the 55-minute budget · PDF page 40**
+**Outside the 55-minute budget · PDF page 43**
 
 The current fact-check skill requires a prepared per-source Markdown knowledge base and no unconverted source backlog. It treats coverage below roughly two-thirds of cited non-background works in scope as not ready. This is an operational threshold, not a statistical guarantee or permission to ignore the uncovered third. Citation-check runs first. Missing, ambiguous, or insufficient sources remain visible. NWO additionally prohibits treating `.NOTE.md` summaries as source evidence. A summary's silence does not show that the original contains no relevant passage. No fresh full-project readiness result is claimed.
 
 **Evidence:** FC §1 and §4–6; NWO AGENTS.md, Sources section. The skill can accept summaries in some settings but explicitly distinguishes their limits from faithful conversions; the local project rule is stricter.
 
-### 41. Document the use of AI
+### 44. Document the use of AI
 
-**Outside the 55-minute budget · PDF page 41**
+**Outside the 55-minute budget · PDF page 44**
 
 Ask what a reader needs to know to understand the assistance and inspect consequential decisions. Describe the task, tools and materials, human review, and limitations as relevant. This is the lecturer's discussion aid, not a universal disclosure template or a substitute for journal or institutional policy. The historical manuscript includes a Use of AI statement; its full model list is not reproduced. Absence of an AI record would not prove that a task was performed entirely without AI.
 
 **Evidence:** Historical manuscript and prior notes audit; author disclosure discussion. No current journal-policy claim is made.
 
-### 42. Make the results reproducible by others
+### 45. Make the results reproducible by others
 
-**Outside the 55-minute budget · PDF page 42**
+**Outside the 55-minute budget · PDF page 45**
 
 A research repository retains working sources, drafts, experiments, and decisions. A replication package is a curated release: README, entry script, environment, data or access instructions, and a mapping from reported outputs to producing code. An independent rerun is a separate test. The replication-package skill prepares and audits the handoff; it does not itself prove that a rerun succeeds or deposit the files. This appendix expands the companion skill introduced in Part 2 and distinguishes preparing a package from independently rerunning it.
 
 **Evidence:** OSS replication-package skill, adapted from Yusaku Horiuchi's replication-package guide. No replication audit of NWO is claimed.
 
-### 43. Literal BibTeX record
+### 46. Literal BibTeX record
 
-**Outside the 55-minute budget · PDF page 43**
+**Outside the 55-minute budget · PDF page 46**
 
 The literal BibTeX record is the same canonical ChristensonKriner2017 excerpt previously on the main slide. Omitting keywords and wrapping whitespace does not change its metadata. Connect the key to the source file and manuscript citation. DOI 10.1111/ajps.12262.
 
-### 44. Conjoint checks across the research process
+### 47. Conjoint checks across the research process
 
-**Outside the 55-minute budget · PDF page 44**
+**Outside the 55-minute budget · PDF page 47**
 
 Use design specifications and data invariants to support analysis, reporting, appendix preparation, and review. Expected row counts, choice sums, and factor levels admit executable checks; estimand clarity and interpretation still require judgment. These are specified checks rather than receipts from a study audited for this talk.
 

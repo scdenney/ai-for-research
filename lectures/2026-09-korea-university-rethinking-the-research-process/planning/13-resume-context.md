@@ -4,9 +4,9 @@ This is a consolidated handoff from the Codex session launched in an Open Scienc
 
 ## Latest author review · Part 2 skill development
 
-Part 2 now focuses on developing skills to improve research verifiability. Its ten-page sequence begins with persistent project memory, grounds that memory in the research repository and source-intake process, defines the relationship among skills, agents, LLMs and tools, then develops supervision, invocation, session continuity, paper-review-lite, and the wider skill stack.
+Part 2 now focuses on developing skills to improve research verifiability. Its twelve-page sequence defines the knowledge base first, shows why a default project folder is insufficient, defines skills and their relationship to agents, LLMs, and tools, and only then introduces research-repo.
 
-The former appendix slides numbered 33--37 were promoted and simplified. The main deck remains 38 pages and the appendix is now six pages, 44 total. Part 3 is unchanged pending its separate review. Read `review-part2-skills-2026-09-17/`, `02-rebuild-storyboard.md`, and the latest HANDOFF entry before continuing.
+The research-repo deep dive includes the folder tree, human-led collection, OpenDataLoader PDF conversion, separate BibTeX registration, Overleaf through Git, the downstream verification skills, and the reading-versus-execution limit. The supervision table now closes Part 1 after the risk-terrain slide. The main deck has 41 pages and the appendix has six, 47 total. Part 3 is unchanged pending its separate review. Read `02-rebuild-storyboard.md`, `notes.md`, and the latest HANDOFF entry before continuing.
 
 ## Latest author review · Part 2 and Part 3 rebuild
 

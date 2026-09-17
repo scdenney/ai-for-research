@@ -2,7 +2,15 @@
 
 This is a consolidated handoff from the Codex session launched in an Open Science Skills worktree. It records the current decisions and the user's feedback, not a verbatim transcript. Resume in **ai-for-research**, not that worktree.
 
-## Implemented revision · 17 September 2026
+## Latest author review · Intro and Part 1 simplification
+
+The author found the deck too crowded, particularly Part 2. That criticism supersedes the prior positive validation as an assessment of presentation quality. The current pass simplifies printed slide 4 and Part 1, preserving the author’s other Overleaf intro edits (`86c939f`). Three appendix slides move into Part 1: 38 main pages, six appendices, 44 total; notes remain budgeted to 55 minutes.
+
+The Protect section now distinguishes what AI helps produce from the researcher’s own capabilities, with the learning-evidence table and conceptual learning slide promoted together. The grid is simpler and followed by the role table. The Collaborate transition uses the author’s requested wording. Read `review-part1-simplification-2026-09-17/` for current scoped checks.
+
+**Next content work is Part 2, when requested.** It is deferred and requires substantial editorial and visual simplification. Part 3 is also outside this pass. Preserve that boundary.
+
+## Earlier implemented revision · 17 September 2026
 
 The author approved the integrated verifiability plan and requested execution with Astra-led orchestrate. The current storyboard supersedes the 16 September sequence below. Implemented: 35 main pages, nine appendices, 55 minutes. Read the latest HANDOFF entry and `review-verifiability-2026-09-17/` for validation and delivery evidence.
 
@@ -17,7 +25,7 @@ Repository: `/Users/scdenney/Documents/github/resources/ai-for-research`, branch
 1. `../HANDOFF.md`, newest entry first.
 2. This file and `02-rebuild-storyboard.md` for current intent.
 3. `../notes.md` alongside `../overleaf/parts/*.tex` for the actual delivered version.
-4. `review-verifiability-2026-09-17/` for current checks; earlier validation reports are historical.
+4. `review-part1-simplification-2026-09-17/` for current scoped checks; earlier validation reports are historical.
 5. `09-evidence-protect.md` and `receipts-2026-09-16/` for evidence qualifications and historical claim receipts.
 6. `context-2026-09-17/README.md` for imported external context and source files.
 

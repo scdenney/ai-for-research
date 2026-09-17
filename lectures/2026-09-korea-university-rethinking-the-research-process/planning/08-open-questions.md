@@ -1,8 +1,14 @@
 # Open questions
 
-## Current checkpoint · 17 September 2026
+## Current checkpoint · Intro/Part 1 simplification, 17 September 2026
 
-The approved verifiability revision contains 44 pages (35 main, nine appendices) and 55-minute notes. It incorporates the introduction, all three parts, the numerical check, and the historical source-check revision. See [review-verifiability-2026-09-17](review-verifiability-2026-09-17/README.md) for build and delivery evidence. Author review, timed rehearsal, actual Zoom check, authenticated Overleaf browser preview, and any separately requested website/GitHub publication remain.
+The author rejected the crowded slides, especially Part 2. This pass preserves the author’s intro edits, simplifies printed slide 4 and Part 1, and promotes three appendices into Part 1. The deck still has 44 pages: 38 main and six appendices. The earlier technical and independent checks did not establish satisfactory presentation quality.
+
+**Open and explicitly deferred:** Part 2 requires substantial simplification and editorial redesign. Do not begin that work until the author resumes it. Part 3 is unchanged in this pass. Timed rehearsal, actual Zoom check, authenticated Overleaf browser preview, and separate website/GitHub publication remain.
+
+**Resolved this pass:** Replace the instructional Annotate / Interpret / Argue / Explain slide with the conceptual distinction between work quality and researcher capability. Promote the learning table and possible learning conditions together into Protect; rename its unclear last column “Finding.” Use the author’s exact “Ethical machine augmentation is the goal.” Center the grid labels, remove its bottom note and duplicate role descriptions, then show the role table immediately afterward. Put the AI-throughout-research/no-total-sandbox premise in notes without claiming that bounded restrictions are impossible.
+
+See [review-part1-simplification-2026-09-17](review-part1-simplification-2026-09-17/README.md) for scoped delivery and checks.
 
 ## Resolution of the v2.31.0 capture · approved 17 September 2026
 

@@ -9,7 +9,9 @@ The lecture explains where to automate routine work, protect learning and judgme
 
 ## Current deck
 
-The approved serif design is implemented in the full deck: **35 main pages including the cover, three part dividers and three mode transitions, plus nine appendix pages; 44 PDF pages total.** The cover and dividers are unnumbered; ordinary slides run 1–37, including the appendix. The speaker notes budget 55 minutes, with diagram walkthroughs and source-reading time. Rehearsal remains necessary.
+The latest pass simplifies introductory slide 4 and Part 1 while preserving the author’s other intro edits. Part 2’s content is retained but its visual design needs substantial revision; it has not been accepted as presentation-ready.
+
+The approved serif design is implemented in the full deck: **38 main pages including the cover, three part dividers and three mode transitions, plus six appendix pages; 44 PDF pages total.** The cover and dividers are unnumbered; ordinary slides run 1–37, including the appendix. The speaker notes budget 55 minutes, with diagram walkthroughs and source-reading time. Rehearsal remains necessary.
 
 | File | Purpose |
 |---|---|
@@ -19,7 +21,7 @@ The approved serif design is implemented in the full deck: **35 main pages inclu
 | `overleaf/figures/source-excerpt.png` | Real source-PDF excerpt; provenance in the adjacent README |
 | `notes.md` | Matching notes, cumulative timings, evidence locators, and guardrails |
 | `planning/02-rebuild-storyboard.md` | Approved narrative and implementation record |
-| `planning/review-verifiability-2026-09-17/README.md` | Current full-deck build and visual review results |
+| `planning/review-part1-simplification-2026-09-17/README.md` | Current Intro/Part 1 simplification and scoped visual review |
 | `overleaf/figures/evidence-plot-provenance.md` | Verified estimates, intervals, and limitations for both evidence figures |
 | `overleaf/figures/browser-capture-provenance.md` | Real Chrome-extension screenshots and source revisions |
 | `planning/preview/` | Approved preview PDF and five page images |

@@ -22,10 +22,10 @@ claim: >-
   and collaborate using an inspectable workspace. Build the source library before checking
   claims, distinguish source evidence from derived notes, and retain human responsibility.
 done: >-
-  Thirty-five main pages including the cover, three part dividers and three mode transitions, plus nine appendix pages in Beamer;
+  Thirty-eight main pages including the cover, three part dividers and three mode transitions, plus six appendix pages in Beamer;
   matching notes budgeted to 55 minutes; all pages rendered and inspected; source excerpts
   verified against original files and historical manuscript changes; pushed to Overleaf.
-status: verifiability revision 2026-09-17; to be delivered 2026-09-18
+status: Intro and Part 1 simplified; Part 2 design revision pending; 2026-09-17
 sources_of_truth:
   - overleaf/main.tex
   - notes.md

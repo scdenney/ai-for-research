@@ -1,5 +1,21 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-17 · Author-directed Intro/Part 1 simplification
+_agent: codex · Astra-led orchestrate; Sol editorial review; Terra notes and visual review_
+
+**Author feedback:** Prior slides were too crowded, especially Part 2. Technical containment was not sufficient. Part 2’s substantive design revision is deferred until requested; Part 3 is outside this pass.
+
+**Completed:** Pulled author intro edits `86c939f`. Simplified printed slide 4; replaced Protect’s teaching-method chain with a conceptual work/capability distinction; moved old 32/33 together into Protect and clarified the table’s “Finding” column. Used “Ethical machine augmentation is the goal.” Centered and simplified the grid, followed by the former appendix role table. Added the AI-throughout-research framing to notes. All other intro frames and Parts 2/3 remain unchanged.
+
+**Validation:** 38 main pages plus six appendices, still 44 total and 55-minute notes. Revised pages rendered and independently checked for space and readability; final evidence wording checked. Build/font, notes timing, scope-preservation and deliverable checks pass. The unchanged author baseline has one fill crossing on physical page 3 and omits printed footer 3; these were preserved and recorded. See `planning/review-part1-simplification-2026-09-17/README.md`.
+
+**Delivery:** Overleaf main `5d9178cff819d77035b5ea011f349af4b3efab9d`; parent scoped changes committed locally. No website replacement or new parent GitHub push. Unrelated parent changes preserved.
+
+**Next:** Author review of this narrower pass, then substantial Part 2 simplification when requested. Rehearsal, actual Zoom check, and authenticated Overleaf server preview remain.
+
+---
+
+
 ## 2026-09-17 · Verifiability revision implemented and delivered
 _agent: codex · Astra-led orchestrate with Sol and Terra workers_
 

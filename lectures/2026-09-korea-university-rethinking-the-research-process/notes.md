@@ -1,6 +1,6 @@
 # Speaker notes – Rethinking the Research Process
 
-Revised 17 September 2026 after the approved verifiability plan. **35 main PDF pages, nine appendices, 44 pages total.** Headings use physical pages; ordinary footer numbers run 1–37.
+Revised 17 September 2026 after the Part 1 simplification. **38 main PDF pages, six appendices, 44 pages total.** Headings use physical pages; ordinary footer numbers run 1–37.
 
 **55-minute plan:** introduction 00:00–08:00; Part 1 08:00–23:00; Part 2 23:00–45:00; Part 3 45:00–52:00; closing 52:00–55:00. These are speaking allocations, not a measured rehearsal.
 
@@ -16,7 +16,7 @@ Welcome the audience and introduce the lecture as a practical account of how AI 
 
 Give the audience the three-part agenda. First, ask what research and teaching work should be automated, protected, or done in collaboration with AI. Second, explain how I use a research knowledge base and Open Science Skills. Third, show a short example of checking a claim against its sources.
 
-## 3. A small vocabulary for agentic work
+## 3. From generative AI to agentic AI
 **01:50–03:20 · 01:30 · PDF page 3**
 
 Generative AI is the broad category: systems that produce new material such as text, images, audio, or code. A large language model is a model trained on large amounts of text to predict and produce language. It often supplies the language capability in a generative system.
@@ -37,21 +37,21 @@ The difference on this slide is the ability to act and continue, not a browser-v
 A CLI is a command-line interface used inside a terminal. A CLI agent can work with a repository and tools under the user’s permissions. The same research procedures can be used in suitably configured desktop and IDE agent applications. I mainly use the CLI. I do not recommend chatbot interfaces for this workflow and have not evaluated their behavior; avoid saying that all chat interfaces lack tools.
 
 
-## 5. What changes when we use agents for research?
+## 5. What does it mean to use agents for research?
 **04:50–06:30 · 01:40 · PDF page 5**
 
 Software development helped make agents useful because agents can edit code, run it, and receive quick feedback from execution, compilers, and tests. Tests check whether code behaves as expected under the cases and specifications supplied. Passing tests does not establish that software is completely correct.
 
 Research has a different checking problem. A source can exist while the sentence citing it remains wrong. Checking support requires reading and interpretation. Measurement, research design, and inference require substantive judgment. An agent can help collect and organize the evidence, but the researcher must understand what that evidence establishes.
 
-This difference motivates the three modes in Part 1 and the project infrastructure in Part 2.
+This difference motivates the three modes in Part 1 and the project infrastructure in Part 2. AI now runs through research work: it cannot realistically be treated as wholly absent from the lecture's workflow. Particular projects can still restrict particular tools or materials; that is a local decision, not a general claim that all work must be exposed to AI.
 
 Verifiability means being able to inspect the inputs, transformations, and evidence and check the result. Validity concerns whether design and interpretation warrant the conclusion. The research process combines executable checks and substantive judgments. Matt Pocock’s diagnosing-bugs procedure requires a named command capable of exposing the failure before diagnosis begins. The transferable lesson is to establish a useful feedback signal before asking an agent to iterate. His teach material similarly preserves sources to make checking cheaper, while still requiring primary-source reading. These are attributed workflow examples, not empirical evidence that a particular research workflow improves outcomes.
 
 Source: preserved Pocock snapshot 959a8e9f1edc3adbe2f7e3054bb6fbefa6696260, docs/engineering/diagnosing-bugs.md and docs/productivity/teach.md; planning/14-csdp-benchmark.md.
 
 
-## 6. A claim we will return to
+## 6. An example research claim
 **06:30–08:00 · 01:30 · PDF page 6**
 
 Read the historical sentence and its two citations. It claimed that studies of unilateral policymaking showed that citizens penalized executive action relative to legislative action.
@@ -66,40 +66,52 @@ Evidence: NWO Paper 2, parent of manuscript commit `75366c6`, `sections/frontmat
 Introduce Part 1 as three modes of AI engagement. They are choices about the role of human cognition, not a sequence in which collaboration is automatically more advanced.
 
 ## 8. Three modes of AI engagement
-**08:15–10:00 · 01:45 · PDF page 8**
+**08:15–09:15 · 01:00 · PDF page 8**
 
-Automate work that is routine and gains little from your personal attention. Protect selected activities when doing the work develops or demonstrates the understanding being learned or assessed. Collaborate when human judgment and AI capability both matter.
+Automate work that is routine and gains little from your personal attention. Protect selected activities when doing the work builds the understanding and judgment needed to stand behind it. Collaborate when human judgment and AI capability both matter.
 
-The examples clarify the boundary. Scheduling and formatting are routine. Close reading and explaining a method can be the point of an educational task. Comparing sources or analysing data can combine machine reach with a researcher’s substantive judgment.
-
-The same activity may belong in different modes for different people or purposes. An experienced researcher may collaborate on work that a student needs to practise directly.
+The same activity can move between modes as its purpose changes. The framework is for research work throughout, not a general policy requiring total exclusion of AI.
 
 ## 9. Hand off routine work
-**10:00–10:20 · 00:20 · PDF page 9**
+**09:15–09:30 · 00:15 · PDF page 9**
 
 State the automation position confidently: hand off routine work. Efficiency is the goal.
 
 ## 10. Save time and attention
-**10:20–11:30 · 01:10 · PDF page 10**
+**09:30–10:20 · 00:50 · PDF page 10**
 
-Use the four rows as ordinary examples: schedule meetings and reminders; track tasks, milestones, and deadlines; file and organize project materials; format references, tables, slides, and documents.
-
-These tasks still need clear instructions, but performing them personally contributes little to the substantive research or learning objective. Automate them extensively and use the saved attention elsewhere.
+Use the four rows as ordinary examples: schedule meetings and reminders; track tasks, milestones, and deadlines; file and organize project materials; format references, tables, slides, and documents. These tasks still need clear instructions, but doing them personally contributes little to the substantive objective.
 
 ## 11. Preserve the work that builds understanding
-**11:30–11:50 · 00:20 · PDF page 11**
+**10:20–10:35 · 00:15 · PDF page 11**
 
-State the principle firmly: protect the work through which understanding and judgment are built or demonstrated. This is a principle for selecting activities, not a categorical ban on AI in teaching, reading, or writing.
+Protect the work through which the researcher builds or demonstrates understanding and judgment. This concerns the capability the work develops, rather than a rule about teaching or a categorical ban on AI.
 
-## 12. Protect selected steps that build understanding
-**11:50–13:20 · 01:30 · PDF page 12**
+## 12. Protect learning and judgment
+**10:35–11:35 · 01:00 · PDF page 12**
 
-Use interpretation as the example. A learner marks the passages that matter, states what the author is claiming, connects evidence to a conclusion, and explains the choices and revisions.
+Separate the quality of a product from the capability of the person responsible for it. Ask both questions on the slide: what can we produce with AI, and what can we understand, judge, and do ourselves? Assistance can improve a product while leaving the underlying capability untested or undeveloped.
 
-Assistance may support the process, but it should not let the learner bypass the practice that the task is meant to develop. Visible intermediate work also gives a teacher something more informative to assess than a polished final answer alone.
+## 13. Performance and learning need different evidence
+**11:35–13:05 · 01:30 · PDF page 13**
 
-## 13. AI assistance and later unaided review
-**13:20–15:50 · 02:30 · PDF page 13**
+Read the three-study table by what was measured and when. Autor separates 90-day drafting with assistance from unaided redlining. Bastani separates assisted practice from the subsequent unaided mathematics exam. Bassner's 90-minute programming experiment measures exercise performance and conceptual learning separately; improved exercise results did not establish greater knowledge gains or code comprehension. This is a selected comparison, not a systematic review or a pooled effect estimate. A better assisted product does not establish retained understanding. A null estimate does not establish equivalence. Do not compare effect magnitudes across standard-deviation units and percentage points.
+
+**Evidence:** AUT Tables 4 and 6; BAS Table 1; BASS primary abstract; figure provenance below. The broader leads in `planning/09-evidence-protect.md` are not all newly audited here. The word learning refers to each study's actual assessment, not a uniform outcome shared across studies.
+
+## 14. What might protect learning?
+**13:05–14:20 · 01:15 · PDF page 14**
+
+Relevant prior knowledge is specific to the task. Shen and Tamkin's experiment recruited people with Python experience who had never used the Trio library being tested. Their preprint reports lower subsequent quiz performance with AI assistance. This was an Anthropic-affiliated study; identify that affiliation and its preprint status. The study's observed interaction patterns were not themselves randomly assigned, so avoid turning them into proven instructional prescriptions.
+
+Melumad and Yun compare learning from LLM syntheses with web search. Across seven experiments they examine reported depth of learning and the substance and reception of advice participants subsequently produced. The reported-learning measures are not a direct test of long-term retention. Use the slide's question: what do we learn from a synthesis, and what requires engaging with the sources? These findings motivate keeping active engagement with sources in view; they do not test this lecture's research-repo workflow or establish a universal rule for graduate researchers.
+
+Explain why general seniority differs from familiarity with a new task. Then distinguish a participant's report of learning from the observable qualities of the advice produced. The application to protected reading and research judgment is the lecturer's inference. For the main figures, retain the separate qualifications: Autor's junior result is not average decline; Bastani's tutor did not establish a learning gain; neither plotted study measures graduate research skills or follows participants beyond three months.
+
+**Evidence:** SHEN §4.3 and §5.2; MY abstract and main results.
+
+## 15. AI assistance and later unaided review
+**14:20–16:35 · 02:15 · PDF page 15**
 
 Autor and colleagues studied 133 practising patent lawyers at 11 US firms over three months. Junior means fewer than seven years of experience; senior means seven or more. On the left, lawyers drafted a patent with AI available. On the right, they later reviewed and revised a patent without AI. The paper calls that task redlining.
 
@@ -109,8 +121,8 @@ Describe the junior result as no clear average effect. Do not infer either avera
 
 Evidence: Autor et al. (2026), NBER Working Paper 35720, Tables 4 and 6, column 4; Figure 3 and Table 7 for dispersion.
 
-## 14. Practice with AI, then an exam without it
-**15:50–18:20 · 02:30 · PDF page 14**
+## 16. Practice with AI, then an exam without it
+**16:35–18:50 · 02:15 · PDF page 16**
 
 Bastani and colleagues studied high-school mathematics in Turkey. GPT Base provided unrestricted assistance. GPT Tutor provided guided assistance designed to support learning. Both groups performed better than the no-AI control during assisted practice.
 
@@ -120,43 +132,48 @@ Keep the outcomes separate: assisted practice and the later unaided exam are not
 
 Evidence: Bastani et al. (2025), PNAS, Table 1; Bassner et al. (2026), *Computers and Education: Artificial Intelligence* 10, 100537.
 
-## 15. Combine human judgment with machine capability
-**18:20–18:40 · 00:20 · PDF page 15**
+## 17. Combine human judgment with machine capability
+**18:50–19:05 · 00:15 · PDF page 17**
 
-Introduce collaboration as the broad category in which machine capability changes the scale, speed, or form of the work while the human retains responsibility for substantive decisions. Reach is the goal.
+Introduce collaboration as the broad category in which machine capability changes the scale, speed, or form of the work while the human retains responsibility for substantive decisions. Ethical machine augmentation is the goal.
 
-## 16. Collaboration across research and teaching
-**18:40–20:10 · 01:30 · PDF page 16**
+## 18. Collaboration across research and teaching
+**19:05–20:05 · 01:00 · PDF page 18**
 
 Collaboration can operate throughout research and teaching. An agent can retrieve literature and compare passages, organize data and help write or test code, assist with visualisation, and help structure or revise writing. In supervision, it can organize feedback after the teacher has read and evaluated the work.
 
 The researcher or teacher retains the substantive decisions: which sources matter, whether an analysis answers the question, what a draft should claim, and what judgment feedback should express.
 
-## 17. How hard is the task, and how checkable?
-**20:10–23:00 · 02:50 · PDF page 17**
+## 19. How hard is the task, and how checkable?
+**20:05–21:45 · 01:40 · PDF page 19**
 
-The horizontal axis runs from subjective to objective verification; complexity runs from easy at the bottom to hard at the top. Kenny places Pair Programming at hard/subjective, Planning Commission at hard/objective, Review Board at easy/subjective, and Autopilot at easy/objective. Explain the four models using who plans, acts, and checks; the full role table is retained in the appendix.
+The horizontal axis runs from subjective to objective verification; complexity runs from easy at the bottom to hard at the top. Kenny places Pair Programming at hard/subjective, Planning Commission at hard/objective, Review Board at easy/subjective, and Autopilot at easy/objective.
 
 The modes answer what kind of engagement a task deserves. This grid helps decide how closely to supervise it. A task can become more checkable when it gains a specification, preserved sources, diagnostic checks, or executable comparisons. That does not make an educational task automatically appropriate to delegate: students may still need to practise it themselves. Human responsibility remains in every quadrant.
 
 Credit Christopher Kenny’s CSDP presentation, page 16, which attributes the grid to Colin Swaney’s Spring 2026 Claude Overload DDSS workshop. The public workshop repository has demonstration outlines; a slide deck was not publicly located. Do not claim we independently recovered Swaney’s original quadrant.
 
+## 20. Four ways to organize collaboration
+**21:45–23:00 · 01:15 · PDF page 20**
+
+The role table makes the grid concrete. Explain who plans, acts, and checks in each arrangement; ultimate responsibility remains with the researcher. The table describes collaboration arrangements, not a permission structure for handing all work to an agent.
+
 Transition: Part 2 shows how I build that checking environment around a research repository.
 
-## 18. How I use skills in research
-**23:00–23:15 · 00:15 · PDF page 18**
+## 21. How I use skills in research
+**23:00–23:15 · 00:15 · PDF page 21**
 
 Start with the source library and project files, then show the checks that operate on them. The repository is the shared foundation across sessions.
 
-## 19. What is a skill?
-**23:15–24:45 · 01:30 · PDF page 19**
+## 22. What is a skill?
+**23:15–24:45 · 01:30 · PDF page 22**
 
 A skill is a reusable written procedure, optionally supported by scripts, templates, and examples. State the standard once, improve it after use, and invoke it for a specific project. Show /oss:research-repo . in Claude Code and $research-repo . in Codex. The period means the current folder. The skill can scaffold a new project or review an existing one.
 
 In OSS v2.31 all skills are explicitly invoked. Explain context economics as loading the relevant specialist when needed; do not claim an independently measured token saving or that every other skill library behaves the same way. Source: planning/oss-2.31.0/, versioned skills and invocation metadata.
 
-## 20. A repository makes the work more checkable
-**24:45–27:15 · 02:30 · PDF page 20**
+## 23. A repository makes the work more checkable
+**24:45–27:15 · 02:30 · PDF page 23**
 
 A repository is the whole project folder. Its source knowledge base contains preserved originals, readable source text, and a bibliography linking cited identities to files. Analysis, drafts, instructions, and decision notes live alongside it. Derived notes and syntheses remain distinguishable from source evidence.
 
@@ -164,8 +181,8 @@ Show the paths from these shared files to named checks and then to researcher de
 
 Sources: research-repo in planning/oss-2.31.0/; planning/14-csdp-benchmark.md and 15-verifiability-and-deep-dive-context.md.
 
-## 21. One source, connected records
-**27:15–29:45 · 02:30 · PDF page 21**
+## 24. One source, connected records
+**27:15–29:45 · 02:30 · PDF page 24**
 
 Compare the authentic original-PDF abstract crop with the literal Markdown conversion. Use the first three sentences, reserving the source-check verdict for Part 3. Point to ChristensonKriner2017 as the link to the manuscript and bibliography; the full literal BibTeX record is in the appendix.
 
@@ -173,8 +190,8 @@ Intake identifies the work, preserves the original, converts it, inspects the co
 
 Evidence: overleaf/figures/foundation-v2-ck-abstract-original.png and its provenance; the retained Christenson–Kriner original and Markdown; historical source bibliography entry with DOI 10.1111/ajps.12262.
 
-## 22. Keep a history, and resume from it
-**29:45–31:15 · 01:30 · PDF page 22**
+## 25. Keep a history, and resume from it
+**29:45–31:15 · 01:30 · PDF page 25**
 
 Git records local changes; GitHub hosts shared history. Explain edit, inspect the diff, commit with an explanation, then push. A checkpoint makes work recoverable, but committed is not the same as verified.
 
@@ -182,29 +199,29 @@ At session close, finished records what changed and what was actually checked. A
 
 Sources: versioned sitrep and finished in planning/oss-2.31.0/.
 
-## 23. Check reference identity with citation-check
-**31:15–32:45 · 01:30 · PDF page 23**
+## 26. Check reference identity with citation-check
+**31:15–32:45 · 01:30 · PDF page 26**
 
 Show the named invocation and the existing two-reference result. Both references exist and their title, authors, journal, and pages match the DOI metadata. This is a scoped 16 September receipt, not a fresh full-bibliography audit. Citation-check also samples evidentiary use; its remit overlaps with fact-check.
 
 Evidence: planning/receipts-2026-09-16/audit-receipt.md and retained Crossref response. ReevesRogowski2016 resolves to 10.1086/683433; ChristensonKriner2017 to 10.1111/ajps.12262.
 
-## 24. Check claim support with fact-check
-**32:45–34:15 · 01:30 · PDF page 24**
+## 27. Check claim support with fact-check
+**32:45–34:15 · 01:30 · PDF page 27**
 
 Start from an exact manuscript sentence and its citation key, locate the source text, and inspect the relevant passage. The report records support, direction, scope, and limitations. The researcher reads the passage in context before accepting a proposed revision. Reserve the historical answer for Part 3.
 
 The source layer must be prepared. In the NWO project, derived .NOTE.md summaries cannot substitute for source evidence. A source existing is a different question from its supporting the claim. Source: versioned fact-check plus the scoped historical receipt.
 
-## 25. Build domain-specific checks into the process
-**34:15–35:45 · 01:30 · PDF page 25**
+## 28. Build domain-specific checks into the process
+**34:15–35:45 · 01:30 · PDF page 28**
 
 The conjoint suite illustrates the same logic across design, cleaning, reporting, technical appendices, and review. Machine-checkable conditions include expected profiles per task, one choice per task, and allowed factor levels. Research review asks whether the estimand, design, estimation, and interpretation fit the question. An AMCE is not automatically a majority preference.
 
 conjoint-design specifies the design contract; conjoint-cleaning guides a deterministic script and validation; conjoint-diagnostics reviews threats to inference and interpretation. These procedures prescribe and review checks; their existence is not evidence that a particular check ran, or that they supplied a bundled executor before v2.31. The appendix lists examples, not results of a completed conjoint audit. Sources: the three versioned conjoint skills.
 
-## 26. Review the manuscript before submission
-**35:45–37:45 · 02:00 · PDF page 26**
+## 29. Review the manuscript before submission
+**35:45–37:45 · 02:00 · PDF page 29**
 
 paper-review-lite checks argument, numbers, references, writing, figures, design reporting, preregistration, and the replication archive as applicable. Its default workflow has nine review dimensions and two cross-checkers; experimental dimensions may be not applicable to other designs. Explain the workflow rather than reading an agent roster.
 
@@ -212,8 +229,8 @@ Its Numbers reviewer can notice an abstract reporting 0.34 when the table report
 
 Source: versioned paper-review-lite, orientation and review specification. The numbers on this slide are illustrative, not findings from a real audit.
 
-## 27. When the documents agree and the result does not
-**37:45–40:45 · 03:00 · PDF page 27**
+## 30. When the documents agree and the result does not
+**37:45–40:45 · 03:00 · PDF page 30**
 
 This is illustrative data and a project-specific numerical check. There are seven positive observations among twenty-five, so the current analysis computes 0.28. The abstract and table both still report 0.31. Their internal agreement conceals the stale result.
 
@@ -221,8 +238,8 @@ Run the analysis, read its generated machine-readable result, and compare that r
 
 These are captured results from demos/verification/, not a live terminal demonstration, a real research estimate, or a built-in OSS value comparator. A pass establishes this specified numerical agreement, not the validity of the underlying research. The example implements the feedback-loop principle introduced with Pocock. Retained code, inputs, commands, output, and hashes make it reproducible.
 
-## 28. Reading and running answer different questions
-**40:45–43:00 · 02:15 · PDF page 28**
+## 31. Reading and running answer different questions
+**40:45–43:00 · 02:15 · PDF page 31**
 
 The v2.31 bundled verifier has two tiers. The static tier reads package conditions, including entry point, seed/session markers, dependency files, selected absolute-path and credential patterns, and data hashes. These are heuristics, not guarantees of portability or complete security checks.
 
@@ -232,8 +249,8 @@ With explicit authorization, the execution tier runs the master script in a temp
 
 The release adds a bundled replication-package verifier. The earlier zero-keyword audit does not demonstrate that no prior skill or agent ever executed research code. Optional spoken anecdote: the author reports discovering a duplicate skill menu by looking, while the old packaging test enforced the wrong invariant. This illustrates the need to examine what a passing test actually checks. Source: release capture and pinned script.
 
-## 29. Prepare a package another researcher can rerun
-**43:00–45:00 · 02:00 · PDF page 29**
+## 32. Prepare a package another researcher can rerun
+**43:00–45:00 · 02:00 · PDF page 32**
 
 The working repository and the publication package have related but different purposes. replication-package prepares or audits code, data or access instructions, a documented entry point, environment information, and the mapping from published figures/tables to producing scripts.
 
@@ -241,23 +258,23 @@ Credit Yusaku Horiuchi’s replication-package guide. The skill prepares a local
 
 Source: versioned replication-package and Horiuchi attribution. No NWO replication run is represented.
 
-## 30. Part 3 – One claim, checked against its source
+## 33. Part 3 – One claim, checked against its source
 
-**45:00–45:15 · 00:15 · PDF page 30**
+**45:00–45:15 · 00:15 · PDF page 33**
 
 Return to the question from the opening. This section combines a 16 September read-only check with an actual historical manuscript revision. It does not claim that today's skill invocation produced the August revision.
 
-## 31. An archived claim still needs the right evidence
+## 34. An archived claim still needs the right evidence
 
-**45:15–46:25 · 01:10 · PDF page 31**
+**45:15–46:25 · 01:10 · PDF page 34**
 
 Read the comparative claim again. It requires evidence comparing executive and legislative routes, not simply evidence that some respondents dislike executive power. Give the audience time to say what finding would establish that comparison. The full old sentence also qualified the claim with partisanship and policy agreement; retaining that qualification still does not establish the asserted route penalty.
 
 **Evidence:** Old text is in manuscript parent `e50d2788ae8df3d3de63e4e9d26be919d4dea971`, `sections/frontmatter/front_matter.tex`; correction is `75366c6ca9ecc96148acba4840a4853c73f47c43`, 27 August 2026. Exact diff: `planning/receipts-2026-09-16/historical-claim-diff.txt`.
 
-## 32. What the preserved passages support
+## 35. What the preserved passages support
 
-**46:25–49:20 · 02:55 · PDF page 32**
+**46:25–49:20 · 02:55 · PDF page 35**
 
 The 16 September check first established that both cited works exist and match their DOI records. Its preflight then located both per-source Markdown files. The next question is substantive support, which requires reading what the studies actually tested.
 
@@ -267,9 +284,9 @@ Read the displayed abstract clause with its surrounding qualification about part
 
 **Evidence:** 16 September scoped receipt `planning/receipts-2026-09-16/audit-receipt.md`; source conversions in NWO `sources/md/`; C&K original PDF pp. 10–12, Tables 4–5, Markdown table ranges 396–423 and 479–504 and interpretations 425, 467, 477, 506, 548; R&R survey items and findings, Markdown 114–127. Both DOIs checked via Crossref content negotiation; metadata retained next to receipt. Source-support status is UNSUPPORTED for the comparative claim, not a declaration that the underlying studies are invalid.
 
-## 33. The recorded revision narrows the claim
+## 36. The recorded revision narrows the claim
 
-**49:20–52:00 · 02:40 · PDF page 33**
+**49:20–52:00 · 02:40 · PDF page 36**
 
 Show the actual old clause, source clause, and revised clause. The historical revision separates generalized support for unilateral powers from judgments of specific unilateral acts. Christenson and Kriner are attached to the narrower latter claim. These excerpts are clauses from longer sentences; the historical diff preserves the surrounding material.
 
@@ -277,17 +294,17 @@ The point is the chain from question through evidence to a recorded decision. Th
 
 **Transition:** Return to the three choices the audience can take into their own work.
 
-## 34. What to take into your own work
+## 37. What to take into your own work
 
-**52:00–53:30 · 01:30 · PDF page 34**
+**52:00–53:30 · 01:30 · PDF page 37**
 
 Choose one routine task to automate, one capability to protect, and one question on which to collaborate. Classify by purpose, rather than assigning tools permanently to categories. The same paper can be filed automatically, read without assistance to develop an interpretation, and later compared with a draft through an agent-assisted procedure.
 
 For collaboration, make the procedure and evidence visible. Start with a bounded question and a result that can be checked against actual files or sources.
 
-## 35. Resources and discussion
+## 38. Resources and discussion
 
-**53:30–55:00 · 01:30 · PDF page 35**
+**53:30–55:00 · 01:30 · PDF page 38**
 
 Point to AI for Research for setup and worked examples, and Open Science Skills for reusable procedures. The browser capture is the actual deployed getting-started page. Leave these links visible for discussion. Installation is outside the main lecture; the Hub is the next step for someone who wants to try this in a project.
 
@@ -295,63 +312,37 @@ Point to AI for Research for setup and worked examples, and Open Science Skills 
 
 ## Appendix notes
 
-### 36. Source intake: what happens between the folders
+### 39. Source intake: what happens between the folders
 
-**Outside the 55-minute budget · PDF page 36**
+**Outside the 55-minute budget · PDF page 39**
 
 Explain naming and identity before conversion. The scaffold uses `sources/references.bib`; NWO uses `sources/references_master.bib`. Originals remain archival, while source text is convenient for searching and checking; consult the original when extraction is in doubt. `research-repo` creates the intake process; local `process-source` carries out intake, with `doc-to-markdown` supplying conversion options. Do not promise perfect conversion of tables, mathematics, or page locators. Keeping an original privately does not grant permission to redistribute it or its conversion.
 
 **Evidence:** RR §§3–7; doc-to-markdown; NWO conventions.
 
-### 37. When a source check is not ready
+### 40. When a source check is not ready
 
-**Outside the 55-minute budget · PDF page 37**
+**Outside the 55-minute budget · PDF page 40**
 
 The current fact-check skill requires a prepared per-source Markdown knowledge base and no unconverted source backlog. It treats coverage below roughly two-thirds of cited non-background works in scope as not ready. This is an operational threshold, not a statistical guarantee or permission to ignore the uncovered third. Citation-check runs first. Missing, ambiguous, or insufficient sources remain visible. NWO additionally prohibits treating `.NOTE.md` summaries as source evidence. A summary's silence does not show that the original contains no relevant passage. No fresh full-project readiness result is claimed.
 
 **Evidence:** FC §1 and §4–6; NWO AGENTS.md, Sources section. The skill can accept summaries in some settings but explicitly distinguishes their limits from faithful conversions; the local project rule is stricter.
 
-### 38. Document the use of AI
+### 41. Document the use of AI
 
-**Outside the 55-minute budget · PDF page 38**
+**Outside the 55-minute budget · PDF page 41**
 
 Ask what a reader needs to know to understand the assistance and inspect consequential decisions. Describe the task, tools and materials, human review, and limitations as relevant. This is the lecturer's discussion aid, not a universal disclosure template or a substitute for journal or institutional policy. The historical manuscript includes a Use of AI statement; its full model list is not reproduced. Absence of an AI record would not prove that a task was performed entirely without AI.
 
 **Evidence:** Historical manuscript and prior notes audit; author disclosure discussion. No current journal-policy claim is made.
 
-### 39. Performance and learning need different evidence
+### 42. Make the results reproducible by others
 
-**Outside the 55-minute budget · PDF page 39**
-
-Read the three-study table by what was measured and when. Autor separates 90-day drafting with assistance from unaided redlining. Bastani separates assisted practice from the subsequent unaided mathematics exam. Bassner's 90-minute programming experiment measures exercise performance and conceptual learning separately; improved exercise results did not establish greater knowledge gains or code comprehension. This is a selected comparison, not a systematic review or a pooled effect estimate. A better assisted product does not establish retained understanding. A null estimate does not establish equivalence. Do not compare effect magnitudes across standard-deviation units and percentage points.
-
-**Evidence:** AUT Tables 4 and 6; BAS Table 1; BASS primary abstract; figure provenance below. The broader leads in `planning/09-evidence-protect.md` are not all newly audited here. The word learning refers to each study's actual assessment, not a uniform outcome shared across studies.
-
-### 40. What might protect learning?
-
-**Outside the 55-minute budget · PDF page 40**
-
-Relevant prior knowledge is specific to the task. Shen and Tamkin's experiment recruited people with Python experience who had never used the Trio library being tested. Their preprint reports lower subsequent quiz performance with AI assistance. This was an Anthropic-affiliated study; identify that affiliation and its preprint status. The study's observed interaction patterns were not themselves randomly assigned, so avoid turning them into proven instructional prescriptions.
-
-Melumad and Yun compare learning from LLM syntheses with web search. Across seven experiments they examine reported depth of learning and the substance and reception of advice participants subsequently produced. The reported-learning measures are not a direct test of long-term retention. These findings motivate keeping active engagement with sources in view; they do not test this lecture's research-repo workflow or establish a universal rule for graduate researchers.
-
-**Walkthrough:** Explain why general seniority differs from familiarity with a new task. Then distinguish a participant's report of learning from the observable qualities of the advice produced. Bring the discussion back to what the task is intended to develop.
-
-**Evidence:** SHEN §4.3 and §5.2; MY abstract and main results. The application to protected reading and research judgment is the lecturer's inference. For the main figures, retain the separate qualifications: Autor's junior result is not average decline; Bastani's tutor did not establish a learning gain; neither plotted study measures graduate research skills or follows participants beyond three months.
-
-### 41. Make the results reproducible by others
-
-**Outside the 55-minute budget · PDF page 41**
+**Outside the 55-minute budget · PDF page 42**
 
 A research repository retains working sources, drafts, experiments, and decisions. A replication package is a curated release: README, entry script, environment, data or access instructions, and a mapping from reported outputs to producing code. An independent rerun is a separate test. The replication-package skill prepares and audits the handoff; it does not itself prove that a rerun succeeds or deposit the files. This appendix expands the companion skill introduced in Part 2 and distinguishes preparing a package from independently rerunning it.
 
 **Evidence:** OSS replication-package skill, adapted from Yusaku Horiuchi's replication-package guide. No replication audit of NWO is claimed.
-
-### 42. Four ways to organize collaboration
-
-**Outside the 55-minute budget · PDF page 42**
-
-The original role table complements the main quadrant. Explain who plans, acts, and checks; ultimate responsibility remains with the researcher. Kenny p.16, adapting Swaney.
 
 ### 43. Literal BibTeX record
 
@@ -373,7 +364,7 @@ Use design specifications and data invariants to support analysis, reporting, ap
 
 - **HIST:** Steven Denney's framework, examples, and project history in the lecture planning wiki. Hypothetical teaching examples remain hypothetical.
 - **RES:** [AI for Research](https://scdenney.github.io/ai-for-research/), local `README.md` and `docs/getting-started/index.html`; [Open Science Skills](https://github.com/scdenney/open-science-skills), its README and skill sources. Installation belongs on the Hub. Avoid stale skill counts or describing a skill as merely a command.
-- **KEN:** Christopher T. Kenny, *Agentic AI for Political Science Research*, 10 September 2026, CSDP / Data-Driven Social Science. Preserved local PDF: `planning/context-2026-09-17/local-sources/2026-09-10-csdp-ai.pdf`; foundations on slides 4–12, instructions and skills on 20–26, persistent knowledge on 31–32. The four delegation patterns retain their specific attribution. The revised introduction and other diagrams are original explanations, not repeated adaptations of that deck. See `planning/14-csdp-benchmark.md` for its source trail and comparison notes.
+- **KEN:** Christopher T. Kenny, *Agentic AI for Political Science Research*, 10 September 2026, CSDP / Data-Driven Social Science. Preserved local PDF: `planning/context-2026-09-17/local-sources/2026-09-10-csdp-ai.pdf`; foundations and the Part 1 collaboration grid, instructions and skills in Part 2, and persistent knowledge in the source-library discussion. The four delegation patterns retain their specific attribution. The revised introduction and other diagrams are original explanations, not repeated adaptations of that deck. See `planning/14-csdp-benchmark.md` for its source trail and comparison notes.
 - **RR, CC, FC, LR, RP:** `research-repo`, `citation-check`, `fact-check`, `literature-review`, `replication-package` under `/Users/scdenney/Documents/github/resources/open-science-skills/plugin/skills/`. A procedure's existence does not establish a successful run. RP acknowledges [Yusaku Horiuchi's guide](https://github.com/yhoriuchi/replication-package-guide).
 - **NWO / DEMO:** `/Users/scdenney/Documents/github/research/projects/nwo26-immigration-backlash`. Final-example provenance appears in the accuracy register. A new bounded read-only audit of the same project is recorded in planning/receipts-2026-09-16/.
 - **AUT:** Autor et al. (2026), *Does AI Assistance Enhance or Erode Expertise? Evidence from a Three-Month Field Experiment in Patent Drafting*, [NBER Working Paper 35720](https://www.nber.org/papers/w35720). [Author full text](https://shapingwork.mit.edu/wp-content/uploads/2026/09/Autor-et-al-Sept-2026.pdf). Working paper, not a published journal article.
@@ -404,7 +395,7 @@ The published inputs, table locators, intervals, downloaded-source hashes, and i
 
 ## Accuracy and presentation boundaries
 
-- Main PDF pages: 35 including the cover, three part dividers, and three mode transitions. Appendix pages: nine. Total: 44. Ordinary footer numbers: 1–37. Planned duration: 55 minutes; no timed rehearsal or live Zoom test is claimed.
+- Main PDF pages: 38 including the cover, three part dividers, and three mode transitions. Appendix pages: six. Total: 44. Ordinary footer numbers: 1–37. Planned duration: 55 minutes; no timed rehearsal or live Zoom test is claimed.
 - Agents are defined through available context, tools, and an iterative action loop. A browser interface can expose those capabilities. Project files are not automatically current context. A repository is an organised project folder with recorded versions; explain that term aloud when introducing the files.
 - The three modes are the author's framework. Delegation patterns answer a separate question about who plans, acts, and checks. Software also requires specifications, tests, evidence, and judgment; passing tests is not complete correctness.
 - Autor's junior results do not show average decline. The unaided task differs from the assisted task; greater dispersion is a separate result, not shown by the plotted mean intervals. Experience was not randomized. Bastani's tutor mitigated observed harm without establishing a learning advantage; Bassner qualifies any broader guardrail claim. Neither study establishes effects on graduate research skills.

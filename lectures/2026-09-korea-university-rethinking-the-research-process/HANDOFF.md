@@ -1,5 +1,16 @@
 # Korea University talk (18 September 2026) — Handoff
 
+## 2026-09-17 · Part One visual and interpretation follow-up
+_agent: codex_
+
+**Author feedback:** The labels and descriptions on printed slide 7 were not centered within their rows. The green conclusions beneath the two evidence plots also described fragments of the results instead of interpreting the plotted comparisons. Colon and semicolon constructions were unwanted in the slide prose.
+
+**Completed:** Replaced the top-anchored row text with shared midpoint anchors for both columns. Each label now centers against its description as a unit. Rewrote both green plot conclusions as concise interpretations of the assisted and later unaided results. Removed colon and semicolon constructions from the surrounding Part One prose and tightened the adjacent evidence table to retain clean row spacing. Preserved the author's concurrent Overleaf edits, including the revised order and Automate and Protect language.
+
+**Validation and delivery:** The combined 49-page deck compiles without an overfull box. Physical pages 10 and 13--15 were rendered and inspected at full size. Overleaf main was pushed and remote-verified at `e535faabdc22c5b3cbbd6cfded682be1ddd17d3d`. Local PDF SHA-256: `4dbf5da0985c0ccb3014ce443c5d9b7e60d90ae071238dc5857abfa22efa5030`. No website replacement or parent GitHub push.
+
+---
+
 ## 2026-09-17 · Research-pipeline bridge and Part 2/3 rebuild
 _agent: codex · Astra-led orchestrate with Sol and Terra implementation and independent Astra review_
 

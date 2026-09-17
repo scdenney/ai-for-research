@@ -34,12 +34,22 @@ jobs:
         working-directory: ai-for-research
         env:
           GH_TOKEN: ${{ github.token }}
+          SUMMARY: ${{ steps.sync.outputs.summary }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           BRANCH="sync-skills-${{ github.run_id }}"
           git checkout -b "$BRANCH"
           git add docs/skills/index.html
+          # A new category sets changed=true while leaving the page untouched:
+          # the script cannot draft a chapter, so it only reports. Without this
+          # guard the commit fails "nothing to commit" and the run goes red with
+          # an orphan branch, which is how 14 of them accumulated.
+          if git diff --cached --quiet; then
+            echo "Page unchanged; the summary needs hand work. Not opening a PR."
+            echo "$SUMMARY"
+            exit 0
+          fi
           git commit -m "Sync skills page with open-science-skills"
           git push origin "$BRANCH"
           gh pr create \

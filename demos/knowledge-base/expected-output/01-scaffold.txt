@@ -1,0 +1,27 @@
+What `/oss:research-repo .` leaves on disk (illustrative — the outward folders
+depend on the project archetype it detects).
+
+my-project/
+├── sources/
+│   ├── og/                 original PDFs and documents — gitignored
+│   ├── md/                 Markdown conversions — tracked in git
+│   ├── unprocessed/        drop zone for new files
+│   ├── references.bib      one entry per source
+│   └── README.md           the convention, written down
+├── scripts/
+│   └── convert-sources.sh  PDF and docx to Markdown
+├── .claude/
+│   └── commands/
+│       └── process-source.md   per-file intake command for this project
+├── CLAUDE.md               project conventions for coding agents
+├── AGENTS.md -> CLAUDE.md  symlink, so Codex reads the same file
+├── .gitignore
+└── .venv/                  python environment for the converter
+
+Then, once:
+
+  python3 -m venv .venv
+  .venv/bin/pip install --upgrade pip opendataloader-pdf
+
+The conversion backend needs Java 11 or newer. `pdfinfo` and `pdftotext`
+(poppler-utils) are what the script uses to spot an image-only scan.

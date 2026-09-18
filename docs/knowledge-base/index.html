@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build a Knowledge Base — AI for Research</title>
+<meta name="description" content="Turn a folder of badly named downloads into a source library an agent can read: the intake pipeline, what conversion quietly breaks, how to audit a project that grew without a convention, and what a knowledge base makes checkable.">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cobalt:#1F4E9B; --gold:#E0A526; --ochre:#8B5F10; --ink:#17171A;
+    --grey:#68686D; --paper:#F3EFE3; --paper-2:#ECE6D6; --line:#d9d2bf; --maxw:760px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --cobalt:#5485E0; --gold:#E8B23E; --ochre:#E8B23E; --ink:#EFE8D7;
+      --grey:#9b9ba3; --paper:#14161C; --paper-2:#1b1e26; --line:#2c3038;
+    }
+  }
+  *{box-sizing:border-box} html{scroll-behavior:smooth}
+  body{margin:0; background:var(--paper); color:var(--ink);
+    font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
+  a{color:var(--cobalt)}
+  a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--cobalt); outline-offset:3px}
+  .skip-link{position:fixed; top:10px; left:12px; z-index:100; padding:8px 12px; border-radius:7px; background:var(--ink); color:var(--paper); text-decoration:none; transform:translateY(-160%)}
+  .skip-link:focus{transform:translateY(0)}
+
+  .nav{position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:saturate(160%) blur(10px)}
+  .nav .row{max-width:var(--maxw); margin:0 auto; padding:13px 24px 14px; display:flex; align-items:center; justify-content:space-between; gap:18px; border-bottom:1px solid var(--line)}
+  .brand{display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit; white-space:nowrap}
+  .brand .mark{font-size:15px; letter-spacing:.26em; color:var(--cobalt)} .brand .mark b{color:var(--gold); font-weight:inherit}
+  .brand .name{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:21px; letter-spacing:.01em}
+  .topmenu{display:flex; align-items:center; gap:22px; font-size:15px; letter-spacing:.01em; flex-wrap:wrap; justify-content:flex-end}
+  .topmenu a{color:var(--grey); text-decoration:none; padding:4px 0}
+  .topmenu a:hover{color:var(--cobalt)}
+  .topmenu a.ext::after{content:" ↗"; font-size:.85em; opacity:.7}
+  .topmenu a[aria-current="page"]{color:var(--ink); box-shadow:inset 0 -2px 0 var(--gold)}
+  .home-link,.mobile-label{display:none}
+
+  header.hero{padding:46px 0 0; border-bottom:0}
+  header.hero .wrap{padding-bottom:22px; border-bottom:1px solid var(--line)}
+  .kicker{font:600 13px/1 -apple-system,sans-serif; letter-spacing:.16em; text-transform:uppercase; color:var(--grey); margin:0 0 14px}
+  .kicker a{color:inherit; text-decoration:none}
+  .kicker a:hover{color:var(--cobalt); text-decoration:underline}
+  .wave{font-size:26px; letter-spacing:.3em; margin:0 0 8px; color:var(--cobalt)} .wave b{color:var(--gold); font-weight:inherit}
+  h1{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:44px; line-height:1.08; margin:.08em 0 .3em; letter-spacing:-.01em}
+  .lede{font-family:"EB Garamond",Georgia,serif; font-size:22px; line-height:1.42; opacity:.92; margin:0}
+
+
+  main{padding:8px 0 40px}
+  main p{margin:1em 0}
+  main h2{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:30px; margin:1.5em 0 .35em; scroll-margin-top:108px}
+  h2 .tag{font:600 13px/1 -apple-system,sans-serif; letter-spacing:.09em; text-transform:uppercase; color:var(--gold); margin-left:.6em; vertical-align:middle}
+  strong{font-weight:650}
+  code{font:14px/1.5 Menlo,"SF Mono",ui-monospace,monospace; background:var(--paper-2); padding:.12em .4em; border-radius:4px}
+  pre{background:var(--paper-2); border:1px solid var(--line); border-radius:10px; padding:15px 18px; overflow:auto; margin:1em 0}
+  pre code{background:none; padding:0; font-size:13.5px; line-height:1.7}
+  .rule{border-left:3px solid var(--gold); background:var(--paper-2); border-radius:0 10px 10px 0; padding:13px 18px; margin:1.2em 0; font-size:17px}
+  .rule b{color:var(--ochre)}
+  .verdict{font:600 12px/1 -apple-system,sans-serif; letter-spacing:.05em; text-transform:uppercase; padding:.32em .55em; border-radius:5px; display:inline-block; white-space:nowrap}
+  .v-bad{background:#b22; color:#fff} .v-warn{background:var(--gold); color:#3a2a06} .v-ok{background:#2c7a4b; color:#fff}
+  table{border-collapse:collapse; width:100%; font-size:15px; margin:1em 0}
+  th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top}
+  th{background:var(--paper-2); font-size:12.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--grey)}
+  .tablewrap{overflow-x:auto; margin:1em 0}
+  .tablewrap table{margin:0; min-width:480px}
+  footer{color:var(--grey); font-size:14px; padding:52px 0 64px; text-align:center; border-top:1px solid var(--line)}
+  footer a{color:var(--cobalt); text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  .foot-links{margin:0; font-size:14.5px; line-height:1.45}
+  pre{position:relative}
+  .copy{position:absolute; top:8px; right:8px; display:inline-flex; align-items:center; border:1px solid var(--line); background:var(--paper); color:var(--grey); border-radius:6px; padding:5px 6px; cursor:pointer; opacity:.75; transition:opacity .12s, color .12s, border-color .12s}
+  .copy:hover{opacity:1; color:var(--cobalt); border-color:var(--cobalt)}
+  .copy.done{color:#2c7a4b; border-color:#2c7a4b; opacity:1}
+  .copy svg{display:block}
+  @media (max-width:700px){
+    .brand{display:none}
+    .nav .row{padding:10px 24px; gap:0}
+    .topmenu{width:100%; justify-content:space-between; gap:10px; flex-wrap:nowrap; font-size:14px}
+    .home-link,.mobile-label{display:inline}
+    .desktop-label{display:none}
+    header.hero{padding-top:32px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{transition-duration:.01ms!important; animation-duration:.01ms!important; animation-iteration-count:1!important}
+  }
+
+  /* --- knowledge-base additions --- */
+  figure.fig{margin:1.6em 0}
+  figure.fig img{display:block; width:100%; height:auto; border:1px solid var(--line); border-radius:10px; background:var(--paper-2)}
+  figure.fig figcaption{font-size:13.5px; color:var(--grey); margin-top:7px; line-height:1.5}
+  main h2 .tag{font:600 12px/1 -apple-system,sans-serif; letter-spacing:.09em; text-transform:uppercase; color:var(--gold); margin-left:9px; white-space:nowrap}
+  main ul{margin:1em 0; padding-left:1.25em} main li{margin:.5em 0}
+  .terms{margin:1.3em 0; padding:0; list-style:none}
+  .terms li{display:flex; gap:14px; align-items:baseline; padding:11px 2px; border-bottom:1px solid var(--line); margin:0}
+  .terms code{flex:0 0 auto; min-width:190px; background:none; padding:0; color:var(--cobalt); font-size:13.5px}
+  .terms span{flex:1}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<nav class="nav" aria-label="Primary"><div class="row">
+  <a class="brand" href="../">
+    <span class="mark">▁▂▃<b>▅</b><b>▂</b>▁</span>
+    <span class="name">AI for Research</span>
+  </a>
+  <div class="topmenu">
+    <a class="home-link" href="../">Home</a>
+    <a href="../getting-started/" aria-label="Getting started"><span class="desktop-label">Getting started</span><span class="mobile-label" aria-hidden="true">Start</span></a>
+    <a href="../demos/" aria-current="page">Demos</a>
+    <a href="../lectures/">Lectures</a>
+    <a href="../skills/">Skills</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <p class="kicker"><a href="../demos/">Demos</a> · Knowledge base</p>
+  <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
+  <h1>Build a Knowledge Base</h1>
+  <p class="lede">Turn a folder of downloads into a source library an agent can read, and that every later check can be run against.</p>
+</div></header>
+
+<main class="wrap" id="main">
+  <section id="motivation">
+    <h2>Motivation</h2>
+    <p>Ask an agent whether a source supports the claim you have attached to it and it needs the source. Not the citation, not your memory of the paper, the text. Most projects cannot supply that. The papers are in a downloads folder under names like <code>Download (3).pdf</code>, the bibliography was assembled at the end from whatever the reference manager had, and the reading happened in a conversation that has since been closed.</p>
+    <p>Two things go wrong from there. The first is that the work does not persist. Each session starts from nothing and you re-explain the project, or you do not and the agent proceeds on a version of it that it invented. The second is that there is nothing to check against. A claim check that cannot open the source has only two options, and both of them are guessing.</p>
+    <p>A knowledge base fixes both. The originals are preserved and identified, the readable conversions sit in version control where an agent and a colleague can both reach them, and the citation keys resolve to files that were actually read. The source library becomes the spine of the project, and the checks that matter grow from it.</p>
+    <figure class="fig">
+      <img src="../assets/knowledge-base/01-pile-to-library.svg" alt="On the left, four downloaded files with unusable names that an agent cannot read. An arrow labelled intake leads to the right, where the same sources sit in a library: originals kept local, Markdown conversions tracked in git, and a bibliography whose keys resolve to those files.">
+      <figcaption>The same four sources, before and after intake. Only one side of this survives the end of the session.</figcaption>
+    </figure>
+  </section>
+
+  <section id="what">
+    <h2>What a knowledge base is</h2>
+    <p>Four folders and one contract.</p>
+    <ul class="terms">
+      <li><code>sources/og/</code><span>The originals, exactly as acquired. Gitignored, for size and for copyright. You rarely read these directly, and they are the authority whenever a conversion is in doubt.</span></li>
+      <li><code>sources/md/</code><span>The Markdown conversions. Tracked in git. This is the part an agent reads and the part a <code>grep</code> searches.</span></li>
+      <li><code>sources/unprocessed/</code><span>The drop zone. New files land here and stay here until they have been identified, named, converted, and registered.</span></li>
+      <li><code>sources/references.bib</code><span>One entry per source, added at intake rather than in a batch at the end. The key has to be resolvable to its file by author and year, because that is how a checker maps a citation to a document.</span></li>
+    </ul>
+    <div class="rule"><b>The rule.</b> Read from <code>md/</code>, never from the PDF. Cite from <code>references.bib</code>. A key that does not resolve to a filed source is a citation nobody can check, including you.</div>
+    <figure class="fig">
+      <img src="../assets/knowledge-base/02-spine-and-contract.svg" alt="On the left, the folder layout of a research repository, with originals gitignored, Markdown conversions tracked, a drop zone, and a bibliography. On the right, the contract: a citation key resolves by author and year to a tracked Markdown file, which was converted at intake from an original kept on local disk.">
+      <figcaption>Everything else in the project grows outward from the spine. The chain on the right is what makes a citation checkable at all.</figcaption>
+    </figure>
+  </section>
+
+  <section id="setup">
+    <h2>Set up</h2>
+    <p>Install Claude Code and the skills first (see <a href="../getting-started/">Getting started</a>). Then, in the folder where the project will live:</p>
+    <pre><code>/oss:research-repo .</code></pre>
+    <p>The skill puts the folder under version control, writes the four parts above, adds a conversion script and a project-local <code>/process-source</code> command, and sets up the Python environment the converter needs. On an empty library the smoke test prints <code>Nothing new to convert.</code></p>
+    <p class="note">Converting PDFs needs Java 11 or newer for the extraction backend, and <code>poppler-utils</code> for the check that spots a scan. If the project already exists, the same command audits it instead of scaffolding over it. That is the <a href="#audit">section below</a>.</p>
+  </section>
+
+  <section id="intake">
+    <h2>Add the first source <span class="tag">the pipeline</span></h2>
+    <p>Intake is four decisions and one command.</p>
+    <p><strong>Drop.</strong> The file goes into <code>sources/unprocessed/</code> under whatever name it arrived with.</p>
+    <p><strong>Identify.</strong> Read enough of it to establish author, year, title, and venue. This is the step that cannot be skipped and cannot be automated away, because everything downstream inherits it.</p>
+    <p><strong>Rename.</strong> <code>author-year-slug</code>, lowercase, hyphens, up to three authors and then <code>firstauthor-etal</code>. <code>Download (3).pdf</code> becomes <code>ferreira-nair-2021-compulsory-voting.pdf</code>. The name is not housekeeping. It is what makes a citation key resolvable to a document later.</p>
+    <p><strong>Convert and register.</strong> Run the conversion, then add the bibliography entry.</p>
+    <pre><code>./scripts/convert-sources.sh</code></pre>
+    <pre><code>Converting ferreira-nair-2021-compulsory-voting.pdf...
+  NEEDS OCR (image-only): kowalski-2017-turnout-cascades.pdf
+Converting lindqvist-2019-civic-education-turnout.pdf...
+Converting osei-2020-social-trust.docx...
+Converted 3 file(s), 1 need OCR. Markdown in sources/md/</code></pre>
+    <p>The script only touches files that have no conversion yet, so re-running it is safe.</p>
+    <figure class="fig">
+      <img src="../assets/knowledge-base/03-intake-pipeline.svg" alt="The intake pipeline in five steps: drop, identify, rename, convert, register. Under each step, what it leaves on disk. A branch off the convert step shows an image-only scan being reported as needing OCR instead of being converted.">
+      <figcaption>What each step leaves on disk. The scan branches off because there is no text in it to extract.</figcaption>
+    </figure>
+  </section>
+
+  <section id="failures">
+    <h2>What goes wrong</h2>
+    <p>Four of the five below are planted in the demo on purpose. The flattened table is not planted. It is what the converter actually did.</p>
+    <div class="tablewrap"><table>
+      <tr><th>Symptom</th><th>What it means</th><th>What to do</th></tr>
+      <tr><td><code>NEEDS OCR (image-only)</code></td><td>The PDF is a photograph of a page. There is no text to extract.</td><td>Send it to <code>vlm-ocr</code>, or summarize it by hand. Do not leave it sitting in <code>og/</code>.</td></tr>
+      <tr><td>A table that reads as one run-on line</td><td>The extractor kept the numbers and lost the structure</td><td>Go back to the original for anything where layout carried the meaning</td></tr>
+      <tr><td>Headings where the author line should be</td><td>The <code>.docx</code> branch guessed at document structure</td><td>Fix the file, or know it is there when you read it</td></tr>
+      <tr><td>A conversion with no bibliography entry</td><td>Read, but not citable</td><td>Add the entry</td></tr>
+      <tr><td>An entry with no source anywhere</td><td>Cited, but unfiled</td><td>Acquire it, or move it to <code>missing.bib</code> with a note on why you could not</td></tr>
+    </table></div>
+    <p>The first one is the one to take seriously. Without the guard that catches it, the converter exits successfully and writes a few kilobytes of noise, and that file then looks exactly like a source that has been acquired, converted, filed, and read. A refusal is better than a silent success.</p>
+    <p>And a conversion that succeeded is still not a conversion that is correct. This table is in the original PDF:</p>
+    <div class="tablewrap"><table>
+      <tr><th>Outcome</th><th>Estimate</th><th>95% interval</th></tr>
+      <tr><td>Turnout (percentage points)</td><td>11.2</td><td>8.4 to 14.0</td></tr>
+      <tr><td>Knowledge index (standard deviations)</td><td>0.01</td><td>−0.06 to 0.08</td></tr>
+    </table></div>
+    <p>This is what came out the other side:</p>
+    <pre><code>### 3. Results Outcome Estimate 95% interval
+
+Turnout (percentage points) 11.2 8.4 to 14.0 Knowledge index (standard deviations) 0.01 −0.06 to 0.08</code></pre>
+    <p>The numbers survived. The structure did not. An agent reading that file can still find 11.2 and 0.01 and quote the sentences around them. It cannot reliably tell you which interval belongs to which outcome. Nothing in the run log says so. You find it by opening the file.</p>
+  </section>
+
+  <section id="audit">
+    <h2>Audit the project you already have</h2>
+    <p>Most researchers do not start clean. Point the same skill at an existing folder and it reports what is present, what is partial, and what is missing.</p>
+    <pre><code>/oss:research-repo path/to/project</code></pre>
+    <p>On the half-built project the demo ships, it should find two originals that were never converted, filenames that resolve to nobody, one conversion with no bibliography entry, and one entry with no source anywhere in the project.</p>
+    <p>Those last two are the same failure from opposite ends, and both directions are worth checking. A library drifts away from its bibliography as easily as a bibliography drifts away from its library.</p>
+  </section>
+
+  <section id="unlocks">
+    <h2>What this unlocks</h2>
+    <p>The knowledge base is the first of four links, and it is the one the others stand on.</p>
+    <div class="tablewrap"><table>
+      <tr><th>Link</th><th>Skill</th><th>The question it answers</th></tr>
+      <tr><td>Knowledge base</td><td><code>research-repo</code></td><td>Is the evidence preserved and linked?</td></tr>
+      <tr><td>Sources</td><td><code>citation-check</code><br><code>fact-check</code></td><td>Do identities resolve and claims match?</td></tr>
+      <tr><td>Manuscript</td><td><code>paper-review-lite</code></td><td>Does the paper agree with its own evidence?</td></tr>
+      <tr><td>Research artifact</td><td><code>replication-package</code><br><code>/oss:verify</code></td><td>Does the package run as specified?</td></tr>
+    </table></div>
+    <p>Each is bounded, and the bounds are worth stating plainly. <code>fact-check</code> refuses to start until roughly two thirds of the cited works are converted, which is the right behaviour and also a reminder that a thin library produces a thin check. <code>citation-check</code> needs Crossref and OpenAlex to confirm that a work exists, and reports <code>NOT CHECKED</code> rather than guessing when it cannot reach them. <code>paper-review-lite</code> reads what it is given, so it can catch an abstract reporting one number against a table reporting another, and it cannot catch both of them agreeing on a number the analysis no longer produces. <code>/oss:verify</code> checks that a replication package has the structure it claims and, with explicit permission, that its master script runs. It compares exit status and filenames. It does not compare values.</p>
+    <div class="rule">Together these improve <b>verifiability</b>. Another person can inspect the inputs, the transformations, and the evidence, and check what was done. They do not establish <b>validity</b>. Whether the question, the design, the measurement, and the interpretation warrant the conclusion is still yours to argue.</div>
+  </section>
+
+  <section id="by-hand">
+    <h2>Check it yourself</h2>
+    <ul>
+      <li>Delete a conversion and run the claim check. It should refuse on its pre-flight rather than answer from memory.</li>
+      <li>Rename a file so its author and year stop matching its key, then re-run the audit.</li>
+      <li>Add a source and skip the bibliography entry. Drift gets reported in both directions.</li>
+      <li>Open a conversion beside its original and compare the tables, not the prose.</li>
+      <li>Put the scan through OCR, then audit again and watch the orphan disappear.</li>
+    </ul>
+    <p>The demo project, the four inbox files, and every planted problem are in <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/knowledge-base">demos/knowledge-base</a>, with the exact commands in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/knowledge-base/prompts/run.md">prompts/run.md</a> and the expected result of each step beside them.</p>
+
+    <a class="next" href="../reference-check/">
+      <h3>Next: reference and source-claim checking</h3>
+      <p>With a knowledge base in place, check whether each cited work exists and resolves, then whether each source actually supports the claim it backs.</p>
+    </a>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p class="foot-links"><a href="https://github.com/scdenney/ai-for-research">Repository</a> · CC BY-NC 4.0 · <a href="https://scdenney.net">Steven Denney</a></p>
+</footer>
+
+<script>
+(function(){
+  var COPY='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  var CHECK='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  document.querySelectorAll('pre').forEach(function(pre){
+    var b=document.createElement('button');
+    b.type='button'; b.className='copy'; b.title='Copy'; b.setAttribute('aria-label','Copy'); b.innerHTML=COPY;
+    b.addEventListener('click',function(){
+      var code=pre.querySelector('code');
+      var text=(code?code.innerText:pre.innerText);
+      navigator.clipboard.writeText(text).then(function(){
+        b.innerHTML=CHECK; b.classList.add('done'); b.title='Copied';
+        setTimeout(function(){b.innerHTML=COPY; b.classList.remove('done'); b.title='Copy';},1400);
+      });
+    });
+    pre.appendChild(b);
+  });
+})();
+</script>
+</body>
+</html>

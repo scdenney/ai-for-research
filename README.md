@@ -15,12 +15,12 @@ ai-for-research/
 │   ├── getting-started/        #   setup walkthrough (Claude Code and Codex, via terminal)
 │   ├── skills/                 #   index of every Open Science Skills skill
 │   ├── reference-check/        #   walkthrough for the reference-check demo
-│   ├── orchestration-lab/      #   walkthrough for the orchestration-lab demo
 │   ├── talk-to-your-terminal/  #   working in the terminal with an agent
 │   └── lectures/               #   the lectures page
 ├── demos/                      # self-contained projects you can clone and run
 │   ├── reference-check/        #   reference + source-claim checking
-│   └── orchestration-lab/      #   four ways of running frontier models, scored
+│   └── orchestration-lab/      #   draft: four ways of running frontier models, scored
+├── drafts/                     # unpublished pages, not part of the site
 └── lectures/                   # slide decks and notes from talks and workshops
 ```
 
@@ -49,12 +49,17 @@ Every skill in the toolkit, indexed with a plain-language explanation of what it
 | Demo | What it teaches |
 |------|-----------------|
 | [**reference-check**](demos/reference-check/) | Catch fabricated or malformed citations against your **reference list** (no knowledge base needed), then check whether each cited source actually supports the claim, against a small **knowledge base** of your sources. Runs on local files (no web sources needed) on a synthetic manuscript with planted errors. |
-| [**orchestration-lab**](demos/orchestration-lab/) | Compare four ways of running frontier models — a Fable lead (Fable 5, max effort), an Opus lead (Opus 4.8, ultracode; the models named are the ones the August 2026 runs used), a single advisor consult, and a Codex lead (gpt-5.6-sol) — on five real analyses at three rungs of difficulty (a conjoint study, an IV replication, a matching methods dispute), used identically on every brief and scored against pre-built answer keys. Each arm's exact model and effort settings are documented. Ships the captured runs (run logs, token counts, routing traces, figures) plus re-run instructions. Calls hosted models, not offline. |
 
 More to come. Each demo ships sample files, the exact prompts, expected output, and a note on where the human still has to verify.
 
+The **orchestration-lab** demo — four ways of running frontier models, scored against
+pre-built answer keys — is a draft. It is not published on the site; its source sits in
+[`demos/orchestration-lab/`](demos/orchestration-lab/) and the unpublished walkthrough in
+`drafts/orchestration-lab/`.
+
 ## Lectures
 
+- [**Rethinking the Research Process**](https://scdenney.github.io/ai-for-research/lectures/rethinking-the-research-process/) — how AI is changing research for students and professors; Korea University, 18 September 2026. Source, notes, and diagrams in [`lectures/2026-09-korea-university-rethinking-the-research-process/`](lectures/2026-09-korea-university-rethinking-the-research-process/).
 - [**No Previews in Pyongyang**](https://scdenney.github.io/assets/slides/no-previews-in-pyongyang/) — an LLM, embeddings, and AI-assisted workflows to build and validate a dictionary of reform language, then three decades of a North Korean economics journal.
 - [**From Pixels to Patterns**](https://scdenney.github.io/assets/slides/from-pixels-to-patterns/#1) — computer vision and language models in empirical social science and the digital humanities.
 

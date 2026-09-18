@@ -2,43 +2,45 @@ Captured from a real run. Absolute paths shortened to $PROJECT.
 
 $ ./scripts/convert-sources.sh
 Converting ferreira-nair-2021-compulsory-voting.pdf...
-Sep 17, 2026 3:16:06 PM org.opendataloader.pdf.processors.DocumentProcessor preprocessing
+Sep 18, 2026 2:16:51 PM org.opendataloader.pdf.processors.DocumentProcessor preprocessing
 INFO: File name: $PROJECT/sources/og/ferreira-nair-2021-compulsory-voting.pdf
-Sep 17, 2026 3:16:06 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
+Sep 18, 2026 2:16:51 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
 INFO: Number of pages: 2
-Sep 17, 2026 3:16:06 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
+Sep 18, 2026 2:16:51 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
 INFO: Author: Tomás Ferreira; Priya Nair
-Sep 17, 2026 3:16:06 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
+Sep 18, 2026 2:16:51 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
 INFO: Title: Does Compulsory Voting Make Better Citizens? Evidence from Staggered Provincial Reform
-Sep 17, 2026 3:16:06 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
+Sep 18, 2026 2:16:51 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
 INFO: Creation date: D:20260917151549+02'00'
-Sep 17, 2026 3:16:06 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
+Sep 18, 2026 2:16:51 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
 INFO: Modification date: null
-Sep 17, 2026 3:16:06 PM org.opendataloader.pdf.processors.DocumentProcessor processDocument
+Sep 18, 2026 2:16:51 PM org.opendataloader.pdf.processors.DocumentProcessor processDocument
 INFO: Processing 2 pages with 1 threads
-Sep 17, 2026 3:16:06 PM org.opendataloader.pdf.processors.LevelProcessor setLevels
+Sep 18, 2026 2:16:51 PM org.opendataloader.pdf.processors.LevelProcessor setLevels
 WARNING: List without detected level
-Sep 17, 2026 3:16:06 PM org.opendataloader.pdf.markdown.MarkdownGenerator writeToMarkdown
+Sep 18, 2026 2:16:51 PM org.opendataloader.pdf.markdown.MarkdownGenerator writeToMarkdown
 INFO: Created $PROJECT/sources/md//ferreira-nair-2021-compulsory-voting.md
   NEEDS OCR (image-only): kowalski-2017-turnout-cascades.pdf
 Converting lindqvist-2019-civic-education-turnout.pdf...
-Sep 17, 2026 3:16:07 PM org.opendataloader.pdf.processors.DocumentProcessor preprocessing
+Sep 18, 2026 2:16:52 PM org.opendataloader.pdf.processors.DocumentProcessor preprocessing
 INFO: File name: $PROJECT/sources/og/lindqvist-2019-civic-education-turnout.pdf
-Sep 17, 2026 3:16:07 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
+Sep 18, 2026 2:16:52 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
 INFO: Number of pages: 2
-Sep 17, 2026 3:16:07 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
+Sep 18, 2026 2:16:52 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
 INFO: Author: Mara Lindqvist
-Sep 17, 2026 3:16:07 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
+Sep 18, 2026 2:16:52 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
 INFO: Title: Civic Education and the Decay of a Turnout Effect
-Sep 17, 2026 3:16:07 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
+Sep 18, 2026 2:16:52 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
 INFO: Creation date: D:20260917151550+02'00'
-Sep 17, 2026 3:16:07 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
+Sep 18, 2026 2:16:52 PM org.opendataloader.pdf.processors.DocumentProcessor calculateDocumentInfo
 INFO: Modification date: null
-Sep 17, 2026 3:16:07 PM org.opendataloader.pdf.processors.DocumentProcessor processDocument
+Sep 18, 2026 2:16:52 PM org.opendataloader.pdf.processors.DocumentProcessor processDocument
 INFO: Processing 2 pages with 1 threads
-Sep 17, 2026 3:16:07 PM org.opendataloader.pdf.markdown.MarkdownGenerator writeToMarkdown
+Sep 18, 2026 2:16:52 PM org.opendataloader.pdf.markdown.MarkdownGenerator writeToMarkdown
 INFO: Created $PROJECT/sources/md//lindqvist-2019-civic-education-turnout.md
 Converting osei-2020-social-trust.docx...
+npm notice run npx
+npm notice run 'anydoc' $PROJECT/sources/og/osei-2020-social-trust.docx -o $PROJECT/sources/md/osei-2020-social-trust.md
 Converted 3 file(s), 1 need OCR. Markdown in $PROJECT/sources/md/
 
 $ ./scripts/convert-sources.sh          # run it again

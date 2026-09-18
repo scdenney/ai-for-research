@@ -147,7 +147,7 @@ cd ai-for-research/demos/reference-check</code></pre>
   <section id="claim-check">
     <h2>Source-claim check <span class="tag">needs a knowledge base</span></h2>
     <p>This is the deeper check, and unlike the reference check it has a prerequisite. Does the cited source actually support the claim it is attached to? To answer that, the tool has to read the source, so the sources have to be on disk first, as a small <strong>knowledge base</strong> of Markdown files in <code>sources/md/</code> (already built for this demo). Without one, the check refuses to run rather than guess.</p>
-    <p>The <a href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/research-repo/SKILL.md"><code>research-repo</code></a> skill builds that knowledge base for you, one Markdown file per source. When a source will not convert cleanly from PDF, such as a book or another hard-to-get work, write a short Markdown file that summarizes it faithfully. The checker reads that just as well.</p>
+    <p>The <a href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/research-repo/SKILL.md"><code>research-repo</code></a> skill builds that knowledge base for you, one Markdown file per source. When a source will not convert cleanly from PDF, such as a book or another hard-to-get work, write a short Markdown file that summarizes it faithfully. The checker reads that just as well. The <a href="../knowledge-base/">Build a knowledge base</a> demo shows the whole intake pipeline on four sample files.</p>
     <p>With the knowledge base in place, run:</p>
     <pre><code>/oss:fact-check sample-project/manuscript.md</code></pre>
     <p>On this project it flags:</p>

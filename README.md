@@ -14,10 +14,12 @@ ai-for-research/
 │   ├── index.html              #   landing page (getting started · demos · lectures · skills)
 │   ├── getting-started/        #   setup walkthrough (Claude Code and Codex, via terminal)
 │   ├── skills/                 #   index of every Open Science Skills skill
+│   ├── knowledge-base/         #   walkthrough for the knowledge-base demo
 │   ├── reference-check/        #   walkthrough for the reference-check demo
 │   ├── talk-to-your-terminal/  #   working in the terminal with an agent
 │   └── lectures/               #   the lectures page
 ├── demos/                      # self-contained projects you can clone and run
+│   ├── knowledge-base/         #   build a source library from a pile of downloads
 │   ├── reference-check/        #   reference + source-claim checking
 │   └── orchestration-lab/      #   draft: four ways of running frontier models, scored
 ├── drafts/                     # unpublished pages, not part of the site
@@ -48,6 +50,7 @@ Every skill in the toolkit, indexed with a plain-language explanation of what it
 
 | Demo | What it teaches |
 |------|-----------------|
+| [**knowledge-base**](demos/knowledge-base/) | Turn a folder of badly named downloads into a **source library** an agent can read: scaffold the spine with `research-repo`, run the intake pipeline on four files as they arrive (two unusable filenames, a `.docx`, an image-only scan), see what conversion quietly breaks, and audit a project that grew without a convention. Runs on local files, and builds the knowledge base the reference-check demo consumes. |
 | [**reference-check**](demos/reference-check/) | Catch fabricated or malformed citations against your **reference list** (no knowledge base needed), then check whether each cited source actually supports the claim, against a small **knowledge base** of your sources. Runs on local files (no web sources needed) on a synthetic manuscript with planted errors. |
 
 More to come. Each demo ships sample files, the exact prompts, expected output, and a note on where the human still has to verify.

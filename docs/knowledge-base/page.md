@@ -97,8 +97,8 @@ Intake is five steps, split between you, the agent, and a tool.
 
 **Drop.** You put the file into `sources/unprocessed/` under whatever name it arrived with.
 
-**Identify.** You read enough of it to establish author, year, title, and venue. This step
-cannot be skipped or automated away, because everything downstream inherits it.
+**Identify.** The agent reads enough of it to propose author, year, title, and venue. You
+confirm them. This step cannot be skipped, because everything downstream inherits it.
 
 **Rename.** The agent names and files it. `author-year-slug`, lowercase, hyphens, up to
 three authors and then `firstauthor-etal`. `Download (3).pdf` becomes

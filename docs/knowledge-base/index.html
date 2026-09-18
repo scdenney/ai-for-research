@@ -168,7 +168,7 @@
     <h2>Add the first source <span class="tag">the pipeline</span></h2>
     <p>Intake is five steps, split between you, the agent, and a tool.</p>
     <p><strong>Drop.</strong> You put the file into <code>sources/unprocessed/</code> under whatever name it arrived with.</p>
-    <p><strong>Identify.</strong> You read enough of it to establish author, year, title, and venue. This step cannot be skipped or automated away, because everything downstream inherits it.</p>
+    <p><strong>Identify.</strong> The agent reads enough of it to propose author, year, title, and venue. You confirm them. This step cannot be skipped, because everything downstream inherits it.</p>
     <p><strong>Rename.</strong> The agent names and files it. <code>author-year-slug</code>, lowercase, hyphens, up to three authors and then <code>firstauthor-etal</code>. <code>Download (3).pdf</code> becomes <code>ferreira-nair-2021-compulsory-voting.pdf</code>. The name is what makes a citation key resolvable to a document later.</p>
     <p><strong>Convert.</strong> A tool converts. You check the result.</p>
     <pre><code>./scripts/convert-sources.sh</code></pre>

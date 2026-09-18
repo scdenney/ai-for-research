@@ -53,7 +53,7 @@
 </g>
 <g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" font-weight="600" fill="#1F4E9B" text-anchor="middle">
   <text x="185" y="356">you choose</text>
-  <text x="491" y="356">you read</text>
+  <text x="491" y="356">agent reads, you check</text>
   <text x="797" y="356">agent names it</text>
   <text x="1103" y="356">tool, you check</text>
   <text x="1409" y="356">agent registers</text>

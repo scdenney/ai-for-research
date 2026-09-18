@@ -24,7 +24,8 @@ claude
 
 The skill puts the directory under version control if it is not already, writes
 `sources/og/`, `sources/md/`, `sources/unprocessed/`, `references.bib`, the conversion
-script, a `.gitignore` that keeps originals out of git, a `CLAUDE.md`, and a project-local
+script, a `.gitignore` that keeps originals local while their Markdown conversions stay
+tracked in git, a `CLAUDE.md`, and a project-local
 `/process-source` command. It then sets up the Python environment and smoke-tests the
 converter, which on an empty library prints `Nothing new to convert.`
 
@@ -117,6 +118,15 @@ check has something to read:
 
 Without one it refuses to run rather than guess, which is the behaviour you want. See
 [reference-check](../../reference-check/).
+
+Here is why a base you can read matters. In the lecture's own draft, the claim check read
+one sentence against both filed sources: "citizens penalize executive action relative to
+legislative action," cited to Reeves and Rogowski (2016) and Christenson and Kriner
+(2017). Neither source backs the sentence as written. Reeves and Rogowski report low
+generalized support for unilateral power, not a comparison between routes. Christenson
+and Kriner's route estimate is not significant. The check reported the claim unsupported.
+The researcher rewrote it as two narrower claims, each tied to the source that actually
+supports it. The check flagged the problem. The researcher decided what to write.
 
 ## Try breaking it
 

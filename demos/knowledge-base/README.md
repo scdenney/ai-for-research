@@ -13,6 +13,9 @@ You start with four files as they actually arrive — a browser download called
 scan with no text in it. You end with three readable sources, a bibliography whose keys
 resolve to files, and one source the converter refused to guess at.
 
+You choose what belongs. The agent identifies each file, names it, and files it. A tool
+converts it, and you check the result. The agent registers the bibliography entry.
+
 1. **Scaffold** the source spine, or audit the one you already have.
 2. **Drop** new files into `sources/unprocessed/`.
 3. **Identify** each one and rename it `author-year-slug`.

@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 620" width="1600" height="620" role="img" aria-label="The intake pipeline in five steps: drop, identify, rename, convert, register. Under each step, what it leaves on disk. A branch off the convert step shows an image-only scan being reported as needing OCR instead of being converted.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 700" width="1600" height="700" role="img" aria-label="The intake pipeline in five steps: drop, identify, rename, convert, register. Under each step, what it leaves on disk, and what you or the agent do at that step. A branch off the convert step shows an image-only scan being reported as needing OCR instead of being converted.">
 <defs>
   <marker id="a3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="strokeWidth">
     <path d="M0,0 L10,5 L0,10 z" fill="#1F4E9B"/>
   </marker>
 </defs>
-<rect width="1600" height="620" fill="#F3EFE3"/>
+<rect width="1600" height="700" fill="#F3EFE3"/>
 
 <text x="60" y="58" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="25" font-weight="600" letter-spacing="3.4" fill="#68686D">ONE SOURCE, FIVE STEPS</text>
 
@@ -47,17 +47,24 @@
 <g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" fill="#68686D" text-anchor="middle">
   <text x="185" y="322">it arrived</text>
   <text x="491" y="322">you read it</text>
-  <text x="797" y="322">now resolvable</text>
-  <text x="1103" y="322">now readable</text>
-  <text x="1409" y="322">now citable</text>
+  <text x="797" y="322">key can find it</text>
+  <text x="1103" y="322">text to read</text>
+  <text x="1409" y="322">ready to cite</text>
+</g>
+<g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" font-weight="600" fill="#1F4E9B" text-anchor="middle">
+  <text x="185" y="356">you choose</text>
+  <text x="491" y="356">you read</text>
+  <text x="797" y="356">agent names it</text>
+  <text x="1103" y="356">tool, you check</text>
+  <text x="1409" y="356">agent registers</text>
 </g>
 
-<line x1="1103" y1="346" x2="1103" y2="412" stroke="#8B5F10" stroke-width="3"/>
-<path d="M1095,404 L1103,418 L1111,404 z" fill="#8B5F10"/>
-<rect x="700" y="424" width="834" height="104" rx="10" fill="#ECE6D6" stroke="#8B5F10" stroke-width="2.5"/>
-<text x="732" y="466" font-family="Menlo,Consolas,monospace" font-size="22" fill="#8B5F10">NEEDS OCR (image-only): scan-0417.pdf</text>
-<text x="732" y="504" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="22" fill="#17171A">No text layer, so nothing is written. A refusal, not a silent success.</text>
+<line x1="1103" y1="386" x2="1103" y2="452" stroke="#8B5F10" stroke-width="3"/>
+<path d="M1095,444 L1103,458 L1111,444 z" fill="#8B5F10"/>
+<rect x="700" y="464" width="834" height="104" rx="10" fill="#ECE6D6" stroke="#8B5F10" stroke-width="2.5"/>
+<text x="732" y="506" font-family="Menlo,Consolas,monospace" font-size="22" fill="#8B5F10">NEEDS OCR (image-only): scan-0417.pdf</text>
+<text x="732" y="544" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="22" fill="#17171A">No text layer. Nothing is written. The tool refuses.</text>
 
-<line x1="60" y1="562" x2="1540" y2="562" stroke="#d9d2bf" stroke-width="2"/>
-<text x="60" y="600" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="24" fill="#68686D">Step 2 is the one that cannot be skipped. Everything downstream inherits the identity you give the file.</text>
+<line x1="60" y1="606" x2="1540" y2="606" stroke="#d9d2bf" stroke-width="2"/>
+<text x="60" y="644" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="24" fill="#68686D">Do not skip step 2. Every later step uses the name you give the file.</text>
 </svg>

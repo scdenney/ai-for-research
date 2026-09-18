@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 470" width="1600" height="470" role="img" aria-label="A claim from an archived draft, checked against two sources that were read in full. Neither supports the comparison as written. The researcher rewrote it as two narrower claims, one per source.">
+<defs>
+  <marker id="a4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L10,5 L0,10 z" fill="#1F4E9B"/>
+  </marker>
+</defs>
+<rect width="1600" height="470" fill="#F3EFE3"/>
+
+<text x="60" y="58" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="25" font-weight="600" letter-spacing="3.4" fill="#68686D">ONE CLAIM, TWO SOURCES</text>
+
+<g stroke="#1F4E9B" stroke-width="3.5" marker-end="url(#a4)">
+  <line x1="404" y1="217" x2="436" y2="217"/>
+  <line x1="784" y1="217" x2="816" y2="217"/>
+  <line x1="1164" y1="217" x2="1196" y2="217"/>
+</g>
+
+<rect x="60" y="92" width="340" height="250" rx="10" fill="#ECE6D6" stroke="#E0A526" stroke-width="3"/>
+<text x="84" y="132" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" letter-spacing="2" fill="#8B5F10">THE CLAIM</text>
+<text x="84" y="178" font-family="Georgia,serif" font-size="22" font-style="italic" fill="#17171A">&#8220;Citizens penalize executive</text>
+<text x="84" y="208" font-family="Georgia,serif" font-size="22" font-style="italic" fill="#17171A">action relative to</text>
+<text x="84" y="238" font-family="Georgia,serif" font-size="22" font-style="italic" fill="#17171A">legislative action&#8221;</text>
+<text x="84" y="300" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="18" fill="#68686D">archived draft, 2026</text>
+
+<rect x="440" y="92" width="340" height="250" rx="10" fill="#ECE6D6" stroke="#1F4E9B" stroke-width="3"/>
+<text x="464" y="132" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" letter-spacing="2" fill="#1F4E9B">TWO SOURCES READ</text>
+<text x="464" y="172" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="19" font-weight="600" fill="#17171A">Reeves and Rogowski 2016</text>
+<text x="464" y="198" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="19" fill="#17171A">low support for unilateral power</text>
+<text x="464" y="240" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="19" font-weight="600" fill="#17171A">Christenson and Kriner 2017</text>
+<text x="464" y="266" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="19" fill="#17171A">route effect not significant</text>
+
+<rect x="820" y="92" width="340" height="250" rx="10" fill="#ECE6D6" stroke="#8B5F10" stroke-width="3"/>
+<text x="844" y="132" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" letter-spacing="2" fill="#8B5F10">VERDICT</text>
+<text x="844" y="195" font-family="Georgia,serif" font-size="30" fill="#8B5F10">Not supported</text>
+<text x="844" y="232" font-family="Georgia,serif" font-size="24" fill="#17171A">as written</text>
+<text x="844" y="300" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="18" fill="#68686D">the studies are not at fault</text>
+
+<rect x="1200" y="92" width="340" height="250" rx="10" fill="#ECE6D6" stroke="#1F4E9B" stroke-width="3"/>
+<text x="1224" y="132" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" letter-spacing="2" fill="#1F4E9B">THE REVISION</text>
+<text x="1224" y="172" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="19" fill="#17171A">Low general support for</text>
+<text x="1224" y="198" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="19" fill="#17171A">unilateral powers (R&amp;R)</text>
+<text x="1224" y="240" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="19" fill="#17171A">Specific acts judged by</text>
+<text x="1224" y="266" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="19" fill="#17171A">agreement with them (C&amp;K)</text>
+
+<line x1="60" y1="392" x2="1540" y2="392" stroke="#d9d2bf" stroke-width="2"/>
+<text x="60" y="432" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="24" fill="#68686D">The check reported. The researcher chose the revision.</text>
+</svg>

@@ -150,6 +150,13 @@ exactly like a source that has been acquired, converted, filed, and read.
 Reading pixels is a separate job for a separate skill. Send the scan to `/oss:vlm-ocr`
 when you want it, or leave it where it is and let the audit keep reporting it.
 
+Extraction produces one more thing when a paper has figures in it. The images come out as
+files in a sibling folder named `<source>_images/`, and the Markdown links to them by
+relative path, so a figure stays with the text that refers to it. Both get committed
+together. None of the four sources here have figures, so this run produces no such
+folder, but in a real library it is the common case: of the 137 conversions in the Open
+Science Skills repository's own source library, 91 have an images folder beside them.
+
 Now the part that reports nothing at all. **Did the converter keep the table's rows and
 columns?** This table is on page 2 of the Ferreira and Nair PDF:
 

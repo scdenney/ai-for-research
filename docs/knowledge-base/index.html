@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Build a Knowledge Base — AI for Research</title>
-<meta name="description" content="Turn a folder of badly named downloads into a source library an agent can read: the intake pipeline, what conversion quietly breaks, how to audit a project that grew without a convention, and what a knowledge base makes checkable.">
+<meta name="description" content="Run an agent over four files as they actually arrive, and end up with a source library later checks can read: the intake pipeline, the table the converter quietly breaks, an audit of a project that grew without a convention, and why a research library is built differently from a personal one.">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -123,146 +123,184 @@
   <p class="kicker"><a href="../demos/">Demos</a> · Knowledge base</p>
   <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
   <h1>Build a Knowledge Base</h1>
-  <p class="lede">Turn a folder of downloads into a source library an agent can read, and that every later check can be run against.</p>
+  <p class="lede">Run an agent over four files as they actually arrive, and end up with a source library that later checks can be run against.</p>
 </div></header>
 
 <main class="wrap" id="main">
-  <section id="motivation">
-    <h2>Motivation</h2>
-    <p>Ask an agent whether a source supports a claim and it needs the source. Not the citation, not your memory of the paper, the text itself. Most projects cannot supply that. The papers sit in a downloads folder as <code>Download (3).pdf</code>, the bibliography was assembled at the end, and the reading happened in a conversation that has since closed.</p>
-    <p>Two things go wrong from there. The work does not persist. Each session starts from nothing, and you either re-explain the project or the agent proceeds on a version it invented. And there is nothing to check against. A claim check that cannot open the source can only guess.</p>
-    <p>The fix is to move the source material out of the conversation and into files. Readable files an agent can search, read, update, and cite, and that are still there when the session ends. That move is close to what Andrej Karpathy has called an LLM wiki, though the setup here is not the same. Persistence does not make the contents correct. It makes them available for inspection and revision.</p>
-    <p>The lecture's advice for its collaborate mode was to build a shared research workspace and check its sources and outputs. What a person needs to review, rather than leave to an agent, follows from the task and the checks available for it. A knowledge base is what makes a workspace checkable.</p>
-    <figure class="fig">
-      <img src="../assets/knowledge-base/01-pile-to-library.svg" alt="On the left, four downloaded files with unusable names that an agent cannot read. An arrow labelled intake leads to the right, where the same sources sit in a library: originals kept local, Markdown conversions tracked in git, and a bibliography whose keys resolve to those files.">
-      <figcaption>The same four sources before and after intake. When the session ends, only the files remain.</figcaption>
-    </figure>
+  <section id="what-this-is">
+    <h2>What this demonstrates</h2>
+    <p>You are given four files in the state research materials usually reach you in. Two PDFs under names a browser and a publisher chose, a Word document, and a photograph of a page. You will have an agent identify each one, file it, and convert it, and then you will check what the conversion actually did.</p>
+    <p>The run produces three readable Markdown files and a bibliography whose keys resolve to them. It refuses the scan, which has no text in it. And it quietly damages a table in one of the PDFs without reporting any failure, which is the part worth your attention. Then you point the same skill at a second project that grew without a convention, and read what it finds.</p>
+    <p>The sources are invented, and so are their authors and journals. The conversion problems are real.</p>
+    <p><strong>What this run produces</strong></p>
+    <div class="tablewrap"><table>
+      <tr><th>You need</th><th>You do</th><th>You end up inspecting</th></tr>
+      <tr><td>Claude Code and the skills (<a href="../getting-started/">Getting started</a>), Java 11 or newer, <code>poppler-utils</code></td><td>Scaffold a project, file four sources, convert them, audit a second project</td><td>Three conversions, one refused scan, one damaged table, four audit findings</td></tr>
+    </table></div>
   </section>
 
-  <section id="what">
-    <h2>What a knowledge base is</h2>
-    <p>A folder of PDFs is not a knowledge base by default. A new project folder usually has scattered files, drafts with unclear provenance, and no shared naming rule. A working one has readable source files, stable links to source identity, and instructions for its own upkeep. That structure has to be built and maintained on purpose. Four folders and one contract.</p>
-    <ul class="terms">
-      <li><code>sources/og/</code><span>The originals, exactly as acquired. Gitignored, for size and for copyright. The authority whenever a conversion is in doubt.</span></li>
-      <li><code>sources/md/</code><span>The Markdown conversions. Tracked in git. This is the part an agent reads and the part a <code>grep</code> searches.</span></li>
-      <li><code>sources/unprocessed/</code><span>The drop zone. Files land here and stay until they have been identified, named, converted, and registered.</span></li>
-      <li><code>sources/references.bib</code><span>One entry per source, added at intake rather than in a batch at the end. The key has to resolve to its file by author and year, because that is how a checker maps a citation to a document.</span></li>
-    </ul>
-    <p>Everything else in the project, the analysis, the manuscript, the replication package, grows out from these four. Git keeps the changes recoverable and attributable across sessions.</p>
-    <div class="rule"><b>The rule.</b> Read from <code>md/</code>, never from the PDF. Cite from <code>references.bib</code>. A key that does not resolve to a filed source is a citation nobody can check, including you.</div>
-    <figure class="fig">
-      <img src="../assets/knowledge-base/02-spine-and-contract.svg" alt="On the left, the folder layout of a research repository, with originals gitignored, Markdown conversions tracked, a drop zone, and a bibliography. On the right, the contract: a citation key resolves by author and year to a tracked Markdown file, which was converted at intake from an original kept on local disk.">
-      <figcaption>Everything else in the project grows outward from the spine. The chain on the right is what makes a citation checkable at all.</figcaption>
-    </figure>
+  <section id="get">
+    <h2>1. Get the files</h2>
+    <pre><code>git clone https://github.com/scdenney/ai-for-research.git
+mkdir -p ~/kb-demo && cd ~/kb-demo
+claude</code></pre>
+    <p>Work in the empty folder, not in the clone. The four files you will use are in <code>ai-for-research/demos/knowledge-base/inbox/</code>.</p>
   </section>
 
   <section id="setup">
-    <h2>Set up</h2>
-    <p>Install Claude Code and the skills first (see <a href="../getting-started/">Getting started</a>). A skill is a stored procedure for a task you expect to do again. It holds instructions, and often scripts, templates, and examples. Invoking one loads that procedure for the task at hand. The agent then works against the repository, and you inspect what it did. Then, in the folder where the project will live:</p>
+    <h2>2. Create the project</h2>
+    <p><strong>Researcher.</strong> In the new folder:</p>
     <pre><code>/oss:research-repo .</code></pre>
-    <p>The skill puts the folder under version control, writes the four parts above, adds a conversion script and a project-local <code>/process-source</code> command, and sets up the Python environment the converter needs. On an empty library the smoke test prints <code>Nothing new to convert.</code></p>
-    <p class="note">Converting PDFs needs Java 11 or newer for the extraction backend, and <code>poppler-utils</code> for the check that spots a scan. If the project already exists, the same command audits it instead of scaffolding over it. That is the <a href="#audit">section below</a>.</p>
-  </section>
-
-  <section id="intake">
-    <h2>Add the first source <span class="tag">the pipeline</span></h2>
-    <p>Intake is five steps, split between you, the agent, and a tool.</p>
-    <p><strong>Drop.</strong> You put the file into <code>sources/unprocessed/</code> under whatever name it arrived with.</p>
-    <p><strong>Identify.</strong> The agent reads enough of it to propose author, year, title, and venue. You confirm them. This step cannot be skipped, because everything downstream inherits it.</p>
-    <p><strong>Rename.</strong> The agent names and files it. <code>author-year-slug</code>, lowercase, hyphens, up to three authors and then <code>firstauthor-etal</code>. <code>Download (3).pdf</code> becomes <code>ferreira-nair-2021-compulsory-voting.pdf</code>. The name is what makes a citation key resolvable to a document later.</p>
-    <p><strong>Convert.</strong> A tool converts. You check the result.</p>
-    <pre><code>./scripts/convert-sources.sh</code></pre>
-    <pre><code>Converting ferreira-nair-2021-compulsory-voting.pdf...
-  NEEDS OCR (image-only): kowalski-2017-turnout-cascades.pdf
-Converting lindqvist-2019-civic-education-turnout.pdf...
-Converting osei-2020-social-trust.docx...
-Converted 3 file(s), 1 need OCR. Markdown in sources/md/</code></pre>
-    <p>The script only touches files with no conversion yet, so re-running it is safe. Figures extracted from a PDF go into a separate image folder, linked by path.</p>
-    <p><strong>Register.</strong> The agent extracts the candidate metadata, verifies it, and adds the bibliography entry.</p>
+    <p>A skill is a stored procedure. Invoking one loads its instructions for this task, and the agent then works against this folder while you inspect what it did.</p>
+    <p>What it writes is a source library with four parts. Three directories and one file:</p>
+    <ul class="terms">
+      <li><code>sources/og/</code><span>the originals, exactly as acquired. Gitignored, for size and for copyright. The authority whenever a conversion is in doubt.</span></li>
+      <li><code>sources/md/</code><span>the conversions. Tracked in git. This is what an agent reads and what a <code>grep</code> searches.</span></li>
+      <li><code>sources/unprocessed/</code><span>the drop zone. Files wait here until they are identified, named, converted, and registered.</span></li>
+      <li><code>sources/references.bib</code><span>one entry per source, written at intake rather than in a batch at the end. The key has to resolve to its file by author and year, because that is how a checker maps a citation to a document.</span></li>
+    </ul>
+    <p>It also writes a conversion script, a project-local <code>/process-source</code> command, and a <code>CLAUDE.md</code> with <code>AGENTS.md</code> symlinked to it, so a second agent family reads the same conventions.</p>
+    <div class="rule"><b>The rule.</b> Search the Markdown. Check any doubtful passage, table, or figure against the original. Cite from <code>references.bib</code>. A key that does not resolve to a filed source is a citation nobody can check, including you.</div>
     <figure class="fig">
-      <img src="../assets/knowledge-base/03-intake-pipeline.svg" alt="The intake pipeline in five steps: drop, identify, rename, convert, register. Under each step, what it leaves on disk. A branch off the convert step shows an image-only scan being reported as needing OCR instead of being converted.">
-      <figcaption>What each step leaves on disk, and who does it. The scan branches off because there is no text in it to extract.</figcaption>
+      <img src="../assets/knowledge-base/02-spine-and-contract.svg" alt="On the left, the folder layout of a research repository, with originals gitignored, Markdown conversions tracked, a drop zone, and a bibliography. On the right, the contract: a citation key matches by author and year to a tracked Markdown file, converted at intake from an original kept on local disk. If a link breaks, the citation cannot be checked.">
+      <figcaption>What the skill writes, and the chain that makes a citation checkable.</figcaption>
     </figure>
   </section>
 
-  <section id="failures">
-    <h2>What goes wrong</h2>
-    <p>Four of the five failures below are in the demo on purpose. The fifth, the flattened table, is what the converter actually did.</p>
+  <section id="intake">
+    <h2>3. File the four sources</h2>
+    <p>Copy the four files into the drop zone, then run the intake command once per file.</p>
+    <pre><code>cp ~/ai-for-research/demos/knowledge-base/inbox/* sources/unprocessed/</code></pre>
+    <pre><code>/process-source</code></pre>
+    <p>Five steps happen, and the division of labour matters more than the mechanics.</p>
     <div class="tablewrap"><table>
-      <tr><th>Symptom</th><th>What it means</th><th>What to do</th></tr>
-      <tr><td><code>NEEDS OCR (image-only)</code></td><td>The PDF is a photograph of a page. There is no text to extract.</td><td>Send it to <code>vlm-ocr</code>, or summarize it by hand. Do not leave it sitting in <code>og/</code>.</td></tr>
-      <tr><td>A table that reads as one run-on line</td><td>The extractor kept the numbers and lost the structure</td><td>Go back to the original for anything where the layout carried the meaning</td></tr>
-      <tr><td>Headings where the author line should be</td><td>The <code>.docx</code> branch guessed at document structure</td><td>Fix the file, or know it is there when you read it</td></tr>
-      <tr><td>A conversion with no bibliography entry</td><td>Read, but not citable</td><td>Add the entry</td></tr>
-      <tr><td>An entry with no source anywhere</td><td>Cited, but unfiled</td><td>Acquire it, or move it to <code>missing.bib</code> with a note on why you could not</td></tr>
+      <tr><th>Step</th><th>Who</th><th>What changes on disk</th></tr>
+      <tr><td>Drop</td><td>Researcher</td><td>the file sits in <code>sources/unprocessed/</code></td></tr>
+      <tr><td>Identify</td><td>Agent proposes, researcher confirms</td><td>author, year, title, venue</td></tr>
+      <tr><td>Rename</td><td>Agent</td><td><code>sources/og/author-year-slug.pdf</code></td></tr>
+      <tr><td>Convert</td><td>Tool runs, researcher checks</td><td><code>sources/md/author-year-slug.md</code></td></tr>
+      <tr><td>Register</td><td>Agent</td><td>an entry in <code>sources/references.bib</code></td></tr>
     </table></div>
-    <p>The first one is the one to take seriously. Without the guard that catches it, the converter exits successfully and writes a few kilobytes of noise, and that file then looks exactly like a source that has been acquired, converted, filed, and read. A refusal is better than a silent success.</p>
-    <p>A success message only means the tool ran. It says nothing about whether the result is right. The tool creates readable text. You check it. This table is in the original PDF:</p>
+    <p>Identify is the step that cannot be skipped. The name it produces is what makes a citation key resolvable later, so read what the agent proposes before confirming it.</p>
+    <figure class="fig">
+      <img src="../assets/knowledge-base/01-pile-to-library.svg" alt="The same sources directory shown before and after intake. Before: four unprocessed files under their original download names. After: originals kept, three converted to Markdown and entered in the bibliography, and the fourth file, an image-only scan, still visible and awaiting OCR rather than silently dropped.">
+      <figcaption>The same sources directory before intake and after it. Three of four are readable. The fourth is visible and unresolved.</figcaption>
+    </figure>
+    <figure class="fig">
+      <img src="../assets/knowledge-base/03-intake-pipeline.svg" alt="The intake pipeline in five steps: drop, identify, rename, convert, register. Under each step, what it leaves on disk, and what you or the agent do at that step. A branch off the convert step shows an image-only scan being reported as needing OCR instead of being converted.">
+      <figcaption>The five steps and what each one leaves on disk.</figcaption>
+    </figure>
+  </section>
+
+  <section id="inspect">
+    <h2>4. Check what the conversion did</h2>
+    <p>Three conversions are already there. Run the converter again and it says so:</p>
+    <pre><code>./scripts/convert-sources.sh</code></pre>
+    <pre><code>  NEEDS OCR (image-only): kowalski-2017-turnout-cascades.pdf
+Converted 0 file(s), 1 need OCR. Markdown in $PROJECT/sources/md/</code></pre>
+    <p>Nothing new, and the scan still flagged. The scan is a photograph with no text layer. Without the guard that catches it, the converter would exit successfully and write a few kilobytes of noise, and that file would then look exactly like a source that had been acquired, converted, filed, and read. A refusal is better than a silent success. Send it to <code>/oss:vlm-ocr</code> when you want it, or leave it.</p>
+    <p>Now the part that reports nothing at all. <strong>Did the converter keep the table's rows and columns?</strong> This table is on page 2 of the Ferreira and Nair PDF:</p>
     <div class="tablewrap"><table>
       <tr><th>Outcome</th><th>Estimate</th><th>95% interval</th></tr>
       <tr><td>Turnout (percentage points)</td><td>11.2</td><td>8.4 to 14.0</td></tr>
       <tr><td>Knowledge index (standard deviations)</td><td>0.01</td><td>−0.06 to 0.08</td></tr>
     </table></div>
-    <p>This is what came out the other side:</p>
+    <p>And this is <code>sources/md/ferreira-nair-2021-compulsory-voting.md</code>, as the converter wrote it:</p>
     <pre><code>### 3. Results Outcome Estimate 95% interval
 
 Turnout (percentage points) 11.2 8.4 to 14.0 Knowledge index (standard deviations) 0.01 −0.06 to 0.08</code></pre>
-    <p>The numbers survived. The structure did not. An agent reading that file can still find 11.2 and 0.01 and quote the sentences around them. It cannot reliably tell you which interval belongs to which outcome. Nothing in the run log says so. You find it by opening the file.</p>
+    <p>Every number survived. The row and column structure did not. The header was absorbed into the section heading and both rows run together on one line, so anyone reading this file, person or agent, has to reconstruct which interval belongs to which outcome rather than read it off. The prose came through cleanly and stayed searchable:</p>
+    <pre><code>$ grep -n "does not appear to teach" sources/md/*.md
+sources/md/ferreira-nair-2021-compulsory-voting.md:36:Whatever compulsory voting does, it does not appear to teach.</code></pre>
+    <p>Nothing in the run log says the table collapsed. The tool creates readable text. You check it. That is why the original stays the authority for anything where layout carried meaning.</p>
+    <p>Then look at what registration produced, and at the link it creates:</p>
+    <pre><code>@article{ferreira-nair2021,
+  author  = {Ferreira, Tom\'{a}s and Nair, Priya},
+  title   = {Does Compulsory Voting Make Better Citizens?},
+  ...
+}</code></pre>
+    <p><code>ferreira-nair2021</code> resolves by author and year to <code>sources/md/ferreira-nair-2021-compulsory-voting.md</code>, which was converted from <code>sources/og/ferreira-nair-2021-compulsory-voting.pdf</code>. That chain is what a citation check follows.</p>
   </section>
 
   <section id="audit">
-    <h2>Audit the project you already have</h2>
-    <p>Most researchers do not start clean. Point the same skill at an existing folder and its audit mode reports what is present, what is partial, and what is missing.</p>
-    <pre><code>/oss:research-repo path/to/project</code></pre>
-    <p>On the half-built project this demo ships, it should find two originals that were never converted, two filenames that break <code>author-year-slug</code> so no citation key can resolve to them, one conversion with no bibliography entry, and one bibliography entry with no source anywhere in the project. It should also report the pipeline itself as missing. No <code>.gitignore</code>, no <code>scripts/convert-sources.sh</code>, no <code>sources/README.md</code>.</p>
-    <p>The bibliography drift runs in both directions, and both are worth checking. A library drifts away from its bibliography as easily as a bibliography drifts away from its library.</p>
-    <p>Git makes changes recoverable and attributable across sessions. Originals stay local, Markdown conversions are tracked. But recorded is not verified. Git history tells you what changed and who changed it. The audit tells you what is present, partial, or missing. Neither one tells you that a filed source is right.</p>
+    <h2>5. Audit a project that already exists</h2>
+    <p>Most researchers do not start clean. The same skill, pointed at a folder that has one, reports what is present, what is partial, and what is missing.</p>
+    <pre><code>/oss:research-repo path/to/ai-for-research/demos/knowledge-base/messy-project</code></pre>
+    <p>Four findings, and they are worth reading as pairs:</p>
+    <ul>
+      <li><strong>Two originals were never converted.</strong> <code>Paper1.pdf</code> and <code>ferreira nair FINAL (2).pdf</code> sit in <code>og/</code> with nothing in <code>md/</code>. Filed, and unreadable to anything downstream.</li>
+      <li><strong>Neither name can be matched.</strong> Both break <code>author-year-slug</code>, so no citation key resolves to them.</li>
+      <li><strong>One conversion has no bibliography entry.</strong> <code>lindqvist-2019-civic-education-turnout.md</code> is read, and not citable.</li>
+      <li><strong>One entry has no source.</strong> <code>osei2020</code> is cited and unfiled. Acquire it, or move it to <code>missing.bib</code> with a note on why you could not.</li>
+    </ul>
+    <p>The last two are the same failure from opposite ends, and an audit that checks one direction misses half of it. The project is also missing the pipeline itself: no <code>.gitignore</code>, no conversion script, no <code>sources/README.md</code>.</p>
+    <p>Git makes changes recoverable and attributable across sessions. Originals stay local and conversions are tracked. But recorded is not verified. Git tells you what changed and who changed it, and the audit tells you what is present. Neither tells you a filed source is right.</p>
   </section>
 
-  <section id="unlocks">
-    <h2>What a knowledge base makes possible</h2>
-    <p>The knowledge base is the first of four links, and it is the one the others stand on.</p>
+  <section id="why">
+    <h2>6. Why it is built this way</h2>
+    <p>The pattern is Andrej Karpathy's. In April 2026 he published an <a href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f">idea file</a> he called an LLM wiki, aimed at how retrieval usually works. Upload a folder, ask a question, let the model find the relevant chunks. It answers, but, as he puts it, "the LLM is rediscovering knowledge from scratch on every question. There's no accumulation." His alternative is a set of Markdown files between you and the raw documents, which the model writes and keeps current. Three layers: raw sources it reads and never edits, the wiki it owns, and a schema file, <code>CLAUDE.md</code> or <code>AGENTS.md</code>, saying how the collection is organized. Christopher Kenny <a href="https://christophertkenny.com/files/2026-09-10-csdp-ai.pdf">built that pattern</a> into something a researcher can inspect.</p>
+    <p>This demo takes Karpathy's first and third layers as they are. <code>sources/og/</code> is the immutable raw layer, and the <code>CLAUDE.md</code> the skill writes is the schema.</p>
+    <p>It changes the middle layer, and the reason is the difference between research and the software work most agent tooling was built around. Code has fast, repeatable checks: a test, a compiler, a visible output. Matt Pocock's procedure for diagnosing a bug starts by naming a command that exposes the failure, because in software you can usually name one. Research has no such command. Evidence, design, and interpretation get checked slowly and by people, which makes the process more brittle and more subjective, and an agent iterating without a signal produces fluent work nobody can falsify.</p>
+    <p>So the library is built to make a check possible, not to keep you informed. Four departures follow, and a project with different checks would need others.</p>
+    <ul>
+      <li><strong>A conversion, not a synthesis.</strong> In the wiki pattern the model writes the summary and you read it. Here the tracked file is a faithful conversion, because the thing you cite has to be the thing you read. A summary's silence is not evidence that the original says nothing.</li>
+      <li><strong>A bibliography.</strong> A personal knowledge base never has to survive a citation check. <code>references.bib</code> is what makes the library answerable to a manuscript.</li>
+      <li><strong>Originals kept out of git.</strong> Copyright and size, not tidiness.</li>
+      <li><strong>A record of what is missing.</strong> <code>missing.bib</code> holds what was cited and could not be filed, so an absence stays visible.</li>
+    </ul>
+  </section>
+
+  <section id="downstream">
+    <h2>7. What the library makes possible</h2>
     <div class="tablewrap"><table>
       <tr><th>Part of the flow</th><th>Skill</th><th>What it does</th></tr>
       <tr><td>Knowledge base</td><td><code>research-repo</code></td><td>Preserve and connect the evidence</td></tr>
       <tr><td>Source identity</td><td><code>citation-check</code></td><td>Resolve citations and bibliographic records</td></tr>
       <tr><td>Claim support</td><td><code>fact-check</code></td><td>Compare manuscript claims with filed sources</td></tr>
-      <tr><td>Paper and package</td><td><code>paper-review-lite</code><br><code>replication-package</code></td><td>Review the paper and execute package checks</td></tr>
+      <tr><td>Paper and package</td><td><code>paper-review-lite</code>, <code>replication-package</code></td><td>Review the paper and execute package checks</td></tr>
     </table></div>
-    <p>Each skill changes the division of planning, action, and review between researcher and agent.</p>
-    <p>Each is bounded, and the bounds are worth stating plainly. <code>citation-check</code> needs Crossref, OpenAlex, DataCite, or Semantic Scholar to confirm that a work exists, and reports <code>NOT CHECKED</code> rather than guessing when it cannot reach them. <code>fact-check</code> refuses to start until roughly two thirds of the cited works have a matching source file, which is the right behaviour and also a reminder that a thin library produces a thin check. <code>paper-review-lite</code> reads what it is given. It can catch an abstract reporting one number against a table reporting another. On its own it cannot catch both agreeing on a number the analysis no longer produces. The verify pass in <code>replication-package</code> closes part of that gap. It checks a package's structure and, with explicit permission for each run, executes the master script and compares what appeared against the crosswalk. It compares exit status and filenames. It does not compare values.</p>
-    <div class="rule">Together these improve <b>verifiability</b>. Another person can inspect the inputs, the transformations, and the evidence, and check what was done. They do not establish <b>validity</b>. Whether the question, the design, the measurement, and the interpretation warrant the conclusion is still yours to argue.</div>
+    <p>The dependency is uneven, and worth being precise about. <code>fact-check</code> is the one that needs this library: it refuses to run without a per-source Markdown file for roughly two thirds of the cited works, because a check against a half-built library produces false reassurance. <code>citation-check</code> reads the manuscript and the bibliography, not the conversions. <code>paper-review-lite</code> reads whatever it is given. <code>replication-package</code> works on a separate artifact and does not touch the source library at all.</p>
+    <p>These checks improve <strong>verifiability</strong>. They make the files, transformations, and evidence available for inspection. They do not establish the <strong>validity</strong> of a research conclusion.</p>
   </section>
 
   <section id="claim">
-    <h2>Reading the sources behind one sentence</h2>
-    <p>An archived draft of Denney, <em>Governing Immigration by the Rules</em> (2026), contained this sentence: "Studies of unilateral policymaking similarly show that citizens penalize executive action relative to legislative action," citing Reeves &amp; Rogowski (2016) and Christenson &amp; Kriner (2017).</p>
-    <p>To support that sentence, the sources would have to compare support for the same policy under executive action and under legislation.</p>
-    <p>A <code>fact-check</code> run on 16 September 2026, recorded for the lecture, confirmed that both works exist, match their DOI records, and sit in the knowledge base as readable files. Then it read them. Reeves and Rogowski report that "only about a quarter of respondents in any of the surveys supported unilateral policy making." That supports low general support for unilateral power, not a same-policy comparison. Christenson and Kriner report that the student-loan route "has no significant influence on the probability of a subject backing the president." That supports no significant route effect, not a general penalty on executive action.</p>
-    <p>Verdict: unsupported, for the comparative claim as written. The verdict is about the sentence, not the two studies.</p>
+    <h2>8. The same practice on a real manuscript</h2>
+    <p>Not part of the demo, and not reproducible from it. This is from the author's own work, and it shows what the reading is for.</p>
+    <p>An archived draft of Denney, <em>Governing Immigration by the Rules</em> (2026), contained this sentence: "Studies of unilateral policymaking similarly show that citizens penalize executive action relative to legislative action," citing Reeves &amp; Rogowski (2016) and Christenson &amp; Kriner (2017). To support it, those sources would have to compare support for the same policy under executive action and under legislation.</p>
+    <p>Both were filed and readable, so a check could read them. Reeves and Rogowski report that "only about a quarter of respondents in any of the surveys supported unilateral policy making," which is low general support for unilateral power, not a same-policy comparison. Christenson and Kriner report that the student-loan route "has no significant influence on the probability of a subject backing the president," which is no significant route effect, not a general penalty on executive action. The comparative claim is unsupported as written. The verdict is about the sentence, not the two studies.</p>
+    <p>The sentence was revised on 27 August 2026 to two narrower claims, each attached to the source that supports it. The check shown here was run on 16 September 2026, against the archived version, for the lecture this page accompanies. It shows what the check sees. It is not what caused the revision.</p>
     <figure class="fig">
       <img src="../assets/knowledge-base/04-claim-to-revision.svg" alt="A claim from an archived draft, checked against two sources that were read in full. Neither supports the comparison as written. The researcher rewrote it as two narrower claims, one per source.">
-      <figcaption>The chain from the sentence to the recorded revision. Every step is on file.</figcaption>
+      <figcaption>The claim, the two sources read, the verdict, and the revision the author chose.</figcaption>
     </figure>
-    <p>The report returned quoted evidence and a suggested revision. The recommendation is advisory. The researcher decides whether and how to revise. The revision in the draft's history, dated 27 August 2026, reads: "Studies of unilateral policymaking find that Americans express low generalized support for unilateral powers (Reeves &amp; Rogowski 2016) while judging particular unilateral acts largely by whether they agree with them (Christenson &amp; Kriner 2017)."</p>
-    <p>What made this inspectable: the original paper, the readable conversion, the citation identity, an explicit check, and the revision history, all on record. A skill can repeat the procedure. The researcher still decides whether the revision is right.</p>
   </section>
 
   <section id="by-hand">
-    <h2>Check it yourself</h2>
+    <h2>9. Check it yourself</h2>
     <ul>
-      <li>Delete a conversion and run the claim check. It should refuse on its pre-flight rather than answer from memory.</li>
       <li>Rename a file so its author and year stop matching its key, then re-run the audit.</li>
       <li>Add a source and skip the bibliography entry. Drift gets reported in both directions.</li>
       <li>Open a conversion beside its original and compare the tables, not the prose.</li>
       <li>Put the scan through OCR, then audit again and watch the orphan disappear.</li>
     </ul>
-    <p>The demo project, the four inbox files, and every planted problem are in <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/knowledge-base">demos/knowledge-base</a>, with the exact commands in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/knowledge-base/prompts/run.md">prompts/run.md</a> and the expected result of each step beside them.</p>
+    <p>Every planted problem is listed in the <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/knowledge-base/ANSWER-KEY.md">answer key</a>, and the exact commands are in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/knowledge-base/prompts/run.md">prompts/run.md</a>.</p>
 
     <a class="next" href="../reference-check/">
       <h3>Next: reference and source-claim checking</h3>
-      <p>With a knowledge base in place, check whether each cited work exists and resolves, then whether each source actually supports the claim it backs.</p>
+      <p>the claim check needs a manuscript as well as a library, and this demo ships no manuscript. That one supplies both.</p>
     </a>
+  </section>
+
+  <section id="sources">
+    <h2>Sources</h2>
+    <ul>
+      <li>Karpathy, A. (2026). <em>LLM Wiki</em>. GitHub Gist, 4 April. The idea file, written to be handed to an agent. An <a href="https://github.com/Astro-Han/karpathy-llm-wiki">implementation</a> and an <a href="https://www.mindstudio.ai/blog/andrej-karpathy-llm-wiki-knowledge-base-claude-code">overview</a> followed.</li>
+      <li>Kenny, C. T. (2026). <em>Agentic AI for Political Science Research</em>. Center for the Study of Democratic Politics, Princeton University, 10 September.</li>
+      <li>Pocock, M. (2026). <a href="https://github.com/mattpocock/skills"><em>Skills</em></a>, including <code>diagnosing-bugs</code>, the source of the name-the-failing-command rule.</li>
+      <li>Conversion uses <a href="https://github.com/opendataloader-project/opendataloader-pdf">OpenDataLoader PDF</a> for PDFs and <a href="https://github.com/firecrawl/anydoc">anydoc</a> for Office formats.</li>
+      <li>The two sources read in section 8: Reeves, A., and Rogowski, J. C. (2016), <em>The Journal of Politics</em>, <a href="https://doi.org/10.1086/683433">doi:10.1086/683433</a>. Christenson, D. P., and Kriner, D. L. (2017), <em>American Journal of Political Science</em>, <a href="https://doi.org/10.1111/ajps.12262">doi:10.1111/ajps.12262</a>.</li>
+    </ul>
   </section>
 </main>
 

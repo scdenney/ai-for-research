@@ -5,157 +5,145 @@ Section ids match the <section id="..."> anchors in the page.
 
 # Build a Knowledge Base
 
-**Lede:** Turn a folder of downloads into a source library an agent can read, and that
-every later check can be run against.
+**Lede:** Run an agent over four files as they actually arrive, and end up with a source
+library that later checks can be run against.
 
 **Kicker:** Demos · Knowledge base
 
 ---
 
-## Motivation {#motivation}
+## What this demonstrates {#what-this-is}
 
-Ask an agent whether a source supports a claim and it needs the source. Not the citation,
-not your memory of the paper, the text itself. Most projects cannot supply that. The papers
-sit in a downloads folder as `Download (3).pdf`, the bibliography was assembled at the end,
-and the reading happened in a conversation that has since closed.
+You are given four files in the state research materials usually reach you in. Two PDFs
+under names a browser and a publisher chose, a Word document, and a photograph of a page.
+You will have an agent identify each one, file it, and convert it, and then you will check
+what the conversion actually did.
 
-Two things go wrong from there. The work does not persist. Each session starts from
-nothing, and you either re-explain the project or the agent proceeds on a version it
-invented. And there is nothing to check against. A claim check that cannot open the source
-can only guess.
+The run produces three readable Markdown files and a bibliography whose keys resolve to
+them. It refuses the scan, which has no text in it. And it quietly damages a table in one
+of the PDFs without reporting any failure, which is the part worth your attention. Then
+you point the same skill at a second project that grew without a convention, and read what
+it finds.
 
-The fix is to move the source material out of the conversation and into files. Readable
-files an agent can search, read, update, and cite, and that are still there when the
-session ends. That move is close to what Andrej Karpathy has called an LLM wiki, though the
-setup here is not the same. Persistence does not make the contents correct. It makes them
-available for inspection and revision.
+The sources are invented, and so are their authors and journals. The conversion problems
+are real.
 
-The lecture's advice for its collaborate mode was to build a shared research workspace and
-check its sources and outputs. What a person needs to review, rather than leave to an
-agent, follows from the task and the checks available for it. A knowledge base is what
-makes a workspace checkable.
+**What this run produces**
 
-*Diagram 1: a pile of downloads on the left, a source library on the right.*
+| You need | You do | You end up inspecting |
+|---|---|---|
+| Claude Code and the skills ([Getting started](../getting-started/)), Java 11 or newer, `poppler-utils` | Scaffold a project, file four sources, convert them, audit a second project | Three conversions, one refused scan, one damaged table, four audit findings |
 
 ---
 
-## What a knowledge base is {#what}
+## 1. Get the files {#get}
 
-A folder of PDFs is not a knowledge base by default. A new project folder usually has
-scattered files, drafts with unclear provenance, and no shared naming rule. A working one
-has readable source files, stable links to source identity, and instructions for its own
-upkeep. That structure has to be built and maintained on purpose. Four folders and one
-contract.
+```
+git clone https://github.com/scdenney/ai-for-research.git
+mkdir -p ~/kb-demo && cd ~/kb-demo
+claude
+```
 
-- **`sources/og/`** — the originals, exactly as acquired. Gitignored, for size and for
-  copyright. The authority whenever a conversion is in doubt.
-- **`sources/md/`** — the Markdown conversions. Tracked in git. This is the part an agent
-  reads and the part a `grep` searches.
-- **`sources/unprocessed/`** — the drop zone. Files land here and stay until they have been
-  identified, named, converted, and registered.
-- **`sources/references.bib`** — one entry per source, added at intake rather than in a
-  batch at the end. The key has to resolve to its file by author and year, because that is
-  how a checker maps a citation to a document.
-
-Everything else in the project, the analysis, the manuscript, the replication package,
-grows out from these four. Git keeps the changes recoverable and attributable across
-sessions.
-
-**The rule.** Read from `md/`, never from the PDF. Cite from `references.bib`. A key that
-does not resolve to a filed source is a citation nobody can check, including you.
-
-*Diagram 2: the spine, with the tracked and ignored split and the key-to-file contract.*
+Work in the empty folder, not in the clone. The four files you will use are in
+`ai-for-research/demos/knowledge-base/inbox/`.
 
 ---
 
-## Set up {#setup}
+## 2. Create the project {#setup}
 
-Install Claude Code and the skills first (see Getting started). A skill is a stored
-procedure for a task you expect to do again. It holds instructions, and often scripts,
-templates, and examples. Invoking one loads that procedure for the task at hand. The agent
-then works against the repository, and you inspect what it did. Then, in the folder where
-the project will live:
+**Researcher.** In the new folder:
 
 ```
 /oss:research-repo .
 ```
 
-The skill puts the folder under version control, writes the four parts above, adds a
-conversion script and a project-local `/process-source` command, and sets up the Python
-environment the converter needs. On an empty library the smoke test prints
-`Nothing new to convert.`
+A skill is a stored procedure. Invoking one loads its instructions for this task, and the
+agent then works against this folder while you inspect what it did.
 
-Converting PDFs needs Java 11 or newer for the extraction backend, and `poppler-utils` for
-the check that spots a scan. If the project already exists, the same command audits it
-instead of scaffolding over it. That is the section below.
+What it writes is a source library with four parts. Three directories and one file:
+
+- **`sources/og/`** — the originals, exactly as acquired. Gitignored, for size and for
+  copyright. The authority whenever a conversion is in doubt.
+- **`sources/md/`** — the conversions. Tracked in git. This is what an agent reads and
+  what a `grep` searches.
+- **`sources/unprocessed/`** — the drop zone. Files wait here until they are identified,
+  named, converted, and registered.
+- **`sources/references.bib`** — one entry per source, written at intake rather than in a
+  batch at the end. The key has to resolve to its file by author and year, because that is
+  how a checker maps a citation to a document.
+
+It also writes a conversion script, a project-local `/process-source` command, and a
+`CLAUDE.md` with `AGENTS.md` symlinked to it, so a second agent family reads the same
+conventions.
+
+**The rule.** Search the Markdown. Check any doubtful passage, table, or figure against
+the original. Cite from `references.bib`. A key that does not resolve to a filed source is
+a citation nobody can check, including you.
+
+*Diagram 2: the spine, with the tracked and ignored split and the key-to-file contract.*
 
 ---
 
-## Add the first source {#intake}
+## 3. File the four sources {#intake}
 
-Intake is five steps, split between you, the agent, and a tool.
+Copy the four files into the drop zone, then run the intake command once per file.
 
-**Drop.** You put the file into `sources/unprocessed/` under whatever name it arrived with.
+```
+cp ~/ai-for-research/demos/knowledge-base/inbox/* sources/unprocessed/
+```
 
-**Identify.** The agent reads enough of it to propose author, year, title, and venue. You
-confirm them. This step cannot be skipped, because everything downstream inherits it.
+```
+/process-source
+```
 
-**Rename.** The agent names and files it. `author-year-slug`, lowercase, hyphens, up to
-three authors and then `firstauthor-etal`. `Download (3).pdf` becomes
-`ferreira-nair-2021-compulsory-voting.pdf`. The name is what makes a citation key
-resolvable to a document later.
+Five steps happen, and the division of labour matters more than the mechanics.
 
-**Convert.** A tool converts. You check the result.
+| Step | Who | What changes on disk |
+|---|---|---|
+| Drop | Researcher | the file sits in `sources/unprocessed/` |
+| Identify | Agent proposes, researcher confirms | author, year, title, venue |
+| Rename | Agent | `sources/og/author-year-slug.pdf` |
+| Convert | Tool runs, researcher checks | `sources/md/author-year-slug.md` |
+| Register | Agent | an entry in `sources/references.bib` |
+
+Identify is the step that cannot be skipped. The name it produces is what makes a citation
+key resolvable later, so read what the agent proposes before confirming it.
+
+*Diagram 1: the same `sources/` directory before intake and after it.*
+
+*Diagram 3: the five steps and what each one leaves behind.*
+
+---
+
+## 4. Check what the conversion did {#inspect}
+
+Three conversions are already there. Run the converter again and it says so:
 
 ```
 ./scripts/convert-sources.sh
 ```
 
 ```
-Converting ferreira-nair-2021-compulsory-voting.pdf...
   NEEDS OCR (image-only): kowalski-2017-turnout-cascades.pdf
-Converting lindqvist-2019-civic-education-turnout.pdf...
-Converting osei-2020-social-trust.docx...
-Converted 3 file(s), 1 need OCR. Markdown in sources/md/
+Converted 0 file(s), 1 need OCR. Markdown in $PROJECT/sources/md/
 ```
 
-The script only touches files with no conversion yet, so re-running it is safe. Figures
-extracted from a PDF go into a separate image folder, linked by path.
+Nothing new, and the scan still flagged. The scan is a photograph with no text layer.
+Without the guard that catches it, the converter would exit successfully and write a few
+kilobytes of noise, and that file would then look exactly like a source that had been
+acquired, converted, filed, and read. A refusal is better than a silent success. Send it
+to `/oss:vlm-ocr` when you want it, or leave it.
 
-**Register.** The agent extracts the candidate metadata, verifies it, and adds the
-bibliography entry.
-
-*Diagram 3: the intake pipeline, what each step leaves on disk, and who does it.*
-
----
-
-## What goes wrong {#failures}
-
-Four of the five failures below are in the demo on purpose. The fifth, the flattened
-table, is what the converter actually did.
-
-| Symptom | What it means | What to do |
-|---|---|---|
-| `NEEDS OCR (image-only)` | The PDF is a photograph of a page. There is no text to extract. | Send it to `vlm-ocr`, or summarize it by hand. Do not leave it sitting in `og/`. |
-| A table that reads as one run-on line | The extractor kept the numbers and lost the structure | Go back to the original for anything where the layout carried the meaning |
-| Headings where the author line should be | The `.docx` branch guessed at document structure | Fix the file, or know it is there when you read it |
-| A conversion with no bibliography entry | Read, but not citable | Add the entry |
-| An entry with no source anywhere | Cited, but unfiled | Acquire it, or move it to `missing.bib` with a note on why you could not |
-
-The first one is the one to take seriously. Without the guard that catches it, the
-converter exits successfully and writes a few kilobytes of noise, and that file then looks
-exactly like a source that has been acquired, converted, filed, and read. A refusal is
-better than a silent success.
-
-A success message only means the tool ran. It says nothing about whether the result is
-right. The tool creates readable text. You check it. This table is in the original PDF:
+Now the part that reports nothing at all. **Did the converter keep the table's rows and
+columns?** This table is on page 2 of the Ferreira and Nair PDF:
 
 | Outcome | Estimate | 95% interval |
 |---|---|---|
 | Turnout (percentage points) | 11.2 | 8.4 to 14.0 |
 | Knowledge index (standard deviations) | 0.01 | −0.06 to 0.08 |
 
-This is what came out the other side:
+And this is `sources/md/ferreira-nair-2021-compulsory-voting.md`, as the converter wrote
+it:
 
 ```
 ### 3. Results Outcome Estimate 95% interval
@@ -163,40 +151,108 @@ This is what came out the other side:
 Turnout (percentage points) 11.2 8.4 to 14.0 Knowledge index (standard deviations) 0.01 −0.06 to 0.08
 ```
 
-The numbers survived. The structure did not. An agent reading that file can still find 11.2
-and 0.01 and quote the sentences around them. It cannot reliably tell you which interval
-belongs to which outcome. Nothing in the run log says so. You find it by opening the file.
+Every number survived. The row and column structure did not. The header was absorbed into
+the section heading and both rows run together on one line, so anyone reading this file,
+person or agent, has to reconstruct which interval belongs to which outcome rather than
+read it off. The prose came through cleanly and stayed searchable:
+
+```
+$ grep -n "does not appear to teach" sources/md/*.md
+sources/md/ferreira-nair-2021-compulsory-voting.md:36:Whatever compulsory voting does, it does not appear to teach.
+```
+
+Nothing in the run log says the table collapsed. The tool creates readable text. You check
+it. That is why the original stays the authority for anything where layout carried meaning.
+
+Then look at what registration produced, and at the link it creates:
+
+```
+@article{ferreira-nair2021,
+  author  = {Ferreira, Tom\'{a}s and Nair, Priya},
+  title   = {Does Compulsory Voting Make Better Citizens?},
+  ...
+}
+```
+
+`ferreira-nair2021` resolves by author and year to
+`sources/md/ferreira-nair-2021-compulsory-voting.md`, which was converted from
+`sources/og/ferreira-nair-2021-compulsory-voting.pdf`. That chain is what a citation check
+follows.
 
 ---
 
-## Audit the project you already have {#audit}
+## 5. Audit a project that already exists {#audit}
 
-Most researchers do not start clean. Point the same skill at an existing folder and its
-audit mode reports what is present, what is partial, and what is missing.
+Most researchers do not start clean. The same skill, pointed at a folder that has one,
+reports what is present, what is partial, and what is missing.
 
 ```
-/oss:research-repo path/to/project
+/oss:research-repo path/to/ai-for-research/demos/knowledge-base/messy-project
 ```
 
-On the half-built project this demo ships, it should find two originals that were never
-converted, two filenames that break `author-year-slug` so no citation key can resolve to
-them, one conversion with no bibliography entry, and one bibliography entry with no source
-anywhere in the project. It should also report the pipeline itself as missing. No
-`.gitignore`, no `scripts/convert-sources.sh`, no `sources/README.md`.
+Four findings, and they are worth reading as pairs:
 
-The bibliography drift runs in both directions, and both are worth checking. A library
-drifts away from its bibliography as easily as a bibliography drifts away from its library.
+- **Two originals were never converted.** `Paper1.pdf` and `ferreira nair FINAL (2).pdf`
+  sit in `og/` with nothing in `md/`. Filed, and unreadable to anything downstream.
+- **Neither name can be matched.** Both break `author-year-slug`, so no citation key
+  resolves to them.
+- **One conversion has no bibliography entry.** `lindqvist-2019-civic-education-turnout.md`
+  is read, and not citable.
+- **One entry has no source.** `osei2020` is cited and unfiled. Acquire it, or move it to
+  `missing.bib` with a note on why you could not.
 
-Git makes changes recoverable and attributable across sessions. Originals stay local,
-Markdown conversions are tracked. But recorded is not verified. Git history tells you what
-changed and who changed it. The audit tells you what is present, partial, or missing.
-Neither one tells you that a filed source is right.
+The last two are the same failure from opposite ends, and an audit that checks one
+direction misses half of it. The project is also missing the pipeline itself: no
+`.gitignore`, no conversion script, no `sources/README.md`.
+
+Git makes changes recoverable and attributable across sessions. Originals stay local and
+conversions are tracked. But recorded is not verified. Git tells you what changed and who
+changed it, and the audit tells you what is present. Neither tells you a filed source is
+right.
 
 ---
 
-## What a knowledge base makes possible {#unlocks}
+## 6. Why it is built this way {#why}
 
-The knowledge base is the first of four links, and it is the one the others stand on.
+The pattern is Andrej Karpathy's. In April 2026 he published an
+[idea file](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) he called
+an LLM wiki, aimed at how retrieval usually works. Upload a folder, ask a question, let
+the model find the relevant chunks. It answers, but, as he puts it, "the LLM is
+rediscovering knowledge from scratch on every question. There's no accumulation." His
+alternative is a set of Markdown files between you and the raw documents, which the model
+writes and keeps current. Three layers: raw sources it reads and never edits, the wiki it
+owns, and a schema file, `CLAUDE.md` or `AGENTS.md`, saying how the collection is
+organized. Christopher Kenny
+[built that pattern](https://christophertkenny.com/files/2026-09-10-csdp-ai.pdf) into
+something a researcher can inspect.
+
+This demo takes Karpathy's first and third layers as they are. `sources/og/` is the
+immutable raw layer, and the `CLAUDE.md` the skill writes is the schema.
+
+It changes the middle layer, and the reason is the difference between research and the
+software work most agent tooling was built around. Code has fast, repeatable checks: a
+test, a compiler, a visible output. Matt Pocock's procedure for diagnosing a bug starts by
+naming a command that exposes the failure, because in software you can usually name one.
+Research has no such command. Evidence, design, and interpretation get checked slowly and
+by people, which makes the process more brittle and more subjective, and an agent
+iterating without a signal produces fluent work nobody can falsify.
+
+So the library is built to make a check possible, not to keep you informed. Four
+departures follow, and a project with different checks would need others.
+
+- **A conversion, not a synthesis.** In the wiki pattern the model writes the summary and
+  you read it. Here the tracked file is a faithful conversion, because the thing you cite
+  has to be the thing you read. A summary's silence is not evidence that the original says
+  nothing.
+- **A bibliography.** A personal knowledge base never has to survive a citation check.
+  `references.bib` is what makes the library answerable to a manuscript.
+- **Originals kept out of git.** Copyright and size, not tidiness.
+- **A record of what is missing.** `missing.bib` holds what was cited and could not be
+  filed, so an absence stays visible.
+
+---
+
+## 7. What the library makes possible {#downstream}
 
 | Part of the flow | Skill | What it does |
 |---|---|---|
@@ -205,78 +261,83 @@ The knowledge base is the first of four links, and it is the one the others stan
 | Claim support | `fact-check` | Compare manuscript claims with filed sources |
 | Paper and package | `paper-review-lite`, `replication-package` | Review the paper and execute package checks |
 
-Each skill changes the division of planning, action, and review between researcher and
-agent.
+The dependency is uneven, and worth being precise about. `fact-check` is the one that
+needs this library: it refuses to run without a per-source Markdown file for roughly two
+thirds of the cited works, because a check against a half-built library produces false
+reassurance. `citation-check` reads the manuscript and the bibliography, not the
+conversions. `paper-review-lite` reads whatever it is given. `replication-package` works
+on a separate artifact and does not touch the source library at all.
 
-Each is bounded, and the bounds are worth stating plainly. `citation-check` needs Crossref,
-OpenAlex, DataCite, or Semantic Scholar to confirm that a work exists, and reports
-`NOT CHECKED` rather than guessing when it cannot reach them. `fact-check` refuses to start
-until roughly two thirds of the cited works have a matching source file, which is the right
-behaviour and also a reminder that a thin library produces a thin check.
-`paper-review-lite` reads what it is given. It can catch an abstract reporting one number
-against a table reporting another. On its own it cannot catch both agreeing on a number the
-analysis no longer produces. The verify pass in `replication-package` closes part of that
-gap. It checks a package's structure and, with explicit permission for each run, executes
-the master script and compares what appeared against the crosswalk. It compares exit
-status and filenames. It does not compare values.
-
-Together these improve **verifiability**. Another person can inspect the inputs, the
-transformations, and the evidence, and check what was done. They do not establish
-**validity**. Whether the question, the design, the measurement, and the interpretation
-warrant the conclusion is still yours to argue.
+These checks improve **verifiability**. They make the files, transformations, and evidence
+available for inspection. They do not establish the **validity** of a research conclusion.
 
 ---
 
-## Reading the sources behind one sentence {#claim}
+## 8. The same practice on a real manuscript {#claim}
+
+Not part of the demo, and not reproducible from it. This is from the author's own work,
+and it shows what the reading is for.
 
 An archived draft of Denney, *Governing Immigration by the Rules* (2026), contained this
 sentence: "Studies of unilateral policymaking similarly show that citizens penalize
 executive action relative to legislative action," citing Reeves & Rogowski (2016) and
-Christenson & Kriner (2017).
+Christenson & Kriner (2017). To support it, those sources would have to compare support
+for the same policy under executive action and under legislation.
 
-To support that sentence, the sources would have to compare support for the same policy
-under executive action and under legislation.
+Both were filed and readable, so a check could read them. Reeves and Rogowski report that
+"only about a quarter of respondents in any of the surveys supported unilateral policy
+making," which is low general support for unilateral power, not a same-policy comparison.
+Christenson and Kriner report that the student-loan route "has no significant influence on
+the probability of a subject backing the president," which is no significant route effect,
+not a general penalty on executive action. The comparative claim is unsupported as
+written. The verdict is about the sentence, not the two studies.
 
-A `fact-check` run on 16 September 2026, recorded for the lecture, confirmed that both
-works exist, match their DOI records, and sit in the knowledge base as readable files. Then
-it read them. Reeves and Rogowski report that "only about a quarter of respondents in any
-of the surveys supported unilateral policy making." That supports low general support for
-unilateral power, not a same-policy comparison. Christenson and Kriner report that the
-student-loan route "has no significant influence on the probability of a subject backing
-the president." That supports no significant route effect, not a general penalty on
-executive action.
+The sentence was revised on 27 August 2026 to two narrower claims, each attached to the
+source that supports it. The check shown here was run on 16 September 2026, against the
+archived version, for the lecture this page accompanies. It shows what the check sees. It
+is not what caused the revision.
 
-Verdict: unsupported, for the comparative claim as written. The verdict is about the
-sentence, not the two studies.
-
-*Diagram 4: claim → two sources read → verdict → revision.*
-
-The report returned quoted evidence and a suggested revision. The recommendation is
-advisory. The researcher decides whether and how to revise. The revision in the draft's
-history, dated 27 August 2026, reads: "Studies of unilateral policymaking find that
-Americans express low generalized support for unilateral powers (Reeves & Rogowski 2016)
-while judging particular unilateral acts largely by whether they agree with them
-(Christenson & Kriner 2017)."
-
-What made this inspectable: the original paper, the readable conversion, the citation
-identity, an explicit check, and the revision history, all on record. A skill can repeat
-the procedure. The researcher still decides whether the revision is right.
+*Diagram 4: the claim, the two sources read, the verdict, and the revision.*
 
 ---
 
-## Check it yourself {#by-hand}
+## 9. Check it yourself {#by-hand}
 
-- Delete a conversion and run the claim check. It should refuse on its pre-flight rather
-  than answer from memory.
 - Rename a file so its author and year stop matching its key, then re-run the audit.
 - Add a source and skip the bibliography entry. Drift gets reported in both directions.
 - Open a conversion beside its original and compare the tables, not the prose.
 - Put the scan through OCR, then audit again and watch the orphan disappear.
 
+Every planted problem is listed in the
+[answer key](https://github.com/scdenney/ai-for-research/blob/main/demos/knowledge-base/ANSWER-KEY.md),
+and the exact commands are in
+[prompts/run.md](https://github.com/scdenney/ai-for-research/blob/main/demos/knowledge-base/prompts/run.md).
+
+---
+
+## Sources {#sources}
+
+- Karpathy, A. (2026). *LLM Wiki*. GitHub Gist, 4 April. The idea file, written to be
+  handed to an agent. An [implementation](https://github.com/Astro-Han/karpathy-llm-wiki)
+  and an
+  [overview](https://www.mindstudio.ai/blog/andrej-karpathy-llm-wiki-knowledge-base-claude-code)
+  followed.
+- Kenny, C. T. (2026). *Agentic AI for Political Science Research*. Center for the Study of
+  Democratic Politics, Princeton University, 10 September.
+- Pocock, M. (2026). [*Skills*](https://github.com/mattpocock/skills), including
+  `diagnosing-bugs`, the source of the name-the-failing-command rule.
+- Conversion uses
+  [OpenDataLoader PDF](https://github.com/opendataloader-project/opendataloader-pdf) for
+  PDFs and [anydoc](https://github.com/firecrawl/anydoc) for Office formats.
+- The two sources read in section 8: Reeves, A., and Rogowski, J. C. (2016), *The Journal
+  of Politics*, [doi:10.1086/683433](https://doi.org/10.1086/683433). Christenson, D. P.,
+  and Kriner, D. L. (2017), *American Journal of Political Science*,
+  [doi:10.1111/ajps.12262](https://doi.org/10.1111/ajps.12262).
+
 ---
 
 ## Next card {#next}
 
-**Reference and source-claim checking** — with a knowledge base in place, check whether
-each cited work exists and whether each source actually supports the claim attached to it.
+**Reference and source-claim checking** — the claim check needs a manuscript as well as a
+library, and this demo ships no manuscript. That one supplies both.
 Links to `/reference-check/`.

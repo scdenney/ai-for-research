@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 780" width="1600" height="780" role="img" aria-label="On the left, the folder layout of a research repository, with originals gitignored, Markdown conversions tracked, a drop zone, and a bibliography. On the right, the contract: a citation key matches by author and year to a tracked Markdown file, converted at intake from an original kept on local disk. If a link breaks, the citation cannot be checked.">
 <rect width="1600" height="780" fill="#F3EFE3"/>
 
-<text x="60" y="62" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="25" font-weight="600" letter-spacing="3.4" fill="#68686D">THE SPINE</text>
-<text x="860" y="62" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="25" font-weight="600" letter-spacing="3.4" fill="#68686D">THE CONTRACT</text>
+<text x="60" y="62" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" letter-spacing="3.4" fill="#68686D">THE SPINE</text>
+<text x="860" y="62" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" letter-spacing="3.4" fill="#68686D">THE CONTRACT</text>
 
 <rect x="60" y="92" width="700" height="590" rx="12" fill="#ECE6D6" stroke="#d9d2bf" stroke-width="2"/>
 <g font-family="Menlo,Consolas,monospace" font-size="27" fill="#17171A">
@@ -16,38 +16,38 @@
   <text x="96" y="484">├── manuscript/</text>
   <text x="96" y="532">└── review/</text>
 </g>
-<g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="22">
+<g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26">
   <text x="420" y="244" fill="#68686D">originals, gitignored</text>
   <text x="420" y="292" fill="#1F4E9B">conversions, tracked</text>
   <text x="440" y="340" fill="#68686D">drop zone</text>
   <text x="440" y="388" fill="#8B5F10">one entry per source</text>
-  <text x="420" y="484" fill="#68686D">the rest grows from here</text>
+  <text x="420" y="484" fill="#68686D">rest grows from here</text>
 </g>
 <text x="96" y="612" font-family="Georgia,serif" font-size="29" font-style="italic" fill="#17171A">Read from md/, never from the PDF.</text>
 <text x="96" y="652" font-family="Georgia,serif" font-size="29" font-style="italic" fill="#17171A">Cite from references.bib.</text>
 
 <rect x="860" y="92" width="680" height="120" rx="10" fill="#ECE6D6" stroke="#E0A526" stroke-width="3"/>
-<text x="890" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" letter-spacing="2" fill="#8B5F10">IN THE MANUSCRIPT</text>
+<text x="890" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#8B5F10">IN THE MANUSCRIPT</text>
 <text x="890" y="184" font-family="Menlo,Consolas,monospace" font-size="29" fill="#17171A">\cite{ferreira-nair2021}</text>
 
 <line x1="900" y1="212" x2="900" y2="296" stroke="#1F4E9B" stroke-width="3.5"/>
 <path d="M892,288 L900,302 L908,288 z" fill="#1F4E9B"/>
-<text x="930" y="264" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="23" fill="#1F4E9B">matches author and year</text>
+<text x="930" y="264" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#1F4E9B">matches author and year</text>
 
 <rect x="860" y="306" width="680" height="136" rx="10" fill="#ECE6D6" stroke="#1F4E9B" stroke-width="3"/>
-<text x="890" y="352" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" letter-spacing="2" fill="#1F4E9B">IN GIT · WHAT THE AGENT READS</text>
-<text x="890" y="396" font-family="Menlo,Consolas,monospace" font-size="24" fill="#17171A">sources/md/ferreira-nair-2021-</text>
-<text x="890" y="426" font-family="Menlo,Consolas,monospace" font-size="24" fill="#17171A">compulsory-voting.md</text>
+<text x="890" y="352" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#1F4E9B">IN GIT · WHAT THE AGENT READS</text>
+<text x="890" y="396" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">sources/md/ferreira-nair-2021-</text>
+<text x="890" y="426" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">compulsory-voting.md</text>
 
 <line x1="900" y1="556" x2="900" y2="466" stroke="#68686D" stroke-width="3.5"/>
 <path d="M892,474 L900,460 L908,474 z" fill="#68686D"/>
-<text x="930" y="516" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="23" fill="#68686D">converted at intake</text>
+<text x="930" y="516" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">converted at intake</text>
 
 <rect x="860" y="566" width="680" height="136" rx="10" fill="none" stroke="#68686D" stroke-width="2.5" stroke-dasharray="9 7"/>
-<text x="890" y="612" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" letter-spacing="2" fill="#68686D">LOCAL ONLY · THE ORIGINAL</text>
-<text x="890" y="656" font-family="Menlo,Consolas,monospace" font-size="24" fill="#17171A">sources/og/ferreira-nair-2021-</text>
-<text x="890" y="686" font-family="Menlo,Consolas,monospace" font-size="24" fill="#17171A">compulsory-voting.pdf</text>
+<text x="890" y="612" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#68686D">LOCAL ONLY · THE ORIGINAL</text>
+<text x="890" y="656" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">sources/og/ferreira-nair-2021-</text>
+<text x="890" y="686" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">compulsory-voting.pdf</text>
 
 <line x1="60" y1="730" x2="1540" y2="730" stroke="#d9d2bf" stroke-width="2"/>
-<text x="60" y="768" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="24" fill="#68686D">If a link breaks, the citation cannot be checked.</text>
+<text x="60" y="768" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">If a link breaks, the citation cannot be checked.</text>
 </svg>

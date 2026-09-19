@@ -6,27 +6,27 @@
 </defs>
 <rect width="1600" height="700" fill="#F3EFE3"/>
 
-<text x="60" y="58" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="25" font-weight="600" letter-spacing="3.4" fill="#68686D">ONE SOURCE, FIVE STEPS</text>
+<text x="60" y="58" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" letter-spacing="3.4" fill="#68686D">ONE SOURCE, FIVE STEPS</text>
 
 <g font-family="Georgia,serif" font-size="31" fill="#17171A" text-anchor="middle">
   <rect x="60"   y="92" width="250" height="118" rx="10" fill="#ECE6D6" stroke="#1F4E9B" stroke-width="2.5"/>
-  <text x="185" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" letter-spacing="2" fill="#1F4E9B">1</text>
+  <text x="185" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#1F4E9B">1</text>
   <text x="185" y="180">Drop</text>
 
   <rect x="366"  y="92" width="250" height="118" rx="10" fill="#ECE6D6" stroke="#1F4E9B" stroke-width="2.5"/>
-  <text x="491" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" letter-spacing="2" fill="#1F4E9B">2</text>
+  <text x="491" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#1F4E9B">2</text>
   <text x="491" y="180">Identify</text>
 
   <rect x="672"  y="92" width="250" height="118" rx="10" fill="#ECE6D6" stroke="#1F4E9B" stroke-width="2.5"/>
-  <text x="797" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" letter-spacing="2" fill="#1F4E9B">3</text>
+  <text x="797" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#1F4E9B">3</text>
   <text x="797" y="180">Rename</text>
 
   <rect x="978"  y="92" width="250" height="118" rx="10" fill="#ECE6D6" stroke="#1F4E9B" stroke-width="2.5"/>
-  <text x="1103" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" letter-spacing="2" fill="#1F4E9B">4</text>
+  <text x="1103" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#1F4E9B">4</text>
   <text x="1103" y="180">Convert</text>
 
   <rect x="1284" y="92" width="250" height="118" rx="10" fill="#ECE6D6" stroke="#E0A526" stroke-width="2.5"/>
-  <text x="1409" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="21" letter-spacing="2" fill="#8B5F10">5</text>
+  <text x="1409" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#8B5F10">5</text>
   <text x="1409" y="180">Register</text>
 </g>
 
@@ -37,34 +37,35 @@
   <line x1="1234" y1="151" x2="1274" y2="151"/>
 </g>
 
-<g font-family="Menlo,Consolas,monospace" font-size="19" fill="#17171A" text-anchor="middle">
-  <text x="185" y="256">sources/</text><text x="185" y="282">unprocessed/</text>
-  <text x="491" y="256">author, year,</text><text x="491" y="282">title, venue</text>
-  <text x="797" y="256">sources/og/</text><text x="797" y="282">author-year-slug.pdf</text>
-  <text x="1103" y="256">sources/md/</text><text x="1103" y="282">author-year-slug.md</text>
-  <text x="1409" y="256">sources/</text><text x="1409" y="282">references.bib</text>
+<g font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A" text-anchor="middle">
+  <text x="185" y="260">sources/</text><text x="185" y="290">unprocessed/</text>
+  <text x="491" y="260">author, year,</text><text x="491" y="290">title, venue</text>
+  <text x="797" y="260">sources/og/</text><text x="797" y="290">author-year-slug</text>
+  <text x="1103" y="260">sources/md/</text><text x="1103" y="290">author-year-slug</text>
+  <text x="1409" y="260">sources/</text><text x="1409" y="290">references.bib</text>
 </g>
-<g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" fill="#68686D" text-anchor="middle">
-  <text x="185" y="322">it arrived</text>
-  <text x="491" y="322">you read it</text>
-  <text x="797" y="322">key can find it</text>
-  <text x="1103" y="322">text to read</text>
-  <text x="1409" y="322">ready to cite</text>
+<g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D" text-anchor="middle">
+  <text x="185" y="330">it arrived</text>
+  <text x="491" y="330">you read it</text>
+  <text x="797" y="330">key can find it</text>
+  <text x="1103" y="330">text to read</text>
+  <text x="1409" y="330">ready to cite</text>
 </g>
-<g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="20" font-weight="600" fill="#1F4E9B" text-anchor="middle">
-  <text x="185" y="356">you choose</text>
-  <text x="491" y="356">agent reads, you check</text>
-  <text x="797" y="356">agent names it</text>
-  <text x="1103" y="356">tool, you check</text>
-  <text x="1409" y="356">agent registers</text>
+<g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" fill="#1F4E9B" text-anchor="middle">
+  <text x="185" y="364">you choose</text>
+  <text x="491" y="364">agent reads,</text>
+  <text x="491" y="396">you check</text>
+  <text x="797" y="364">agent names it</text>
+  <text x="1103" y="364">tool, you check</text>
+  <text x="1409" y="364">agent registers</text>
 </g>
 
 <line x1="1103" y1="386" x2="1103" y2="452" stroke="#8B5F10" stroke-width="3"/>
 <path d="M1095,444 L1103,458 L1111,444 z" fill="#8B5F10"/>
 <rect x="700" y="464" width="834" height="104" rx="10" fill="#ECE6D6" stroke="#8B5F10" stroke-width="2.5"/>
-<text x="732" y="506" font-family="Menlo,Consolas,monospace" font-size="22" fill="#8B5F10">NEEDS OCR (image-only): scan-0417.pdf</text>
-<text x="732" y="544" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="22" fill="#17171A">No text layer. Nothing is written. The tool refuses.</text>
+<text x="732" y="506" font-family="Menlo,Consolas,monospace" font-size="26" fill="#8B5F10">NEEDS OCR (image-only): scan-0417.pdf</text>
+<text x="732" y="544" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#17171A">No text layer. Nothing is written. The tool refuses.</text>
 
 <line x1="60" y1="606" x2="1540" y2="606" stroke="#d9d2bf" stroke-width="2"/>
-<text x="60" y="644" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="24" fill="#68686D">Do not skip step 2. Every later step uses the name you give the file.</text>
+<text x="60" y="644" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">Do not skip step 2. Every later step uses the name you give the file.</text>
 </svg>

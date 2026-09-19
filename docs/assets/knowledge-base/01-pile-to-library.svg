@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 720" width="1600" height="720" role="img" aria-label="On the left, four downloaded files with no names and no order that an agent cannot find. An arrow labelled intake leads to the right, where the same sources sit in a library: original files kept local, Markdown copies tracked in git, and a bibliography whose keys resolve to those files.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 720" width="1600" height="720" role="img" aria-label="The same sources directory shown before and after intake. Before: four unprocessed files under their original download names. After: originals kept, three converted to Markdown and entered in the bibliography, and the fourth file, an image-only scan, still visible and awaiting OCR rather than silently dropped.">
 <defs>
   <marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto" markerUnits="strokeWidth">
     <path d="M0,0 L10,5 L0,10 z" fill="#1F4E9B"/>
@@ -6,35 +6,46 @@
 </defs>
 <rect width="1600" height="720" fill="#F3EFE3"/>
 
-<text x="60" y="66" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="25" font-weight="600" letter-spacing="3.4" fill="#68686D">A DOWNLOADS FOLDER</text>
-<text x="880" y="66" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="25" font-weight="600" letter-spacing="3.4" fill="#68686D">A SOURCE LIBRARY</text>
+<text x="60" y="60" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" letter-spacing="3.4" fill="#68686D">BEFORE</text>
+<text x="880" y="60" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" letter-spacing="3.4" fill="#68686D">AFTER INTAKE, BEFORE OCR</text>
 
-<g font-family="Menlo,Consolas,monospace" font-size="27" fill="#17171A">
-  <g transform="rotate(-1.6 380 160)"><rect x="60" y="120" width="640" height="80" rx="8" fill="#ECE6D6" stroke="#d9d2bf" stroke-width="2"/><text x="90" y="170">Download (3).pdf</text></g>
-  <g transform="rotate(1.1 380 268)"><rect x="60" y="228" width="640" height="80" rx="8" fill="#ECE6D6" stroke="#d9d2bf" stroke-width="2"/><text x="90" y="278">1-s2.0-S0261379421000342.pdf</text></g>
-  <g transform="rotate(-0.8 380 376)"><rect x="60" y="336" width="640" height="80" rx="8" fill="#ECE6D6" stroke="#d9d2bf" stroke-width="2"/><text x="90" y="386">osei_socialtrust_FINAL_v2.docx</text></g>
-  <g transform="rotate(1.4 380 484)"><rect x="60" y="444" width="640" height="80" rx="8" fill="#ECE6D6" stroke="#d9d2bf" stroke-width="2"/><text x="90" y="494">scan-0417.pdf</text></g>
+<text x="60" y="106" font-family="Menlo,Consolas,monospace" font-size="28" fill="#68686D">sources/unprocessed/</text>
+
+<g font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">
+  <rect x="60" y="138" width="660" height="74" rx="8" fill="#ECE6D6" stroke="#d9d2bf" stroke-width="2"/>
+  <text x="84" y="184">Download (3).pdf</text>
+
+  <rect x="60" y="226" width="660" height="74" rx="8" fill="#ECE6D6" stroke="#d9d2bf" stroke-width="2"/>
+  <text x="84" y="272">1-s2.0-S0261379421000342.pdf</text>
+
+  <rect x="60" y="314" width="660" height="74" rx="8" fill="#ECE6D6" stroke="#d9d2bf" stroke-width="2"/>
+  <text x="84" y="360">osei_socialtrust_FINAL_v2.docx</text>
+
+  <rect x="60" y="402" width="660" height="74" rx="8" fill="#ECE6D6" stroke="#d9d2bf" stroke-width="2"/>
+  <text x="84" y="448">scan-0417.pdf</text>
 </g>
-<text x="60" y="600" font-family="Georgia,serif" font-size="30" font-style="italic" fill="#8B5F10">No names, no order. An agent cannot find them.</text>
 
-<line x1="735" y1="322" x2="845" y2="322" stroke="#1F4E9B" stroke-width="4" marker-end="url(#a1)"/>
-<text x="790" y="296" text-anchor="middle" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="24" font-weight="600" letter-spacing="2" fill="#1F4E9B">INTAKE</text>
+<line x1="735" y1="330" x2="845" y2="330" stroke="#1F4E9B" stroke-width="4" marker-end="url(#a1)"/>
+<text x="790" y="302" text-anchor="middle" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" letter-spacing="2" fill="#1F4E9B">INTAKE</text>
 
-<rect x="880" y="112" width="660" height="128" rx="10" fill="none" stroke="#68686D" stroke-width="2.5" stroke-dasharray="9 7"/>
-<text x="912" y="163" font-family="Menlo,Consolas,monospace" font-size="30" fill="#17171A">sources/og/</text>
-<text x="912" y="206" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="25" fill="#68686D">original files, kept local</text>
+<g>
+  <rect x="880" y="100" width="660" height="104" rx="10" fill="none" stroke="#68686D" stroke-width="2.5" stroke-dasharray="9 7"/>
+  <text x="912" y="142" font-family="Menlo,Consolas,monospace" font-size="30" fill="#17171A">sources/og/</text>
+  <text x="912" y="180" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">4 originals</text>
 
-<rect x="880" y="264" width="660" height="128" rx="10" fill="#ECE6D6" stroke="#1F4E9B" stroke-width="3"/>
-<text x="912" y="315" font-family="Menlo,Consolas,monospace" font-size="30" fill="#17171A">sources/md/</text>
-<text x="912" y="358" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="25" fill="#68686D">Markdown copies, tracked in git</text>
+  <rect x="880" y="220" width="660" height="104" rx="10" fill="#ECE6D6" stroke="#1F4E9B" stroke-width="3"/>
+  <text x="912" y="262" font-family="Menlo,Consolas,monospace" font-size="30" fill="#17171A">sources/md/</text>
+  <text x="912" y="300" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">3 conversions</text>
 
-<rect x="880" y="416" width="660" height="128" rx="10" fill="#ECE6D6" stroke="#E0A526" stroke-width="3"/>
-<text x="912" y="467" font-family="Menlo,Consolas,monospace" font-size="30" fill="#17171A">sources/references.bib</text>
-<text x="912" y="510" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="25" fill="#68686D">one key per source, and it resolves</text>
+  <rect x="880" y="340" width="660" height="104" rx="10" fill="#ECE6D6" stroke="#E0A526" stroke-width="3"/>
+  <text x="912" y="382" font-family="Menlo,Consolas,monospace" font-size="30" fill="#17171A">sources/references.bib</text>
+  <text x="912" y="420" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">3 entries</text>
 
-<text x="880" y="600" font-family="Georgia,serif" font-size="30" font-style="italic" fill="#1F4E9B">Readable, kept, and</text>
-<text x="880" y="634" font-family="Georgia,serif" font-size="30" font-style="italic" fill="#1F4E9B">the same for everyone.</text>
+  <rect x="880" y="460" width="660" height="104" rx="10" fill="none" stroke="#8B5F10" stroke-width="2.5" stroke-dasharray="9 7"/>
+  <text x="912" y="502" font-family="Menlo,Consolas,monospace" font-size="28" fill="#8B5F10">kowalski-2017-turnout-cascades.pdf</text>
+  <text x="912" y="540" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#8B5F10">awaiting OCR</text>
+</g>
 
-<line x1="60" y1="648" x2="1540" y2="648" stroke="#d9d2bf" stroke-width="2"/>
-<text x="60" y="694" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="24" fill="#68686D">When the session ends, only the files remain.</text>
+<line x1="60" y1="610" x2="1540" y2="610" stroke="#d9d2bf" stroke-width="2"/>
+<text x="60" y="652" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">Three of four are readable. The fourth is visible and unresolved.</text>
 </svg>

@@ -263,16 +263,25 @@ iterating without a signal produces fluent work nobody can falsify.
 So the library is built to make a check possible, not to keep you informed. Four
 departures follow, and a project with different checks would need others.
 
-- **A conversion, not a synthesis.** `sources/md/` sits where Karpathy's wiki sits: it is
-  the layer the model reads and works in. Its contents are different. In the wiki pattern
-  the model writes the summary and you read it. Here the tracked file is an extraction of
-  the original, because the thing you cite has to be the thing you read. A summary's
-  silence is not evidence that the original says nothing.
+- **A conversion, not a synthesis.** Karpathy's middle layer is written by the model:
+  "summaries, entity pages, concept pages, comparisons, an overview, a synthesis," which
+  it owns and you read. `sources/md/` is not that. It is a mechanical extraction, one file
+  per source, carrying the author's words rather than the model's, because the thing you
+  cite has to be the thing you read. A summary's silence is not evidence that the original
+  says nothing.
 - **A bibliography.** A personal knowledge base never has to survive a citation check.
   `references.bib` is what makes the library answerable to a manuscript.
 - **Originals kept out of git.** Copyright and size, not tidiness.
 - **A record of what is missing.** `missing.bib` holds what was cited and could not be
   filed, so an absence stays visible.
+
+So the two designs disagree about which layer is disposable. In Kenny's demonstration the
+conversions sit in an ignored staging folder that can be regenerated from the PDFs at any
+time, because the wiki is the artifact being built. Here it is the other way round. The
+conversions are tracked, and there is no synthesis layer at all by default. A research
+repository grows one when the project calls for it, as `review/` and `codebook/` in a
+literature review, where the corpus becomes an inventory with per-source annotations. Even
+then a written protocol governs it rather than the model owning it.
 
 ---
 

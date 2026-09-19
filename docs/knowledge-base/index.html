@@ -155,8 +155,8 @@ claude</code></pre>
     <p>What it writes is a source library with four parts. Three directories and one file:</p>
     <ul class="terms">
       <li><code>sources/og/</code><span>the originals, exactly as acquired. Gitignored, for size and for copyright. The authority whenever a conversion is in doubt.</span></li>
-      <li><code>sources/md/</code><span>the conversions. Tracked in git. This is what an agent reads and what a <code>grep</code> searches.</span></li>
-      <li><code>sources/unprocessed/</code><span>the drop zone. Files wait here until they are identified, named, converted, and registered.</span></li>
+      <li><code>sources/md/</code><span>the conversions. Tracked in git. This is the layer an agent actually works in, and what a <code>grep</code> searches. Nothing downstream reads the PDFs.</span></li>
+      <li><code>sources/unprocessed/</code><span>the drop zone, and only that. A file waits here until it has been identified and renamed, which moves it to <code>og/</code>. Nothing is ever converted out of this folder.</span></li>
       <li><code>sources/references.bib</code><span>one entry per source, written at intake rather than in a batch at the end. The key has to resolve to its file by author and year, because that is how a checker maps a citation to a document.</span></li>
     </ul>
     <p>It also writes a conversion script, a project-local <code>/process-source</code> command, and a <code>CLAUDE.md</code> with <code>AGENTS.md</code> symlinked to it, so a second agent family reads the same conventions.</p>
@@ -172,7 +172,7 @@ claude</code></pre>
     <p>Copy the four files into the drop zone, then run the intake command once per file.</p>
     <pre><code>cp ~/ai-for-research/demos/knowledge-base/inbox/* sources/unprocessed/</code></pre>
     <pre><code>/process-source</code></pre>
-    <p>Five steps happen, and the division of labour matters more than the mechanics.</p>
+    <p>Five steps happen. Conversion reads from <code>og/</code>, not from the drop zone, so a file has to be identified and renamed before anything can convert it. That ordering is why the identity step cannot be skipped.</p>
     <div class="tablewrap"><table>
       <tr><th>Step</th><th>Who</th><th>What changes on disk</th></tr>
       <tr><td>Drop</td><td>Researcher</td><td>the file sits in <code>sources/unprocessed/</code></td></tr>
@@ -198,7 +198,10 @@ claude</code></pre>
     <pre><code>./scripts/convert-sources.sh</code></pre>
     <pre><code>  NEEDS OCR (image-only): kowalski-2017-turnout-cascades.pdf
 Converted 0 file(s), 1 need OCR. Markdown in $PROJECT/sources/md/</code></pre>
-    <p>Nothing new, and the scan still flagged. The scan is a photograph with no text layer. Without the guard that catches it, the converter would exit successfully and write a few kilobytes of noise, and that file would then look exactly like a source that had been acquired, converted, filed, and read. A refusal is better than a silent success. Send it to <code>/oss:vlm-ocr</code> when you want it, or leave it.</p>
+    <p>Nothing new, and the scan still flagged. This is the point to be precise about what the converter does, because it is not what people assume.</p>
+    <p><strong>It extracts the text layer a PDF already contains.</strong> A digital PDF carries its text inside the file, and <a href="https://github.com/opendataloader-project/opendataloader-pdf">OpenDataLoader PDF</a> pulls that out as Markdown. Word and other Office formats take a different path, through <a href="https://github.com/firecrawl/anydoc">anydoc</a> or pandoc. <strong>None of this is OCR.</strong> Nothing here reads pixels.</p>
+    <p>Which is exactly why the fourth file stops. <code>scan-0417.pdf</code> is a photograph of a page. It has no text layer, so there is nothing to extract. The script tests for this before it tries, by measuring how much text comes out per page and treating fewer than 300 characters as an image, and it refuses rather than proceeds. Without that guard the converter exits successfully and writes a few kilobytes of noise, and the file then looks exactly like a source that has been acquired, converted, filed, and read.</p>
+    <p>Reading pixels is a separate job for a separate skill. Send the scan to <code>/oss:vlm-ocr</code> when you want it, or leave it where it is and let the audit keep reporting it.</p>
     <p>Now the part that reports nothing at all. <strong>Did the converter keep the table's rows and columns?</strong> This table is on page 2 of the Ferreira and Nair PDF:</p>
     <div class="tablewrap"><table>
       <tr><th>Outcome</th><th>Estimate</th><th>95% interval</th></tr>
@@ -244,7 +247,7 @@ sources/md/ferreira-nair-2021-compulsory-voting.md:36:Whatever compulsory voting
     <p>It changes the middle layer, and the reason is the difference between research and the software work most agent tooling was built around. Code has fast, repeatable checks: a test, a compiler, a visible output. Matt Pocock's procedure for diagnosing a bug starts by naming a command that exposes the failure, because in software you can usually name one. Research has no such command. Evidence, design, and interpretation get checked slowly and by people, which makes the process more brittle and more subjective, and an agent iterating without a signal produces fluent work nobody can falsify.</p>
     <p>So the library is built to make a check possible, not to keep you informed. Four departures follow, and a project with different checks would need others.</p>
     <ul>
-      <li><strong>A conversion, not a synthesis.</strong> In the wiki pattern the model writes the summary and you read it. Here the tracked file is a faithful conversion, because the thing you cite has to be the thing you read. A summary's silence is not evidence that the original says nothing.</li>
+      <li><strong>A conversion, not a synthesis.</strong> <code>sources/md/</code> sits where Karpathy's wiki sits: it is the layer the model reads and works in. Its contents are different. In the wiki pattern the model writes the summary and you read it. Here the tracked file is an extraction of the original, because the thing you cite has to be the thing you read. A summary's silence is not evidence that the original says nothing.</li>
       <li><strong>A bibliography.</strong> A personal knowledge base never has to survive a citation check. <code>references.bib</code> is what makes the library answerable to a manuscript.</li>
       <li><strong>Originals kept out of git.</strong> Copyright and size, not tidiness.</li>
       <li><strong>A record of what is missing.</strong> <code>missing.bib</code> holds what was cited and could not be filed, so an absence stays visible.</li>

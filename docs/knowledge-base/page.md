@@ -64,10 +64,11 @@ What it writes is a source library with four parts. Three directories and one fi
 
 - **`sources/og/`** — the originals, exactly as acquired. Gitignored, for size and for
   copyright. The authority whenever a conversion is in doubt.
-- **`sources/md/`** — the conversions. Tracked in git. This is what an agent reads and
-  what a `grep` searches.
-- **`sources/unprocessed/`** — the drop zone. Files wait here until they are identified,
-  named, converted, and registered.
+- **`sources/md/`** — the conversions. Tracked in git. This is the layer an agent
+  actually works in, and what a `grep` searches. Nothing downstream reads the PDFs.
+- **`sources/unprocessed/`** — the drop zone, and only that. A file waits here until it
+  has been identified and renamed, which moves it to `og/`. Nothing is ever converted out
+  of this folder.
 - **`sources/references.bib`** — one entry per source, written at intake rather than in a
   batch at the end. The key has to resolve to its file by author and year, because that is
   how a checker maps a citation to a document.
@@ -96,7 +97,9 @@ cp ~/ai-for-research/demos/knowledge-base/inbox/* sources/unprocessed/
 /process-source
 ```
 
-Five steps happen, and the division of labour matters more than the mechanics.
+Five steps happen. Conversion reads from `og/`, not from the drop zone, so a file has to
+be identified and renamed before anything can convert it. That ordering is why the
+identity step cannot be skipped.
 
 | Step | Who | What changes on disk |
 |---|---|---|
@@ -128,11 +131,24 @@ Three conversions are already there. Run the converter again and it says so:
 Converted 0 file(s), 1 need OCR. Markdown in $PROJECT/sources/md/
 ```
 
-Nothing new, and the scan still flagged. The scan is a photograph with no text layer.
-Without the guard that catches it, the converter would exit successfully and write a few
-kilobytes of noise, and that file would then look exactly like a source that had been
-acquired, converted, filed, and read. A refusal is better than a silent success. Send it
-to `/oss:vlm-ocr` when you want it, or leave it.
+Nothing new, and the scan still flagged. This is the point to be precise about what the
+converter does, because it is not what people assume.
+
+**It extracts the text layer a PDF already contains.** A digital PDF carries its text
+inside the file, and [OpenDataLoader PDF](https://github.com/opendataloader-project/opendataloader-pdf)
+pulls that out as Markdown. Word and other Office formats take a different path, through
+[anydoc](https://github.com/firecrawl/anydoc) or pandoc. **None of this is OCR.** Nothing
+here reads pixels.
+
+Which is exactly why the fourth file stops. `scan-0417.pdf` is a photograph of a page. It
+has no text layer, so there is nothing to extract. The script tests for this before it
+tries, by measuring how much text comes out per page and treating fewer than 300
+characters as an image, and it refuses rather than proceeds. Without that guard the
+converter exits successfully and writes a few kilobytes of noise, and the file then looks
+exactly like a source that has been acquired, converted, filed, and read.
+
+Reading pixels is a separate job for a separate skill. Send the scan to `/oss:vlm-ocr`
+when you want it, or leave it where it is and let the audit keep reporting it.
 
 Now the part that reports nothing at all. **Did the converter keep the table's rows and
 columns?** This table is on page 2 of the Ferreira and Nair PDF:
@@ -240,10 +256,11 @@ iterating without a signal produces fluent work nobody can falsify.
 So the library is built to make a check possible, not to keep you informed. Four
 departures follow, and a project with different checks would need others.
 
-- **A conversion, not a synthesis.** In the wiki pattern the model writes the summary and
-  you read it. Here the tracked file is a faithful conversion, because the thing you cite
-  has to be the thing you read. A summary's silence is not evidence that the original says
-  nothing.
+- **A conversion, not a synthesis.** `sources/md/` sits where Karpathy's wiki sits: it is
+  the layer the model reads and works in. Its contents are different. In the wiki pattern
+  the model writes the summary and you read it. Here the tracked file is an extraction of
+  the original, because the thing you cite has to be the thing you read. A summary's
+  silence is not evidence that the original says nothing.
 - **A bibliography.** A personal knowledge base never has to survive a citation check.
   `references.bib` is what makes the library answerable to a manuscript.
 - **Originals kept out of git.** Copyright and size, not tidiness.

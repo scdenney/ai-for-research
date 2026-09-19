@@ -61,27 +61,39 @@ osei-2020-social-trust.docx
 kowalski-2017-turnout-cascades.pdf
 ```
 
-## 4. Convert and look at what came out
+## 4. Confirm the conversion and look at what came out
 
 ```bash
-./scripts/convert-sources.sh
 ls sources/md/
 ```
 
-Three conversions, and one refusal:
+Three conversions are already there. `/process-source` converted each file as it filed
+it, so there is nothing left to convert, only to check.
+
+Re-run the converter and see that for yourself:
+
+```bash
+./scripts/convert-sources.sh
+```
 
 ```
   NEEDS OCR (image-only): kowalski-2017-turnout-cascades.pdf
-Converted 3 file(s), 1 need OCR. Markdown in .../sources/md/
+Converted 0 file(s), 1 need OCR. Markdown in $PROJECT/sources/md/
 ```
 
-The scan has no text layer. Without the guard the converter would write a few kilobytes
-of noise and report success, which reads downstream as a source that has been filed and
-read. Route that one to OCR instead:
+Nothing new, and the scan still gets flagged. That is how you know the script is safe to
+re-run: it only touches files without a conversion. The scan itself has no text layer.
+Without the guard the converter would write a few kilobytes of noise and report success,
+which reads downstream as a source that has been filed and read. Route that one to OCR
+when you are ready:
 
 ```
 /oss:vlm-ocr sources/og/kowalski-2017-turnout-cascades.pdf
 ```
+
+OCR is not part of the main walkthrough. The saved end state in
+`expected-output/finished-base/` is captured before this step: the scan still sits in
+`sources/og/` waiting for it. Do it now, later, or not at all.
 
 Now open a conversion and check it against the original. Start with the results table in
 Ferreira and Nair, which does not survive the trip:
@@ -109,15 +121,13 @@ name all four. Compare with `expected-output/03-audit.md`.
 
 ## 7. Use what you built
 
-The knowledge base is the input to the next demo. With one in place, the source-claim
-check has something to read:
+The knowledge base is the input to the next demo. The claim check needs two things: a
+manuscript to check, and a knowledge base to check it against. This demo builds the
+knowledge base and ships no manuscript, so there is nothing here to run
+`/oss:fact-check` against.
 
-```
-/oss:fact-check manuscript.md
-```
-
-Without one it refuses to run rather than guess, which is the behaviour you want. See
-[reference-check](../../reference-check/).
+[reference-check](../../reference-check/) supplies a manuscript with planted problems,
+along with a knowledge base of its own. That is where to go next.
 
 Here is why a base you can read matters. In the lecture's own draft, the claim check read
 one sentence against both filed sources: "citizens penalize executive action relative to

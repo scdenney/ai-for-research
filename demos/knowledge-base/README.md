@@ -37,8 +37,9 @@ demos/knowledge-base/
 │   ├── osei_socialtrust_FINAL_v2.docx   #   not a PDF at all
 │   └── scan-0417.pdf                    #   an image-only scan, no text layer
 ├── messy-project/          # a half-built repo to point the audit at
-├── expected-output/        # what each step should produce, captured from a real run
-│   └── finished-base/      #   the knowledge base you end up with
+├── expected-output/        # what each step should produce: some captured from a real run,
+│                           #   some illustrative (each file says which)
+│   └── finished-base/      #   the knowledge base you end up with, captured from a real run
 ├── prompts/run.md          # the exact commands, in order
 ├── scripts/                # regenerates inbox/ from the synthetic paper text
 └── ANSWER-KEY.md           # every planted problem and what should be reported

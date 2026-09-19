@@ -272,8 +272,23 @@ departures follow, and a project with different checks would need others.
 - **A bibliography.** A personal knowledge base never has to survive a citation check.
   `references.bib` is what makes the library answerable to a manuscript.
 - **Originals kept out of git.** Copyright and size, not tidiness.
-- **A record of what is missing.** `missing.bib` holds what was cited and could not be
-  filed, so an absence stays visible.
+- **A record of what is missing, in two forms.** `missing.bib` holds what was cited and
+  could not be filed. A work you cannot hold at all, a book, a paywalled article with no
+  preprint, gets a `.NOTE.md` file in `sources/md/` instead, carrying a citation and a
+  warning that nothing in it may verify a claim.
+
+A `.NOTE.md` puts that warning first, so an agent meets it on read, not only a person
+reading a README:
+
+> **THIS IS NOT A SOURCE.** It is a repo-authored note about a work we do not
+> hold. Nothing here may be used to verify a claim the paper attributes to this
+> work; a fact-check must record such a claim as unverifiable. The content below
+> is assembled from publisher pages, catalogue records and reviews, with URLs.
+
+The file then carries a title in the form `Author, Firstname — note (no source held)`, a
+bib key, a full citation, and what the manuscript cites the work for. The extension makes
+the category visible without opening the file, and the rule lives in the project's
+`CLAUDE.md`.
 
 So the two designs disagree about which layer is disposable. In Kenny's demonstration the
 conversions sit in an ignored staging folder that can be regenerated from the PDFs at any

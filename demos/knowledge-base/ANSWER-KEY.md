@@ -29,6 +29,17 @@ that has been acquired, converted, and filed. A silent success is worse than a r
 None of these stops the pipeline, and none of them appears in the run log. They are only
 visible if you open the file. That is the lesson of step 4.
 
+## The work with no source held
+
+| What to check | What you will find |
+|---|---|
+| `sources/missing.bib` and `sources/md/marchetti-2016-reluctant-voter.NOTE.md` | The same cited book, Marchetti (2016), recorded twice: a bib entry that says it is missing, and a `.NOTE.md` that says what is believed about it and warns that neither may stand in as evidence for a claim. |
+
+Notice what the `.NOTE.md` does that the bib entry cannot. It carries the claim the
+manuscript attaches to the book, but its opening lines forbid using that content to verify
+the claim, so a fact-check has to record it as unverifiable rather than read the note and
+move on.
+
 ## `messy-project/`
 
 | # | Planted problem | Expected finding |

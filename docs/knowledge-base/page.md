@@ -14,14 +14,14 @@ library that later checks can be run against.
 
 ## What this demonstrates {#what-this-is}
 
-You are given four files in the state research materials usually reach you in. Two PDFs
+You are given four files in the state research materials usually arrive in. Two PDFs
 under names a browser and a publisher chose, a Word document, and a photograph of a page.
 You will have an agent identify each one, file it, and convert it, and then you will check
-what the conversion actually did.
+what the conversion did.
 
 The run produces three readable Markdown files and a bibliography whose keys resolve to
-them. It refuses the scan, which has no text in it. And it quietly damages a table in one
-of the PDFs without reporting any failure, which is the part worth your attention. Then
+them. It refuses the scan, which has no text layer. And it damages a table in one
+of the PDFs without reporting any failure. Then
 you point the same skill at a second project that grew without a convention, and read what
 it finds.
 
@@ -51,7 +51,7 @@ Work in the empty folder, not in the clone. The four files you will use are in
 
 ## 2. Create the project {#setup}
 
-**Researcher.** In the new folder:
+Researcher, in the new folder:
 
 ```
 /oss:research-repo .
@@ -62,14 +62,14 @@ agent then works against this folder while you inspect what it did.
 
 What it writes is a source library with four parts. Three directories and one file:
 
-- **`sources/og/`** — the originals, exactly as acquired. Gitignored, for size and for
+- **`sources/og/`**: the originals, exactly as acquired. Gitignored, for size and for
   copyright. The authority whenever a conversion is in doubt.
-- **`sources/md/`** — the conversions. Tracked in git. This is the layer an agent
-  actually works in, and what a `grep` searches. Nothing downstream reads the PDFs.
-- **`sources/unprocessed/`** — the drop zone, and only that. A file waits here until it
+- **`sources/md/`**: the conversions. Tracked in git. This is the layer an agent
+  actually works in, and what a `grep` searches. No tool downstream reads the PDFs.
+- **`sources/unprocessed/`**: the drop zone, and only that. A file waits here until it
   has been identified and renamed, which moves it to `og/`. Nothing is ever converted out
   of this folder.
-- **`sources/references.bib`** — one entry per source, written at intake rather than in a
+- **`sources/references.bib`**: one entry per source, written at intake rather than in a
   batch at the end. The key has to resolve to its file by author and year, because that is
   how a checker maps a citation to a document.
 
@@ -81,7 +81,7 @@ conventions.
 the original. Cite from `references.bib`. A key that does not resolve to a filed source is
 a citation nobody can check, including you.
 
-*Diagram 2: the spine, with the tracked and ignored split and the key-to-file contract.*
+*Diagram 1: the spine, with the tracked and ignored split and the key-to-file contract.*
 
 ---
 
@@ -109,10 +109,10 @@ identity step cannot be skipped.
 | Convert | Tool runs, researcher checks | `sources/md/author-year-slug.md` |
 | Register | Agent | an entry in `sources/references.bib` |
 
-Identify is the step that cannot be skipped. The name it produces is what makes a citation
+Identify produces the name that makes a citation
 key resolvable later, so read what the agent proposes before confirming it.
 
-*Diagram 1: the same `sources/` directory before intake and after it.*
+*Diagram 2: the same `sources/` directory before intake and after it.*
 
 *Diagram 3: the five steps and what each one leaves behind.*
 
@@ -131,34 +131,26 @@ Three conversions are already there. Run the converter again and it says so:
 Converted 0 file(s), 1 need OCR. Markdown in $PROJECT/sources/md/
 ```
 
-Nothing new, and the scan still flagged. This is the point to be precise about what the
-converter does, because it is not what people assume.
+Nothing new, and the scan is still flagged. What the converter does is not what people assume.
 
-**It extracts the text layer a PDF already contains.** A digital PDF carries its text
+It extracts the text layer a PDF already contains. A digital PDF carries its text
 inside the file, and [OpenDataLoader PDF](https://github.com/opendataloader-project/opendataloader-pdf)
 pulls that out as Markdown. Word and other Office formats take a different path, through
 [anydoc](https://github.com/firecrawl/anydoc) or pandoc. **None of this is OCR.** Nothing
 here reads pixels.
 
-Which is exactly why the fourth file stops. `scan-0417.pdf` is a photograph of a page. It
+That is why the fourth file stops. `scan-0417.pdf` is a photograph of a page. It
 has no text layer, so there is nothing to extract. The script tests for this before it
 tries, by measuring how much text comes out per page and treating fewer than 300
-characters as an image, and it refuses rather than proceeds. Without that guard the
+characters as an image, and it stops there. Without that guard the
 converter exits successfully and writes a few kilobytes of noise, and the file then looks
 exactly like a source that has been acquired, converted, filed, and read.
 
 Reading pixels is a separate job for a separate skill. Send the scan to `/oss:vlm-ocr`
 when you want it, or leave it where it is and let the audit keep reporting it.
 
-Extraction produces one more thing when a paper has figures in it. The images come out as
-files in a sibling folder named `<source>_images/`, and the Markdown links to them by
-relative path, so a figure stays with the text that refers to it. Both get committed
-together. None of the four sources here have figures, so this run produces no such
-folder, but in a real library it is the common case: of the 137 conversions in the Open
-Science Skills repository's own source library, 91 have an images folder beside them.
-
-Now the part that reports nothing at all. **Did the converter keep the table's rows and
-columns?** This table is on page 2 of the Ferreira and Nair PDF:
+The next failure reports nothing at all. Did the converter keep the table's rows and
+columns? This table is on page 2 of the Ferreira and Nair PDF:
 
 | Outcome | Estimate | 95% interval |
 |---|---|---|
@@ -185,9 +177,9 @@ sources/md/ferreira-nair-2021-compulsory-voting.md:36:Whatever compulsory voting
 ```
 
 Nothing in the run log says the table collapsed. The tool creates readable text. You check
-it. That is why the original stays the authority for anything where layout carried meaning.
+it. That is why the original stays the authority for any passage whose layout carried meaning.
 
-Then look at what registration produced, and at the link it creates:
+Then look at what registration produced, and at the link it created:
 
 ```
 @article{ferreira-nair2021,
@@ -202,12 +194,20 @@ Then look at what registration produced, and at the link it creates:
 `sources/og/ferreira-nair-2021-compulsory-voting.pdf`. That chain is what a citation check
 follows.
 
+Extraction produces one more thing when a paper has figures in it. The images come out as
+files in a sibling folder named `<source>_images/`, and the Markdown links to them by
+relative path, so a figure stays with the text that refers to it. Both get committed
+together. None of the four sources here have figures, so this run produces no such
+folder, but in a real library it is the common case: of the 137 conversions in the Open
+Science Skills library that this demo's skills come from, counted in September 2026, 91
+have an images folder beside them.
+
 ---
 
 ## 5. Audit a project that already exists {#audit}
 
-Most researchers do not start clean. The same skill, pointed at a folder that has one,
-reports what is present, what is partial, and what is missing.
+Most researchers do not start clean. Pointed at a folder that already holds sources, the
+same skill reports what is present, what is partial, and what is missing.
 
 ```
 /oss:research-repo path/to/ai-for-research/demos/knowledge-base/messy-project
@@ -228,8 +228,7 @@ The last two are the same failure from opposite ends, and an audit that checks o
 direction misses half of it. The project is also missing the pipeline itself: no
 `.gitignore`, no conversion script, no `sources/README.md`.
 
-Git makes changes recoverable and attributable across sessions. Originals stay local and
-conversions are tracked. But recorded is not verified. Git tells you what changed and who
+Git makes changes recoverable and attributable across sessions. But recorded is not verified. Git tells you what changed and who
 changed it, and the audit tells you what is present. Neither tells you a filed source is
 right.
 
@@ -309,8 +308,8 @@ then a written protocol governs it rather than the model owning it.
 | Claim support | `fact-check` | Compare manuscript claims with filed sources |
 | Paper and package | `paper-review-lite`, `replication-package` | Review the paper and execute package checks |
 
-The dependency is uneven, and worth being precise about. `fact-check` is the one that
-needs this library: it refuses to run without a per-source Markdown file for roughly two
+The dependency is uneven. `fact-check` is the one that
+needs this library. It refuses to run without a per-source Markdown file for roughly two
 thirds of the cited works, because a check against a half-built library produces false
 reassurance. `citation-check` reads the manuscript and the bibliography, not the
 conversions. `paper-review-lite` reads whatever it is given. `replication-package` works
@@ -329,10 +328,10 @@ and it shows what the reading is for.
 An archived draft of Denney, *Governing Immigration by the Rules* (2026), contained this
 sentence: "Studies of unilateral policymaking similarly show that citizens penalize
 executive action relative to legislative action," citing Reeves & Rogowski (2016) and
-Christenson & Kriner (2017). To support it, those sources would have to compare support
+Christenson & Kriner (2017). To back it, those sources would have to compare support
 for the same policy under executive action and under legislation.
 
-Both were filed and readable, so a check could read them. Reeves and Rogowski report that
+Both were filed and readable, so a check could use them. Reeves and Rogowski report that
 "only about a quarter of respondents in any of the surveys supported unilateral policy
 making," which is low general support for unilateral power, not a same-policy comparison.
 Christenson and Kriner report that the student-loan route "has no significant influence on

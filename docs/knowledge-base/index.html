@@ -129,8 +129,8 @@
 <main class="wrap" id="main">
   <section id="what-this-is">
     <h2>What this demonstrates</h2>
-    <p>You are given four files in the state research materials usually reach you in. Two PDFs under names a browser and a publisher chose, a Word document, and a photograph of a page. You will have an agent identify each one, file it, and convert it, and then you will check what the conversion actually did.</p>
-    <p>The run produces three readable Markdown files and a bibliography whose keys resolve to them. It refuses the scan, which has no text in it. And it quietly damages a table in one of the PDFs without reporting any failure, which is the part worth your attention. Then you point the same skill at a second project that grew without a convention, and read what it finds.</p>
+    <p>You are given four files in the state research materials usually arrive in. Two PDFs under names a browser and a publisher chose, a Word document, and a photograph of a page. You will have an agent identify each one, file it, and convert it, and then you will check what the conversion did.</p>
+    <p>The run produces three readable Markdown files and a bibliography whose keys resolve to them. It refuses the scan, which has no text layer. And it damages a table in one of the PDFs without reporting any failure. Then you point the same skill at a second project that grew without a convention, and read what it finds.</p>
     <p>The sources are invented, and so are their authors and journals. The conversion problems are real.</p>
     <p><strong>What this run produces</strong></p>
     <div class="tablewrap"><table>
@@ -149,20 +149,20 @@ claude</code></pre>
 
   <section id="setup">
     <h2>2. Create the project</h2>
-    <p><strong>Researcher.</strong> In the new folder:</p>
+    <p>Researcher, in the new folder:</p>
     <pre><code>/oss:research-repo .</code></pre>
     <p>A skill is a stored procedure. Invoking one loads its instructions for this task, and the agent then works against this folder while you inspect what it did.</p>
     <p>What it writes is a source library with four parts. Three directories and one file:</p>
     <ul class="terms">
       <li><code>sources/og/</code><span>the originals, exactly as acquired. Gitignored, for size and for copyright. The authority whenever a conversion is in doubt.</span></li>
-      <li><code>sources/md/</code><span>the conversions. Tracked in git. This is the layer an agent actually works in, and what a <code>grep</code> searches. Nothing downstream reads the PDFs.</span></li>
+      <li><code>sources/md/</code><span>the conversions. Tracked in git. This is the layer an agent actually works in, and what a <code>grep</code> searches. No tool downstream reads the PDFs.</span></li>
       <li><code>sources/unprocessed/</code><span>the drop zone, and only that. A file waits here until it has been identified and renamed, which moves it to <code>og/</code>. Nothing is ever converted out of this folder.</span></li>
       <li><code>sources/references.bib</code><span>one entry per source, written at intake rather than in a batch at the end. The key has to resolve to its file by author and year, because that is how a checker maps a citation to a document.</span></li>
     </ul>
     <p>It also writes a conversion script, a project-local <code>/process-source</code> command, and a <code>CLAUDE.md</code> with <code>AGENTS.md</code> symlinked to it, so a second agent family reads the same conventions.</p>
     <div class="rule"><b>The rule.</b> Search the Markdown. Check any doubtful passage, table, or figure against the original. Cite from <code>references.bib</code>. A key that does not resolve to a filed source is a citation nobody can check, including you.</div>
     <figure class="fig">
-      <img src="../assets/knowledge-base/02-spine-and-contract.svg" alt="On the left, the folder layout of a research repository, with originals gitignored, Markdown conversions tracked, a drop zone, and a bibliography. On the right, the contract: a citation key matches by author and year to a tracked Markdown file, converted at intake from an original kept on local disk. If a link breaks, the citation cannot be checked.">
+      <img src="../assets/knowledge-base/01-spine-and-contract.svg" alt="On the left, the folder layout of a research repository, with originals gitignored, Markdown conversions tracked, a drop zone, and a bibliography. On the right, the contract: a citation key matches by author and year to a tracked Markdown file, converted at intake from an original kept on local disk. If a link breaks, the citation cannot be checked.">
       <figcaption>What the skill writes, and the chain that makes a citation checkable.</figcaption>
     </figure>
   </section>
@@ -181,9 +181,9 @@ claude</code></pre>
       <tr><td>Convert</td><td>Tool runs, researcher checks</td><td><code>sources/md/author-year-slug.md</code></td></tr>
       <tr><td>Register</td><td>Agent</td><td>an entry in <code>sources/references.bib</code></td></tr>
     </table></div>
-    <p>Identify is the step that cannot be skipped. The name it produces is what makes a citation key resolvable later, so read what the agent proposes before confirming it.</p>
+    <p>Identify produces the name that makes a citation key resolvable later, so read what the agent proposes before confirming it.</p>
     <figure class="fig">
-      <img src="../assets/knowledge-base/01-pile-to-library.svg" alt="The same sources directory shown before and after intake. Before: four unprocessed files under their original download names. After: originals kept, three converted to Markdown and entered in the bibliography, and the fourth file, an image-only scan, still visible and awaiting OCR rather than silently dropped.">
+      <img src="../assets/knowledge-base/02-pile-to-library.svg" alt="The same sources directory shown before and after intake. Before: four unprocessed files under their original download names. After: originals kept, three converted to Markdown and entered in the bibliography, and the fourth file, an image-only scan, still visible and awaiting OCR rather than silently dropped.">
       <figcaption>The same sources directory before intake and after it. Three of four are readable. The fourth is visible and unresolved.</figcaption>
     </figure>
     <figure class="fig">
@@ -198,12 +198,11 @@ claude</code></pre>
     <pre><code>./scripts/convert-sources.sh</code></pre>
     <pre><code>  NEEDS OCR (image-only): kowalski-2017-turnout-cascades.pdf
 Converted 0 file(s), 1 need OCR. Markdown in $PROJECT/sources/md/</code></pre>
-    <p>Nothing new, and the scan still flagged. This is the point to be precise about what the converter does, because it is not what people assume.</p>
-    <p><strong>It extracts the text layer a PDF already contains.</strong> A digital PDF carries its text inside the file, and <a href="https://github.com/opendataloader-project/opendataloader-pdf">OpenDataLoader PDF</a> pulls that out as Markdown. Word and other Office formats take a different path, through <a href="https://github.com/firecrawl/anydoc">anydoc</a> or pandoc. <strong>None of this is OCR.</strong> Nothing here reads pixels.</p>
-    <p>Which is exactly why the fourth file stops. <code>scan-0417.pdf</code> is a photograph of a page. It has no text layer, so there is nothing to extract. The script tests for this before it tries, by measuring how much text comes out per page and treating fewer than 300 characters as an image, and it refuses rather than proceeds. Without that guard the converter exits successfully and writes a few kilobytes of noise, and the file then looks exactly like a source that has been acquired, converted, filed, and read.</p>
+    <p>Nothing new, and the scan is still flagged. What the converter does is not what people assume.</p>
+    <p>It extracts the text layer a PDF already contains. A digital PDF carries its text inside the file, and <a href="https://github.com/opendataloader-project/opendataloader-pdf">OpenDataLoader PDF</a> pulls that out as Markdown. Word and other Office formats take a different path, through <a href="https://github.com/firecrawl/anydoc">anydoc</a> or pandoc. <strong>None of this is OCR.</strong> Nothing here reads pixels.</p>
+    <p>That is why the fourth file stops. <code>scan-0417.pdf</code> is a photograph of a page. It has no text layer, so there is nothing to extract. The script tests for this before it tries, by measuring how much text comes out per page and treating fewer than 300 characters as an image, and it stops there. Without that guard the converter exits successfully and writes a few kilobytes of noise, and the file then looks exactly like a source that has been acquired, converted, filed, and read.</p>
     <p>Reading pixels is a separate job for a separate skill. Send the scan to <code>/oss:vlm-ocr</code> when you want it, or leave it where it is and let the audit keep reporting it.</p>
-    <p>Extraction produces one more thing when a paper has figures in it. The images come out as files in a sibling folder named <code>&lt;source&gt;_images/</code>, and the Markdown links to them by relative path, so a figure stays with the text that refers to it. Both get committed together. None of the four sources here have figures, so this run produces no such folder, but in a real library it is the common case: of the 137 conversions in the Open Science Skills repository&rsquo;s own source library, 91 have an images folder beside them.</p>
-    <p>Now the part that reports nothing at all. <strong>Did the converter keep the table's rows and columns?</strong> This table is on page 2 of the Ferreira and Nair PDF:</p>
+    <p>The next failure reports nothing at all. Did the converter keep the table's rows and columns? This table is on page 2 of the Ferreira and Nair PDF:</p>
     <div class="tablewrap"><table>
       <tr><th>Outcome</th><th>Estimate</th><th>95% interval</th></tr>
       <tr><td>Turnout (percentage points)</td><td>11.2</td><td>8.4 to 14.0</td></tr>
@@ -216,19 +215,20 @@ Turnout (percentage points) 11.2 8.4 to 14.0 Knowledge index (standard deviation
     <p>Every number survived. The row and column structure did not. The header was absorbed into the section heading and both rows run together on one line, so anyone reading this file, person or agent, has to reconstruct which interval belongs to which outcome rather than read it off. The prose came through cleanly and stayed searchable:</p>
     <pre><code>$ grep -n "does not appear to teach" sources/md/*.md
 sources/md/ferreira-nair-2021-compulsory-voting.md:36:Whatever compulsory voting does, it does not appear to teach.</code></pre>
-    <p>Nothing in the run log says the table collapsed. The tool creates readable text. You check it. That is why the original stays the authority for anything where layout carried meaning.</p>
-    <p>Then look at what registration produced, and at the link it creates:</p>
+    <p>Nothing in the run log says the table collapsed. The tool creates readable text. You check it. That is why the original stays the authority for any passage whose layout carried meaning.</p>
+    <p>Then look at what registration produced, and at the link it created:</p>
     <pre><code>@article{ferreira-nair2021,
   author  = {Ferreira, Tom\'{a}s and Nair, Priya},
   title   = {Does Compulsory Voting Make Better Citizens?},
   ...
 }</code></pre>
     <p><code>ferreira-nair2021</code> resolves by author and year to <code>sources/md/ferreira-nair-2021-compulsory-voting.md</code>, which was converted from <code>sources/og/ferreira-nair-2021-compulsory-voting.pdf</code>. That chain is what a citation check follows.</p>
+    <p>Extraction produces one more thing when a paper has figures in it. The images come out as files in a sibling folder named <code>&lt;source&gt;_images/</code>, and the Markdown links to them by relative path, so a figure stays with the text that refers to it. Both get committed together. None of the four sources here have figures, so this run produces no such folder, but in a real library it is the common case: of the 137 conversions in the Open Science Skills library that this demo&rsquo;s skills come from, counted in September 2026, 91 have an images folder beside them.</p>
   </section>
 
   <section id="audit">
     <h2>5. Audit a project that already exists</h2>
-    <p>Most researchers do not start clean. The same skill, pointed at a folder that has one, reports what is present, what is partial, and what is missing.</p>
+    <p>Most researchers do not start clean. Pointed at a folder that already holds sources, the same skill reports what is present, what is partial, and what is missing.</p>
     <pre><code>/oss:research-repo path/to/ai-for-research/demos/knowledge-base/messy-project</code></pre>
     <p>Four findings, and they are worth reading as pairs:</p>
     <ul>
@@ -238,7 +238,7 @@ sources/md/ferreira-nair-2021-compulsory-voting.md:36:Whatever compulsory voting
       <li><strong>One entry has no source.</strong> <code>osei2020</code> is cited and unfiled. Acquire it, or move it to <code>missing.bib</code> with a note on why you could not.</li>
     </ul>
     <p>The last two are the same failure from opposite ends, and an audit that checks one direction misses half of it. The project is also missing the pipeline itself: no <code>.gitignore</code>, no conversion script, no <code>sources/README.md</code>.</p>
-    <p>Git makes changes recoverable and attributable across sessions. Originals stay local and conversions are tracked. But recorded is not verified. Git tells you what changed and who changed it, and the audit tells you what is present. Neither tells you a filed source is right.</p>
+    <p>Git makes changes recoverable and attributable across sessions. But recorded is not verified. Git tells you what changed and who changed it, and the audit tells you what is present. Neither tells you a filed source is right.</p>
   </section>
 
   <section id="why">
@@ -268,15 +268,15 @@ sources/md/ferreira-nair-2021-compulsory-voting.md:36:Whatever compulsory voting
       <tr><td>Claim support</td><td><code>fact-check</code></td><td>Compare manuscript claims with filed sources</td></tr>
       <tr><td>Paper and package</td><td><code>paper-review-lite</code>, <code>replication-package</code></td><td>Review the paper and execute package checks</td></tr>
     </table></div>
-    <p>The dependency is uneven, and worth being precise about. <code>fact-check</code> is the one that needs this library: it refuses to run without a per-source Markdown file for roughly two thirds of the cited works, because a check against a half-built library produces false reassurance. <code>citation-check</code> reads the manuscript and the bibliography, not the conversions. <code>paper-review-lite</code> reads whatever it is given. <code>replication-package</code> works on a separate artifact and does not touch the source library at all.</p>
+    <p>The dependency is uneven. <code>fact-check</code> is the one that needs this library. It refuses to run without a per-source Markdown file for roughly two thirds of the cited works, because a check against a half-built library produces false reassurance. <code>citation-check</code> reads the manuscript and the bibliography, not the conversions. <code>paper-review-lite</code> reads whatever it is given. <code>replication-package</code> works on a separate artifact and does not touch the source library at all.</p>
     <p>These checks improve <strong>verifiability</strong>. They make the files, transformations, and evidence available for inspection. They do not establish the <strong>validity</strong> of a research conclusion.</p>
   </section>
 
   <section id="claim">
     <h2>8. The same practice on a real manuscript</h2>
     <p>Not part of the demo, and not reproducible from it. This is from the author's own work, and it shows what the reading is for.</p>
-    <p>An archived draft of Denney, <em>Governing Immigration by the Rules</em> (2026), contained this sentence: "Studies of unilateral policymaking similarly show that citizens penalize executive action relative to legislative action," citing Reeves &amp; Rogowski (2016) and Christenson &amp; Kriner (2017). To support it, those sources would have to compare support for the same policy under executive action and under legislation.</p>
-    <p>Both were filed and readable, so a check could read them. Reeves and Rogowski report that "only about a quarter of respondents in any of the surveys supported unilateral policy making," which is low general support for unilateral power, not a same-policy comparison. Christenson and Kriner report that the student-loan route "has no significant influence on the probability of a subject backing the president," which is no significant route effect, not a general penalty on executive action. The comparative claim is unsupported as written. The verdict is about the sentence, not the two studies.</p>
+    <p>An archived draft of Denney, <em>Governing Immigration by the Rules</em> (2026), contained this sentence: "Studies of unilateral policymaking similarly show that citizens penalize executive action relative to legislative action," citing Reeves &amp; Rogowski (2016) and Christenson &amp; Kriner (2017). To back it, those sources would have to compare support for the same policy under executive action and under legislation.</p>
+    <p>Both were filed and readable, so a check could use them. Reeves and Rogowski report that "only about a quarter of respondents in any of the surveys supported unilateral policy making," which is low general support for unilateral power, not a same-policy comparison. Christenson and Kriner report that the student-loan route "has no significant influence on the probability of a subject backing the president," which is no significant route effect, not a general penalty on executive action. The comparative claim is unsupported as written. The verdict is about the sentence, not the two studies.</p>
     <p>The sentence was revised on 27 August 2026 to two narrower claims, each attached to the source that supports it. The check shown here was run on 16 September 2026, against the archived version, for the lecture this page accompanies. It shows what the check sees. It is not what caused the revision.</p>
     <figure class="fig">
       <img src="../assets/knowledge-base/04-claim-to-revision.svg" alt="A claim from an archived draft, checked against two sources that were read in full. Neither supports the comparison as written. The researcher rewrote it as two narrower claims, one per source.">

@@ -16,13 +16,13 @@ ai-for-research/
 │   ├── skills/                 #   index of every Open Science Skills skill
 │   ├── knowledge-base/         #   walkthrough for the knowledge-base demo
 │   ├── reference-check/        #   walkthrough for the reference-check demo
-│   ├── orchestration-lab/      #   walkthrough for the orchestration-lab demo
 │   ├── talk-to-your-terminal/  #   working in the terminal with an agent
 │   └── lectures/               #   the lectures page
 ├── demos/                      # self-contained projects you can clone and run
 │   ├── knowledge-base/         #   build a source library from a pile of downloads
 │   ├── reference-check/        #   reference + source-claim checking
-│   └── orchestration-lab/      #   four ways of running frontier models, scored
+│   └── orchestration-lab/      #   draft: four ways of running frontier models, scored
+├── drafts/                     # unpublished pages, not part of the site
 └── lectures/                   # slide decks and notes from talks and workshops
 ```
 
@@ -52,9 +52,13 @@ Every skill in the toolkit, indexed with a plain-language explanation of what it
 |------|-----------------|
 | [**knowledge-base**](demos/knowledge-base/) | Turn a folder of badly named downloads into a **source library** an agent can read: scaffold the spine with `research-repo`, run the intake pipeline on four files as they arrive (two unusable filenames, a `.docx`, an image-only scan), see what conversion quietly breaks, and audit a project that grew without a convention. Runs on local files, and builds the knowledge base the reference-check demo consumes. |
 | [**reference-check**](demos/reference-check/) | Catch fabricated or malformed citations against your **reference list** (no knowledge base needed), then check whether each cited source actually supports the claim, against a small **knowledge base** of your sources. Runs on local files (no web sources needed) on a synthetic manuscript with planted errors. |
-| [**orchestration-lab**](demos/orchestration-lab/) | Six social-science analyses, each run four ways with the Open Science Skills (a Fable lead, an Opus lead, an advisor consult and a Codex lead) and scored against answer keys written before any model ran. The captured runs are from July 2026, with the models and skills of that time; a re-run with the current skills is planned. Calls hosted models, so it is not offline. |
 
 More to come. Each demo ships sample files, the exact prompts, expected output, and a note on where the human still has to verify.
+
+The **orchestration-lab** demo — four ways of running frontier models, scored against
+pre-built answer keys — is a draft. It is not published on the site; its source sits in
+[`demos/orchestration-lab/`](demos/orchestration-lab/) and the unpublished walkthrough in
+`drafts/orchestration-lab/`.
 
 ## Lectures
 

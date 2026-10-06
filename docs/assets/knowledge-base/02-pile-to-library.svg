@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 720" width="1600" height="720" role="img" aria-label="The same sources directory shown before and after intake. Before: four unprocessed files under their original download names. After: originals kept, three converted to Markdown and entered in the bibliography, and the fourth file, an image-only scan, still visible and awaiting OCR rather than silently dropped.">
+<style>@media (prefers-color-scheme: dark){[fill="#F3EFE3"]{fill:#14161C} [fill="#ECE6D6"]{fill:#1b1e26} [fill="#17171A"]{fill:#EFE8D7} [fill="#68686D"]{fill:#9b9ba3} [fill="#1F4E9B"]{fill:#5485E0} [fill="#8B5F10"]{fill:#E8B23E} [stroke="#d9d2bf"]{stroke:#2c3038} [stroke="#17171A"]{stroke:#EFE8D7} [stroke="#68686D"]{stroke:#9b9ba3} [stroke="#1F4E9B"]{stroke:#5485E0} [stroke="#E0A526"]{stroke:#E8B23E} [stroke="#8B5F10"]{stroke:#E8B23E} }</style>
 <defs>
   <marker id="a1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto" markerUnits="strokeWidth">
     <path d="M0,0 L10,5 L0,10 z" fill="#1F4E9B"/>
@@ -43,7 +44,7 @@
 
   <rect x="880" y="460" width="660" height="104" rx="10" fill="none" stroke="#8B5F10" stroke-width="2.5" stroke-dasharray="9 7"/>
   <text x="912" y="502" font-family="Menlo,Consolas,monospace" font-size="28" fill="#8B5F10">kowalski-2017-turnout-cascades.pdf</text>
-  <text x="912" y="540" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#8B5F10">awaiting OCR</text>
+  <text x="912" y="540" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#8B5F10">in og/ · not converted · awaiting OCR</text>
 </g>
 
 <line x1="60" y1="610" x2="1540" y2="610" stroke="#d9d2bf" stroke-width="2"/>

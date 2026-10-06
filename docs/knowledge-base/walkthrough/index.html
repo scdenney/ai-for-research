@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build a Knowledge Base — AI for Research</title>
+<meta name="description" content="Run an agent over four files as they actually arrive, and end up with a source library later checks can read: the intake pipeline, the table the converter quietly breaks, an audit of a project that grew without a convention, and why a research library is built differently from a personal one.">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cobalt:#1F4E9B; --gold:#E0A526; --ochre:#8B5F10; --ink:#17171A;
+    --grey:#68686D; --paper:#F3EFE3; --paper-2:#ECE6D6; --line:#d9d2bf; --maxw:760px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --cobalt:#5485E0; --gold:#E8B23E; --ochre:#E8B23E; --ink:#EFE8D7;
+      --grey:#9b9ba3; --paper:#14161C; --paper-2:#1b1e26; --line:#2c3038;
+    }
+  }
+  *{box-sizing:border-box} html{scroll-behavior:smooth}
+  body{margin:0; background:var(--paper); color:var(--ink);
+    font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
+  a{color:var(--cobalt)}
+  a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--cobalt); outline-offset:3px}
+  .skip-link{position:fixed; top:10px; left:12px; z-index:100; padding:8px 12px; border-radius:7px; background:var(--ink); color:var(--paper); text-decoration:none; transform:translateY(-160%)}
+  .skip-link:focus{transform:translateY(0)}
+
+  .nav{position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:saturate(160%) blur(10px)}
+  .nav .row{max-width:var(--maxw); margin:0 auto; padding:13px 24px 14px; display:flex; align-items:center; justify-content:space-between; gap:18px; border-bottom:1px solid var(--line)}
+  .brand{display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit; white-space:nowrap}
+  .brand .mark{font-size:15px; letter-spacing:.26em; color:var(--cobalt)} .brand .mark b{color:var(--gold); font-weight:inherit}
+  .brand .name{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:21px; letter-spacing:.01em}
+  .topmenu{display:flex; align-items:center; gap:22px; font-size:15px; letter-spacing:.01em; flex-wrap:wrap; justify-content:flex-end}
+  .topmenu a{color:var(--grey); text-decoration:none; padding:4px 0}
+  .topmenu a:hover{color:var(--cobalt)}
+  .topmenu a.ext::after{content:" ↗"; font-size:.85em; opacity:.7}
+  .topmenu a[aria-current="page"]{color:var(--ink); box-shadow:inset 0 -2px 0 var(--gold)}
+  .home-link,.mobile-label{display:none}
+
+  header.hero{padding:46px 0 0; border-bottom:0}
+  header.hero .wrap{padding-bottom:22px; border-bottom:1px solid var(--line)}
+  .kicker{font:600 13px/1 -apple-system,sans-serif; letter-spacing:.16em; text-transform:uppercase; color:var(--grey); margin:0 0 14px}
+  .kicker a{color:inherit; text-decoration:none}
+  .kicker a:hover{color:var(--cobalt); text-decoration:underline}
+  .wave{font-size:26px; letter-spacing:.3em; margin:0 0 8px; color:var(--cobalt)} .wave b{color:var(--gold); font-weight:inherit}
+  h1{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:44px; line-height:1.08; margin:.08em 0 .3em; letter-spacing:-.01em}
+  .lede{font-family:"EB Garamond",Georgia,serif; font-size:22px; line-height:1.42; opacity:.92; margin:0}
+
+
+  main{padding:8px 0 40px}
+  main p{margin:1em 0}
+  main h2{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:30px; margin:1.5em 0 .35em; scroll-margin-top:108px}
+  h2 .tag{font:600 13px/1 -apple-system,sans-serif; letter-spacing:.09em; text-transform:uppercase; color:var(--gold); margin-left:.6em; vertical-align:middle}
+  strong{font-weight:650}
+  code{font:14px/1.5 Menlo,"SF Mono",ui-monospace,monospace; background:var(--paper-2); padding:.12em .4em; border-radius:4px}
+  pre{background:var(--paper-2); border:1px solid var(--line); border-radius:10px; padding:15px 18px; overflow:auto; margin:1em 0}
+  pre code{background:none; padding:0; font-size:13.5px; line-height:1.7}
+  .rule{border-left:3px solid var(--gold); background:var(--paper-2); border-radius:0 10px 10px 0; padding:13px 18px; margin:1.2em 0; font-size:17px}
+  .rule b{color:var(--ochre)}
+  .verdict{font:600 12px/1 -apple-system,sans-serif; letter-spacing:.05em; text-transform:uppercase; padding:.32em .55em; border-radius:5px; display:inline-block; white-space:nowrap}
+  .v-bad{background:#b22; color:#fff} .v-warn{background:var(--gold); color:#3a2a06} .v-ok{background:#2c7a4b; color:#fff}
+  table{border-collapse:collapse; width:100%; font-size:15px; margin:1em 0}
+  th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top}
+  th{background:var(--paper-2); font-size:12.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--grey)}
+  .tablewrap{overflow-x:auto; margin:1em 0}
+  .tablewrap table{margin:0; min-width:480px}
+  footer{color:var(--grey); font-size:14px; padding:52px 0 64px; text-align:center; border-top:1px solid var(--line)}
+  footer a{color:var(--cobalt); text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  .foot-links{margin:0; font-size:14.5px; line-height:1.45}
+  pre{position:relative}
+  .copy{position:absolute; top:8px; right:8px; display:inline-flex; align-items:center; border:1px solid var(--line); background:var(--paper); color:var(--grey); border-radius:6px; padding:5px 6px; cursor:pointer; opacity:.75; transition:opacity .12s, color .12s, border-color .12s}
+  .copy:hover{opacity:1; color:var(--cobalt); border-color:var(--cobalt)}
+  .copy.done{color:#2c7a4b; border-color:#2c7a4b; opacity:1}
+  .copy svg{display:block}
+  @media (max-width:700px){
+    .brand{display:none}
+    .nav .row{padding:10px 24px; gap:0}
+    .topmenu{width:100%; justify-content:space-between; gap:10px; flex-wrap:nowrap; font-size:14px}
+    .home-link,.mobile-label{display:inline}
+    .desktop-label{display:none}
+    header.hero{padding-top:32px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{transition-duration:.01ms!important; animation-duration:.01ms!important; animation-iteration-count:1!important}
+  }
+
+  /* --- knowledge-base additions --- */
+  figure.fig{margin:1.6em 0}
+  figure.fig img{display:block; width:100%; height:auto; border:1px solid var(--line); border-radius:10px; background:var(--paper-2)}
+  figure.fig figcaption{font-size:13.5px; color:var(--grey); margin-top:7px; line-height:1.5}
+  main h2 .tag{font:600 12px/1 -apple-system,sans-serif; letter-spacing:.09em; text-transform:uppercase; color:var(--gold); margin-left:9px; white-space:nowrap}
+  main ul{margin:1em 0; padding-left:1.25em} main li{margin:.5em 0}
+  .terms{margin:1.3em 0; padding:0; list-style:none}
+  .terms li{display:flex; gap:14px; align-items:baseline; padding:11px 2px; border-bottom:1px solid var(--line); margin:0}
+  .terms code{flex:0 0 auto; min-width:190px; background:none; padding:0; color:var(--cobalt); font-size:13.5px}
+  .terms span{flex:1}
+  sup.fnref{font-size:.72em; line-height:0} sup.fnref a{text-decoration:none; padding:0 1px}
+  ol.notes{font-size:15px; color:var(--grey); padding-left:1.4em} ol.notes a[href^="#fnref"]{text-decoration:none}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<nav class="nav" aria-label="Primary"><div class="row">
+  <a class="brand" href="../../">
+    <span class="mark">▁▂▃<b>▅</b><b>▂</b>▁</span>
+    <span class="name">AI for Research</span>
+  </a>
+  <div class="topmenu">
+    <a class="home-link" href="../../">Home</a>
+    <a href="../../getting-started/" aria-label="Getting started"><span class="desktop-label">Getting started</span><span class="mobile-label" aria-hidden="true">Start</span></a>
+    <a href="../../demos/" aria-current="page">Demos</a>
+    <a href="../../lectures/">Lectures</a>
+    <a href="../../skills/">Skills</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <p class="kicker"><a href="../../demos/">Demos</a> · <a href="../">Knowledge base</a> · Walkthrough</p>
+  <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
+  <h1>Build a Knowledge Base</h1>
+  <p class="lede">Run an agent over four files as they actually arrive, and end up with a source library that later checks can be run against.</p>
+</div></header>
+
+<main class="wrap" id="main">
+  <section id="what-this-is">
+    <h2>What this demonstrates</h2>
+    <p>Here, you have 4 files. Two of them are PDFs, named by your browser and the publisher. The other two are a Word document and a scan of a page. You ask an agent to identify them, file them away, and convert them. You then check the converted files. At the end of this, you have 3 new .md files in your library, and keys in your bibliography to point to them. You can’t convert the scan, so that’s left as it is. One of the PDFs has a table, and the conversion messes that up, and nothing tells you about it. Finally, you ask the agent to audit another project, which is messier. Then you close the session, and start a new one.</p>
+    <p>Note: the sources and authors are fake, but the conversion issues are real. This is real output from a run, but you might see slightly different output from a run with more recent versions of the conversion programs.</p>
+    <p>For the rationale for this, and why it is different from a Karpathy-style LLM wiki (and Kenny’s version of that), see the companion post on <a href="https://www.pixelsandpatterns.org/">Pixels &amp; Patterns</a>.</p>
+    <div class="tablewrap"><table>
+    <thead>
+    <tr>
+    <th>You need</th>
+    <th>You do</th>
+    <th>You end up inspecting</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td><a href="https://code.claude.com/docs/en/overview">Claude Code</a> and the <a href="https://github.com/scdenney/open-science-skills">skills</a> (<a href="../../getting-started/">Getting started</a>); Python 3; <a href="https://adoptium.net">Java 11</a> or newer; <a href="https://poppler.freedesktop.org"><code>poppler-utils</code></a> (without it the scan check is silently skipped); Node.js or <a href="https://pandoc.org">pandoc</a> for the Word file; for step 6, git with your name and email set and the <a href="https://cli.github.com">GitHub CLI</a> signed in</td>
+    <td>Scaffold a project, file four sources, convert them, audit a second project, close the session and resume it</td>
+    <td>Three conversions, one refused scan, one damaged table, four findings about another project’s sources, a handoff checked against the commit history</td>
+    </tr>
+    </tbody>
+    </table></div>
+  </section>
+
+  <section id="get">
+    <h2>1. Get the files</h2>
+    <pre><code>cd ~ &amp;&amp; git clone https://github.com/scdenney/ai-for-research.git
+    mkdir -p ~/kb-demo &amp;&amp; cd ~/kb-demo
+    claude</code></pre>
+    <p>Start with an empty folder, not the clone. The four files you’ll need are in the inbox folder of the repository you cloned, at <code>~/ai-for-research/demos/knowledge-base/inbox/</code>. Any lines starting with <code>/</code> are for typing into the Claude Code interface, while all other lines can be run in your shell, either in a new window in <code>~/kb-demo</code>, or in the Claude Code interface with a <code>!</code> prepended.</p>
+    <p>NOTE: the agent will send what it reads to your model provider (<a href="https://code.claude.com/docs/en/data-usage">what Claude Code sends</a>). This doesn’t matter for this example as the sources are made up, but for your own use, be sure to review your model provider’s and institution’s terms of service before sending confidential information to an agent.</p>
+  </section>
+
+  <section id="setup">
+    <h2>2. Create the project</h2>
+    <pre><code>/oss:research-repo .</code></pre>
+    <p>This <a href="https://code.claude.com/docs/en/skills">skill</a> sets up a source library with a specific folder structure and workflow. It creates a <code>sources/</code> directory with <code>og/</code> for original files (gitignored, for size and copyright), <code>md/</code> for converted files (tracked in git), and <code>unprocessed/</code> for new files awaiting processing. Each source must have a corresponding entry in <code>sources/references.bib</code>, created during intake. The agent works at the markdown layer, and nothing downstream reads the PDFs, while originals serve as ground truth for verification. Bibliography keys must match their corresponding files by author and year to enable checking.</p>
+    <p>Additionally, this skill puts the folder under git version control, creates a script for converting files, creates a local command for <code>/process-source</code>, and creates a <a href="https://code.claude.com/docs/en/memory"><code>CLAUDE.md</code></a> file and links to it in <a href="https://agents.md"><code>AGENTS.md</code></a>.</p>
+    <p>The skill also encodes conventions for working with the source library: use the .md versions for searching the source library, refer to the original if in doubt, and only cite sources from the <code>references.bib</code> file. It’s an error to cite a key that doesn’t correspond to a filed source, since that citation can’t be checked.</p>
+    <figure class="fig">
+      <img src="../../assets/knowledge-base/01-spine-and-contract.svg" alt="On the left, the folder layout the skill writes: originals gitignored, Markdown conversions tracked, a drop zone, a bibliography, the converter script, agent conventions, and a gitignore. On the right, the chain: a citation key in the manuscript looks up its bibliography entry, which matches by author and year to a tracked Markdown file, converted at intake from an original kept on local disk. If a link breaks, the citation cannot be checked.">
+      <figcaption>What the skill writes, and the chain that makes a citation checkable: citation, bibliography entry, conversion, original.</figcaption>
+    </figure>
+  </section>
+
+  <section id="intake">
+    <h2>3. File the four sources</h2>
+    <pre><code>cp ~/ai-for-research/demos/knowledge-base/inbox/* sources/unprocessed/</code></pre>
+    <pre><code>/process-source</code></pre>
+    <p>If Claude Code doesn’t recognize this command, restart <code>claude</code> in this folder. When running <code>/process-source</code>, Claude should process the files one at a time without asking.</p>
+    <div class="tablewrap"><table>
+    <thead>
+    <tr>
+    <th>Step</th>
+    <th>Who</th>
+    <th>What it produces</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td>Drop</td>
+    <td>You</td>
+    <td>the file sits in <code>sources/unprocessed/</code></td>
+    </tr>
+    <tr>
+    <td>Identify</td>
+    <td>Agent identifies, you check</td>
+    <td>author, year, title, venue</td>
+    </tr>
+    <tr>
+    <td>Rename</td>
+    <td>Agent</td>
+    <td><code>sources/og/author-year-slug.pdf</code></td>
+    </tr>
+    <tr>
+    <td>Convert</td>
+    <td>Tool runs, you check</td>
+    <td><code>sources/md/author-year-slug.md</code></td>
+    </tr>
+    <tr>
+    <td>Register</td>
+    <td>Agent</td>
+    <td>an entry in <code>sources/references.bib</code></td>
+    </tr>
+    </tbody>
+    </table></div>
+    <p>It won’t convert anything until it has identified the files and renamed them into <code>og/</code>. Double check the author/year it chose for the citation key.</p>
+    <figure class="fig">
+      <img src="../../assets/knowledge-base/02-pile-to-library.svg" alt="The same sources directory shown before and after intake. Before: four unprocessed files under their original download names. After: originals kept, three converted to Markdown and entered in the bibliography, and the fourth file, an image-only scan, still visible and awaiting OCR rather than silently dropped.">
+      <figcaption>The same sources directory before intake and after it. Three of four are readable. The fourth is visible and unresolved.</figcaption>
+    </figure>
+    <figure class="fig">
+      <img src="../../assets/knowledge-base/03-intake-pipeline.svg" alt="The intake pipeline in five steps: drop, identify, rename, convert, register. Under each step, what it leaves on disk, and what you or the agent do at that step. A branch off the convert step shows an image-only scan being reported as needing OCR instead of being converted.">
+      <figcaption>The five steps, what each produces, and who does it.</figcaption>
+    </figure>
+  </section>
+
+  <section id="inspect">
+    <h2>4. Check what the conversion did</h2>
+    <p>Try running the converter again and it’ll say it didn’t convert anything, but complain about the scan again:</p>
+    <pre><code>./scripts/convert-sources.sh</code></pre>
+    <pre><code>  NEEDS OCR (image-only): kowalski-2017-turnout-cascades.pdf
+    Converted 0 file(s), 1 need OCR. Markdown in $PROJECT/sources/md/</code></pre>
+    <p>There’s nothing it can convert, because that scan isn’t a PDF with a text layer – it’s just an image. (It arrived as <code>scan-0417.pdf</code> and was renamed to <code>kowalski-2017-turnout-cascades.pdf</code>.) The script uses the <a href="https://github.com/opendataloader-project/opendataloader-pdf">OpenDataLoader PDF</a> extractor (and <a href="https://github.com/firecrawl/anydoc">anydoc</a> for Office files, or pandoc if node isn’t installed), which just extract the text layer. <strong>It can’t do optical character recognition to turn images into text.</strong> (In fact the script specifically skips PDFs that don’t have at least some ~300 chars of text per page, since otherwise it will produce a few kb of nonsense that may look like it converted the source. It’s a rough test, since some digital PDFs have very little text.) That’s a separate skill: <a href="https://scdenney.github.io/ai-for-research/skills/#vlm-ocr"><code>/oss:vlm-ocr</code></a>. Until then, it’ll keep showing up as an unconverted scan.</p>
+    <p>The bigger problem is that if you go to the bottom of page 1 of the Ferreira and Nair PDF in <code>sources/og/</code>, you see a table:</p>
+    <div class="tablewrap"><table>
+    <thead>
+    <tr>
+    <th>Outcome</th>
+    <th>Estimate</th>
+    <th>95% interval</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td>Turnout (percentage points)</td>
+    <td>11.2</td>
+    <td>8.4 to 14.0</td>
+    </tr>
+    <tr>
+    <td>Knowledge index (standard deviations)</td>
+    <td>0.01</td>
+    <td>−0.06 to 0.08</td>
+    </tr>
+    </tbody>
+    </table></div>
+    <p>But in <code>sources/md/ferreira-nair-2021-compulsory-voting.md</code>, the corresponding text is:</p>
+    <pre><code>### 3. Results Outcome Estimate 95% interval
+
+    Turnout (percentage points) 11.2 8.4 to 14.0 Knowledge index (standard deviations) 0.01 −0.06 to 0.08</code></pre>
+    <p>The table structure isn’t preserved. A human or agent reading this would have some work to do to figure out which interval goes with which outcome, and nothing reports it. The surrounding text is extracted just fine and searchable:</p>
+    <pre><code>$ grep -n &quot;does not appear to teach&quot; sources/md/*.md
+    sources/md/ferreira-nair-2021-compulsory-voting.md:36:Whatever compulsory voting does, it does not appear to teach.</code></pre>
+    <p>Now look at the entry registration wrote:</p>
+    <pre><code>@article{ferreira-nair2021,
+      author  = {Ferreira, Tom\&#39;{a}s and Nair, Priya},
+      title   = {Does Compulsory Voting Make Better Citizens?},
+      ...
+    }</code></pre>
+    <p>The key (<code>ferreira-nair2021</code>) matches a file in <code>sources/md/</code> by author and year (<code>sources/md/ferreira-nair-2021-compulsory-voting.md</code>), which was converted from the PDF with the same name in <code>sources/og/</code>. A check of whether that source supports a claim follows that chain.</p>
+    <p>If any of the sources had figures, the script would extract them to a <code>&lt;source&gt;_images/</code> folder and link to them from the .md file using a relative path. If that happens, commit those images when you commit converted sources. But none of the 4 sources have figures.</p>
+  </section>
+
+  <section id="audit">
+    <h2>5. Audit a project that already exists</h2>
+    <p>Often, you won’t start a new project from scratch, but want to use this skill on an existing project. To that end, you can just point the skill to a folder like so:</p>
+    <pre><code>/oss:research-repo ~/ai-for-research/demos/knowledge-base/messy-project</code></pre>
+    <p>Here, say no when it asks you to complete the project, because otherwise it writes into your clone. Now the skill finds several issues with the project:</p>
+    <ul>
+    <li>First, it finds two files in the <code>og/</code> folder for which no converted version in <code>md/</code> exists, namely <code>Paper1.pdf</code> and <code>ferreira nair FINAL (2).pdf</code>.</li>
+    <li>These two files also have bad names, because they don’t follow the <code>author-year-slug</code> scheme. As a consequence, nobody can find them by their citation key.</li>
+    <li>Furthermore, the skill finds a file called <code>lindqvist-2019-civic-education-turnout.md</code> that people can search but cannot cite, because there is no corresponding entry in the bibliography.</li>
+    <li>Finally, there is one entry in the bibliography, namely <code>osei2020</code>, for which there is no corresponding source file. You should either add the source or move the entry to <code>missing.bib</code>, together with an explanation of why the source is missing.</li>
+    </ul>
+    <p>This last issue is essentially the reverse of the previous one. The skill also notes that the project does not yet have a pipeline, namely, a <code>.gitignore</code> file, a conversion script, a drop zone, and a <code>sources/README.md</code>.</p>
+  </section>
+
+  <section id="sessions">
+    <h2>6. Close the session, open the next one</h2>
+    <p>Any agent you start on this project tomorrow will be amnesiac. When you want to stop a session, run</p>
+    <pre><code>/oss:finished</code></pre>
+    <p>That will get the repo status, read the most recent commits and diff, and write it all to the project’s handoff and log. It will classify things as either verified, unverified, half done, or decided but not built. It does not make a commit, because you may want to read what it says before committing. (For this run, an honest entry lists three conversions, the scan waiting for OCR, and the damaged table as a known problem.)</p>
+    <p>Then commit and push to a new GitHub repo (make it a private repo, because the text is still copyrighted even though you converted it):</p>
+    <pre><code>git add -A
+    git status --short   # no line should start with sources/og/
+    git commit -m &quot;File three sources; flag the scan and the damaged table&quot;
+    gh repo create kb-demo --private --source=. --push</code></pre>
+    <p>If this isn’t the first time you’re doing this, you can just run <code>git push</code>. <code>sources/og/</code> and <code>logs/</code> are gitignored, so back up the originals separately.</p>
+    <p>When you start up a new agent session, start by running</p>
+    <pre><code>/oss:sitrep</code></pre>
+    <p>This reads <code>CLAUDE.md</code>, the handoff, and the log, and checks them against the repository (are you on the right branch, have there been recent commits, are there uncommitted changes, have you diverged from the GitHub branch you’re working on, is the handoff referring to a commit that doesn’t exist in this repo, etc). If something is wrong, it’ll say so in the sitrep.</p>
+  </section>
+
+  <section id="downstream">
+    <h2>7. What the library makes possible</h2>
+    <div class="tablewrap"><table>
+    <thead>
+    <tr>
+    <th>Part of the flow</th>
+    <th>Skill</th>
+    <th>What it does</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td>Knowledge base</td>
+    <td><a href="https://scdenney.github.io/ai-for-research/skills/#research-repo"><code>research-repo</code></a></td>
+    <td>Preserve and connect the evidence</td>
+    </tr>
+    <tr>
+    <td>Source identity</td>
+    <td><a href="https://scdenney.github.io/ai-for-research/skills/#citation-check"><code>citation-check</code></a></td>
+    <td>Resolve citations and bibliographic records</td>
+    </tr>
+    <tr>
+    <td>Claim support</td>
+    <td><a href="https://scdenney.github.io/ai-for-research/skills/#fact-check"><code>fact-check</code></a></td>
+    <td>Compare manuscript claims with filed sources</td>
+    </tr>
+    <tr>
+    <td>Paper and package</td>
+    <td><a href="https://scdenney.github.io/ai-for-research/skills/#paper-review-lite"><code>paper-review-lite</code></a>, <a href="https://scdenney.github.io/ai-for-research/skills/#replication-package"><code>replication-package</code></a></td>
+    <td>Review the paper and audit the replication package</td>
+    </tr>
+    </tbody>
+    </table></div>
+    <p>The only command that requires the library is <code>fact-check</code>. If any of the original files have not been converted yet, or if less than two thirds of the works referenced in the citation file have corresponding .md files in the library directory, <code>fact-check</code> will not run. <code>citation-check</code> reads the manuscript and the bibliography, and <code>paper-review-lite</code> reads whatever is provided to it. The <code>replication-package</code> command does not read the library at all.</p>
+    <p>These commands check the <strong>verifiability</strong> of the work, but not the <strong>validity</strong> of a conclusion.</p>
+  </section>
+
+  <section id="by-hand">
+    <h2>8. Check it yourself</h2>
+    <ul>
+    <li>Create a mismatch between the author and year in a filename and its key by renaming the file, then run <code>/oss:research-repo .</code> again.</li>
+    <li>Add a source without adding it to the bibliography.</li>
+    <li>Open a conversion and its original side-by-side to check that the tables match.</li>
+    <li>OCR the scan, save it as <code>sources/md/kowalski-2017-turnout-cascades.md</code>, run <code>/oss:research-repo .</code> again, and make sure the scan is no longer listed as unconverted.</li>
+    <li>Run <code>/oss:finished</code>, then modify one of the files without committing. Start a new session and run <code>/oss:sitrep</code>. It should show the uncommitted change.</li>
+    </ul>
+    <p>The <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/knowledge-base/ANSWER-KEY.md">answer key</a> lists all the problems planted in the exercise. All of the commands are in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/knowledge-base/prompts/run.md">prompts/run.md</a>.</p>
+
+    <a class="next" href="../../reference-check/">
+      <h3>Next: reference and source-claim checking</h3>
+      <p>The claim check needs a manuscript as well as a library, and this demo ships no manuscript. That one supplies both.</p>
+    </a>
+  </section>
+
+  <section id="sources">
+    <h2>Sources</h2>
+    <ul>
+    <li>Karpathy, A. (2026). <a href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f"><em>LLM Wiki</em></a>. GitHub Gist, 4 April.</li>
+    <li>Kenny, C. T. (2026). <a href="https://christophertkenny.com/files/2026-09-10-csdp-ai.pdf"><em>Agentic AI for Political Science Research</em></a>. <a href="https://csdp.princeton.edu/events/skills-workshop-agentic-ai-political-science-research">Skills workshop</a>, Center for the Study of Democratic Politics, Princeton University, 10 September. Code: <a href="https://github.com/christopherkenny/csdp-llm-wiki">csdp-llm-wiki</a>.</li>
+    <li>Conversion uses <a href="https://github.com/opendataloader-project/opendataloader-pdf">OpenDataLoader PDF</a> for PDFs and <a href="https://github.com/firecrawl/anydoc">anydoc</a> for Office formats.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p class="foot-links"><a href="https://github.com/scdenney/ai-for-research">Repository</a> · CC BY-NC 4.0 · <a href="https://scdenney.net">Steven Denney</a></p>
+</footer>
+
+<script>
+(function(){
+  var COPY='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  var CHECK='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  document.querySelectorAll('pre').forEach(function(pre){
+    var b=document.createElement('button');
+    b.type='button'; b.className='copy'; b.title='Copy'; b.setAttribute('aria-label','Copy'); b.innerHTML=COPY;
+    b.addEventListener('click',function(){
+      var code=pre.querySelector('code');
+      var text=(code?code.innerText:pre.innerText);
+      navigator.clipboard.writeText(text).then(function(){
+        b.innerHTML=CHECK; b.classList.add('done'); b.title='Copied';
+        setTimeout(function(){b.innerHTML=COPY; b.classList.remove('done'); b.title='Copy';},1400);
+      });
+    });
+    pre.appendChild(b);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 550" width="1600" height="550" role="img" aria-label="On the left, the results table as printed in the PDF: a section heading, then a table with columns Outcome, Estimate and 95% interval, and two rows, turnout 11.2 with interval 8.4 to 14.0, and knowledge index 0.01 with interval minus 0.06 to 0.08. On the right, the same passage in the converted Markdown file: the header row is absorbed into the section heading, and both data rows run together on a single line. The numbers survive; the structure does not.">
+<style>@media (prefers-color-scheme: dark){[fill="#F3EFE3"]{fill:#14161C} [fill="#ECE6D6"]{fill:#1b1e26} [fill="#17171A"]{fill:#EFE8D7} [fill="#68686D"]{fill:#9b9ba3} [fill="#1F4E9B"]{fill:#5485E0} [fill="#8B5F10"]{fill:#E8B23E} [stroke="#d9d2bf"]{stroke:#2c3038} [stroke="#17171A"]{stroke:#EFE8D7} [stroke="#68686D"]{stroke:#9b9ba3} [stroke="#1F4E9B"]{stroke:#5485E0} [stroke="#E0A526"]{stroke:#E8B23E} [stroke="#8B5F10"]{stroke:#E8B23E} }</style>
+<defs>
+  <marker id="a5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L10,5 L0,10 z" fill="#1F4E9B"/>
+  </marker>
+</defs>
+<rect width="1600" height="550" fill="#F3EFE3"/>
+
+<text x="60" y="60" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" letter-spacing="3.4" fill="#68686D">AS PRINTED</text>
+<text x="867" y="60" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" letter-spacing="3.4" fill="#68686D">AS CONVERTED</text>
+
+<!-- left: the original PDF -->
+<rect x="60" y="92" width="767" height="302" rx="10" fill="none" stroke="#68686D" stroke-width="2.5" stroke-dasharray="9 7"/>
+<text x="88" y="138" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#68686D">LOCAL ONLY · THE ORIGINAL</text>
+<text x="88" y="196" font-family="Georgia,serif" font-size="26" font-weight="700" fill="#17171A">3.  Results</text>
+<line x1="88" y1="222" x2="803" y2="222" stroke="#17171A" stroke-width="2"/>
+<g font-family="Georgia,serif" font-size="24" fill="#17171A">
+  <text x="88"  y="256" fill="#8B5F10">Outcome</text>
+  <text x="533" y="256" fill="#8B5F10">Estimate</text>
+  <text x="651" y="256" fill="#8B5F10">95% interval</text>
+  <text x="88"  y="308">Turnout (percentage points)</text>
+  <text x="533" y="308">11.2</text>
+  <text x="651" y="308">8.4 to 14.0</text>
+  <text x="88"  y="344">Knowledge index (standard deviations)</text>
+  <text x="533" y="344">0.01</text>
+  <text x="651" y="344">&#8722;0.06 to 0.08</text>
+</g>
+<line x1="88" y1="272" x2="803" y2="272" stroke="#17171A" stroke-width="1.25"/>
+<line x1="88" y1="362" x2="803" y2="362" stroke="#17171A" stroke-width="2"/>
+
+<line x1="831" y1="243" x2="863" y2="243" stroke="#1F4E9B" stroke-width="3.5" marker-end="url(#a5)"/>
+
+<!-- right: the Markdown conversion, line numbers from the real file -->
+<rect x="867" y="92" width="673" height="302" rx="10" fill="#ECE6D6" stroke="#1F4E9B" stroke-width="3"/>
+<text x="897" y="138" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#1F4E9B">IN GIT · WHAT THE AGENT READS</text>
+<g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="22" fill="#68686D" text-anchor="end">
+  <text x="925" y="184">23</text>
+  <text x="925" y="256">24</text>
+  <text x="925" y="292">25</text>
+</g>
+<g font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">
+  <text x="941" y="184">### 3. Results <tspan fill="#8B5F10">Outcome Estimate 95%</tspan></text>
+  <text x="941" y="220" fill="#8B5F10">interval</text>
+  <text x="941" y="292">Turnout (percentage points) 11.2 8.4</text>
+  <text x="941" y="328">to 14.0 Knowledge index (standard</text>
+  <text x="941" y="364">deviations) 0.01 &#8722;0.06 to 0.08</text>
+</g>
+
+<line x1="60" y1="444" x2="1540" y2="444" stroke="#d9d2bf" stroke-width="2"/>
+<text x="60" y="484" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">The numbers survive. The header row joins the section heading, and both rows run onto one line.</text>
+<text x="60" y="518" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">Line 25 is a single line in the file, wrapped here to fit.</text>
+</svg>

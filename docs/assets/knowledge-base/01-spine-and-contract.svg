@@ -1,53 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 780" width="1600" height="780" role="img" aria-label="On the left, the folder layout of a research repository, with originals gitignored, Markdown conversions tracked, a drop zone, and a bibliography. On the right, the contract: a citation key matches by author and year to a tracked Markdown file, converted at intake from an original kept on local disk. If a link breaks, the citation cannot be checked.">
-<rect width="1600" height="780" fill="#F3EFE3"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" aria-label="On the left, the folder layout the skill writes: originals gitignored, Markdown conversions tracked, a drop zone, a bibliography, the converter script, agent conventions, and a gitignore. On the right, the chain: a citation key in the manuscript looks up its bibliography entry, which matches by author and year to a tracked Markdown file, converted at intake from an original kept on local disk. If a link breaks, the citation cannot be checked.">
+<style>@media (prefers-color-scheme: dark){[fill="#F3EFE3"]{fill:#14161C} [fill="#ECE6D6"]{fill:#1b1e26} [fill="#17171A"]{fill:#EFE8D7} [fill="#68686D"]{fill:#9b9ba3} [fill="#1F4E9B"]{fill:#5485E0} [fill="#8B5F10"]{fill:#E8B23E} [stroke="#d9d2bf"]{stroke:#2c3038} [stroke="#17171A"]{stroke:#EFE8D7} [stroke="#68686D"]{stroke:#9b9ba3} [stroke="#1F4E9B"]{stroke:#5485E0} [stroke="#E0A526"]{stroke:#E8B23E} [stroke="#8B5F10"]{stroke:#E8B23E} }</style>
+<rect width="1600" height="900" fill="#F3EFE3"/>
 
 <text x="60" y="62" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" letter-spacing="3.4" fill="#68686D">THE SPINE</text>
 <text x="860" y="62" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" font-weight="600" letter-spacing="3.4" fill="#68686D">THE CONTRACT</text>
 
-<rect x="60" y="92" width="700" height="590" rx="12" fill="#ECE6D6" stroke="#d9d2bf" stroke-width="2"/>
+<rect x="60" y="92" width="700" height="724" rx="12" fill="#ECE6D6" stroke="#d9d2bf" stroke-width="2"/>
 <g font-family="Menlo,Consolas,monospace" font-size="27" fill="#17171A">
-  <text x="96" y="148">research-project/</text>
+  <text x="96" y="148">kb-demo/</text>
   <text x="96" y="196">├── sources/</text>
   <text x="96" y="244">│   ├── og/</text>
   <text x="96" y="292">│   ├── md/</text>
   <text x="96" y="340">│   ├── unprocessed/</text>
   <text x="96" y="388">│   └── references.bib</text>
-  <text x="96" y="436">├── analysis/</text>
-  <text x="96" y="484">├── manuscript/</text>
-  <text x="96" y="532">└── review/</text>
+  <text x="96" y="436">├── scripts/</text>
+  <text x="96" y="484">├── .claude/commands/</text>
+  <text x="96" y="532">├── CLAUDE.md</text>
+  <text x="96" y="580">├── AGENTS.md</text>
+  <text x="96" y="628">└── .gitignore</text>
 </g>
 <g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26">
   <text x="420" y="244" fill="#68686D">originals, gitignored</text>
   <text x="420" y="292" fill="#1F4E9B">conversions, tracked</text>
   <text x="440" y="340" fill="#68686D">drop zone</text>
   <text x="440" y="388" fill="#8B5F10">one entry per source</text>
-  <text x="420" y="484" fill="#68686D">rest grows from here</text>
+  <text x="420" y="436" fill="#68686D">the converter</text>
+  <text x="460" y="484" fill="#68686D">intake command</text>
+  <text x="420" y="532" fill="#68686D">agent conventions</text>
+  <text x="420" y="580" fill="#68686D">link to CLAUDE.md</text>
+  <text x="420" y="628" fill="#68686D">keeps og/ out of git</text>
 </g>
-<text x="96" y="612" font-family="Georgia,serif" font-size="29" font-style="italic" fill="#17171A">Read from md/, never from the PDF.</text>
-<text x="96" y="652" font-family="Georgia,serif" font-size="29" font-style="italic" fill="#17171A">Cite from references.bib.</text>
+<text x="96" y="744" font-family="Georgia,serif" font-size="29" font-style="italic" fill="#17171A">Read from md/, never from the PDF.</text>
+<text x="96" y="784" font-family="Georgia,serif" font-size="29" font-style="italic" fill="#17171A">Cite from references.bib.</text>
 
-<rect x="860" y="92" width="680" height="120" rx="10" fill="#ECE6D6" stroke="#E0A526" stroke-width="3"/>
-<text x="890" y="140" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#8B5F10">IN THE MANUSCRIPT</text>
-<text x="890" y="184" font-family="Menlo,Consolas,monospace" font-size="29" fill="#17171A">\cite{ferreira-nair2021}</text>
+<rect x="860" y="92" width="680" height="110" rx="10" fill="#ECE6D6" stroke="#68686D" stroke-width="3"/>
+<text x="890" y="138" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#68686D">IN THE MANUSCRIPT</text>
+<text x="890" y="182" font-family="Menlo,Consolas,monospace" font-size="29" fill="#17171A">\cite{ferreira-nair2021}</text>
 
-<line x1="900" y1="212" x2="900" y2="296" stroke="#1F4E9B" stroke-width="3.5"/>
-<path d="M892,288 L900,302 L908,288 z" fill="#1F4E9B"/>
-<text x="930" y="264" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#1F4E9B">matches author and year</text>
+<line x1="900" y1="202" x2="900" y2="254" stroke="#8B5F10" stroke-width="3.5"/>
+<path d="M892,248 L900,262 L908,248 z" fill="#8B5F10"/>
+<text x="930" y="242" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#8B5F10">key looks up its entry</text>
 
-<rect x="860" y="306" width="680" height="136" rx="10" fill="#ECE6D6" stroke="#1F4E9B" stroke-width="3"/>
-<text x="890" y="352" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#1F4E9B">IN GIT · WHAT THE AGENT READS</text>
-<text x="890" y="396" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">sources/md/ferreira-nair-2021-</text>
-<text x="890" y="426" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">compulsory-voting.md</text>
+<rect x="860" y="266" width="680" height="110" rx="10" fill="#ECE6D6" stroke="#E0A526" stroke-width="3"/>
+<text x="890" y="312" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#8B5F10">IN references.bib · THE ENTRY</text>
+<text x="890" y="356" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">@article{ferreira-nair2021,</text>
 
-<line x1="900" y1="556" x2="900" y2="466" stroke="#68686D" stroke-width="3.5"/>
-<path d="M892,474 L900,460 L908,474 z" fill="#68686D"/>
-<text x="930" y="516" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">converted at intake</text>
+<line x1="900" y1="376" x2="900" y2="428" stroke="#1F4E9B" stroke-width="3.5"/>
+<path d="M892,422 L900,436 L908,422 z" fill="#1F4E9B"/>
+<text x="930" y="416" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#1F4E9B">matches author and year</text>
 
-<rect x="860" y="566" width="680" height="136" rx="10" fill="none" stroke="#68686D" stroke-width="2.5" stroke-dasharray="9 7"/>
-<text x="890" y="612" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#68686D">LOCAL ONLY · THE ORIGINAL</text>
-<text x="890" y="656" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">sources/og/ferreira-nair-2021-</text>
-<text x="890" y="686" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">compulsory-voting.pdf</text>
+<rect x="860" y="440" width="680" height="136" rx="10" fill="#ECE6D6" stroke="#1F4E9B" stroke-width="3"/>
+<text x="890" y="486" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#1F4E9B">IN GIT · WHAT THE AGENT READS</text>
+<text x="890" y="530" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">sources/md/ferreira-nair-2021-</text>
+<text x="890" y="560" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">compulsory-voting.md</text>
 
-<line x1="60" y1="730" x2="1540" y2="730" stroke="#d9d2bf" stroke-width="2"/>
-<text x="60" y="768" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">If a link breaks, the citation cannot be checked.</text>
+<line x1="900" y1="670" x2="900" y2="594" stroke="#68686D" stroke-width="3.5"/>
+<path d="M892,600 L900,586 L908,600 z" fill="#68686D"/>
+<text x="930" y="638" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">converted at intake</text>
+
+<rect x="860" y="680" width="680" height="136" rx="10" fill="none" stroke="#68686D" stroke-width="2.5" stroke-dasharray="9 7"/>
+<text x="890" y="726" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" letter-spacing="2" fill="#68686D">LOCAL ONLY · THE ORIGINAL</text>
+<text x="890" y="770" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">sources/og/ferreira-nair-2021-</text>
+<text x="890" y="800" font-family="Menlo,Consolas,monospace" font-size="26" fill="#17171A">compulsory-voting.pdf</text>
+
+<line x1="60" y1="850" x2="1540" y2="850" stroke="#d9d2bf" stroke-width="2"/>
+<text x="60" y="888" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="26" fill="#68686D">If a link breaks, the citation cannot be checked.</text>
 </svg>

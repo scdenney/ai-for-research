@@ -96,7 +96,7 @@ theme_demo <- theme_minimal(base_size = 15) +
 # xhigh-rerun scores; band_matches flags the two points whose raw item count
 # does not predict their actual band) ----
 df <- rbind(
-  data.frame(mode = "Fable lead",    brief = "T1", cost_usd = 1.17, minutes = 2.1,  tok_full = 1007020, items = 6),
+  data.frame(mode = "Fable lead",    brief = "T1", cost_usd = 1.17, minutes = 2.1,  tok_full = 1007020, items = 4),
   data.frame(mode = "Fable lead",    brief = "T2", cost_usd = 0.98, minutes = 1.1,  tok_full = 487678,  items = 5),
   data.frame(mode = "Fable lead",    brief = "T3", cost_usd = 2.60, minutes = 0.6,  tok_full = 350922,  items = 6),
   data.frame(mode = "Fable lead",    brief = "H",  cost_usd = 1.17, minutes = 5.0,  tok_full = 1079493, items = 6),
@@ -133,7 +133,7 @@ df <- rbind(
   # so minutes is NA and this arm is absent from the time chart.
   data.frame(mode = "Codex lead",       brief = "T1", cost_usd = NA, minutes = NA,  tok_full = 2087494, items = 6),
   data.frame(mode = "Codex lead",       brief = "T2", cost_usd = NA, minutes = NA,  tok_full = 2365500, items = 5),
-  data.frame(mode = "Codex lead",       brief = "T3", cost_usd = NA, minutes = NA,  tok_full = 4401222, items = 6),
+  data.frame(mode = "Codex lead",       brief = "T3", cost_usd = NA, minutes = NA,  tok_full = 4401222, items = 5),
   data.frame(mode = "Codex lead",       brief = "H",  cost_usd = NA, minutes = NA,  tok_full = 2656984, items = 6),
   data.frame(mode = "Codex lead",       brief = "VH", cost_usd = NA, minutes = NA,  tok_full = 6976372, items = 6),
   data.frame(mode = "Codex lead",       brief = "EX", cost_usd = NA, minutes = NA,  tok_full = 5740216, items = 6)

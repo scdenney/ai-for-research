@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Orchestration Lab — AI for Research</title>
-<meta name="description" content="A hands-on lab: run six real social-science analyses, on a formal four-rung difficulty ladder, through four ways of using frontier models — a Fable lead, an Opus lead, a single advisor consult, and a Codex lead — then score your run against a pre-built answer key.">
+<meta name="description" content="Six social-science analyses, each run four ways with the Open Science Skills (a Fable lead, an Opus lead, an advisor consult and a Codex lead) and scored against answer keys. The runs are from July 2026, and a re-run with the current skills is planned.">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -139,46 +139,63 @@
   <p class="kicker"><a href="../demos/">Demos</a> · Hands-on</p>
   <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
   <h1>Orchestration Lab</h1>
-  <p class="lede">Run a real analysis through four ways of using frontier models, then score your run against a pre-built answer key. Most cells cost $1–5 and finish in minutes.</p>
+  <p class="lede">Run an analysis task four ways and score the result against an answer key.</p>
 </div></header>
 
 <main class="wrap" id="main">
+
+  <div class="rule" id="note"><b>Run in July 2026.</b> These runs were made in July 2026 with Fable 5, Opus 4.8, Sonnet 5, GPT-5.6 Sol and GPT-5.6 Terra, and with the Open Science Skills as they were then. The models and the skills have changed since, so a run today would give different results. We will re-run the briefs with the current skills and post the results here. Until then, the page shows the four setups and the design of the test.</div>
+
   <section id="what">
-    <p>Six real social-science briefs, four ways to run a frontier model on them. The four arms are skills I wrote for my own work — three for Claude Code, one for the Codex CLI, all in the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> toolkit. Every brief has a reference solution and a rubric written before any model ran. Pick a brief, pick an arm, paste one command, and grade what comes back against the answer key and <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">our committed runs</a>.</p>
-    <div class="rule"><b>One draw.</b> A captured run is one sample from a non-deterministic process, not a benchmark. Our numbers below are specimens. Re-run the briefs and expect yours to differ.</div>
+    <p>Each brief is a social-science analysis of public data that comes with an R package. Each brief was run in four ways, with Fable leading, with Opus leading, with one advisor consult, and with Codex leading. All runs use skills from the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a>. Each brief also has a reference solution and a scoring rubric, both written before any model ran (one T1 item was reworded after the first scoring). To run one yourself, pick a brief and a setup and run the command. Then compare the result with the answer key and <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">our committed runs</a>.</p>
     <a class="next" href="https://www.pixelsandpatterns.org/p/four-ways-to-run-a-frontier-model">
       <h3>Read the report</h3>
-      <p>Four ways to run a frontier model — why the leaderboards don't answer this, the full findings, what each setup caught and missed, and where it broke. On Pixels &amp; Patterns.</p>
+      <p>Four ways to run a frontier model. The full findings from the July runs are on Pixels &amp; Patterns.</p>
     </a>
+  </section>
+
+  <section id="setups">
+    <h2>The four setups</h2>
+    <div class="tablewrap"><table>
+      <tr><th>Setup</th><th>How it works</th><th>When to use it</th><th>In the skills now</th></tr>
+      <tr><td><strong>Fable lead</strong></td><td>Fable plans the work and does the hard reasoning itself. Sonnet subagents do the mechanical work and Opus subagents the wide reasoning. A GPT model in Codex does the cross-checks.</td><td>Work too large for one context, such as a multi-file audit or a survey of many sources. These briefs did not test that. In July it was the cheapest and fastest Claude setup.</td><td><a href="../skills/#orchestrate"><code>/oss:orchestrate</code></a> in a Fable session. In July this was <code>/oss:fable-orchestrate</code>, and the cross-check went to GPT-5.6 Sol. It now goes to GPT-6 Astra.</td></tr>
+      <tr><td><strong>Opus lead</strong></td><td>The same skill, with Opus as the lead.</td><td>A task hard enough to strain Fable. In July it matched or beat the Fable lead on every brief, at a higher cost.</td><td><a href="../skills/#orchestrate"><code>/oss:orchestrate</code></a> in an Opus session, at medium effort. In July this was <code>/oss:opus-orchestrate</code> on Opus 4.8, run headless.</td></tr>
+      <tr><td><strong>Advisor</strong></td><td>A plain session does the work. Fable reviews it once, without editing anything, and the session revises.</td><td>The default for one well-scoped analysis. In July its review caught an analysis error before it shipped, a misread comparison-type label on the extreme brief.</td><td><a href="../skills/#advisor"><code>/oss:advisor</code></a>, from an Opus or Sonnet session. It refuses to run from a Fable session, since a second Fable is not a check. In Codex, <code>$advisor</code> asks GPT-6 Astra. In July the work ran mostly on Sonnet 5 (the T1 solve ran on Fable 5) and the review on Fable 5.</td></tr>
+      <tr><td><strong>Codex lead</strong></td><td>A GPT model leads in Codex. It sends bounded work to cheaper GPT models and can ask Claude for a check.</td><td>When you want the second opinion to come from a different vendor.</td><td><code>$orchestrate</code> in a GPT-6 Astra or GPT-5.6 Sol session. In July this was <code>$46-orchestrate</code>, with a GPT-5.6 Sol lead and a Fable 5 peer.</td></tr>
+    </table></div>
+    <p><a href="../skills/#model-committee"><code>/oss:model-committee</code></a> has also changed since July. GPT-6 Astra and Opus now each propose an answer and critique the other's, and a Fable chair settles the result.</p>
   </section>
 
   <section id="setup">
     <h2><span class="step">Step 1</span>Set up</h2>
-    <p>You need <a href="../getting-started/">Claude Code</a> with the Open Science Skills plugin, R with the data packages, and the repo itself. That assumes Node and git on your machine, plus a paid claude.ai login. The Codex arm additionally needs the <a href="https://developers.openai.com/codex/">Codex CLI</a> with a ChatGPT login.</p>
-    <pre><code>npm install -g @anthropic-ai/claude-code
+    <p>You need Claude Code with the Open Science Skills (<a href="../getting-started/">Getting started</a>) and R with the packages below. The commands below clone this repository. The Fable and Opus leads use the <a href="https://developers.openai.com/codex/">Codex CLI</a> for their cross-checks, and the Codex lead also needs the Codex version of the skills.</p>
+    <pre><code>curl -fsSL https://claude.ai/install.sh | bash
 claude plugin marketplace add scdenney/open-science-skills
 claude plugin install oss@open-science-skills
+# one-time: the subagents /oss:orchestrate hands work to
+mkdir -p ~/.claude/agents
+cp -n "$(ls -d ~/.claude/plugins/cache/open-science-skills/oss/*/ | sort -V | tail -1)"skills/orchestrate/agents/*.md ~/.claude/agents/
 Rscript -e 'install.packages(c("projoint","ivdoctr","AER","car","causaldata","MatchIt","did","fixest","staggered","bacondecomp"))'
 git clone https://github.com/scdenney/ai-for-research.git
 cd ai-for-research/demos/orchestration-lab
-
-# Codex arm only — the Codex CLI plus the toolkit's Codex-side skills:
+# the Codex CLI: needed for the Codex lead and for the Fable and Opus leads' cross-checks
 npm install -g @openai/codex
+codex login
+# Codex lead only: the Codex version of the skills
 git clone https://github.com/scdenney/open-science-skills.git ~/open-science-skills
-cd ~/open-science-skills
-python3 plugin/scripts/install-codex.py --all --dry-run
-python3 plugin/scripts/install-codex.py --all</code></pre>
-    <p class="note">Every brief uses public data that ships with an R package — nothing to download. The runs call hosted models and cost real money: in our captures, $0.98 to $4.99 per cell on the Claude arms. Keep <code>ANTHROPIC_API_KEY</code> unset so headless runs bill your claude.ai plan, not an API account.</p>
+python3 ~/open-science-skills/plugin/scripts/install-codex.py --all --dry-run
+python3 ~/open-science-skills/plugin/scripts/install-codex.py --all</code></pre>
+    <p class="note">The data ship with the R packages, so you do not need to download anything. The runs call hosted models, so they cost money. In July a run of one brief cost about $1 to $5 on the Claude setups. Keep <code>ANTHROPIC_API_KEY</code> unset so that headless runs charge your claude.ai plan instead of an API account.</p>
   </section>
 
   <section id="briefs">
     <h2><span class="step">Step 2</span>Pick a brief</h2>
-    <p>The six briefs sit on a four-rung difficulty ladder, and each rung is defined by <em>what kind of problem it is</em>, not just how much statistics it takes to solve it:</p>
+    <p>The six briefs are on four rungs of difficulty, and each rung is a different kind of problem.</p>
     <div class="tablewrap"><table>
-      <tr><th>Rung</th><th>What it tests</th><th>Why it's on the ladder</th></tr>
-      <tr><td><span class="diff d1">easy</span>–<span class="diff d3">moderate</span></td><td>Mechanical due diligence → standard estimation → an original judgment call</td><td>Three briefs, same data, escalating from "get the facts right" to "make a defensible call nobody hands you the answer to."</td></tr>
-      <tr><td><span class="diff d4">hard</span>–<span class="diff d5">very hard</span></td><td>Canonical, decades-old disputes with literature-settled verdicts</td><td>Harder statistics (IV diagnostics, matching estimators), but every capable pipeline has seen a worked version. All four arms hit the top band on both.</td></tr>
-      <tr><td><span class="diff d6">extreme</span></td><td>A 2020s-vintage methods debate with a genuine, checkable trap</td><td>Built to test whether the high/very-high convergence was about the arms or about the tasks being over-rehearsed. It wasn't differentiating either way — see the results below.</td></tr>
+      <tr><th>Rung</th><th>The briefs</th><th>Why they are there</th></tr>
+      <tr><td><span class="diff d1">easy</span>–<span class="diff d3">moderate</span></td><td>Three briefs on one conjoint dataset. The first two have fixed answers, and the third asks for a judgment call.</td><td>They check that a setup gets the facts right before it has to judge.</td></tr>
+      <tr><td><span class="diff d4">hard</span>–<span class="diff d5">very hard</span></td><td>Two well-known methods disputes with settled answers</td><td>The statistics are harder, but worked versions are widely published. All four setups reached the top band on both in July.</td></tr>
+      <tr><td><span class="diff d6">extreme</span></td><td>A recent methods debate, with a trap in the data that the brief warns about</td><td>It tests whether the agreement on the harder rungs came from the setups or from well-known tasks. In July it did not separate the setups.</td></tr>
     </table></div>
     <p>Each brief links to the exact prompt the models get.</p>
     <ul class="briefs">
@@ -187,18 +204,18 @@ python3 plugin/scripts/install-codex.py --all</code></pre>
       <li><span class="diff d3">moderate</span><span class="ask"><strong><a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/t3-reviewer-memo.md">Reviewer reply</a></strong> — answer a referee who calls the headline crime finding an artifact of the AMCE baseline.</span></li>
       <li><span class="diff d4">hard</span><span class="ask"><strong><a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/high-ajr.md">IV replication</a></strong> — reproduce Acemoglu-Johnson-Robinson's colonial-origins 2SLS result (via ivdoctr) and stress it until the instrument breaks.</span></li>
       <li><span class="diff d5">very hard</span><span class="ask"><strong><a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/vhigh-lalonde.md">Methods dispute</a></strong> — adjudicate Dehejia-Wahba vs Smith-Todd on whether matching recovers the LaLonde experimental benchmark (via causaldata).</span></li>
-      <li><span class="diff d6">extreme</span><span class="ask"><strong><a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/extreme-stagdid.md">Staggered-DiD reconciliation</a></strong> — reconcile four modern difference-in-differences estimators on a real staggered minimum-wage rollout (Callaway-Sant'Anna's own <code>mpdta</code>), and catch a genuine package-convention trap along the way.</span></li>
+      <li><span class="diff d6">extreme</span><span class="ask"><strong><a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/extreme-stagdid.md">Staggered-DiD reconciliation</a></strong> — reconcile four modern difference-in-differences estimators on a real staggered minimum-wage rollout (Callaway-Sant'Anna's own <code>mpdta</code>), and code never-treated units the way each package expects, which the brief warns about.</span></li>
     </ul>
   </section>
 
   <section id="run">
-    <h2><span class="step">Step 3</span>Pick an arm and run it</h2>
-    <p>Choose an arm and a brief. The command below updates; it writes into a fresh <code>myruns/</code> leaf so the <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">committed runs</a> stay untouched. Full protocol, including the excerpt and hashing rules we used for the captured runs: <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/run.md">run.md</a>.</p>
+    <h2><span class="step">Step 3</span>Pick a setup and run it</h2>
+    <p>Pick a setup and a brief, and run the command below. It uses the current skills, which we have not yet run on the briefs. To leave the committed runs unchanged, it writes to a new folder called <code>myruns/</code>. The July run protocol, and the rules we followed for the captured runs, are in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/prompts/run.md">run.md</a>. The 19 July advisor rerun is in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/runs/advisor-v2/rerun.sh">rerun.sh</a>. Headless runs use your own Claude Code permission settings, and a run that is not allowed to write files or call Rscript will stop.</p>
     <div class="picker" id="armpick">
-      <span class="plabel">Arm</span>
+      <span class="plabel">Setup</span>
       <button data-arm="fable" class="on">Fable lead</button>
       <button data-arm="opus">Opus lead</button>
-      <button data-arm="46">Codex lead</button>
+      <button data-arm="codex">Codex lead</button>
       <button data-arm="advisor">Advisor</button>
       <span class="plabel">Brief</span>
       <button data-brief="t1" class="on">Describe</button>
@@ -210,18 +227,17 @@ python3 plugin/scripts/install-codex.py --all</code></pre>
     </div>
     <p class="arminfo" id="arminfo"></p>
     <pre><code id="cmd"></code></pre>
-    <p><strong>What you'll get.</strong> The run writes its deliverables into your <code>myruns/</code> leaf — typically <code>script.R</code>, a figure or two, and the brief's memo or summary — plus, on the headless Claude arms, <code>claude-envelope.json</code>, whose <code>total_cost_usd</code> and <code>duration_ms</code> fields are your cost and wall-clock. Grade the deliverables against the checklist below, then compare your cell against the committed run of the same cell under <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">runs/</a>.</p>
+    <p>The run writes to your <code>myruns/</code> folder. It usually produces an R script and a memo, and often a figure. A headless Claude run also creates a JSON file whose <code>total_cost_usd</code> and <code>duration_ms</code> fields give the cost and the time. When the run finishes, score its output with the checklists below. You can then compare it with the committed run of the same brief in <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/runs">runs/</a>.</p>
   </section>
 
   <section id="score">
     <h2><span class="step">Step 4</span>Score your run</h2>
-    <p>Every brief is graded on six yes-or-no items: four <span class="itemtag it-core">core</span> facts a competent run must get right, one <span class="itemtag it-judg">judgment</span> call the answer key hands to the analyst, and one <span class="itemtag it-comp">completeness</span> credit for work beyond a correct answer. <strong>Pass</strong> means all four core items. <strong>Pass+</strong> adds the judgment. <strong>Distinction</strong> means all six. Miss any core item and the run fails, whatever else it does well. Definitions and every captured run's item-by-item score: <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/SCORING.md">SCORING.md</a>; executed reference solutions: <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/reference">reference/</a>.</p>
-
+    <p>Each brief is scored on six items, and each item is a yes-or-no question. Four are <span class="itemtag it-core">core</span> facts about the brief. The other two cover a <span class="itemtag it-judg">judgment</span> call and <span class="itemtag it-comp">completeness</span>, meaning work beyond getting the answer right. A run needs all four core items to <strong>Pass</strong>, the judgment item as well for <strong>Pass+</strong>, and all six for <strong>Distinction</strong>. Missing any core item fails the run. The definitions, and the item scores for every captured run, are in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/SCORING.md">SCORING.md</a>. The executed reference solutions are in <a href="https://github.com/scdenney/ai-for-research/tree/main/demos/orchestration-lab/reference">reference/</a>.</p>
     <details><summary>Describe — checklist</summary><div class="body"><ul>
       <li><span class="itemtag it-core">core</span>States 400 respondents, 8 tasks each, 2 profiles per task, 6,400 profile rows.</li>
       <li><span class="itemtag it-core">core</span>Names all 7 attributes in readable form, not <code>att1..att7</code>.</li>
       <li><span class="itemtag it-core">core</span>Per-attribute level counts read 3, 3, 4, 2, 4, 6, 2.</li>
-      <li><span class="itemtag it-core">core</span>Identifies the repeated, flipped task 1 and does not count it as a 9th task.</li>
+      <li><span class="itemtag it-core">core</span>Handles the repeated, flipped task 1 correctly: it stays out of the 8-task count, so the data have 6,400 profile rows, not 7,200. A sentence naming it is not required.</li>
       <li><span class="itemtag it-judg">judgment</span>Flags Total Daily Driving Time as the lone imbalance; makes no "perfect balance" claim.</li>
       <li><span class="itemtag it-comp">completeness</span>Reports the exact max deviation from uniform (~1.94 pp), not only a min-max spread.</li>
     </ul></div></details>
@@ -246,7 +262,7 @@ python3 plugin/scripts/install-codex.py --all</code></pre>
 
     <details><summary>IV replication — checklist</summary><div class="body"><ul>
       <li><span class="itemtag it-core">core</span>Reproduces the headline: 2SLS 0.944, OLS 0.522, first-stage F 22.95.</li>
-      <li><span class="itemtag it-core">core</span>Runs the stress specs: controls keep F &gt; 10; dropping the neo-Europes pushes F to 8.65; Africa-only collapses to F = 0.30.</li>
+      <li><span class="itemtag it-core">core</span>Runs the stress specs: controls keep the homoskedastic first-stage F &gt; 10; dropping the neo-Europes pushes F to 8.65; Africa-only collapses to F = 0.30.</li>
       <li><span class="itemtag it-core">core</span>Flags the weak-instrument specs as weak.</li>
       <li><span class="itemtag it-core">core</span>No overclaim about what the replication proves.</li>
       <li><span class="itemtag it-judg">judgment</span>States the two-sided ceiling: a collapsed first stage neither confirms nor overturns the original result.</li>
@@ -263,28 +279,22 @@ python3 plugin/scripts/install-codex.py --all</code></pre>
     </ul></div></details>
 
     <details><summary>Staggered-DiD reconciliation — checklist</summary><div class="body"><ul>
-      <li><span class="itemtag it-core">core</span>At least four ATT estimates, all clustering at −0.037 to −0.047 log points.</li>
+      <li><span class="itemtag it-core">core</span>At least four ATT estimates, with every correctly specified one between −0.03 and −0.06 log points (reference: −0.037 to −0.047).</li>
       <li><span class="itemtag it-core">core</span>Correctly codes (or explicitly notes) that the <code>staggered</code> package needs never-treated units as <code>Inf</code>, not the <code>0</code> the raw data and <code>did</code> use — the trap.</li>
-      <li><span class="itemtag it-core">core</span>Runs a Goodman-Bacon decomposition and reports the correct ~5.4% negative-weight-risk share, with the right inference (small, not zero).</li>
-      <li><span class="itemtag it-core">core</span>An event-study / pre-trend check covering at least two pre-periods.</li>
+      <li><span class="itemtag it-core">core</span>Runs a Goodman-Bacon decomposition and reports the share of weight on later-vs-earlier comparisons (~5.4%; 3–10% accepted), with the right inference (small, not zero).</li>
+      <li><span class="itemtag it-core">core</span>An event-study / pre-trend check covering at least two pre-periods and at least one post-period.</li>
       <li><span class="itemtag it-judg">judgment</span>Lands the calibrated middle: the TWFE critique is real in general and empirically small in this dataset — not "always fine" and not "always use the modern estimator."</li>
       <li><span class="itemtag it-comp">completeness</span>Full comparison table across every estimator, plus the event-study time path (effect grows after impact).</li>
     </ul></div></details>
   </section>
 
   <section id="results">
-    <h2>What our runs showed</h2>
-    <p>Thirty captured cells (six briefs × five arms), graded blind against the rubrics, all in one sitting under one consistent settings pass. Two findings matter more than any single band. First: on the easy brief, both orchestrated Claude leads (Fable, Opus) landed at Pass rather than the higher band their historical captures had reached, because neither write-up explains the conjoint design's repeated reliability check — even though both arms' analysis code still handles it correctly (6,400 rows, not an inflated 7,200). The miss is in the diagnostic write-up, not the computation or the core design facts, and it is the clearest demonstration yet of this project's standing caveat: a captured run is one draw, not a benchmark. Second: the new Extreme brief, built specifically to test whether frontier models would separate from competent ones on harder, less-rehearsed work, did not show that separation across these five arms — every one reached the top band, including the historical weak point (the Codex headless fallback).</p>
-    <p>A sixth arm, not part of the interactive picker below, tells a different story on that same Extreme brief. An all-Codex advisor (a plain <code>gpt-5.6-terra</code> solve, one read-only <code>gpt-5.6-sol</code> consult, a <code>gpt-5.6-terra</code> revise) failed it — and the reason is worth stating plainly rather than folding into a single Pass/Fail count. The pre-revision draft correctly handled the brief's central trap, then the consult raised a separate, defensible methodological point that led the model to remove the exact code demonstrating that awareness during revision. A substantively reasonable second opinion cost the run the one thing its rubric was built to check for. Full detail is in <a href="https://www.pixelsandpatterns.org/p/four-ways-to-run-a-frontier-model">the report</a>; the run-by-run matrix, including this arm, is in <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a>.</p>
-    <figure class="fig"><img src="../assets/orchestration-lab/eff-quality.png" alt="Four small panels, one per arm, each plotting rubric items met across the six briefs against dotted threshold lines labeled Pass, Pass plus, and Distinction." loading="lazy"><figcaption>Rubric items met across the six briefs, one panel per arm, read against the same three band thresholds. Our captures: one draw each.</figcaption></figure>
-    <div class="tablewrap"><table>
-      <tr><th>Setup</th><th>When to reach for it</th></tr>
-      <tr><td><strong>Fable lead</strong></td><td><strong>When the task is too big to hold in one context</strong> — a broad migration, a multi-file audit, a many-source survey. That regime is untested here. Cheapest and fastest Claude orchestrator on these briefs, but the easy brief landed at Pass rather than a higher band, a reminder that speed doesn't buy the extra diagnostic thoroughness a second read supplies.</td></tr>
-      <tr><td><strong>Opus lead</strong></td><td><strong>Rarely, on work this size.</strong> Ties or beats the Fable lead on the harder rungs at higher cost; its edge is write-up thoroughness, not correctness — and it hit the same easy-brief miss Fable did. Reserve it for a task hard enough to strain a top model.</td></tr>
-      <tr><td><strong>Codex lead</strong></td><td><strong>A cross-vendor read on the same brief.</strong> The historical Sol-lead capture reaches Distinction on five of six briefs at xhigh effort with a genuine Fable-5 cross-vendor peer, missing only completeness on the standard-estimation brief. The current skill accepts either an active Astra or Sol lead: Astra keeps compact hard reasoning in-session, while Sol escalates unusually difficult units to Astra. Reach for it when you want the second opinion to come from a different vendor entirely.</td></tr>
-      <tr><td><strong>Advisor</strong></td><td><strong>The default for a single, well-scoped analysis.</strong> Its second read re-computes the work rather than eyeballing it, and it's the only arm that caught a real analytical error (a misread comparison-type label) on the extreme brief before it shipped. Reach for it first.</td></tr>
-    </table></div>
-    <p>Our captures are one draw each. Re-run a cell and expect yours to differ — that's not a caveat, it's the point.</p>
+    <h2>What the July runs showed</h2>
+    <p>The July test ran six briefs through six setups: the four above, a headless Codex run that could not hand work to a cheaper model, and an advisor run entirely in Codex. All 36 runs were scored against the rubrics, and two results stand out.</p>
+    <p>First, both orchestrated Claude leads scored only Pass on the easy brief. Neither flagged Driving Time as the one unbalanced attribute or reported the exact largest deviation from balance. Second, five of the six setups reached Distinction on the extreme brief, so the harder and newer task did little to separate them.</p>
+    <p>The sixth, the advisor run entirely in Codex, failed it. Its first draft dealt with the trap correctly. The reviewer then objected, reasonably, that the <code>staggered</code> estimator assumes randomized timing. In revising, the model removed that estimator, and with it the code that dealt with the trap. A sound second opinion cost the run the item the rubric was built to check. See the <a href="https://www.pixelsandpatterns.org/p/four-ways-to-run-a-frontier-model">report</a> or <a href="https://github.com/scdenney/ai-for-research/blob/main/demos/orchestration-lab/RESULTS.md">RESULTS.md</a> for details.</p>
+    <figure class="fig"><img src="../assets/orchestration-lab/eff-quality.png" alt="Five small panels, one per setup (Fable lead, Opus lead, advisor in Claude, advisor in Codex, Codex lead), each plotting rubric items met across the six briefs against dotted threshold lines labeled Pass, Pass plus, and Distinction." loading="lazy"><figcaption>Rubric items met on the six briefs, one panel per setup, against the three score bands. July 2026, one run each.</figcaption></figure>
+    <p>Each result here is a single run, and the models do not give the same answer twice. Expect a different result when you re-run a brief.</p>
   </section>
 </main>
 
@@ -321,58 +331,62 @@ python3 plugin/scripts/install-codex.py --all</code></pre>
     'extreme-stagdid': {file:'extreme-stagdid.md', label:'Staggered-DiD reconciliation'}
   };
   var ARMS = {
-    'fable': {
-      info: 'Fable 5 at max effort leads and delegates: Sonnet for mechanical work, Opus for wide reasoning, a Codex peer for decorrelated checks. Our six briefs: $0.98–$2.60, 0.6–7.6 min each — though the easy brief landed at Pass rather than higher, missing the diagnostic thoroughness a second read supplies.',
-      cmd: function(b){
-        return 'mkdir -p myruns/fable/' + b + ' && cd myruns/fable/' + b + '\n' +
-          'env -u ANTHROPIC_API_KEY claude -p \\\n' +
-          '  "/oss:fable-orchestrate $(cat ../../../prompts/' + BRIEFS[b].file + ')" \\\n' +
-          '  --output-format json > claude-envelope.json';
-      }
-    },
-    'opus': {
-      info: 'Opus 4.8 at ultracode (the model the August 2026 runs used; /oss:opus-orchestrate is now an alias of /oss:orchestrate), run interactively — the lead reasons in place and delegates to the same pool. Our six briefs: $1.59–$3.26, 6–16 min each.',
-      cmd: function(b){
-        return 'mkdir -p myruns/opus/' + b + ' && cd myruns/opus/' + b + ' && claude\n' +
-          '# interactive arm — in the session that opens:\n' +
-          '#   1. switch the model to Opus 4.8 at ultracode effort\n' +
-          '#   2. type /oss:opus-orchestrate and paste the brief from ../../../prompts/' + BRIEFS[b].file + '\n' +
-          '# capture protocol for a scored run: ../../../runs/opus/SESSION-PROTOCOL.md';
-      }
-    },
-    'advisor': {
-      info: 'A plain session solves, one Fable 5 reviewer comments (read-only), the same plain session revises. Three scripted steps; the solve and revise use whatever your default model is — our captures ran under a Sonnet 5 default, the consult is always Fable 5 regardless of the caller. Our six briefs: $1.90–$4.99 total each. This arm caught a real analytical error on the extreme brief that the orchestrated leads did not make.',
-      cmd: function(b){
-        return 'mkdir -p myruns/advisor/' + b + ' && cd myruns/advisor/' + b + '\n' +
-          '# 1. solve (plain session, no orchestration skill)\n' +
-          'env -u ANTHROPIC_API_KEY claude -p "$(cat ../../../prompts/' + BRIEFS[b].file + ')" \\\n' +
-          '  --output-format json > claude-envelope-1.json\n' +
-          '# 2. build the briefing from the brief + the deliverables the solve wrote,\n' +
-          '#    then one read-only consult — fable-advisor.sh ships in the OSS plugin from Step 1\n' +
-          '{ cat ../../../prompts/' + BRIEFS[b].file + '; echo; echo "--- deliverables produced ---";\n' +
-          '  for f in *.md; do case "$f" in briefing.md|advice.md) ;; *) echo; echo "== $f =="; cat "$f";; esac; done;\n' +
-          '  echo; echo "What would you change?"; } > briefing.md\n' +
-          'ADV=$(ls ~/.claude/plugins/cache/open-science-skills/oss/*/skills/advisor/scripts/fable-advisor.sh | sort -V | tail -1)\n' +
-          'env -u ANTHROPIC_API_KEY CLAUDE_EFFORT=max \\\n' +
-          '  "$ADV" --prompt-file briefing.md --out advice.md -C "$PWD"\n' +
-          '# 3. revise per the advice\n' +
-          'env -u ANTHROPIC_API_KEY claude -p \\\n' +
-          '  "Revise the deliverables in this directory per the attached advice. Advice: $(cat advice.md)" \\\n' +
-          '  --output-format json > claude-envelope-2.json';
-      }
-    },
-    '46': {
-      info: 'gpt-5.6-sol at xhigh leads in a Codex session, routes bounded work down to gpt-5.6-terra one-shots, and reaches a Fable 5 peer for a cross-vendor check on high-stakes calls. Codex skills must be installed user-wide first (see the setup block). Our six briefs: 1.11M–3.62M tokens each, full cumulative accounting (Codex reports tokens, not dollars).',
-      cmd: function(b){
-        return 'mkdir -p myruns/46/' + b + ' && cp prompts/' + BRIEFS[b].file + ' myruns/46/' + b + '/BRIEF.md && cd myruns/46/' + b + '\n' +
-          'codex --model gpt-5.6-sol -c model_reasoning_effort=xhigh \\\n' +
-          '  --dangerously-bypass-approvals-and-sandbox\n' +
-          '# full access is what lets the lead fire gpt-5.6-terra one-shots — run it only in this repo\n' +
-          '# in the session, paste the run prompt from ../../../prompts/46-sol-run.md (it reads ./BRIEF.md)';
-      }
+  'fable': {
+    info: 'Fable at max effort leads through /oss:orchestrate. The cost record is written one folder up, outside the folder the agents work in. July captures (Fable 5, /oss:fable-orchestrate): $0.98–$2.60 and 0.6–7.6 minutes per brief.',
+    cmd: function(b){
+      return 'R=' + b + '-$(date +%Y%m%d-%H%M%S)\n' +
+        'mkdir -p myruns/fable/$R && cd myruns/fable/$R\n' +
+        'env -u ANTHROPIC_API_KEY CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0 \\\n' +
+        '  claude -p --model fable --effort max \\\n' +
+        '  "/oss:orchestrate $(cat ../../../prompts/' + BRIEFS[b].file + ')" \\\n' +
+        '  --output-format json > ../$R-envelope.json';
     }
-  };
-  var arm = 'fable', brief = 't1';
+  },
+  'opus': {
+    info: 'Opus at medium effort leads through the same skill. July captures (Opus 4.8, run headless): $1.59–$3.26 and 6–16 minutes per brief.',
+    cmd: function(b){
+      return 'R=' + b + '-$(date +%Y%m%d-%H%M%S)\n' +
+        'mkdir -p myruns/opus/$R && cd myruns/opus/$R\n' +
+        'env -u ANTHROPIC_API_KEY CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0 \\\n' +
+        '  claude -p --model opus --effort medium \\\n' +
+        '  "/oss:orchestrate $(cat ../../../prompts/' + BRIEFS[b].file + ')" \\\n' +
+        '  --output-format json > ../$R-envelope.json';
+    }
+  },
+  'advisor': {
+    info: 'A Sonnet session solves the brief, Fable reviews it once at max effort without editing, and a new Sonnet session revises. In an interactive session, /oss:advisor does the middle step. July captures (Sonnet 5 and Fable 5): $1.90–$4.99 per brief for the solve and the revision.',
+    cmd: function(b){
+      return 'R=' + b + '-$(date +%Y%m%d-%H%M%S)\n' +
+        'mkdir -p myruns/advisor/$R && cd myruns/advisor/$R\n' +
+        '# 1. solve (plain session, no orchestration skill)\n' +
+        'env -u ANTHROPIC_API_KEY claude -p --model sonnet "$(cat ../../../prompts/' + BRIEFS[b].file + ')" \\\n' +
+        '  --output-format json > ../$R-envelope-1.json\n' +
+        '# 2. one read-only Fable review; fable-advisor.sh ships with the skills from Step 1\n' +
+        '{ cat ../../../prompts/' + BRIEFS[b].file + '; echo; echo "--- deliverables produced ---";\n' +
+        '  for f in *.md; do case "$f" in briefing.md|advice.md) ;; *) echo; echo "== $f =="; cat "$f";; esac; done;\n' +
+        '  echo; echo "What would you change?"; } > briefing.md\n' +
+        'ADV=$(ls ~/.claude/plugins/cache/open-science-skills/oss/*/skills/advisor/scripts/fable-advisor.sh | sort -V | tail -1)\n' +
+        'env -u ANTHROPIC_API_KEY "$ADV" --prompt-file briefing.md --out advice.md -C "$PWD"\n' +
+        '# 3. revise per the advice\n' +
+        'env -u ANTHROPIC_API_KEY claude -p --model sonnet \\\n' +
+        '  "Revise the deliverables in this directory per the attached advice. Advice: $(cat advice.md)" \\\n' +
+        '  --output-format json > ../$R-envelope-2.json';
+    }
+  },
+  'codex': {
+    info: 'GPT-6 Astra leads in a Codex session through $orchestrate. Install the Codex version of the skills first (Step 1). Codex reports tokens, not dollars. July captures used GPT-5.6 Sol at xhigh effort through $46-orchestrate.',
+    cmd: function(b){
+      return 'R=' + b + '-$(date +%Y%m%d-%H%M%S)\n' +
+        'mkdir -p myruns/codex/$R && cp prompts/' + BRIEFS[b].file + ' myruns/codex/$R/BRIEF.md && cd myruns/codex/$R\n' +
+        'codex --model gpt-6-astra -c model_reasoning_effort=xhigh \\\n' +
+        '  --dangerously-bypass-approvals-and-sandbox\n' +
+        '# this flag turns off the Codex sandbox and approvals for the whole session, not only this folder;\n' +
+        '# the lead needs it to start its own sub-runs, so use it only on a machine you are willing to expose\n' +
+        '# in the session, type:  $orchestrate Complete the brief in ./BRIEF.md';
+    }
+  }
+};
+var arm = 'fable', brief = 't1';
   var cmdEl = document.getElementById('cmd');
   var infoEl = document.getElementById('arminfo');
   function render(){

@@ -96,6 +96,9 @@
     html{scroll-behavior:auto}
     *,*::before,*::after{transition-duration:.01ms!important; animation-duration:.01ms!important; animation-iteration-count:1!important}
   }
+  /* in-text links: no underline until hover, as on the home page */
+  main a:not([class]){text-decoration:none}
+  main a:not([class]):hover{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -233,7 +236,7 @@ me what to do and wait for my confirmation. Finish by starting the daemon
 </main>
 
 <footer class="wrap">
-  <p class="foot-links"><a href="https://github.com/scdenney/ai-for-research">Repository</a> · CC BY-NC 4.0 · <a href="https://scdenney.net">Steven Denney</a></p>
+  <p class="foot-links"><a href="https://github.com/scdenney/ai-for-research">Repository</a> · CC BY-NC 4.0</p>
 </footer>
 
 <script>

@@ -85,6 +85,9 @@
   figure.fig img{display:block; width:100%; height:auto; border:1px solid var(--line); border-radius:10px; background:var(--paper-2)}
   figure.fig figcaption{font-size:13.5px; color:var(--grey); margin-top:7px; line-height:1.5}
   main ul{margin:1em 0; padding-left:1.25em} main li{margin:.5em 0}
+  /* in-text links: no underline until hover, as on the home page */
+  main a:not([class]){text-decoration:none}
+  main a:not([class]):hover{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -186,7 +189,7 @@ git commit -m "Add the first sources"</code></pre>
 </main>
 
 <footer class="wrap">
-  <p class="foot-links"><a href="https://github.com/scdenney/ai-for-research">Repository</a> · CC BY-NC 4.0 · <a href="https://scdenney.net">Steven Denney</a></p>
+  <p class="foot-links"><a href="https://github.com/scdenney/ai-for-research">Repository</a> · CC BY-NC 4.0</p>
 </footer>
 
 <script>

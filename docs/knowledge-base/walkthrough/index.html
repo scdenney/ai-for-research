@@ -102,6 +102,9 @@
   .terms span{flex:1}
   sup.fnref{font-size:.72em; line-height:0} sup.fnref a{text-decoration:none; padding:0 1px}
   ol.notes{font-size:15px; color:var(--grey); padding-left:1.4em} ol.notes a[href^="#fnref"]{text-decoration:none}
+  /* in-text links: no underline until hover, as on the home page */
+  main a:not([class]){text-decoration:none}
+  main a:not([class]):hover{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -366,7 +369,7 @@
 </main>
 
 <footer class="wrap">
-  <p class="foot-links"><a href="https://github.com/scdenney/ai-for-research">Repository</a> · CC BY-NC 4.0 · <a href="https://scdenney.net">Steven Denney</a></p>
+  <p class="foot-links"><a href="https://github.com/scdenney/ai-for-research">Repository</a> · CC BY-NC 4.0</p>
 </footer>
 
 <script>

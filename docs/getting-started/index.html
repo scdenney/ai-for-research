@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Getting started — AI for Research</title>
-<meta name="description" content="Step by step: install Claude Code or Codex in the terminal, sign in, add the Open Science Skills, and point it at a project. No prior command-line experience assumed.">
+<meta name="description" content="A one-time setup for using Claude Code or Codex with the Open Science Skills, step by step. You do not need command-line experience.">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -115,90 +115,98 @@
   <p class="kicker">Start here</p>
   <p class="wave">▁▂▃<b>▅</b><b>▃</b><b>▂</b>▁</p>
   <h1>Getting started</h1>
-  <p class="lede">Install an AI agent — Claude Code or Codex — in the terminal, add the Open Science Skills, and point it at a project. A one-time setup, with no prior command-line experience assumed.</p>
+  <p class="lede">A one-time setup for using Claude Code or Codex with the Open Science Skills. You do not need command-line experience.</p>
 </div></header>
 
 <main class="wrap" id="main">
 
   <div class="lead">
     <h2>Overview</h2>
-    <p>The aim is a setup where an AI agent reads the files in a folder and runs reusable checks over them, instead of a chat window you paste into. You install an agent, add the Open Science Skills, and point it at a project. After that, checking a reference list, or testing whether a source supports a claim, is a single command.</p>
-    <p>These instructions use the terminal on purpose, not just because it's the simplest way in. A terminal agent is scriptable — a skill is just a command, so you can chain them, automate them, or run them unattended. It works the same way over SSH on a remote server or an HPC cluster as it does on your laptop. And it isn't locked to one vendor's app: every demo on this site assumes the terminal, and the steps below work whether the agent running it is Claude Code or Codex.</p>
-    <p>You can also run Claude Code in an <a href="https://code.claude.com/docs">editor like VS Code or JetBrains</a>, or through the <a href="https://claude.ai/code">web and desktop apps</a>, if you'd rather not use the terminal at all. The steps below cover Claude Code first, since it's what the rest of this site uses, then Codex as an alternative.</p>
+    <p>While most people use AI by pasting text into a chat window, you can run an agent that works with your files directly from the folder. With the Open Science Skills added, a short command can verify your reference list against your bibliography, or check whether your sources actually contain the claims you make.</p>
+    <p>Everything is done in your terminal, which is where you type commands. You will only need the commands listed on this page. It doesn't matter if you're on a laptop or a server at your university, or if you're using Claude Code or Codex. You can also use Claude Code inside <a href="https://code.claude.com/docs">VS Code, JetBrains editors</a> or the <a href="https://claude.ai/code">Claude desktop and web apps</a>, but the rest of this site assumes you're using a terminal.</p>
   </div>
 
   <div class="step">
     <div class="n">1</div>
     <div class="body">
-      <h2>Install Claude Code</h2>
-      <p>Claude Code is the AI tool that runs the skills. Install it with one command in your terminal:</p>
-      <pre><code># macOS, Linux, or WSL
-curl -fsSL https://claude.ai/install.sh | bash
-
-# Windows (PowerShell)
-irm https://claude.ai/install.ps1 | iex</code></pre>
-      <p class="note">Other install options are in the docs at <a href="https://code.claude.com/docs">code.claude.com/docs</a>. Check it worked with <code>claude --version</code>.</p>
+      <h2>Get an account and open a terminal</h2>
+      <p>To use Claude Code, you need a paid plan (Pro, Max, Team or Enterprise) or an Anthropic Console account. It is not available with the free plan.</p>
+      <p>Open a terminal window on your computer. If you're using a Mac, you can open the Terminal app by searching for it in Spotlight. If you're using Windows, you can open PowerShell from the Start menu. On Linux, open your terminal as you normally would.</p>
     </div>
   </div>
 
   <div class="step">
     <div class="n">2</div>
     <div class="body">
-      <h2>Sign in</h2>
-      <p>Open a terminal and run:</p>
-      <pre><code>claude</code></pre>
-      <p>The first time, it walks you through signing in with your Claude account in the browser. After that it stays logged in.</p>
+      <h2>Install Claude Code</h2>
+      <p>To run skills, you'll need Claude Code, the AI agent that runs them. To install it, paste the line for your system into your terminal and hit Enter.</p>
+      <pre><code># macOS, Linux, or WSL
+curl -fsSL https://claude.ai/install.sh | bash
+
+# Windows (PowerShell)
+irm https://claude.ai/install.ps1 | iex</code></pre>
+      <p>You can verify it installed by running <code>claude --version</code>, which will print the version. If you get an error that the command is not found, try opening a new terminal.</p>
+      <p class="note">Other ways to install are in the docs at <a href="https://code.claude.com/docs">code.claude.com/docs</a>.</p>
     </div>
   </div>
 
   <div class="step">
     <div class="n">3</div>
     <div class="body">
-      <h2>Add the Open Science Skills</h2>
-      <p>The reference and source-claim checks come from the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> plugin. Register the marketplace and install it:</p>
-      <pre><code>claude plugin marketplace add scdenney/open-science-skills
-claude plugin install oss@open-science-skills</code></pre>
-      <p>Restart Claude Code (or run <code>/reload-plugins</code>) so the skills load. To confirm, type <code>/help</code> and look for the <code>oss:</code> commands, such as <code>/oss:citation-check</code>.</p>
+      <h2>Sign in</h2>
+      <pre><code>claude</code></pre>
+      <p>Type <code>claude</code> and press Enter. The first time, you will be prompted to log in with your Claude account in a browser window. You will not need to log in again after that. To exit Claude Code, type <code>/exit</code>.</p>
     </div>
   </div>
 
   <div class="step">
     <div class="n">4</div>
     <div class="body">
-      <h2>Open a project and call a skill</h2>
-      <p>Move into the folder you want to work in and start Claude Code there:</p>
-      <pre><code>cd path/to/your/project
-claude</code></pre>
-      <p>Now you can run a skill two ways. By its slash command:</p>
-      <pre><code>/oss:citation-check manuscript.md references.bib</code></pre>
-      <p>Or just by asking in plain language, for example "check the references in manuscript.md against references.bib." Claude Code reads the files in the folder, so point it at real files.</p>
+      <h2>Add the Open Science Skills</h2>
+      <p>The checks come from the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a>, a free plugin for Claude Code. Run both of the commands below in your terminal, not in Claude Code. The first command points Claude Code to the plugin and the second installs it.</p>
+      <pre><code>claude plugin marketplace add scdenney/open-science-skills
+claude plugin install oss@open-science-skills</code></pre>
+      <p>Once you have done that, start Claude Code again by running <code>claude</code> in your terminal. You can tell that you are set up if you type <code>/</code> and see commands like <code>/oss:citation-check</code> in the list. If Claude Code is already open, run <code>/reload-plugins</code> instead.</p>
     </div>
   </div>
 
   <div class="step">
     <div class="n">5</div>
     <div class="body">
-      <h2>Using Codex instead <span class="opt">alternative</span></h2>
-      <p>The Open Science Skills ship a parallel, Codex-native library of 42 of the toolkit’s 43 skills. Codex isn't a drop-in replacement for Claude Code — there's no plugin marketplace, and invocation looks different — but the skills themselves cover the same ground.</p>
-      <p>Install the Codex CLI itself first; that step isn't part of this toolkit, so follow OpenAI's own instructions at <a href="https://developers.openai.com/codex/skills">developers.openai.com/codex/skills</a>. Once Codex is installed and signed in, clone the Open Science Skills repo and run its non-overwriting installer:</p>
-      <pre><code>git clone https://github.com/scdenney/open-science-skills
-cd open-science-skills
-python3 plugin/scripts/install-codex.py --all --dry-run
-python3 plugin/scripts/install-codex.py --all</code></pre>
-      <p>Where Claude Code uses a slash command like <code>/oss:citation-check</code>, Codex invokes the same skill with a <code>$</code> prefix:</p>
-      <pre><code>$citation-check manuscript.md references.bib</code></pre>
-      <p class="note">Every skill on both platforms is on demand, so nothing loads from context and nothing is suggested unprompted. You invoke a skill by name and it costs the session nothing until you do. The two libraries track each other closely but aren't identical — <code>presubmit</code> has no Codex equivalent, and Codex <code>$orchestrate</code> detects either an active GPT-6 Astra or GPT-5.6 Sol lead. Astra keeps compact hard reasoning in-session; Sol escalates unusually difficult units to Astra. The older names retired in v2.25.0 (<code>diverge-codex</code>, <code>survey-flow-audit</code>, <code>fair-check</code>, the three OCR names) still work on Claude Code as aliases, though <code>fable-orchestrate</code> was itself removed in v2.30.0 because <code>/oss:orchestrate</code> already detects the lead; on Codex, name the mode instead (<code>$diverge --codex</code>, <code>$qualtrics-ops audit</code>, <code>$vlm-ocr clean</code>). See <a href="https://github.com/scdenney/open-science-skills/blob/main/codex/README.md">codex/README.md</a> for the full catalog, including repo-scoped and single-skill installs.</p>
+      <h2>Open a project and call a skill</h2>
+      <p>Your project is just a folder on your computer that has all your files in it. You can navigate to it in the terminal with the <code>cd</code> command (<code>cd</code> stands for "change directory"), then start Claude Code there. You can usually do this by typing <code>cd</code> followed by a space and then dragging the folder into the terminal.</p>
+      <pre><code>cd path/to/your/project
+claude</code></pre>
+      <p>Then run the command for the skill in Claude Code.</p>
+      <pre><code>/oss:citation-check manuscript.md references.bib</code></pre>
+      <p>You can also prompt in natural language instead, something like "check the references in manuscript.md against references.bib." Claude Code has access to all files in the folder, so make sure to use the actual names of the files.</p>
     </div>
   </div>
 
   <div class="step">
     <div class="n">6</div>
     <div class="body">
+      <h2>Using Codex instead <span class="opt">alternative</span></h2>
+      <p>Codex is OpenAI's version of Claude Code. A Codex version of the Open Science Skills is also available, with 43 of the 44 skills (all but <code>presubmit</code>). Since Codex does not have a plugin marketplace, setting it up is slightly different.</p>
+      <p>Install Codex and sign in first, following <a href="https://developers.openai.com/codex/skills">OpenAI's instructions</a>. Then download and install the skills, which requires git and Python 3. The dry-run line previews the install, and the last line actually installs the skills.</p>
+      <pre><code>git clone https://github.com/scdenney/open-science-skills
+cd open-science-skills
+python3 plugin/scripts/install-codex.py --all --dry-run
+python3 plugin/scripts/install-codex.py --all</code></pre>
+      <p>In Codex, use <code>$</code> instead of <code>/oss:</code> to invoke a skill.</p>
+      <pre><code>$citation-check manuscript.md references.bib</code></pre>
+      <p class="note">A few skill names and options are different in Codex – see the full list in the <a href="https://github.com/scdenney/open-science-skills/blob/main/codex/README.md">Codex README</a>.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">7</div>
+    <div class="body">
       <h2>Build a knowledge base <span class="opt">optional</span></h2>
-      <p>This step is only for the <strong>source-claim check</strong>, which reads your sources to see whether they support a claim. The <strong>reference check</strong> does not need it.</p>
-      <p>Keep each source's PDF in <code>sources/og/</code> and a Markdown version in <code>sources/md/</code>, which is what the checker reads. The <code>research-repo</code> skill sets this folder structure up for you, and <code>process-source</code> converts a PDF to Markdown.</p>
-      <pre><code>/oss:research-repo            # scaffold the sources/ folders
-/oss:doc-to-markdown paper.pdf   # convert one PDF into the knowledge base</code></pre>
+      <p>This is only required if you want the <strong>source-claim check</strong>, which reads your sources and checks whether they support the claims made in a manuscript. The <strong>reference check</strong> does not need it.</p>
+      <p>The <code>research-repo</code> skill creates the folders for you. Your original PDFs go in <code>sources/og/</code> and markdown versions in <code>sources/md/</code>. The markdown versions are plain-text versions of your PDFs, and the <code>doc-to-markdown</code> skill converts them. See the <a href="../knowledge-base/">knowledge-base demo</a> for the full process.</p>
+      <pre><code>/oss:research-repo .              # set up the sources/ folders
+/oss:doc-to-markdown paper.pdf    # convert one PDF to Markdown</code></pre>
     </div>
   </div>
 

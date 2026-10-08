@@ -1,8 +1,8 @@
 # Answer key — what each step should produce
 
 Everything in this demo is planted. The four inbox files each carry one problem that the
-intake pipeline has to solve, and `messy-project/` carries four more that only an audit
-finds. The sources themselves are invented, including the authors, journals, and the
+intake pipeline has to solve, and `messy-project/` carries five more that only an audit
+finds: four about the sources, one about the missing pipeline. The sources themselves are invented, including the authors, journals, and the
 countries they study.
 
 ## The inbox

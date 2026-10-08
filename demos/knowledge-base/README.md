@@ -39,7 +39,8 @@ demos/knowledge-base/
 ├── messy-project/          # a half-built repo to point the audit at
 ├── expected-output/        # what each step should produce: some captured from a real run,
 │                           #   some illustrative (each file says which)
-│   └── finished-base/      #   the knowledge base you end up with, captured from a real run
+│   └── finished-base/      #   the knowledge base you end up with, captured from a real run;
+│                           #   missing.bib and the Marchetti .NOTE.md were added by hand
 ├── prompts/run.md          # the exact commands, in order
 ├── scripts/                # regenerates inbox/ from the synthetic paper text
 └── ANSWER-KEY.md           # every planted problem and what should be reported
@@ -69,16 +70,16 @@ Then, in the session:
 Copy the four files from `inbox/` into `sources/unprocessed/` and work through
 [`prompts/run.md`](prompts/run.md).
 
-Converting PDFs needs Java 11 or newer, a Python virtual environment with
-`opendataloader-pdf`, and `poppler-utils` for the image-only check. The skill sets the
-last two up for you. If you would rather read than run, `expected-output/` has the
+Converting needs Java 11 or newer, `poppler-utils` for the image-only check (without it
+the check is silently skipped), and Node.js (or `pandoc`) for the Word file. Install those
+yourself. The skill creates the Python environment with `opendataloader-pdf`. If you would rather read than run, `expected-output/` has the
 result of each step.
 
 ## Why a synthetic project
 
 The four sources are invented, and so are their authors, journals, and countries. That
 keeps the demo self-contained, redistributable, and free of any real scholar's name.
-Every generated file says so on its first page, and `scripts/make-inbox.sh` rebuilds
+Every generated PDF says so on its first page, and `scripts/make-inbox.sh` rebuilds
 them all from the text in `scripts/originals/`.
 
 The conversion problems, though, are real. The flattened table in

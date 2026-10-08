@@ -1,5 +1,7 @@
 # Marchetti, Lucia — note (no source held)
 
+*Synthetic example for the demo; see the note at the end.*
+
 > **THIS IS NOT A SOURCE.** It is a repo-authored note about a work we do not
 > hold. Nothing here may be used to verify a claim the paper attributes to this
 > work; a fact-check must record such a claim as unverifiable. The content below

@@ -1,6 +1,7 @@
 # Run the demo
 
-The exact commands, in order. Everything runs on local files. Nothing here needs the web.
+The exact commands, in order. The sources are local files; setup, the Word converter and the
+push need a network connection.
 
 ## 0. Before you start
 
@@ -119,7 +120,36 @@ Two originals that were never converted, one conversion with no bibliography ent
 entry with no source anywhere, and filenames that resolve to nobody. The report should
 name all four. Compare with `expected-output/03-audit.md`.
 
-## 7. Use what you built
+## 7. Close the session, then resume it
+
+```
+/oss:finished
+```
+
+It writes what changed into the project's handoff and log, sorting each item into
+verified, unverified, half-finished, or decided and not yet built. If the project has
+neither file it asks once before creating one. It does not commit.
+
+Record the run in git, and push it to a private GitHub repository the first time:
+
+```bash
+git add -A
+git status --short   # no line should start with sources/og/
+git commit -m "File three sources; flag the scan and the damaged table"
+gh repo create kb-demo --private --source=. --push
+```
+
+Quit Claude Code, start a new session in the same folder, and ask where things stand:
+
+```
+/oss:sitrep
+```
+
+It should report the scan as open, the damaged table as a known problem, and a clean
+tree. Edit any file without committing and run it again: the uncommitted change should
+appear as a gap between the handoff and the repository.
+
+## 8. Use what you built
 
 The knowledge base is the input to the next demo. The claim check needs two things: a
 manuscript to check, and a knowledge base to check it against. This demo builds the
@@ -129,23 +159,26 @@ knowledge base and ships no manuscript, so there is nothing here to run
 [reference-check](../../reference-check/) supplies a manuscript with planted problems,
 along with a knowledge base of its own. That is where to go next.
 
-Here is why a base you can read matters. In the lecture's own draft, the claim check read
-one sentence against both filed sources: "citizens penalize executive action relative to
-legislative action," cited to Reeves and Rogowski (2016) and Christenson and Kriner
-(2017). Neither source backs the sentence as written. Reeves and Rogowski report low
-generalized support for unilateral power, not a comparison between routes. Christenson
-and Kriner's route estimate is not significant. The check reported the claim unsupported.
-The researcher rewrote it as two narrower claims, each tied to the source that actually
-supports it. The check flagged the problem. The researcher decided what to write.
+Here is why a base you can read matters. An archived draft of the author's manuscript
+contained the sentence "Studies of unilateral policymaking similarly show that citizens
+penalize executive action relative to legislative action," cited to Reeves and Rogowski
+(2016) and Christenson and Kriner (2017). Neither source backs it as written. Reeves and
+Rogowski report low generalized support for unilateral power, not a comparison between
+routes. Christenson and Kriner's route estimate is not significant. The author had already
+rewritten the sentence by hand on 27 August 2026, as two narrower claims each tied to the
+source that supports it. A claim check run on 16 September 2026 against the archived
+wording reached the same verdict. The check shows what reading the sources finds; the
+researcher decided what to write.
 
 ## Try breaking it
 
-- **Delete a conversion** from `sources/md/` and run the claim check. It should refuse on
-  its pre-flight rather than answer from memory.
+- **In the reference-check demo, delete a conversion** from `sources/md/` and run the
+  claim check. It should refuse on its pre-flight rather than answer from memory.
 - **Rename a file** so its author and year no longer match its bibliography key, then
   re-run the audit. Watch the drift get reported.
 - **Add a source and skip the bibliography entry.** The audit reports files with no entry
   as well as entries with no file. Drift runs in both directions.
 - **Re-run the converter twice.** It only touches files without a conversion, so a second
   run is safe and says so.
-- **Put the scan through OCR**, then re-run the audit and watch the orphan disappear.
+- **OCR the scan**, save the text as `sources/md/kowalski-2017-turnout-cascades.md`, then
+  run `/oss:research-repo .` and check that the scan is no longer listed as unconverted.

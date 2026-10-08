@@ -201,7 +201,7 @@
       <button type="button" class="seg-btn" data-plat="codex" aria-pressed="false">Codex</button>
     </div>
   </div>
-  <p class="count" id="skill-count" aria-live="polite">Showing all 41 skills</p>
+  <p class="count" id="skill-count" aria-live="polite">Showing all 39 skills</p>
 </div></nav>
 
 <main class="wrap" id="main">
@@ -244,9 +244,9 @@
     </li>
   </ul>
 
-  <button type="button" class="chapter" data-cat="wo" aria-expanded="false" aria-controls="entries-wo"><span class="num">III</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">3 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <button type="button" class="chapter" data-cat="wo" aria-expanded="false" aria-controls="entries-wo"><span class="num">III</span><h2>Workflow &amp; Orchestration</h2><span class="rule"></span><span class="n">2 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-wo" hidden>
-    <li class="entry" id="advisor" data-cat="wo" data-plat="both" data-search="advisor second opinion independent reviewer consult fable 5 max effort opus 5 sonnet 5 main seat gpt-5.6 sol xhigh read-only /oss:advisor $advisor codex claude both">
+    <li class="entry" id="advisor" data-cat="wo" data-plat="both" data-search="advisor second opinion independent reviewer consult fable effort high xhigh max opus haiku main seat gpt-6 astra read-only /oss:advisor $advisor codex claude both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/advisor/SKILL.md">advisor</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
@@ -254,27 +254,17 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/advisor/SKILL.md" aria-label="Open advisor on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:advisor</code> <span class="cmd-sep">·</span> <code class="cmd">$advisor</code></div>
-      <p class="desc" id="desc-advisor">Ask for a second opinion before you commit to a decision or call work done. In Claude Code your own session holds the main seat, on Opus or on Sonnet for cheaper sustained work, and the advisor seat is always Fable, pinned to max reasoning effort no matter what your session runs at. In Codex it is always GPT-6 Astra at xhigh, the flagship tier at its top effort setting, because the point of asking is a stronger reviewer rather than a cheap one. It is an escalation from a working model, not a peer check: a Fable session should reach for orchestrate's Astra peer or the committee instead. Advice only. It never edits your files.</p>
+      <p class="desc" id="desc-advisor">Ask for a second opinion before you commit to a decision or call work done. In Claude Code your own session holds the main seat, usually on Opus, and the advisor is always Fable. Your session picks how hard Fable thinks for each question: high by default, higher for a design decision or work that is stuck, and the maximum for a high-stakes call. In Codex the advisor is GPT-6 Astra, on the same three levels. It is an escalation from a working model, not a peer check: a Fable session should reach for orchestrate's Astra peer or the committee instead. Advice only. It never edits your files.</p>
     </li>
-        <li class="entry" id="orchestrate" data-cat="wo" data-plat="both" data-search="orchestrate fable-orchestrate opus-orchestrate 46-orchestrate workflow orchestration multi-model fable 5.1 opus 5 sonnet codex gpt-6 astra gpt-5.6 sol lead detection /oss:orchestrate $orchestrate claude codex both">
+        <li class="entry" id="orchestrate" data-cat="wo" data-plat="both" data-search="orchestrate workflow orchestration multi-model fable opus haiku effort codex gpt-6 astra gpt-6.1 sol luna lead detection /oss:orchestrate $orchestrate claude codex both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/orchestrate/SKILL.md">orchestrate</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
         </div>
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/orchestrate/SKILL.md" aria-label="Open orchestrate on GitHub">↗</a>
       </div>
-      <div class="cmds"><code class="cmd">/oss:orchestrate</code><code class="cmd">/oss:fable-orchestrate</code><code class="cmd">/oss:opus-orchestrate</code><code class="cmd">$orchestrate</code></div>
-      <p class="desc" id="desc-orchestrate">Run a hard task past several AI models at once. The skill reads which model your session is on and takes the matching lead role. In Claude Code, Fable keeps the hard thinking itself and hands off mechanical work to Sonnet, wide parallel reasoning to Opus subagents, and selected outside checks to GPT-6 Astra; Opus is itself the deep reasoner and delegates to fan out. The two older Claude names still work and force the lead. In Codex, an active GPT-6 Astra or GPT-5.6 Sol session can lead: Astra keeps compact hard reasoning in-session, while Sol escalates unusually difficult units to Astra. Both modes route bounded and mechanical work to lower GPT-5.6 tiers and can use a Claude peer.</p>
-    </li>
-      <li class="entry" id="spawn" data-cat="wo" data-plat="both" data-search="spawn">
-      <div class="row">
-        <div class="row-head">
-          <span class="tag-cat">WO</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/spawn/SKILL.md">spawn</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </div>
-        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/spawn/SKILL.md" aria-label="Open spawn on GitHub">↗</a>
-      </div>
-      <div class="cmds"><code class="cmd">/oss:spawn</code> <span class="cmd-sep">·</span> <code class="cmd">$spawn</code></div>
-      <p class="desc" id="desc-spawn">Launch full, independent AI sessions to work on separate tasks at the same time — not quick helpers, but complete sessions you can watch and steer in their own window, each in its own copy of your project so nothing collides. Picks the strongest way to do this that's available (a terminal manager called herdr, then tmux, then a plain background process) and merges each one's finished work back in once it passes.</p>
+      <div class="cmds"><code class="cmd">/oss:orchestrate</code> <span class="cmd-sep">·</span> <code class="cmd">$orchestrate</code></div>
+      <p class="desc" id="desc-orchestrate">Run a hard task past several AI models at once. The skill reads which model your session is on and takes the matching lead role. In Claude Code, a Fable or Opus session leads: it sends routine tool work (searching, collecting, extracting) to the small, cheap Haiku model and anything that needs judgment to Opus, choosing how hard Opus thinks for each piece by its difficulty, and it can send selected outside checks to GPT-6 Astra. In Codex, a GPT-6 Astra or GPT-6.1 Sol session leads: Astra keeps compact hard reasoning in-session, while Sol escalates unusually difficult units to Astra. Both send bounded work to Sol and mechanical work to the Luna tier, and can use a Claude peer.</p>
     </li>
   </ul>
 
@@ -396,7 +386,7 @@
     </li>
   </ul>
 
-  <button type="button" class="chapter" data-cat="an" aria-expanded="false" aria-controls="entries-an"><span class="num">VI</span><h2>Analysis</h2><span class="rule"></span><span class="n">5 skills</span><span class="chev" aria-hidden="true">›</span></button>
+  <button type="button" class="chapter" data-cat="an" aria-expanded="false" aria-controls="entries-an"><span class="num">VI</span><h2>Analysis</h2><span class="rule"></span><span class="n">4 skills</span><span class="chev" aria-hidden="true">›</span></button>
   <ul class="entries" id="entries-an" hidden>
         <li class="entry" id="topic-modeling" data-cat="an" data-plat="both" data-search="topic-modeling analysis structural topic model stm covariates coherence /oss:topic-modeling $topic-modeling codex claude both">
       <div class="row">
@@ -418,16 +408,6 @@
       <div class="cmds"><code class="cmd">/oss:text-classification</code> <span class="cmd-sep">·</span> <code class="cmd">$text-classification</code></div>
       <p class="desc" id="desc-text-classification">Have an AI model sort text into categories you define, following a written codebook, then check its accuracy the way you'd check a human coder's.</p>
     </li>
-        <li class="entry" id="model-council-voting" data-cat="an" data-plat="both" data-search="model-council-voting analysis panel llm coders agreement kappa /oss:model-council-voting $model-council-voting codex claude both">
-      <div class="row">
-        <div class="row-head">
-          <span class="tag-cat">AN</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-council-voting/SKILL.md">model-council-voting</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
-        </div>
-        <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-council-voting/SKILL.md" aria-label="Open model-council-voting on GitHub">↗</a>
-      </div>
-      <div class="cmds"><code class="cmd">/oss:model-council-voting</code> <span class="cmd-sep">·</span> <code class="cmd">$model-council-voting</code></div>
-      <p class="desc" id="desc-model-council-voting">Have several AI models independently label the same data, then combine their votes and measure how much they agreed — inter-rater reliability, but with models instead of people.</p>
-    </li>
         <li class="entry" id="model-committee" data-cat="an" data-plat="both" data-search="model-committee analysis gpt opus fable sol chair deliberative judgment committee /oss:model-committee /oss:model-committee-fable /oss:model-committee-sol $model-committee codex claude both">
       <div class="row">
         <div class="row-head">
@@ -436,7 +416,7 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/model-committee/SKILL.md" aria-label="Open model-committee on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:model-committee</code> <span class="cmd-sep">·</span> <code class="cmd">/oss:model-committee-astra</code> <span class="cmd-sep">·</span> <code class="cmd">/oss:model-committee-opus</code> <span class="cmd-sep">·</span> <code class="cmd">/oss:model-committee-fable</code> <span class="cmd-sep">·</span> <code class="cmd">/oss:model-committee-sol</code> <span class="cmd-sep">·</span> <code class="cmd">$model-committee</code></div>
-      <p class="desc" id="desc-model-committee">Have two AI models (GPT-6 Astra and Claude Opus) discuss a judgment call with each other before settling on an answer, instead of asking just one. The chair is a parameter, not a separate skill, and it is a premier model that never sits on the committee: <code>/oss:model-committee</code> has Fable run the meeting, <code>/oss:model-committee-astra</code> hands the gavel to GPT-6 Astra — in which case the GPT debater drops to the Sol tier so the chair is never grading its own family's twin — <code>/oss:model-committee-opus</code> keeps the cheap in-session Opus chair, and <code>/oss:model-committee-sol</code> is the legacy GPT-5.6 chair with a Terra debater.</p>
+      <p class="desc" id="desc-model-committee">Have two AI models (GPT-6 Astra and Claude Opus) discuss a judgment call with each other before settling on an answer, instead of asking just one. The chair is a parameter, not a separate skill, and it is a premier model that never sits on the committee: <code>/oss:model-committee</code> has Fable run the meeting, <code>/oss:model-committee-astra</code> hands the gavel to GPT-6 Astra — in which case the GPT debater drops to the Sol tier so the chair is never grading its own family's twin — <code>/oss:model-committee-opus</code> keeps the cheap in-session Opus chair, and <code>/oss:model-committee-sol</code> uses a GPT-6.1 Sol chair with a GPT-6 Sol debater.</p>
     </li>
         <li class="entry" id="llm-calibration-logprobs" data-cat="an" data-plat="both" data-search="llm-calibration-logprobs analysis confidence token probabilities calibration ece brier /oss:llm-calibration-logprobs $llm-calibration-logprobs codex claude both">
       <div class="row">
@@ -662,7 +642,7 @@
 
   <p id="empty">No skills match your search. Try a different word, or clear the category filter.</p>
 
-  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 30 September 2026 (v2.34.0). It includes 41 skills on Claude Code (<code>/oss:name</code>) and 40 on Codex (<code>$name</code>). Most run on both platforms, with a few platform-specific exceptions. The library also carries an experimental deliverable pipeline, not listed here: it manages writing projects rather than research methods, and its interfaces are still moving.</p>
+  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 8 October 2026 (v2.35.1). It includes 39 skills on Claude Code (<code>/oss:name</code>) and 38 on Codex (<code>$name</code>). Most run on both platforms, with a few platform-specific exceptions. The library also carries an experimental deliverable pipeline, not listed here: it manages writing projects rather than research methods, and its interfaces are still moving.</p>
   <p class="note note-cont">Every skill loads only when invoked by name, so none uses session resources until needed. All aliases still work. The Codex library follows the same logic.</p>
 
 </main>

@@ -442,7 +442,7 @@
       <div class="cmds"><code class="cmd">/oss:doc-to-markdown</code> <span class="cmd-sep">·</span> <code class="cmd">$doc-to-markdown</code></div>
       <p class="desc" id="desc-doc-to-markdown">Hand the model a PDF, Word file, or slide deck and get a sensible read of it — deciding when the file can simply be read, when it needs converting, which converter suits that particular document, and whether the resulting text is worth keeping.</p>
     </li>
-        <li class="entry" id="vlm-ocr" data-cat="cp" data-plat="both" data-search="vlm-ocr vlm-ocr-pipeline vlm-ocr-evaluation post-ocr-cleanup ocr vision language model scanned pdf cer wer evaluate run clean multilingual korean provenance /oss:vlm-ocr $vlm-ocr claude codex both">
+        <li class="entry" id="vlm-ocr" data-cat="cp" data-plat="both" data-search="vlm-ocr vlm-ocr-pipeline vlm-ocr-evaluation post-ocr-cleanup ocr vision language model scanned pdf cer wer evaluate run clean multilingual korean polish provenance /oss:vlm-ocr $vlm-ocr claude codex both">
       <div class="row">
         <div class="row-head">
           <span class="tag-cat">CP</span><a class="name" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr/SKILL.md">vlm-ocr</a><span class="leader" aria-hidden="true"></span><span class="tag-plat plat-both">both</span>
@@ -450,7 +450,7 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr/SKILL.md" aria-label="Open vlm-ocr on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:vlm-ocr</code><code class="cmd">/oss:vlm-ocr-evaluation</code><code class="cmd">/oss:vlm-ocr-pipeline</code><code class="cmd">/oss:post-ocr-cleanup</code><code class="cmd">$vlm-ocr</code></div>
-      <p class="desc" id="desc-vlm-ocr">Turn scanned documents into text in four phases. Triage inventories the scans, works out their scripts and languages, and shortlists models for your hardware and data terms; evaluate compares OCR systems on ground truth (born-digital editions of the same books where they exist) and gates the bulk run with rules set in advance; run builds the vision-language-model pipeline; clean removes model artifacts, checks what every cleaning rule deletes, and corrects the output. It ships a corpus triage script, a resumable OCR client, and a dated model shortlist. The three older names still work and force a phase.</p>
+      <p class="desc" id="desc-vlm-ocr">Turn scanned documents into text in four phases. Triage inventories the scans, works out their scripts and languages, and shortlists models for your hardware and data terms; evaluate compares OCR systems on ground truth (born-digital editions of the same books where they exist, otherwise a model read checked against the scans) and gates the bulk run with rules set in advance; run builds the vision-language-model pipeline; clean removes model artifacts, checks what every cleaning rule deletes, and corrects the output. It ships a corpus triage script, a resumable OCR client, and a dated model shortlist. The three older names still work and force a phase.</p>
     </li>
         <li class="entry" id="vlm-ocr-alice" data-cat="cp" data-plat="both" data-search="vlm-ocr-alice alice hpc cluster slurm leiden gpu vllm ocr a40 a100 /oss:vlm-ocr-alice $vlm-ocr-alice claude codex both">
       <div class="row">
@@ -460,7 +460,7 @@
         <a class="ext-link" href="https://github.com/scdenney/open-science-skills/blob/main/plugin/skills/vlm-ocr-alice/SKILL.md" aria-label="Open vlm-ocr-alice on GitHub">↗</a>
       </div>
       <div class="cmds"><code class="cmd">/oss:vlm-ocr-alice</code> <span class="cmd-sep">·</span> <code class="cmd">$vlm-ocr-alice</code></div>
-      <p class="desc" id="desc-vlm-ocr-alice">Run the GPU part of a vlm-ocr pipeline on Leiden University's ALICE cluster: whether your corpus needs ALICE at all, which partition fits the model, where to keep scans and model weights, a ready SLURM job that serves the model and reads the pages, a test job before the bulk run, and the cluster problems met in a 36,000-page run.</p>
+      <p class="desc" id="desc-vlm-ocr-alice">Run the GPU part of a vlm-ocr pipeline on Leiden University's ALICE cluster: whether your corpus needs ALICE at all, which partition fits the model, where to keep scans and model weights, a ready SLURM job that serves the model and reads the pages, a test job before the bulk run, and the cluster problems met in two runs, 36,000 Korean and 48,000 Polish pages.</p>
     </li>
   </ul>
 
@@ -652,7 +652,7 @@
 
   <p id="empty">No skills match your search. Try a different word, or clear the category filter.</p>
 
-  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 17 October 2026 (v2.36.0). It includes 40 skills on Claude Code (<code>/oss:name</code>) and 39 on Codex (<code>$name</code>). Most run on both platforms, with a few platform-specific exceptions. The library also carries an experimental deliverable pipeline, not listed here: it manages writing projects rather than research methods, and its interfaces are still moving.</p>
+  <p class="note">This index mirrors <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a> as of 18 October 2026 (v2.36.2). It includes 40 skills on Claude Code (<code>/oss:name</code>) and 39 on Codex (<code>$name</code>). Most run on both platforms, with a few platform-specific exceptions. The library also carries an experimental deliverable pipeline, not listed here: it manages writing projects rather than research methods, and its interfaces are still moving.</p>
   <p class="note note-cont">Every skill loads only when invoked by name, so none uses session resources until needed. All aliases still work. The Codex library follows the same logic.</p>
 
 </main>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Check a Draft Against Its Sources — AI for Research</title>
-<meta name="description" content="A recorded run, step by step. An agent files three real archival sources into a knowledge base, two local OCR programs read the scanned one, and the agent checks a draft with planted errors against all three.">
+<meta name="description" content="A recorded run, step by step. An agent files three real archival sources into a knowledge base, a local OCR model reads the scanned one, and the agent checks a draft with planted errors against all three.">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -223,8 +223,8 @@ sources/unprocessed:</div>
       </div>
     </div>
     <ol class="cues">
-      <li data-for="a">I set up this project folder beforehand with <code>/oss:research-repo</code>. The agent reads <span class="q">CLAUDE.md</span> at the start of every session, and that file holds the project’s rules.</li>
-      <li data-for="b">The library is still empty. Originals will go in <code>og/</code> and searchable text copies in <code>md/</code>, and each source also gets an entry in the bibliography.</li>
+      <li data-for="a">I set up this project folder beforehand with <code>/oss:research-repo</code>. The agent reads <span class="q">CLAUDE.md</span> at the start of every session. This file contains the project’s rules.</li>
+      <li data-for="b">The library is still empty. Originals will go in <code>og/</code>, and the searchable text copies in <code>md/</code>. Each source also gets an entry in the bibliography.</li>
       <li data-for="c">My draft is already in <code>manuscript/</code>. It is about Koreans in Japan in 1946 and cites four works.</li>
     </ol>
   </section>
@@ -247,7 +247,7 @@ sources/unprocessed:</div>
       <li data-for="b">This one cites Lee (2019) for a claim about the quarantine station at Pusan.</li>
       <li data-for="c">The date and the ship come from Kim (2021), an article in Korean.</li>
       <li data-for="d">The quotation is my translation of a sentence in Kim.</li>
-      <li data-for="e">This claim cites an order from SCAP, the Supreme Commander for the Allied Powers, issued in June 1946. The order survives only as a scanned page.<small>The agent will check each of these five claims.</small></li>
+      <li data-for="e">This claim cites an order from SCAP, the Supreme Commander for the Allied Powers, issued in June 1946. The order is stored as a scanned page.<small>The agent will check each of these five claims.</small></li>
     </ol>
   </section>
 
@@ -264,9 +264,9 @@ sources/unprocessed:</div>
       </div>
     </div>
     <ol class="cues">
-      <li data-for="a">Kim (2021) arrives named after its Europe PMC manuscript number.</li>
+      <li data-for="a">Kim (2021) is stored under its original manuscript number.</li>
       <li data-for="b">Cambridge Core named Morris-Suzuki (2011) after the article’s DOI (digital object identifier).</li>
-      <li data-for="c">SCAPIN 1015 comes from the National Diet Library in Tokyo. The file is a photograph of a typed page and contains no text.</li>
+      <li data-for="c">SCAPIN 1015 comes from the National Diet Library in Tokyo. The file is a digitized photograph of a typed page.</li>
     </ol>
   </section>
 
@@ -295,50 +295,48 @@ sources/unprocessed:</div>
       <li data-for="a">One command starts intake. The agent follows the steps written down in the project’s <code>process-source</code> file.</li>
       <li data-for="b">Each new name is built from the author and the year, plus a few words of the title. The bibliography key comes from the same name.</li>
       <li data-for="c">The converter, OpenDataLoader PDF, first counts the text on each page. The scan has almost none, so it is set aside as needing OCR.</li>
-      <li data-for="d">The agent then stops and asks how to handle the scan. It also lists what it is unsure of, and these notes are what I read before I trust the library.</li>
+      <li data-for="d">The agent then stops and asks how to handle the scan. It also lists what it is unsure of. I take account of these notes before making any decisions.</li>
     </ol>
   </section>
 
   <!-- 5 -->
-  <section class="step" data-title="OCR on the scan" data-sub="Two OCR programs read the page on this laptop. Nothing is sent to a model provider.">
+  <section class="step" data-title="OCR, and a check of the OCR" data-sub="A local OCR model reads the scan. Then the agent checks its text against the page.">
     <div class="left">
       <div class="scan">
         <img src="../assets/archive-check/scapin-1015.jpg" alt="A typed one-page memorandum from General Headquarters, Supreme Commander for the Allied Powers, dated 12 June 1946, subject Suppression of Illegal Entry into Japan. A large hand-drawn X crosses the page, and a faint pencil note sits at lower left.">
-        <div class="pins"><div class="pin" data-cue="a" style="left:11%; top:12%; width:76%; height:9%"></div><div class="pin" data-cue="b" style="left:11%; top:29%; width:72%; height:9.5%"></div><div class="pin" data-cue="d" style="left:7%; top:69.5%; width:76%; height:7.5%"></div></div>
+        <div class="pins"><div class="pin" data-cue="b" style="left:11%; top:29%; width:72%; height:9.5%"></div><div class="pin" data-cue="d" style="left:11%; top:12%; width:76%; height:9%"></div><div class="pin" data-cue="d" style="left:62%; top:69%; width:20%; height:4%"></div><div class="pin" data-cue="e" style="left:7%; top:72%; width:60%; height:5%"></div></div>
         <div class="credit">NDL Digital Collections, pid 9886118 · Public Domain</div>
       </div>
       <div class="term">
-        <div class="term-bar"><i></i><i></i><i></i><span>~/kb-demo — two OCR programs, run locally</span></div>
+        <div class="term-bar"><i></i><i></i><i></i><span>~/kb-demo — claude</span><span class="rec">RECORDED 21 OCT 2026</span></div>
         <div class="term-body">
-          <div class="ln"><span class="pr">❯</span> <span class="cmd">! pdfimages -j sources/og/scap-1946-suppression-illegal-entry.pdf scan</span></div>
-          <div class="ln"><span class="pr">❯</span> <span class="cmd">! tesseract scan-000.jpg ocr-tesseract --psm 6</span> <span class="dim"># 1 s</span></div>
-          <div class="tree" data-cue="a">GENERAL HEADQUARTERS i 4
-SUPREME COMMANDER FOR THE ALLIED POWERS 0 \ 4
-AG 014,33 {12 Jun 46)cc 12 June 1946
-‘(SCAPIN 1015) \x</div>
-          <div class="tree" data-cue="b">of the introduction of this disease Anto Japan ‘by carriers
-transported from rea to Japan on/unauthorized shipping,
-positive steps must\be taken to tect and ayprehend ships
-2. The Imperial Paganesé Governnent will: j</div>
-          <div class="ln"><span class="pr">❯</span> <span class="cmd">! scripts/ocr-scan.sh sources/og/scap-1946-suppression-illegal-entry.pdf</span> <span class="dim"># GLM-OCR, 13 s</span></div>
-          <div class="ln dim" data-cue="d">MEMORANDUM FOR: IMPERIAL JAPANESE GOVERNMENT.</div>
-          <p data-cue="c">1. Cholera has broken out in Korea and is rapidly reaching epidemic proportions. In view of the grave danger of the introduction of this disease into Japan by carriers transported from Korea to Japan on unauthorized shipping, positive steps must be taken to detect and apprehend ships illegally entering Japanese ports.</p>
+          <div class="ln" data-cue="a"><span class="pr">❯</span> <span class="cmd">! scripts/ocr-scan.sh sources/og/scap-1946-suppression-illegal-entry.pdf</span> <span class="dim"># GLM-OCR, 13 s</span></div>
+          <div class="ln dim">MEMORANDUM FOR: IMPERIAL JAPANESE GOVERNMENT.</div>
+          <p data-cue="b">1. Cholera has broken out in Korea and is rapidly reaching epidemic proportions. In view of the grave danger of the introduction of this disease into Japan by carriers transported from Korea to Japan on unauthorized shipping, positive steps must be taken to detect and apprehend ships illegally entering Japanese ports.</p>
           <div class="ln dim">  …</div>
-          <div class="tree" data-cue="d">J. W. Mann
+          <div class="tree">J. W. Mann
 for JOHN B. COOLEY,
 Colonel, AGC,
 Adjutant General.</div>
-          <div class="ln"><span class="pr">❯</span> <span class="cmd">! head -1 sources/md/scap-1946-suppression-illegal-entry.md</span></div>
-          <p data-cue="e"><span class="dim">&gt;</span> <b>OCR note:</b> Text from <code>scripts/ocr-scan.sh</code> (GLM-OCR, a local vision OCR model run through Ollama) on 2026-10-21. … GLM-OCR skipped the header block (the AG file number, “SCAPIN 1015”, and the date, 12 June 1946) and the faint pencil note at lower left, and it reads the signature block as “AGC” where the scan has “AGD”. Check against the scan before quoting.</p>
+          <div class="ln" data-cue="c"><span class="pr">❯</span> <span class="cmd">Check the OCR text in sources/md/scap-1946-suppression-illegal-entry.md against the scan in sources/og/scap-1946-suppression-illegal-entry.pdf. Correct any OCR errors and add anything the OCR missed, including handwriting. List each correction at the top of the file.</span></div>
+          <div class="dim ln">  … 1 min 31 s …</div>
+          <div class="agent">I compared the OCR file with the scan region by region at full resolution and corrected <code>sources/md/scap-1946-suppression-illegal-entry.md</code>. The numbered list of nine corrections is at the top of the file.
+            <p data-cue="b"><b>Body text:</b> paragraphs 1–3, including sub-items a–c, match the scan word for word. The OCR’s errors are all in the material around the body.</p>
+            <div data-cue="d"><p><b>Added typed text the OCR skipped:</b></p>
+            <p>&nbsp;&nbsp;– the letterhead (General Headquarters, Supreme Commander for the Allied Powers)<br>&nbsp;&nbsp;– the file reference: AG 014.33 (12 Jun 46)GC (SCAPIN 1015)<br>&nbsp;&nbsp;– “APO 500 / 12 June 1946”</p>
+            <p><b>One misread:</b> “Colonel, AGC” is “Colonel, AGD” (Adjutant General’s Department).</p></div>
+            <div data-cue="e"><p><b>Handwriting:</b><br>&nbsp;&nbsp;– …<br>&nbsp;&nbsp;– Added the faint pencil note at the foot of the page: “Resc by Scapin 1391 - 10 Dec 46”.<br>&nbsp;&nbsp;– Added the large X drawn across the body text.<br>&nbsp;&nbsp;– …</p>
+            <p><b>Uncertain readings:</b> I marked these with <code>[?]</code> in the file rather than guessing silently. …</p></div>
+          </div>
         </div>
       </div>
     </div>
     <ol class="cues">
-      <li data-for="a">Tesseract is the standard open-source OCR engine. It takes about a second and reads the header, with the date and the SCAPIN number.</li>
-      <li data-for="b">Where the X crosses the typing, Tesseract breaks words apart. “Detect” comes out as “tect” and “Korea” as “rea”.</li>
-      <li data-for="c">GLM-OCR is a small vision model that runs on the laptop through Ollama. In 13 seconds it reads the body of the order without an error.</li>
-      <li data-for="d">It also leaves things out. The output starts below the header, so the date and the SCAPIN number are missing, and the pencil note in the corner is gone. “AGD” comes out as “AGC”.</li>
-      <li data-for="e">I file the GLM-OCR text with a note saying what it missed. Anyone quoting the page still has to check it against the scan.</li>
+      <li data-for="a">GLM-OCR is a small vision model that runs on this laptop through Ollama. In 13 seconds it turns the scan into text, and nothing leaves the machine.</li>
+      <li data-for="b">The body of the order comes out clean, even where the X crosses the typing. The agent later confirms it word for word.</li>
+      <li data-for="c">Then I ask the agent to compare the OCR text with the scan and correct it. This step does send the image to the model provider.</li>
+      <li data-for="d">The OCR had skipped the header with the date and the SCAPIN number. The agent adds it and corrects “AGC” to “AGD”.</li>
+      <li data-for="e">It also transcribes the handwriting, including the pencil note that rescinds the order in December 1946, and marks uncertain readings with [?].<small>One page takes a minute to check this way. A whole archive needs a stronger OCR model.</small></li>
     </ol>
   </section>
 
@@ -356,7 +354,7 @@ scap-1946-suppression-illegal-entry.md</div>
       </div>
     </div>
     <ol class="cues">
-      <li data-for="a">There is now a text copy of each source. The copy of the scan is the OCR text from the last step.</li>
+      <li data-for="a">There is now a text copy of each source. The copy of the scan is the GLM-OCR text, corrected by the agent.</li>
       <li data-for="b">A search of the Korean copy finds line 565. From spring 1946, it says, more Koreans crossed to Japan on smuggling boats, and the stowaways of this period had all come home from Japan earlier.</li>
       <li data-for="c"><span class="q">그들 중 약 80%</span> means “about 80 percent of them”, and “them” is the stowaways. Keep this sentence in mind, because the check comes back to it.<small>Translation mine.</small></li>
     </ol>
@@ -368,18 +366,23 @@ scap-1946-suppression-illegal-entry.md</div>
       <div class="term-bar"><i></i><i></i><i></i><span>~/kb-demo — claude</span><span class="rec">RECORDED 21 OCT 2026</span></div>
       <div class="term-body">
         <div class="ln"><span class="pr">❯</span> <span class="cmd">/oss:fact-check manuscript/manuscript.md</span></div>
-        <div class="dim ln">  … 3 min 23 s …</div>
-        <div class="agent"><b>Fact-Check Report</b>
-          <p data-cue="a"><b>citation-check:</b> I ran it against Crossref, OpenAlex and the NDL IIIF record, one pass only, with no second independent pass.</p>
-          <p data-cue="b">– <code>lee2019</code> is <span class="tag bad">LIKELY FABRICATED</span>. Its DOI <code>10.1353/ks.2019.0099</code> returns 404 at both Crossref and doi.org. The exact title gets no hits in Crossref or OpenAlex, and a search of the author’s other work finds nothing. <i>Korean Studies</i> vol. 43 (2019) is indexed as DOIs <code>ks.2019.0000</code> to <code>0014</code>. The cited pp. 77–102 overlap two real articles (Rhee, pp. 68–95; Kal, pp. 96–119).</p>
-          <p data-cue="c">– <code>kim2021</code> and <code>morris-suzuki2011</code>: each DOI resolves to the cited work. <code>scapin1015</code> matches NDL pid 9886118, “SCAPIN-1015: Suppression of Illegal Entry into Japan 1946/06/12”.</p>
+        <div class="dim ln">  … 3 min 26 s …</div>
+        <div class="agent"><b>Citation Audit Report</b>
+          <p data-cue="a"><b>Tools:</b> Crossref API, doi.org, OpenAlex, the NDL Digital Collections API and one web search.</p>
+          <table class="tt">
+            <tr><th>Key</th><th>DOI / ID</th><th>Status</th><th>Note</th></tr>
+            <tr data-cue="c"><td><code>kim2021</code></td><td>10.35158/cisspc.2021.10.25.1</td><td><span class="tag ok">Verified</span></td><td>Resolves to Kim, “Borders, Infiltration, and Elimination…”, vol. 25, pp. 1–38</td></tr>
+            <tr data-cue="c"><td><code>morris-suzuki2011</code></td><td>10.1017/S1557466011010916</td><td><span class="tag ok">Verified</span></td><td>Resolves to the correct article, APJ 9(8)</td></tr>
+            <tr data-cue="c"><td><code>scapin1015</code></td><td>NDL pid 9886118</td><td><span class="tag ok">Verified</span></td><td>NDL record: “SCAPIN-1015: SUPPRESSION OF ILLEGAL ENTRY INTO JAPAN 1946/06/12 … Rescinded by SCAPIN 1391”</td></tr>
+            <tr data-cue="b"><td><code>lee2019</code></td><td>10.1353/ks.2019.0099</td><td><span class="tag bad">LIKELY FABRICATED</span></td><td>The DOI returns 404 at both Crossref and doi.org. An exact-title search on OpenAlex finds 0 works. … <i>Korean Studies</i> vol. 43 (2019) has no slot for pp. 77–102: pp. 68–95 belong to Rhee and pp. 96–119 to Kal.</td></tr>
+          </table>
         </div>
       </div>
     </div>
     <ol class="cues">
-      <li data-for="a">Before it reads any claim, the agent checks every reference against public records. Crossref and OpenAlex hold publication records, and the National Diet Library holds the record for the scan.</li>
-      <li data-for="b">Lee (2019) does not exist. The DOI leads nowhere and no article has that title. The cited pages fall across two real articles in that volume.<small>I invented this reference for the demo.</small></li>
-      <li data-for="c">The other three references are real. Each DOI leads to the cited work, and the SCAPIN number matches the library’s record.</li>
+      <li data-for="a">Before it reads any claim, the agent checks every reference against public records. Crossref and OpenAlex contain publication records, and the National Diet Library contains the record for the scan we used.</li>
+      <li data-for="b">Lee (2019) does not exist. The DOI leads nowhere. The agent rates it a likely fabricated or hallucinated source, so check it yourself before you act on that.<small>I invented this reference for the demo.</small></li>
+      <li data-for="c">The other three references are real, and each record matches. The library’s record for SCAPIN 1015 also says it was rescinded, which agrees with the pencil note.</li>
     </ol>
   </section>
 
@@ -388,29 +391,29 @@ scap-1946-suppression-illegal-entry.md</div>
     <div class="term">
       <div class="term-bar"><i></i><i></i><i></i><span>~/kb-demo — claude</span><span class="rec">RECORDED 21 OCT 2026</span></div>
       <div class="term-body">
-        <div class="agent">
-          <p class="dim"><b>Knowledge base:</b> <code>sources/md/</code>. 3 of the 4 cited works have a file (75%). … Kim and Morris-Suzuki are PDF conversions; the SCAP memo is a GLM-OCR transcription of the one-page scan.</p>
+        <div class="agent"><b>Fact-Check Report</b>
+          <p class="dim" data-cue="c"><b>Knowledge base:</b> 3 of 4 cited works matched. … <code>scapin1015</code> → <code>scap-1946-suppression-illegal-entry.md</code>. I corrected this file earlier in this session, but only the material around the body text, so the verdict below doesn’t depend on my edits.</p>
           <table class="tt">
-            <tr><th>Claim (short)</th><th>Verdict</th><th>Source passage</th></tr>
-            <tr data-cue="a" data-show-at="0"><td>Repatriation “largely completed in 1946”; most of the 500,000+ who registered “were shipped to Korea by the end of the year” <span class="dim">(morris-suzuki2011)</span></td><td><span class="tag bad">CONTRADICTED</span><br><span class="dim">the registration count is right, the outcome is wrong</span></td><td>“Ultimately, less than 100,000 Koreans were repatriated between April 1946 and June 1950 … Around 600,000 Koreans remained in Japan.” (md:106)</td></tr>
-            <tr data-cue="b" data-show-at="1"><td>Quoted translation: “about 80 percent of returnees went back to Japan because of the hardship of life” <span class="dim">(kim2021)</span></td><td><span class="tag bad">CONTRADICTED</span><br><span class="dim">wrong denominator in a direct quotation</span></td><td><span class="ko">“… 그들 중 약 80%는 생활고로 인해 다시 일본행을 택한 것이었다”</span> (md:565). The <i>stowaways</i> entering Japan were all returnees, and about 80% <i>of them</i> went back because of hardship. Morris-Suzuki reports the same survey result for stowaways (md:122).</td></tr>
-            <tr data-cue="c" data-show-at="2"><td>On 12 June 1946 SCAP “suspended the repatriation of Koreans” because of cholera <span class="dim">(scapin1015)</span></td><td><span class="tag bad">CONTRADICTED</span><br><span class="dim">wrong action; the date and the cholera motive are correct</span></td><td>The memo orders Japan to “detect and apprehend ships illegally entering Japanese ports” and to “Seize all such ships” (scap md ¶1–2). It says nothing about repatriation.</td></tr>
-            <tr data-cue="d" data-show-at="3"><td>The Pusan quarantine station was the most effective in occupied Asia <span class="dim">(lee2019)</span></td><td><span class="tag bad">NOT IN KB</span></td><td>No file, and citation-check rates it LIKELY FABRICATED. Delete the sentence, or replace it with a verified source.</td></tr>
-            <tr data-cue="e" data-show-at="4"><td>Cholera reached Pusan 1 May 1946 on a Guangdong ship carrying about 3,100 Korean returnees <span class="dim">(kim2021)</span></td><td><span class="tag ok">SUPPORTED</span></td><td><span class="ko">“중국 광동에서 조선인 귀환자 3,100 여 명을 태우고 5월 1일 부산으로 들어온 귀환선 내에 콜레라 환자가 발생한 것이다”</span> (md:370)</td></tr>
-            <tr data-cue="f" data-show-at="5"><td>“movement … largely stopped” <span class="dim">(uncited)</span></td><td><span class="tag bad">CONTRADICTED BY THE KB</span></td><td>Kim reports that in July 1946 alone 7,378 Koreans were arrested in Japanese waters (md:573).</td></tr>
+            <tr><th>Claim</th><th>Verdict</th><th>Source passage</th></tr>
+            <tr data-cue="a" data-show-at="0"><td>Of the &gt;500,000 who registered in March 1946, “most were shipped to Korea by the end of the year” <span class="dim">(morris-suzuki2011)</span></td><td><span class="tag bad">CONTRADICTED</span></td><td>The registration figure is right … The rest is not: “Ultimately, less than 100,000 Koreans were repatriated between April 1946 and June 1950 … Around 600,000 Koreans remained in Japan.”</td></tr>
+            <tr data-cue="b" data-show-at="1"><td>“about 80 percent of returnees went back to Japan because of the hardship of life” <span class="dim">(kim2021)</span></td><td><span class="tag bad">CONTRADICTED</span><br><span class="dim">the translation changes who the 80% refers to</span></td><td><span class="ko">“… 그들 중 약 80%는 생활고로 인해 다시 일본행을 택한 것이었다.”</span> The stowaways of this period were all returnees, and <i>of them</i> about 80% chose Japan again because of hardship.</td></tr>
+            <tr data-cue="c" data-show-at="2"><td>“On 12 June 1946, SCAP suspended the repatriation of Koreans because of the cholera epidemic” <span class="dim">(scapin1015)</span></td><td><span class="tag bad">UNSUPPORTED</span><br><span class="dim">date and cholera motive correct; the action is wrong</span></td><td>The directive covers illegal entry <i>into</i> Japan: “positive steps must be taken to detect and apprehend ships illegally entering Japanese ports” … It says nothing about repatriation.</td></tr>
+            <tr data-cue="d" data-show-at="3"><td>Pusan’s quarantine station was “the most effective in occupied Asia” <span class="dim">(lee2019)</span></td><td><span class="tag bad">NOT IN KB</span></td><td>Likely fabricated. Kim, which is in the knowledge base, says the opposite: quarantine at Japan’s repatriation ports was more thorough than at Pusan.</td></tr>
+            <tr data-cue="e" data-show-at="4"><td>Cholera reached Pusan 1 May 1946 on a ship from Guangdong carrying ~3,100 Korean returnees <span class="dim">(kim2021)</span></td><td><span class="tag ok">SUPPORTED</span></td><td><span class="ko">“중국 광동에서 조선인 귀환자 3,100 여 명을 태우고 5월 1일 부산으로 들어온 귀환선 내에 콜레라 환자가 발생한 것이다.”</span></td></tr>
+            <tr data-cue="f" data-show-at="5"><td>“movement … largely stopped” after June 1946 <span class="dim">(uncited)</span></td><td><span class="tag bad">CONTRADICTED BY THE KB</span></td><td>Kim: 7,378 Koreans were arrested in July alone, and about 10,000 a month were estimated to be entering Japan.</td></tr>
           </table>
-          <p data-cue="g" data-show-at="6"><b>The errors add up to the paper’s argument.</b> Each contradicted claim supports the thesis that repatriation emptied the strait and cholera closed it. The sources say the reverse: most registrants stayed in Japan, and the traffic after June 1946 was illegal re-entry.</p>
+          <p data-cue="g" data-show-at="6">Read together, the knowledge base supports the opposite of the manuscript’s thesis: repatriation stalled, and cholera came with increased crossings back to Japan, not an end to them.</p>
         </div>
       </div>
     </div>
     <ol class="cues">
       <li data-for="a">The draft has Morris-Suzuki’s registration count right and the outcome wrong. Fewer than 100,000 went home by June 1950.</li>
-      <li data-for="b">The Kim quotation changes who the 80 percent are. Morris-Suzuki reports the same survey, so two sources agree that the figure is about stowaways.</li>
-      <li data-for="c">SCAPIN 1015 is about seizing ships and says nothing about repatriation. The agent read this in the GLM-OCR text.</li>
-      <li data-for="d">Lee (2019) leaves nothing to check the claim against, so the agent advises deleting the sentence.</li>
+      <li data-for="b">The Kim quotation changes who the 80 percent are. In Kim, the figure describes the stowaways.</li>
+      <li data-for="c">SCAPIN 1015 is about seizing ships and says nothing about repatriation. The agent notes that its OCR corrections were all outside the body text, so they do not affect this verdict.</li>
+      <li data-for="d">Lee (2019) cannot be checked. The agent adds that Kim, which is in the library, says the quarantine at Pusan was less thorough than in Japan.</li>
       <li data-for="e">The cholera ship is the claim I planted as correct, and the agent confirms it from the Korean passage.</li>
       <li data-for="f">This one I did not plant. An uncited sentence says the crossings largely stopped, and the sources contradict it.</li>
-      <li data-for="g">The agent also notices that every error supports the draft’s own argument, and that the sources point the other way.</li>
+      <li data-for="g">Read together, the sources support the opposite of the draft’s argument. Repatriation stalled, and crossings back to Japan increased.</li>
     </ol>
   </section>
 
@@ -421,15 +424,15 @@ scap-1946-suppression-illegal-entry.md</div>
       <table class="tt" style="color:#17171A; font-family:'EB Garamond',Georgia,serif; font-size:1em">
         <tr><th style="color:#68686D">Planted in the draft</th><th style="color:#68686D">The agent’s verdict</th></tr>
         <tr data-cue="a"><td>Morris-Suzuki reversed</td><td>Contradicted, with the passage</td></tr>
-        <tr data-cue="a"><td>Kim’s “them” turned into “returnees”</td><td>Contradicted for the wrong denominator, with the Korean</td></tr>
-        <tr data-cue="a"><td>SCAPIN 1015 cited for something it does not say</td><td>Contradicted, from the OCR text</td></tr>
+        <tr data-cue="a"><td>Kim’s “them” turned into “returnees”</td><td>Contradicted, with the Korean</td></tr>
+        <tr data-cue="a"><td>SCAPIN 1015 cited for something it does not say</td><td>Unsupported, from the corrected OCR text</td></tr>
         <tr data-cue="a"><td>A reference that does not exist</td><td>Likely fabricated (dead DOI, no such title)</td></tr>
         <tr data-cue="b"><td>The cholera ship (correct)</td><td>Supported</td></tr>
       </table>
       <p data-cue="c" style="font-size:1.25em; margin-top:1em"><i>The machine narrows where I look. I open the source and decide what to write.</i></p>
     </div>
     <ol class="cues">
-      <li data-for="a">Each planted error was caught, and each verdict came with the passage behind it.</li>
+      <li data-for="a">Each planted error was caught. With every verdict, the agent quotes the sentence in the source that it based the verdict on, so I can check it myself.</li>
       <li data-for="b">The control held. The agent did not mark everything as wrong.</li>
       <li data-for="c">The agent finds the passages. I read them, and I write the sentence.<small>To build your own, start with <a href="../knowledge-base/">Build a knowledge base</a>.</small></li>
     </ol>
@@ -440,8 +443,8 @@ scap-1946-suppression-illegal-entry.md</div>
 
 <section class="notes" id="about">
   <h2>About this run</h2>
-  <p>I recorded this run on 21 October 2026 with Claude Code and the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a>, in a project set up with <code>/oss:research-repo</code>. The agent did the intake and, later, the claim check. In between, I ran the two OCR programs myself, because the agent had stopped to ask how to handle the scan. The agent’s output is shown as it came, cut where you see …. The run was headless. In a normal session the agent asks before it runs a command, and you approve each one.</p>
-  <p>Both OCR programs ran on the same laptop, Tesseract 5.5 and GLM-OCR through <a href="https://ollama.com">Ollama</a>. Running OCR locally keeps an archive’s scans off a provider’s servers, which some archives require. In an earlier run I let the agent transcribe the page from the image itself. It caught the pencil note as well, but that meant sending the image to the model provider. When the scan had no text copy at all, the claim check refused to run, because only half the cited works could be searched.</p>
+  <p>I recorded this run on 21 October 2026 with Claude Code and the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a>, in a project set up with <code>/oss:research-repo</code>. The agent did the intake, the check of the OCR text, and the claim check. I ran the OCR script myself, because the agent had stopped to ask how to handle the scan. The agent’s output is shown as it came, cut where you see …. The run was headless. In a normal session the agent asks before it runs a command, and you approve each one.</p>
+  <p>GLM-OCR ran on the same laptop through <a href="https://ollama.com">Ollama</a>, so the OCR itself sends nothing to a provider, which some archives require. The agent’s check of the OCR text does send the scan image to the model provider. In an earlier run, when the scan had no text copy at all, the claim check refused to run because only half the cited works could be searched.</p>
   <p>The wording of the verdicts changes from run to run, so one run may say “contradicted” where another says “unsupported”. Everything the agent reads is sent to the model provider.</p>
   <h2>Sources</h2>
   <ul>

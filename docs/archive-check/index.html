@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Check a Draft Against Its Sources — AI for Research</title>
+<meta name="description" content="A recorded run, step by step: an agent files three real archival sources into a knowledge base, then checks a draft with planted errors against them.">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cobalt:#1F4E9B; --gold:#E0A526; --ochre:#8B5F10; --ink:#17171A;
+    --grey:#68686D; --paper:#F3EFE3; --paper-2:#ECE6D6; --line:#d9d2bf; --maxw:760px;
+    --red:#B4442A; --green:#2C7A4B;
+    --term-bg:#15171D; --term-ink:#E6E2D6; --term-dim:#8E8C86; --term-line:#2A2D35;
+    --nav-h:56px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --cobalt:#5485E0; --gold:#E8B23E; --ochre:#E8B23E; --ink:#EFE8D7;
+      --grey:#9b9ba3; --paper:#14161C; --paper-2:#1b1e26; --line:#2c3038;
+      --red:#E07A5F; --green:#5FB585;
+      --term-bg:#0D0F13; --term-line:#252830;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--paper); color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased}
+  a{color:var(--cobalt)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--cobalt); outline-offset:3px}
+  .skip-link{position:fixed; top:10px; left:12px; z-index:100; padding:8px 12px; border-radius:7px; background:var(--ink); color:var(--paper); text-decoration:none; transform:translateY(-160%)}
+  .skip-link:focus{transform:translateY(0)}
+
+  /* --- site nav, as on the other pages --- */
+  .nav{position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter:saturate(160%) blur(10px)}
+  .nav .row{max-width:1400px; margin:0 auto; padding:13px 24px 14px; display:flex; align-items:center; justify-content:space-between; gap:18px; border-bottom:1px solid var(--line)}
+  .brand{display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit; white-space:nowrap}
+  .brand .mark{font-size:15px; letter-spacing:.26em; color:var(--cobalt)} .brand .mark b{color:var(--gold); font-weight:inherit}
+  .brand .name{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:21px; letter-spacing:.01em}
+  .topmenu{display:flex; align-items:center; gap:22px; font-size:15px; flex-wrap:wrap; justify-content:flex-end}
+  .topmenu a{color:var(--grey); text-decoration:none; padding:4px 0}
+  .topmenu a:hover{color:var(--cobalt)}
+  .topmenu a[aria-current="page"]{color:var(--ink); box-shadow:inset 0 -2px 0 var(--gold)}
+  .home-link,.mobile-label{display:none}
+
+  /* --- stage --- */
+  .stage{max-width:1400px; margin:0 auto; padding:18px 24px 14px; height:calc(100vh - var(--nav-h)); min-height:560px;
+    display:grid; grid-template-rows:auto 1fr auto; grid-template-columns:minmax(0,1fr); row-gap:14px}
+  .stage-head .kicker{font:600 12.5px/1 -apple-system,sans-serif; letter-spacing:.16em; text-transform:uppercase; color:var(--grey); margin:0 0 8px}
+  .stage-head .kicker a{color:inherit; text-decoration:none}
+  .stage-head .kicker a:hover{color:var(--cobalt)}
+  .stage-head h1{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:clamp(26px,2.4vw,40px); line-height:1.1; margin:0}
+  .stage-head .sub{font-family:"EB Garamond",Georgia,serif; font-size:clamp(17px,1.35vw,22px); color:var(--grey); margin:4px 0 0}
+
+  .steps{position:relative; min-height:0}
+  .step{display:none; height:100%; min-height:0; grid-template-columns:minmax(0,1.6fr) minmax(0,1fr); gap:22px}
+  .step.on{display:grid}
+
+  /* terminal */
+  .term{background:var(--term-bg); color:var(--term-ink); border-radius:12px; border:1px solid var(--term-line);
+    display:flex; flex-direction:column; min-height:0; overflow:hidden; box-shadow:0 14px 34px rgba(0,0,0,.18)}
+  .term-bar{display:flex; align-items:center; gap:7px; padding:9px 14px; border-bottom:1px solid var(--term-line); font:12.5px/1 -apple-system,sans-serif; color:var(--term-dim)}
+  .term-bar i{width:11px; height:11px; border-radius:50%; background:#3a3d46; display:inline-block}
+  .term-bar span{margin-left:10px}
+  .term-bar .rec{margin-left:auto; color:var(--gold); letter-spacing:.06em}
+  .term-body{padding:14px 18px 18px; overflow:auto; min-height:0; flex:1;
+    font:clamp(12.5px,1.02vw,16.5px)/1.55 Menlo,"SF Mono",ui-monospace,monospace}
+  .term-body p{margin:.35em 0}
+  .ln{white-space:pre-wrap; margin:.2em 0}
+  .pr{color:var(--gold)}
+  .cmd{color:#fff}
+  .dim{color:var(--term-dim)}
+  .agent{position:relative; padding-left:1.3em; margin:.6em 0}
+  .agent::before{content:"⏺"; position:absolute; left:0; top:0; color:#E6E2D6}
+  .term-body b{color:#fff; font-weight:650}
+  .term-body code{color:#F2C46D}
+  .tt{border-collapse:collapse; margin:.5em 0; width:100%; font-size:.94em}
+  .tt th,.tt td{border:1px solid #3a3d46; padding:.28em .5em; text-align:left; vertical-align:top}
+  .tt th{color:var(--term-dim); font-weight:600}
+  .ko{font-family:"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+  .tag{display:inline-block; font:700 .78em/1 -apple-system,sans-serif; letter-spacing:.04em; padding:.22em .45em; border-radius:4px; white-space:nowrap}
+  .tag.bad{background:#5c2318; color:#FFD7CC}
+  .tag.warn{background:#5b4510; color:#FFE7A8}
+  .tag.ok{background:#1d4a31; color:#C9F0D8}
+  .tree{white-space:pre; line-height:1.45}
+
+  /* the highlighting */
+  [data-cue]{border-radius:5px; transition:box-shadow .2s, background-color .2s, opacity .25s}
+  .hl{box-shadow:0 0 0 2px var(--gold), 0 0 0 6px rgba(224,165,38,.22); background-color:rgba(224,165,38,.10)}
+  .term-body.focus [data-cue]:not(.hl):not(.seen){opacity:.55}
+  [data-show-at]{display:none}
+  [data-show-at].shown{display:revert}
+  tr[data-show-at].shown{display:table-row}
+
+  /* document and scan panes */
+  .doc{background:#FBF8F0; color:#17171A; border-radius:12px; border:1px solid var(--line); padding:18px 24px; overflow:auto; min-height:0;
+    font-family:"EB Garamond",Georgia,serif; font-size:clamp(15px,1.2vw,19.5px); line-height:1.45; box-shadow:0 14px 34px rgba(0,0,0,.12)}
+  .doc h3{font-weight:600; font-size:1.05em; margin:.7em 0 .2em}
+  .doc h2{font-weight:600; font-size:1.25em; margin:0 0 .3em}
+  .doc p{margin:.25em 0 .5em}
+  .doc .cite{color:#1F4E9B; font-family:Menlo,ui-monospace,monospace; font-size:.8em}
+  .left{display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); gap:14px; min-height:0}
+  .scan{background:#fff; border-radius:12px; border:1px solid var(--line); overflow:hidden; display:flex; align-items:center; justify-content:center; min-height:0; position:relative}
+  .scan img{max-width:100%; max-height:100%; object-fit:contain; display:block}
+  .scan .credit{position:absolute; left:8px; bottom:6px; font:11px/1.3 -apple-system,sans-serif; color:#555; background:rgba(255,255,255,.85); padding:2px 6px; border-radius:4px}
+  .pins{position:absolute; pointer-events:none}
+  .doc .tt th,.doc .tt td{border-color:#d9d2bf}
+  .pin{position:absolute; border:3px solid var(--gold); border-radius:6px; box-shadow:0 0 0 4px rgba(224,165,38,.25); opacity:0; transition:opacity .25s; pointer-events:none}
+  .pin.hl,.pin.seen{opacity:1; background:transparent}
+  .pin.seen{border-color:rgba(224,165,38,.55); box-shadow:none}
+
+  /* cues */
+  .cues{list-style:none; margin:0; padding:0; overflow:auto; min-height:0; counter-reset:cue}
+  .cues li{counter-increment:cue; position:relative; padding:10px 12px 10px 48px; margin:0 0 8px; border-radius:10px; border:1px solid transparent;
+    font-family:"EB Garamond",Georgia,serif; font-size:clamp(17px,1.4vw,23px); line-height:1.32; display:none}
+  .cues li::before{content:counter(cue); position:absolute; left:10px; top:10px; width:28px; height:28px; border-radius:50%;
+    background:var(--paper-2); color:var(--grey); font:700 14px/28px -apple-system,sans-serif; text-align:center}
+  .cues li.shown{display:block; opacity:.6}
+  .cues li.now{opacity:1; border-color:var(--line); background:var(--paper-2)}
+  .cues li.now::before{background:var(--gold); color:#17171A}
+  .cues li small{display:block; font-size:.78em; color:var(--grey); margin-top:3px}
+  .cues .q{font-style:italic}
+  .cues code{font:.72em Menlo,ui-monospace,monospace; background:var(--paper); padding:.1em .3em; border-radius:4px}
+
+  /* controls */
+  .controls{display:flex; align-items:center; gap:14px; font-size:14px; color:var(--grey)}
+  .controls button{font:600 14px/1 -apple-system,sans-serif; border:1px solid var(--line); background:var(--paper-2); color:var(--ink);
+    border-radius:8px; padding:9px 14px; cursor:pointer}
+  .controls button:hover{border-color:var(--cobalt); color:var(--cobalt)}
+  .controls button:disabled{opacity:.4; cursor:default}
+  .controls #next{background:var(--cobalt); color:#fff; border-color:var(--cobalt)}
+  .dots{display:flex; gap:6px; flex-wrap:wrap}
+  .dots button{width:30px; height:30px; padding:0; border-radius:50%; font-size:12.5px}
+  .dots button.on{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+  .controls .hint{margin-left:auto; font-size:13.5px}
+  .controls kbd{font:12px Menlo,monospace; border:1px solid var(--line); border-radius:4px; padding:1px 5px; background:var(--paper-2)}
+
+  /* presenting: F hides the site chrome and fills the screen */
+  body.presenting .nav{display:none}
+  body.presenting .stage{height:100vh; max-width:none; padding:22px 36px 16px}
+  body.presenting .notes{display:none}
+
+  /* --- below the stage: notes --- */
+  .notes{max-width:var(--maxw); margin:0 auto; padding:30px 24px 40px; border-top:1px solid var(--line)}
+  .notes h2{font-family:"EB Garamond",Georgia,serif; font-weight:600; font-size:28px; margin:1.2em 0 .3em}
+  .notes ul{padding-left:1.2em} .notes li{margin:.4em 0}
+  .notes code{font:14px/1.5 Menlo,ui-monospace,monospace; background:var(--paper-2); padding:.1em .35em; border-radius:4px}
+  footer{color:var(--grey); font-size:14px; padding:40px 0 56px; text-align:center; border-top:1px solid var(--line)}
+  footer a{color:var(--cobalt); text-decoration:none}
+
+  @media (max-width:900px){
+    .stage{height:auto; min-height:0}
+    .step.on{display:flex; flex-direction:column; gap:14px}
+    .step.on > *{min-width:0; width:100%}
+    .term-body{font-size:12.5px}
+    .term,.doc{max-height:70vh}
+    .left{grid-template-columns:1fr}
+    .scan{max-height:60vh}
+    .cues li{font-size:18px}
+    .controls{flex-wrap:wrap} .controls .hint{display:none}
+  }
+  @media (max-width:700px){
+    .brand{display:none}
+    .nav .row{padding:10px 24px; gap:0}
+    .topmenu{width:100%; justify-content:space-between; gap:10px; flex-wrap:nowrap; font-size:14px}
+    .home-link,.mobile-label{display:inline}
+    .desktop-label{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important}
+  }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#stage">Skip to the demo</a>
+<nav class="nav" aria-label="Primary"><div class="row">
+  <a class="brand" href="../">
+    <span class="mark">▁▂▃<b>▅</b><b>▂</b>▁</span>
+    <span class="name">AI for Research</span>
+  </a>
+  <div class="topmenu">
+    <a class="home-link" href="../">Home</a>
+    <a href="../getting-started/" aria-label="Getting started"><span class="desktop-label">Getting started</span><span class="mobile-label" aria-hidden="true">Start</span></a>
+    <a href="../demos/" aria-current="page">Demos</a>
+    <a href="../lectures/">Lectures</a>
+    <a href="../skills/">Skills</a>
+  </div>
+</div></nav>
+
+<div class="stage" id="stage">
+  <header class="stage-head">
+    <p class="kicker"><a href="../demos/">Demos</a> · Archive check · <span id="count">Step 1 of 9</span></p>
+    <h1 id="title">Check a draft against its sources</h1>
+    <p class="sub" id="sub"></p>
+  </header>
+
+  <div class="steps" aria-live="polite">
+
+  <!-- 1 -->
+  <section class="step" data-title="Check a draft against its sources" data-sub="A recorded run, step by step. Press → or Next.">
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>~/kb-demo — claude</span><span class="rec">RECORDED 21 OCT 2026</span></div>
+      <div class="term-body">
+        <div class="ln"><span class="pr">❯</span> <span class="cmd">! ls</span></div>
+        <div class="ln" data-cue="a">AGENTS.md  CLAUDE.md  data  manuscript  scripts  sources</div>
+        <div class="ln"><span class="pr">❯</span> <span class="cmd">! ls sources/og sources/md sources/unprocessed</span></div>
+        <div class="tree" data-cue="b">sources/md:
+
+sources/og:
+
+sources/unprocessed:</div>
+        <div class="ln"><span class="pr">❯</span> <span class="cmd">! ls manuscript</span></div>
+        <div class="ln" data-cue="c">manuscript.md  references.bib</div>
+      </div>
+    </div>
+    <ol class="cues">
+      <li data-for="a">A project folder, set up beforehand with <code>/oss:research-repo</code>. <span class="q">CLAUDE.md</span> holds the rules the agent reads every session.</li>
+      <li data-for="b">The library is empty: <code>md/</code> for searchable copies, <code>og/</code> for originals, <code>unprocessed/</code> as the drop zone. Each source will get an untouched original, a searchable copy, and a bibliography entry.</li>
+      <li data-for="c">My draft is already here. It is about Koreans in Japan in 1946, and it cites four works.</li>
+    </ol>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" data-title="The draft" data-sub="Written for this demo. I planted errors in it.">
+    <div class="doc">
+      <h2>Return and Re-entry: Cholera and the Korea–Japan Border, 1946</h2>
+      <h3>Introduction</h3>
+      <p>At the end of the Pacific War some two million Koreans lived in Japan. This paper follows what happened to them in 1946, the year in which repatriation, cholera, and a new border control regime met at the Korea Strait.</p>
+      <h3>Repatriation</h3>
+      <p><span data-cue="a">Repatriation from Japan was largely completed in 1946. Of the more than half a million Koreans who registered in March of that year as wishing to go home, most were shipped to Korea by the end of the year <span class="cite">[@morris-suzuki2011]</span>.</span> <span data-cue="b">The quarantine station at Pusan has been described as the most effective in occupied Asia <span class="cite">[@lee2019]</span>.</span></p>
+      <h3>Cholera</h3>
+      <p><span data-cue="c">Cholera reached Pusan on 1 May 1946, aboard a repatriation ship from Guangdong carrying some 3,100 Korean returnees <span class="cite">[@kim2021]</span>.</span> Conditions in Korea were hard for those who came home. <span data-cue="d">Kim writes that “about 80 percent of returnees went back to Japan because of the hardship of life” <span class="cite">[@kim2021, my translation]</span>.</span></p>
+      <h3>The border closes</h3>
+      <p><span data-cue="e">On 12 June 1946, SCAP suspended the repatriation of Koreans because of the cholera epidemic <span class="cite">[@scapin1015]</span>.</span> From then on, the movement of people across the Korea Strait largely stopped.</p>
+    </div>
+    <ol class="cues">
+      <li data-for="a">A claim about repatriation, cited to Morris-Suzuki (2011), in English.</li>
+      <li data-for="b">A claim about the quarantine station at Pusan, cited to Lee (2019).</li>
+      <li data-for="c">A date and a ship, cited to Kim (2021), in Korean.</li>
+      <li data-for="d">A quotation from Kim, in my translation.</li>
+      <li data-for="e">A claim about a 1946 order from SCAP, the Supreme Commander for the Allied Powers. The order survives only as a scan.<small>Which of these hold up? The agent will check each one.</small></li>
+    </ol>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" data-title="The downloads" data-sub="Three real sources, with the names they arrived under.">
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>~/kb-demo — claude</span><span class="rec">RECORDED 21 OCT 2026</span></div>
+      <div class="term-body">
+        <div class="ln"><span class="pr">❯</span> <span class="cmd">! ls ~/kb-demo-inbox</span></div>
+        <div class="ln" data-cue="a">EMS143795.pdf</div>
+        <div class="ln" data-cue="b">S1557466011010916a.pdf</div>
+        <div class="ln" data-cue="c">9886118.pdf</div>
+        <div class="ln"><span class="pr">❯</span> <span class="cmd">! cp ~/kb-demo-inbox/* sources/unprocessed/</span></div>
+      </div>
+    </div>
+    <ol class="cues">
+      <li data-for="a">Kim (2021), in Korean. Named by Europe PMC.</li>
+      <li data-for="b">Morris-Suzuki (2011), in English. Named by Cambridge Core.</li>
+      <li data-for="c">SCAPIN 1015, 12 June 1946. A photograph of a typed page, from the National Diet Library. It has no text layer.</li>
+    </ol>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" data-title="Intake" data-sub="The agent files each source.">
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>~/kb-demo — claude</span><span class="rec">RECORDED 21 OCT 2026</span></div>
+      <div class="term-body">
+        <div class="ln" data-cue="a"><span class="pr">❯</span> <span class="cmd">/process-source If a file is a scan with no text, transcribe it yourself into sources/md/ and note at the top that you did.</span></div>
+        <div class="dim ln">  … 1 min 21 s …</div>
+        <div class="agent">I processed all three PDFs, following the project's <code>.claude/commands/process-source.md</code>. The originals are now in <code>sources/og/</code>, the Markdown is in <code>sources/md/</code>, three entries are added to <code>sources/references.bib</code>, and <code>sources/unprocessed/</code> is empty. Nothing is committed.
+          <table class="tt">
+            <tr><th>Name</th><th>What it is</th><th>How it was converted</th></tr>
+            <tr data-cue="b"><td><code>kim-2021-cholera-korean-stowaways</code></td><td>Kim Jeong-ran, <span class="ko">“경계, 침입, 그리고 배제”</span> (Borders, Infiltration, and Elimination), 2021. Europe PMC author manuscript.</td><td>Convert script</td></tr>
+            <tr data-cue="b"><td><code>morris-suzuki-2011-guarding-borders-japan</code></td><td>Tessa Morris-Suzuki, “Guarding the Borders of Japan,” <i>Asia-Pacific Journal: Japan Focus</i> 9(8), 2011</td><td>Convert script</td></tr>
+            <tr data-cue="c"><td><code>scap-1946-scapin-1015-illegal-entry</code></td><td>GHQ/SCAP memo SCAPIN 1015, “Suppression of Illegal Entry into Japan,” 12 June 1946</td><td>The script reported it as <code>NEEDS OCR</code>, so I transcribed it myself from the page image. A note at the top of the file says so.</td></tr>
+          </table>
+          <div data-cue="d"><b>Needs your review:</b>
+          <p>– <b>SCAPIN 1015 transcription:</b> the typed text is clear, but the signature, the marginal marks, and a faint pencil note that I read as “Resc by Scapin 1391 – 10 Dec 46” are uncertain.</p>
+          <p>– <b>Morris-Suzuki Markdown:</b> some apostrophes and dashes were lost in conversion. Check against the PDF before quoting.</p>
+          <p>– <b>Kim Markdown:</b> Europe PMC’s margin text was pulled in as headings. It is the author manuscript, so page numbers may differ from the published article.</p></div>
+        </div>
+      </div>
+    </div>
+    <ol class="cues">
+      <li data-for="a">One command. The extra sentence tells the agent what to do with a scan, so it does not stop to ask.</li>
+      <li data-for="b">Each file gets a name built from author, year, and title, and an entry in the bibliography.</li>
+      <li data-for="c">The scan has no text, so the converter refuses it. The agent reads the image instead, and says so.</li>
+      <li data-for="d">It lists what it is unsure of. This is the part to read before trusting the library.</li>
+    </ol>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" data-title="The scan" data-sub="SCAPIN 1015, 12 June 1946, and the agent’s transcription.">
+    <div class="left">
+      <div class="scan">
+        <img src="../assets/archive-check/scapin-1015.jpg" alt="A typed one-page memorandum from General Headquarters, Supreme Commander for the Allied Powers, dated 12 June 1946, subject Suppression of Illegal Entry into Japan. A large hand-drawn X crosses the page, and a faint pencil note sits at lower left.">
+        <div class="pins"><div class="pin" data-cue="c" style="left:7%; top:70%; width:69%; height:7%"></div><div class="pin" data-cue="d" style="left:11%; top:29%; width:80%; height:25%"></div></div>
+        <div class="credit">NDL Digital Collections, pid 9886118 · Public Domain</div>
+      </div>
+      <div class="term">
+        <div class="term-bar"><i></i><i></i><i></i><span>sources/md/scap-1946-scapin-1015-illegal-entry.md</span></div>
+        <div class="term-body">
+          <p data-cue="a"><span class="dim">&gt;</span> <b>Transcription note:</b> The source PDF is an image-only scan with no text layer. This Markdown was transcribed by Claude (claude-opus-5-5) directly from the page image on 2026-10-21, not produced by the convert script or OCR software. … Check against the scan before quoting.</p>
+          <p data-cue="b"><span class="dim">[Scan notes: one typed page. A large hand-drawn “X” is struck across the body of the memo. …]</span></p>
+          <p>SUBJECT: Suppression of Illegal Entry into Japan.</p>
+          <p data-cue="d">1. Cholera has broken out in Korea and is rapidly reaching epidemic proportions. … positive steps must be taken to detect and apprehend ships illegally entering Japanese ports.<br>
+          2. … b. Seize all such ships and sail them together with their crews, passengers and cargo to Senzaki, Sasebo or Maizuru …</p>
+          <p data-cue="c"><span class="dim">[Handwritten in faint pencil at lower left: “Resc by Scapin 1391 – 10 Dec 46” [?] — read as a note that this directive was rescinded by SCAPIN 1391 on 10 December 1946.]</span></p>
+        </div>
+      </div>
+    </div>
+    <ol class="cues">
+      <li data-for="a">The file starts by saying who made it and how: transcribed from the image, not by OCR. Check it against the scan.</li>
+      <li data-for="b">What is not text is described in brackets: the large X across the page.</li>
+      <li data-for="c">The pencil note: rescinded in December 1946. Marked <span class="q">[?]</span> because the reading is uncertain.</li>
+      <li data-for="d">What the order does: detect and seize ships entering Japan illegally. Remember this.</li>
+    </ol>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" data-title="Searchable, in any language" data-sub="Every source now has a copy the agent can search.">
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>~/kb-demo — claude</span><span class="rec">RECORDED 21 OCT 2026</span></div>
+      <div class="term-body">
+        <div class="ln"><span class="pr">❯</span> <span class="cmd">! ls sources/md</span></div>
+        <div class="tree" data-cue="a">kim-2021-cholera-korean-stowaways.md
+morris-suzuki-2011-guarding-borders-japan.md
+scap-1946-scapin-1015-illegal-entry.md</div>
+        <div class="ln"><span class="pr">❯</span> <span class="cmd">! grep -n "80%" sources/md/kim*.md</span></div>
+        <div class="ln ko" data-cue="b">565: 1946년 봄부터 밀항선을 타고 일본으로 향하는 조선인들도 증가하기 시작했다. 이 시기 일본으로 들어간 조선인 밀항자들은 모두 전후 일본에서 조선으로 돌아온 귀환자들이었는데, <span data-cue="c">그들 중 약 80%는 생활고로 인해 다시 일본행을 택한 것이었다.</span></div>
+      </div>
+    </div>
+    <ol class="cues">
+      <li data-for="a">Three searchable copies, the scan included.</li>
+      <li data-for="b">A search in the Korean copy finds line 565: from spring 1946, more Koreans crossed to Japan by smuggling boat, and the stowaways of this period were all earlier returnees.</li>
+      <li data-for="c"><span class="q">그들 중 약 80%</span>: “about 80% of <b>them</b>”, the stowaways, went back because of hardship. Remember who “them” is.<small>Translation ours.</small></li>
+    </ol>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" data-title="Do the references exist?" data-sub="The check starts with the reference list.">
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>~/kb-demo — claude</span><span class="rec">RECORDED 21 OCT 2026</span></div>
+      <div class="term-body">
+        <div class="ln"><span class="pr">❯</span> <span class="cmd">/oss:fact-check manuscript/manuscript.md</span></div>
+        <div class="dim ln">  … 1 min 40 s …</div>
+        <div class="agent"><b>Citation Audit Report</b> (citation-check, run first)
+          <p data-cue="a"><span class="dim">Tools:</span> Crossref (DOI lookups, title search, author search, listing of the cited journal volume) and OpenAlex (title search).</p>
+          <table class="tt">
+            <tr><th>Key</th><th>Status</th><th>Evidence</th></tr>
+            <tr data-cue="b"><td><code>lee2019</code></td><td><span class="tag bad">LIKELY FABRICATED</span></td><td>The DOI <code>10.1353/ks.2019.0099</code> returns 404 on Crossref. OpenAlex finds 0 works with the title “Quarantine at the Pier”. In <i>Korean Studies</i> vol. 43, the cited pp. 77–102 are taken by two other articles.</td></tr>
+            <tr data-cue="c"><td><code>kim2021</code></td><td><span class="tag ok">Verified</span></td><td>The DOI resolves to Kim, “Borders, Infiltration, and Elimination…”, vol. 25, pp. 1–38 (2021).</td></tr>
+            <tr data-cue="c"><td><code>morris-suzuki2011</code></td><td><span class="tag ok">Verified</span></td><td>The DOI resolves to the correct title, author, volume and issue.</td></tr>
+            <tr data-cue="c"><td><code>scapin1015</code></td><td><span class="tag ok">Verified</span></td><td>Against the local scan: the NDL identifier matches the scan’s original file name.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <ol class="cues">
+      <li data-for="a">Before reading any claim, the agent looks up every reference in public databases.</li>
+      <li data-for="b">Lee (2019) does not exist. The DOI is dead, no such title exists, and those pages of that volume belong to other articles.<small>I invented this reference for the demo.</small></li>
+      <li data-for="c">The other three are real, and their records match.</li>
+    </ol>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" data-title="Do the sources say what the draft says?" data-sub="Each claim, checked against the passage it cites.">
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>~/kb-demo — claude</span><span class="rec">RECORDED 21 OCT 2026</span></div>
+      <div class="term-body">
+        <div class="agent"><b>Fact-Check Report</b>
+          <p class="dim">Knowledge base: <code>sources/md/</code>. 3 of 4 cited works are matched (75%), so the pre-flight check passes.</p>
+          <table class="tt">
+            <tr><th>Claim</th><th>Verdict</th><th>What the source says</th></tr>
+            <tr data-cue="a" data-show-at="0"><td>Of the more than half a million who registered in March 1946, most were shipped home by the end of the year <span class="dim">(morris-suzuki2011)</span></td><td><span class="tag bad">CONTRADICTED</span></td><td>“less than 100,000 Koreans were repatriated between April 1946 and June 1950”, and “Around 600,000 Koreans remained in Japan.”</td></tr>
+            <tr data-cue="b" data-show-at="1"><td>On 12 June 1946 SCAP suspended Korean repatriation because of cholera <span class="dim">(scapin1015)</span></td><td><span class="tag bad">CONTRADICTED</span></td><td>The memo orders the Japanese government to “detect and apprehend ships illegally entering Japanese ports”. It says nothing about stopping repatriation.</td></tr>
+            <tr data-cue="c" data-show-at="2"><td>“about 80 percent of returnees went back to Japan…” <span class="dim">(kim2021)</span></td><td><span class="tag warn">SCOPE ERROR</span></td><td>About 80% <i>of those stowaways</i> went back because of hardship (<span class="ko">그들 중 약 80%</span>). That is not 80% of all returnees.</td></tr>
+            <tr data-cue="d" data-show-at="3"><td>The Pusan quarantine station was the most effective in occupied Asia <span class="dim">(lee2019)</span></td><td><span class="tag bad">UNVERIFIABLE</span></td><td>The cited source appears not to exist. Kim describes Pusan’s quarantine as poorly equipped.</td></tr>
+            <tr data-cue="e" data-show-at="4"><td>Cholera reached Pusan on 1 May 1946 on a ship from Guangdong with ~3,100 returnees <span class="dim">(kim2021)</span></td><td><span class="tag ok">SUPPORTED</span></td><td><span class="ko">“중국 광동에서 조선인 귀환자 3,100 여 명을 태우고 5월 1일 부산으로 들어온 귀환선 내에 콜레라 환자가 발생한 것이다”</span></td></tr>
+            <tr data-cue="f" data-show-at="5"><td>After that, movement across the strait largely stopped <span class="dim">(uncited)</span></td><td><span class="tag bad">CONTRADICTED BY THE KB</span></td><td>Kim reports 7,378 Koreans arrested in Japanese waters in July 1946 alone. Morris-Suzuki counts 45,960 arrests of entrants from Korea by 1951.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <ol class="cues">
+      <li data-for="a">Morris-Suzuki: the draft reverses her. Fewer than 100,000 went home by 1950.</li>
+      <li data-for="b">SCAPIN 1015 orders ships seized. It does not stop repatriation. This check works only because the scan was transcribed.</li>
+      <li data-for="c">Kim: “them” became “returnees”. A translation that changes the scope.</li>
+      <li data-for="d">The invented source, again: nothing to check the claim against.</li>
+      <li data-for="e">The one claim I planted as correct. It holds, with the Korean passage quoted.</li>
+      <li data-for="f">Not planted: an uncited sentence that both real sources contradict.</li>
+    </ol>
+  </section>
+
+  <!-- 9 -->
+  <section class="step" data-title="What the agent did, and what I do" data-sub="Four planted errors, four found. The correct claim, confirmed.">
+    <div class="doc">
+      <h2>Planted, and found</h2>
+      <table class="tt" style="color:#17171A; font-family:'EB Garamond',Georgia,serif; font-size:1em">
+        <tr><th style="color:#68686D">Planted in the draft</th><th style="color:#68686D">The agent’s verdict</th></tr>
+        <tr data-cue="a"><td>Morris-Suzuki reversed</td><td>Contradicted, with the passage</td></tr>
+        <tr data-cue="a"><td>Kim’s “them” turned into “returnees”</td><td>Scope error, with the Korean</td></tr>
+        <tr data-cue="a"><td>SCAPIN 1015 cited for something it does not say</td><td>Contradicted, from the transcription</td></tr>
+        <tr data-cue="a"><td>A reference that does not exist</td><td>Likely fabricated: dead DOI, no such title</td></tr>
+        <tr data-cue="b"><td>The cholera ship (correct)</td><td>Supported</td></tr>
+      </table>
+      <p data-cue="c" style="font-size:1.25em; margin-top:1em"><i>The machine narrows where I look. I open the source and decide what to write.</i></p>
+    </div>
+    <ol class="cues">
+      <li data-for="a">Every planted error was caught, each with the passage behind the verdict.</li>
+      <li data-for="b">The control held: the agent did not call everything wrong.</li>
+      <li data-for="c">The agent finds the passages. I read them, and I write the sentence.<small>Build your own: <a href="../knowledge-base/">Build a knowledge base</a>.</small></li>
+    </ol>
+  </section>
+
+  </div>
+
+  <div class="controls">
+    <button id="prev" type="button" aria-label="Back">← Back</button>
+    <button id="next" type="button" aria-label="Next">Next →</button>
+    <div class="dots" id="dots" role="tablist" aria-label="Steps"></div>
+    <span class="hint"><kbd>→</kbd> next · <kbd>←</kbd> back · <kbd>F</kbd> present</span>
+  </div>
+</div>
+
+<section class="notes" id="about">
+  <h2>About this run</h2>
+  <ul>
+    <li>Recorded on 21 October 2026 with Claude Code, the <a href="https://github.com/scdenney/open-science-skills">Open Science Skills</a>, and the <code>/oss:research-repo</code> scaffold. The agent’s output is shown as it came, trimmed where marked with …. The run was headless; in a normal session the agent asks before it runs a command.</li>
+    <li>The wording of the verdicts changes from run to run (“contradicted” or “unsupported”). In an earlier run without the scan instruction, the agent stopped to ask how to handle the scan, and the claim check then refused to run because only half the cited works had searchable copies.</li>
+    <li>Whatever the agent reads is sent to the model provider.</li>
+  </ul>
+  <h2>Sources</h2>
+  <ul>
+    <li>Kim Jeong-ran (2021), <span class="ko">경계, 침입, 그리고 배제: 1946년 콜레라 유행과 조선인 밀항자</span>, <i>Haehang Tosi Munhwa Kyosophak</i> 25: 1–38, <a href="https://doi.org/10.35158/cisspc.2021.10.25.1">doi:10.35158/cisspc.2021.10.25.1</a>. Author manuscript from <a href="https://europepmc.org/article/PMC/PMC7613977">Europe PMC</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Quoted passages are from that manuscript; the translations are ours.</li>
+    <li>Tessa Morris-Suzuki (2011), “Guarding the Borders of Japan: Occupation, Korean War and Frontier Controls”, <i>The Asia-Pacific Journal: Japan Focus</i> 9(8), no. 3, <a href="https://doi.org/10.1017/S1557466011010916">doi:10.1017/S1557466011010916</a>. Short quotations only; read the article at the publisher.</li>
+    <li>GHQ/SCAP, SCAPIN 1015, “Suppression of Illegal Entry into Japan”, 12 June 1946. <a href="https://dl.ndl.go.jp/pid/9886118">National Diet Library Digital Collections, pid 9886118</a>, Public Domain.</li>
+    <li>The draft and “Lee (2019)” were written for this demo. No such article exists.</li>
+  </ul>
+</section>
+
+<footer>
+  <p><a href="https://github.com/scdenney/ai-for-research">Repository</a> · CC BY-NC 4.0, except the sources above</p>
+</footer>
+
+<script>
+(function(){
+  var steps=[].slice.call(document.querySelectorAll('.step'));
+  var titleEl=document.getElementById('title'), subEl=document.getElementById('sub'), countEl=document.getElementById('count');
+  var dots=document.getElementById('dots'), prevB=document.getElementById('prev'), nextB=document.getElementById('next');
+  var s=0, c=0;
+
+  steps.forEach(function(st,i){
+    var b=document.createElement('button'); b.type='button'; b.textContent=i+1;
+    b.setAttribute('aria-label','Step '+(i+1)+': '+st.dataset.title);
+    b.addEventListener('click',function(){ go(i,0); b.blur(); });
+    dots.appendChild(b);
+  });
+
+  function cues(st){ return [].slice.call(st.querySelectorAll('.cues li')); }
+
+  function render(){
+    var st=steps[s], list=cues(st);
+    steps.forEach(function(x,i){ x.classList.toggle('on',i===s); });
+    [].slice.call(dots.children).forEach(function(b,i){ b.classList.toggle('on',i===s); });
+    titleEl.textContent=st.dataset.title; subEl.textContent=st.dataset.sub||'';
+    countEl.textContent='Step '+(s+1)+' of '+steps.length;
+    var current=list[c]?list[c].dataset.for:null, past={};
+    list.forEach(function(li,i){
+      li.classList.toggle('shown',i<=c); li.classList.toggle('now',i===c);
+      if(i<c) past[li.dataset.for]=true;
+    });
+    st.querySelectorAll('[data-cue]').forEach(function(el){
+      var k=el.dataset.cue;
+      el.classList.toggle('hl',k===current);
+      el.classList.toggle('seen',!!past[k] && k!==current);
+    });
+    st.querySelectorAll('[data-show-at]').forEach(function(el){ el.classList.toggle('shown',+el.dataset.showAt<=c); });
+    st.querySelectorAll('.term-body').forEach(function(tb){ tb.classList.toggle('focus',!!current); });
+    var hot=st.querySelector('.hl:not(.pin)');
+    if(hot) hot.scrollIntoView({block:'nearest',behavior:'smooth'});
+    var cur=list[c]; if(cur) cur.scrollIntoView({block:'nearest'});
+    prevB.disabled=(s===0&&c===0); nextB.disabled=(s===steps.length-1&&c===list.length-1);
+    var h='#'+(s+1); if(location.hash!==h) history.replaceState(null,'',h);
+    placePins();
+  }
+  // Keep the scan's highlight boxes on the image as it is drawn (object-fit: contain).
+  function placePins(){
+    document.querySelectorAll('.scan').forEach(function(box){
+      var img=box.querySelector('img'), layer=box.querySelector('.pins');
+      if(!img||!layer||!img.naturalWidth) return;
+      var bw=box.clientWidth, bh=box.clientHeight, r=img.naturalWidth/img.naturalHeight;
+      var w=Math.min(bw,bh*r), h=w/r;
+      layer.style.width=w+'px'; layer.style.height=h+'px';
+      layer.style.left=((bw-w)/2)+'px'; layer.style.top=((bh-h)/2)+'px';
+    });
+  }
+  window.addEventListener('resize',placePins);
+  document.querySelectorAll('.scan img').forEach(function(img){ img.addEventListener('load',placePins); });
+
+  function go(i,ci){ s=Math.max(0,Math.min(steps.length-1,i)); c=ci; render(); }
+  function next(){ var n=cues(steps[s]).length; if(c<n-1){c++; render();} else if(s<steps.length-1){ go(s+1,0); } }
+  function prev(){ if(c>0){c--; render();} else if(s>0){ go(s-1,cues(steps[s-1]).length-1); } }
+
+  nextB.addEventListener('click',next); prevB.addEventListener('click',prev);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(k==='ArrowRight'||k===' '||k==='PageDown'){ e.preventDefault(); next(); }
+    else if(k==='ArrowLeft'||k==='PageUp'){ e.preventDefault(); prev(); }
+    else if(k>='1'&&k<='9'){ go(+k-1,0); }
+    else if(k==='f'||k==='F'){
+      document.body.classList.toggle('presenting');
+      if(document.body.classList.contains('presenting')){ if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){}); }
+      else if(document.fullscreenElement) document.exitFullscreen();
+    }
+  });
+  document.addEventListener('fullscreenchange',function(){ if(!document.fullscreenElement) document.body.classList.remove('presenting'); });
+  var h0=parseInt(location.hash.slice(1),10);
+  go(h0>=1&&h0<=steps.length?h0-1:0,0);
+})();
+</script>
+</body>
+</html>

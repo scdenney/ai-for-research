@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Knowledge Base Video</title>
+<!--
+  Eight scenes for the knowledge-base explainer video, 1920x1080.
+  Every frame is a pure function of (scene, t, duration): nothing animates on its own.
+    window.setScene(n, t, duration)   render scene n at local time t (seconds)
+    window.sceneCount                 number of scenes
+  Durations come from ?durations=[12,30,...] (seconds per scene); render.mjs passes them.
+  Open with ?play to preview in a browser at the storyboard lengths (or the given durations).
+-->
+<style>
+:root {
+  --bg: #FBF8F0;
+  --ink: #142B3B;
+  --head: #255B79;
+  --accent: #A84E2C;
+  --panel: #E6F0F2;
+  --orange: #CC653F;
+  --soft: #A9CEE1;
+  --muted: #4F5F6C;
+  --serif: "EB Garamond", Georgia, serif;
+  --mono: "Noto Sans Mono", Menlo, monospace;
+  --sans: Arial, Helvetica, sans-serif;
+  --bar: rgba(79, 95, 108, 0.16);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--serif); font-size: 44px; line-height: 1.3;
+  -webkit-font-smoothing: antialiased;
+}
+.mono { font-family: var(--mono); letter-spacing: -0.01em; }
+.scene { position: absolute; inset: 0; display: none; }
+.scene.on { display: block; }
+.a { opacity: 0; will-change: opacity, transform; }
+
+.kicker {
+  position: absolute; left: 104px; top: 64px;
+  font-family: var(--sans); font-size: 28px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--orange);
+}
+.kicker::after { content: ""; display: block; width: 72px; height: 4px; background: var(--orange); margin-top: 14px; }
+h1 {
+  position: absolute; left: 104px; top: 130px;
+  font-size: 76px; font-weight: 500; color: var(--head); line-height: 1.1;
+}
+.caption {
+  position: absolute; left: 104px; right: 104px; bottom: 64px;
+  font-size: 46px; font-style: italic; color: var(--muted);
+}
+.center { position: absolute; left: 50%; top: 50%; }
+
+/* Shared: a page of text with placeholder lines */
+.page {
+  background: #fff; border: 2px solid rgba(37, 91, 121, 0.35); border-radius: 14px;
+  box-shadow: 0 14px 40px rgba(20, 43, 59, 0.08);
+}
+.bar { height: 18px; border-radius: 9px; background: var(--bar); margin: 18px 0; }
+.claimhl, .quotehl {
+  background-image: linear-gradient(var(--soft), var(--soft));
+  background-repeat: no-repeat; background-size: 0% 100%;
+}
+.cite { color: var(--accent); }
+.caret { display: inline-block; width: 4px; height: 0.95em; background: var(--head); vertical-align: -0.12em; margin-left: 3px; }
+
+/* Shared: chat window */
+.win {
+  position: absolute; left: 50%; width: 1500px; margin-left: -750px;
+  background: #fff; border: 2px solid var(--head); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 18px 50px rgba(20, 43, 59, 0.10);
+}
+.winbar {
+  height: 72px; background: var(--panel); border-bottom: 2px solid rgba(37, 91, 121, 0.3);
+  display: flex; align-items: center; padding: 0 28px; gap: 22px;
+}
+.dots { display: flex; gap: 10px; }
+.dots i { width: 16px; height: 16px; border-radius: 50%; background: rgba(79, 95, 108, 0.35); display: block; }
+.wtitle { font-size: 40px; color: var(--head); }
+.tag {
+  margin-left: auto; font-family: var(--sans); font-weight: 700; font-size: 24px;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--orange);
+  border: 2.5px solid var(--orange); border-radius: 8px; padding: 6px 14px 5px;
+}
+.winbody { padding: 40px 48px; display: flex; flex-direction: column; gap: 30px; }
+.msg { max-width: 1060px; padding: 22px 34px; border-radius: 26px; font-size: 44px; line-height: 1.3; }
+.msg.user { align-self: flex-end; background: var(--panel); border-bottom-right-radius: 8px; }
+.msg.bot { align-self: flex-start; background: #fff; border: 2px solid var(--soft); border-bottom-left-radius: 8px; min-height: 102px; }
+.who { font-family: var(--sans); font-size: 22px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.chip { font-size: 40px; font-style: italic; color: var(--muted); margin-top: 8px; }
+
+/* Scene 2 */
+#s2win { top: 150px; height: 760px; }
+#s2win2 { top: 150px; height: 640px; }
+.note {
+  align-self: flex-start; font-size: 42px; font-style: italic; color: var(--accent);
+  border-left: 5px solid var(--orange); padding: 4px 0 4px 24px; margin-left: 8px;
+}
+.cal { width: 380px; height: 420px; margin: -270px 0 0 -190px; }
+.cal .ring { position: absolute; left: 0; right: 0; top: 0; height: 96px; background: var(--accent); border-radius: 18px 18px 0 0;
+  font-family: var(--sans); font-weight: 700; font-size: 30px; letter-spacing: 0.24em; color: #fff;
+  display: flex; align-items: center; justify-content: center; }
+.cal .leaf { position: absolute; left: 0; right: 0; top: 96px; bottom: 0; background: #fff; border: 2px solid var(--head); border-top: none;
+  border-radius: 0 0 18px 18px; display: flex; align-items: center; justify-content: center;
+  font-size: 220px; color: var(--head); line-height: 1; }
+.cal .label { position: absolute; top: 470px; left: -200px; right: -200px; text-align: center; font-size: 64px; color: var(--head); }
+
+/* Scene 3 */
+.folder {
+  position: absolute; left: 104px; right: 104px; top: 320px;
+  background: var(--panel); border: 2px solid var(--head); border-radius: 14px; padding: 30px 48px 18px;
+}
+.folder-label { display: flex; align-items: center; gap: 18px; font-size: 44px; color: var(--head); margin-bottom: 10px; }
+.pile-row {
+  display: grid; grid-template-columns: 48px 1fr auto; column-gap: 26px; align-items: center;
+  padding: 20px 0; border-top: 1.5px solid rgba(37, 91, 121, 0.25);
+}
+.pile-row .mono { font-size: 40px; }
+.pile-row .note2 { font-size: 42px; color: var(--muted); font-style: italic; }
+
+/* Scene 4 */
+.stations { position: absolute; left: 104px; right: 104px; top: 270px; height: 120px; }
+.st {
+  position: absolute; top: 0; width: 296px; height: 112px;
+  border: 2.5px solid var(--head); border-radius: 14px; background: #fff;
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+  font-size: 46px; color: var(--head);
+}
+.st .num { font-family: var(--sans); font-weight: 700; font-size: 20px; letter-spacing: 0.18em; color: var(--muted); }
+.st .ring { position: absolute; inset: -11px; border-radius: 22px; border: 7px solid var(--soft); opacity: 0; }
+.arrow { position: absolute; top: 40px; width: 56px; height: 32px; }
+.track { position: absolute; left: 104px; right: 104px; top: 420px; height: 4px; background: rgba(37, 91, 121, 0.18); border-radius: 2px; }
+.token { position: absolute; left: 0; top: 400px; width: 44px; height: 56px; margin-left: -22px; }
+.work {
+  position: absolute; left: 104px; right: 104px; top: 500px; height: 380px;
+  background: var(--panel); border-radius: 14px; border: 2px solid rgba(37, 91, 121, 0.35);
+}
+.wk { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 22px; }
+.wk .lbl { font-size: 40px; color: var(--muted); font-style: italic; }
+.wk .big { font-size: 46px; }
+.idgrid { display: grid; grid-template-columns: auto auto; column-gap: 40px; row-gap: 10px; font-size: 46px; align-items: baseline; }
+.idgrid .k { font-family: var(--sans); font-weight: 700; font-size: 24px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--orange); text-align: right; }
+.strike { position: relative; color: var(--muted); }
+.strike::after { content: ""; position: absolute; left: -6px; right: -6px; top: 54%; height: 4px; background: var(--accent); transform-origin: left; transform: scaleX(var(--s, 0)); }
+.docpair { display: flex; gap: 120px; align-items: center; }
+.doc { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.doc .lbl { font-style: normal; color: var(--head); }
+.doc .sub { font-size: 40px; color: var(--muted); font-style: italic; }
+.copy { width: 190px; height: 240px; background: #fff; border: 2.5px solid var(--head); border-radius: 8px; padding: 26px 22px; }
+.copy .ln { height: 14px; border-radius: 7px; background: var(--soft); margin-bottom: 16px; transform-origin: left; }
+.bib { background: #fff; border: 2px solid var(--head); border-radius: 10px; padding: 18px 36px; font-size: 34px; line-height: 1.36; white-space: pre; }
+.ocr {
+  font-family: var(--sans); font-weight: 700; font-size: 30px; letter-spacing: 0.14em; color: #fff;
+  background: var(--orange); border-radius: 8px; padding: 10px 18px 8px;
+}
+
+/* Scene 5 */
+.treewrap { position: absolute; left: 0; right: 0; top: 290px; display: flex; justify-content: center; }
+.tree {
+  background: var(--panel); border: 2px solid var(--head); border-radius: 14px; padding: 30px 52px;
+  display: grid; grid-template-columns: auto auto; column-gap: 60px; row-gap: 0;
+}
+.tree .p { white-space: pre; font-size: 40px; padding: 7px 14px; border-radius: 8px; }
+.tree .p b { font-weight: 600; color: var(--head); }
+.tree .n { font-size: 42px; color: var(--muted); padding: 7px 0; font-style: italic; }
+.chain { position: absolute; left: 104px; right: 104px; top: 290px; display: flex; flex-direction: column; }
+.box {
+  border: 2.5px solid var(--head); border-radius: 12px; background: #fff;
+  padding: 20px 34px; display: flex; align-items: baseline; gap: 30px;
+}
+.box .lbl { width: 390px; flex: none; color: var(--head); font-size: 44px; }
+.box .mono { font-size: 34px; white-space: nowrap; }
+.box.dashed { border-style: dashed; }
+.link { display: flex; align-items: center; gap: 22px; height: 76px; padding-left: 64px; }
+.link .al { color: var(--accent); font-size: 40px; font-style: italic; }
+
+/* Scene 6 */
+#s6win { top: 140px; height: 880px; width: 1712px; margin-left: -856px; }
+#s6win .winbody { padding: 32px 40px; gap: 26px; }
+.docs { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.dp { background: #fff; border: 2px solid rgba(37, 91, 121, 0.4); border-radius: 12px; padding: 22px 30px 18px; }
+.dp .dh { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
+.dp .dh .t { font-size: 42px; color: var(--head); }
+.dp .dh .f { font-family: var(--sans); font-weight: 700; font-size: 20px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.dp .q { font-size: 42px; line-height: 1.32; margin: 10px 0; }
+.dp .bar { height: 14px; margin: 14px 0; }
+.verd { margin-top: 18px; display: flex; flex-direction: column; gap: 12px; }
+.vrow { display: flex; gap: 16px; align-items: baseline; font-size: 40px; line-height: 1.22; }
+.pill { flex: none; font-family: var(--sans); font-weight: 700; font-size: 20px; letter-spacing: 0.14em; text-transform: uppercase;
+  border-radius: 6px; padding: 7px 10px 5px; position: relative; top: -6px; }
+.pill.yes { background: var(--panel); color: var(--head); border: 2px solid var(--head); }
+.pill.no { background: #FBEDE6; color: var(--accent); border: 2px solid var(--accent); }
+.stamp {
+  position: absolute; left: 50%; top: 600px; white-space: nowrap;
+  font-family: var(--sans); font-weight: 700; font-size: 58px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent); border: 7px solid var(--accent); border-radius: 14px; padding: 22px 36px 18px 44px;
+  background: rgba(251, 248, 240, 0.96);
+}
+.revise { position: absolute; left: 50%; top: 230px; width: 1560px; margin-left: -780px; padding: 44px 64px 50px; }
+.revise .rk { font-family: var(--sans); font-weight: 700; font-size: 24px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.revise .old { font-size: 40px; color: var(--muted); line-height: 1.35; margin-bottom: 34px; }
+.revise .new { font-size: 48px; line-height: 1.4; }
+
+/* Scene 7 */
+.persist { position: absolute; left: 104px; right: 104px; top: 320px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.pp { background: var(--panel); border: 2px solid var(--head); border-radius: 14px; padding: 40px 40px 46px; min-height: 380px; }
+.pp svg { display: block; margin-bottom: 24px; }
+.pp h2 { font-size: 56px; font-weight: 500; color: var(--head); margin-bottom: 14px; line-height: 1.1; }
+.pp p { font-size: 44px; line-height: 1.3; }
+
+/* Scene 8 */
+.end { position: absolute; left: 0; right: 0; top: 330px; text-align: center; }
+.end .rule { width: 96px; height: 5px; background: var(--orange); margin: 0 auto 56px; }
+.end .l1 { font-size: 60px; color: var(--ink); line-height: 1.3; }
+.end .l2 { font-size: 60px; color: var(--head); margin-top: 18px; }
+.end .l3 { font-size: 42px; color: var(--muted); margin-top: 120px; font-style: italic; }
+</style>
+</head>
+<body>
+
+<!-- 1 · The claim -->
+<section class="scene" id="s1">
+  <div class="kicker a" id="s1k">The claim</div>
+  <div class="center a" id="s1page" style="width:1500px">
+    <div class="page" style="padding:56px 84px 60px">
+      <div class="bar" style="width:92%"></div>
+      <div class="bar" style="width:64%"></div>
+      <p id="s1text" style="font-size:58px; line-height:1.42; margin:30px 0"></p>
+      <div class="bar" style="width:88%"></div>
+      <div class="bar" style="width:46%"></div>
+    </div>
+  </div>
+  <p class="caption a" id="s1cap">A sentence from my own draft.</p>
+</section>
+
+<!-- 2 · An LLM on its own -->
+<section class="scene" id="s2">
+  <div class="kicker a" id="s2k">An LLM on its own</div>
+  <div class="win a" id="s2win">
+    <div class="winbar"><span class="dots"><i></i><i></i><i></i></span><span class="wtitle">Chat</span><span class="tag">Illustration</span></div>
+    <div class="winbody">
+      <div class="msg user a" id="s2u1"><div class="who">Me</div>Do these two studies support this sentence?
+        <div class="chip">“Studies of unilateral policymaking similarly show…”</div></div>
+      <div class="msg bot a" id="s2b1"><div class="who">Chatbot</div><span id="s2b1t"></span></div>
+      <div class="note a" id="s2n1">No quotation. No page. Nothing to check.</div>
+    </div>
+  </div>
+  <div class="center a cal" id="s2cal">
+    <div class="leaf">21</div>
+    <div class="leaf" id="s2leaf">14</div>
+    <div class="ring">OCTOBER</div>
+    <div class="label a" id="s2callbl">One week later</div>
+  </div>
+  <div class="win a" id="s2win2">
+    <div class="winbar"><span class="dots"><i></i><i></i><i></i></span><span class="wtitle">Chat · new conversation</span><span class="tag">Illustration</span></div>
+    <div class="winbody">
+      <div class="msg user a" id="s2u2"><div class="who">Me</div>Which papers was I using?</div>
+      <div class="msg bot a" id="s2b2"><div class="who">Chatbot</div><span id="s2b2t"></span></div>
+    </div>
+  </div>
+  <p class="caption a" id="s2cap">Fluent, unchecked, and nothing accumulates.</p>
+</section>
+
+<!-- 3 · The pile -->
+<section class="scene" id="s3">
+  <div class="kicker a" id="s3k">The pile</div>
+  <h1 class="a" id="s3h">How my sources arrive</h1>
+  <div class="folder a" id="s3f">
+    <div class="folder-label">
+      <svg width="58" height="46" viewBox="0 0 58 46"><path d="M3 8 a4 4 0 0 1 4-4 h14 l6 6 h24 a4 4 0 0 1 4 4 v26 a4 4 0 0 1-4 4 H7 a4 4 0 0 1-4-4z" fill="#fff" stroke="#255B79" stroke-width="3"/></svg>
+      Downloads
+    </div>
+    <div class="pile-row a" id="s3r1"><svg class="docico" width="40" height="52"></svg><span class="mono">Download (3).pdf</span><span class="note2">named by my browser</span></div>
+    <div class="pile-row a" id="s3r2"><svg class="docico" width="40" height="52"></svg><span class="mono">1-s2.0-S0261379421000342.pdf</span><span class="note2">named by the publisher</span></div>
+    <div class="pile-row a" id="s3r3"><svg class="docico" width="40" height="52"></svg><span class="mono">osei_socialtrust_FINAL_v2.docx</span><span class="note2">a Word file</span></div>
+    <div class="pile-row a" id="s3r4"><svg class="docico" width="40" height="52"></svg><span class="mono">scan-0417.pdf</span><span class="note2">a scan of a printed page</span></div>
+  </div>
+</section>
+
+<!-- 4 · Intake -->
+<section class="scene" id="s4">
+  <div class="kicker a" id="s4k">Intake</div>
+  <h1 class="a" id="s4h">One file, five steps</h1>
+  <div class="stations a" id="s4st"></div>
+  <div class="track a" id="s4track"></div>
+  <svg class="token a" id="s4tok1" viewBox="0 0 44 56"><path d="M3 3h26l12 12v38H3z" fill="#fff" stroke="#255B79" stroke-width="3" stroke-linejoin="round"/><path d="M29 3v12h12" fill="none" stroke="#255B79" stroke-width="3" stroke-linejoin="round"/><path d="M10 26h24M10 34h24M10 42h16" stroke="#A9CEE1" stroke-width="4" stroke-linecap="round"/></svg>
+  <svg class="token a" id="s4tok2" viewBox="0 0 44 56"><path d="M3 3h26l12 12v38H3z" fill="#fff" stroke="#CC653F" stroke-width="3" stroke-linejoin="round"/><path d="M29 3v12h12" fill="none" stroke="#CC653F" stroke-width="3" stroke-linejoin="round"/><rect x="9" y="24" width="26" height="22" rx="2" fill="#E6F0F2" stroke="#CC653F" stroke-width="2"/></svg>
+  <div class="work a" id="s4work">
+    <div class="wk a" id="s4w1">
+      <svg width="88" height="112" viewBox="0 0 44 56"><path d="M3 3h26l12 12v38H3z" fill="#fff" stroke="#255B79" stroke-width="2.5" stroke-linejoin="round"/><path d="M29 3v12h12" fill="none" stroke="#255B79" stroke-width="2.5" stroke-linejoin="round"/></svg>
+      <span class="mono big">Download (3).pdf</span>
+      <span class="lbl">I drop it into the project’s intake folder</span>
+    </div>
+    <div class="wk a" id="s4w2">
+      <div class="idgrid">
+        <span class="k">Author</span><span>Tomás Ferreira and Priya Nair</span>
+        <span class="k">Year</span><span>2021</span>
+        <span class="k">Title</span><span><i>Does Compulsory Voting Make Better Citizens?</i></span>
+      </div>
+      <span class="lbl">read from the file itself</span>
+    </div>
+    <div class="wk a" id="s4w3">
+      <span class="mono big strike" id="s4old">Download (3).pdf</span>
+      <svg width="32" height="56" viewBox="0 0 28 56"><path d="M14 2 V48 M4 38 L14 52 L24 38" fill="none" stroke="#A84E2C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="mono big a" id="s4new" style="color:var(--head)">ferreira-nair-2021-compulsory-voting.pdf</span>
+    </div>
+    <div class="wk a" id="s4w4">
+      <div class="docpair">
+        <div class="doc">
+          <svg width="152" height="194" viewBox="0 0 44 56"><path d="M3 3h26l12 12v38H3z" fill="#fff" stroke="#255B79" stroke-width="1.6" stroke-linejoin="round"/><path d="M29 3v12h12" fill="none" stroke="#255B79" stroke-width="1.6" stroke-linejoin="round"/><text x="22" y="40" text-anchor="middle" font-family="Arial" font-weight="700" font-size="9" fill="#255B79">PDF</text></svg>
+          <span class="lbl">Original</span>
+        </div>
+        <svg width="90" height="40" viewBox="0 0 90 40"><path d="M4 20 H80 M68 8 L82 20 L68 32" fill="none" stroke="#A84E2C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="doc a" id="s4copy">
+          <div class="copy" style="width:152px;height:194px;padding:22px 18px">
+            <div class="ln" style="width:100%"></div><div class="ln" style="width:86%"></div><div class="ln" style="width:94%"></div>
+            <div class="ln" style="width:70%"></div><div class="ln" style="width:58%"></div>
+          </div>
+          <span class="lbl">Searchable copy</span>
+        </div>
+      </div>
+    </div>
+    <div class="wk a" id="s4w5">
+      <div class="bib mono">@article{ferreira-nair2021,
+  author = {Ferreira, Tomás and Nair, Priya},
+  title  = {Does Compulsory Voting Make Better Citizens?},
+  …
+}</div>
+      <span class="lbl">a new entry in my bibliography</span>
+    </div>
+    <div class="wk a" id="s4w6">
+      <div style="display:flex; align-items:center; gap:28px">
+        <span class="mono big strike" id="s4old2">scan-0417.pdf</span>
+        <svg width="70" height="32" viewBox="0 0 70 32"><path d="M4 16 H60 M48 5 L62 16 L48 27" fill="none" stroke="#A84E2C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="mono big" style="color:var(--head)">kowalski-2017-turnout-cascades.pdf</span>
+      </div>
+      <div class="a" id="s4ocr" style="display:flex; align-items:center; gap:26px; margin-top:16px">
+        <span class="ocr">NEEDS OCR</span>
+        <span class="lbl">a photograph of a page, with no text to search</span>
+      </div>
+    </div>
+  </div>
+  <p class="caption a" id="s4cap">The originals stay untouched. The agent works from searchable copies.</p>
+</section>
+
+<!-- 5 · The library and the chain -->
+<section class="scene" id="s5">
+  <div class="kicker a" id="s5k1">The library</div>
+  <div class="kicker a" id="s5k2">The chain</div>
+  <h1 class="a" id="s5h1">The same project after intake</h1>
+  <h1 class="a" id="s5h2">From a citation to the source</h1>
+  <div class="treewrap a" id="s5tree"><div class="tree">
+    <span class="p mono"><b>research-project/</b></span><span class="n"></span>
+    <span class="p mono">├─ <b>sources/</b></span><span class="n"></span>
+    <span class="p mono" data-i="1">│  ├─ <b>og/</b></span><span class="n" data-i="1">originals, untouched</span>
+    <span class="p mono" data-i="2">│  ├─ <b>md/</b></span><span class="n" data-i="2">searchable copies</span>
+    <span class="p mono" data-i="3">│  └─ references.bib</span><span class="n" data-i="3">the bibliography</span>
+    <span class="p mono" data-i="4">├─ <b>manuscript/</b></span><span class="n" data-i="4">my draft</span>
+    <span class="p mono" data-i="5">└─ CLAUDE.md</span><span class="n" data-i="5">instructions for the agent</span>
+  </div></div>
+  <div class="chain a" id="s5chain">
+    <div class="box" data-i="1"><span class="lbl">In my draft</span><span style="font-size:44px">(Ferreira &amp; Nair 2021)</span></div>
+    <div class="link" data-i="2"><svg width="28" height="60" viewBox="0 0 28 56"><path d="M14 2 V48 M4 38 L14 52 L24 38" fill="none" stroke="#A84E2C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="al">looks up its entry</span></div>
+    <div class="box" data-i="2"><span class="lbl">In the bibliography</span><span class="mono">@article{ferreira-nair2021, …}</span></div>
+    <div class="link" data-i="3"><svg width="28" height="60" viewBox="0 0 28 56"><path d="M14 2 V48 M4 38 L14 52 L24 38" fill="none" stroke="#A84E2C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="al">matches author and year</span></div>
+    <div class="box" data-i="3"><span class="lbl">The searchable copy</span><span class="mono">sources/md/ferreira-nair-2021-compulsory-voting.md</span></div>
+    <div class="link" data-i="4"><svg width="28" height="60" viewBox="0 0 28 56"><path d="M14 2 V48 M4 38 L14 52 L24 38" fill="none" stroke="#A84E2C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="al">made from the original at intake</span></div>
+    <div class="box dashed" data-i="4"><span class="lbl">The original PDF</span><span class="mono">sources/og/ferreira-nair-2021-compulsory-voting.pdf</span></div>
+  </div>
+</section>
+
+<!-- 6 · The same question, with the knowledge base -->
+<section class="scene" id="s6">
+  <div class="kicker a" id="s6k">The same question</div>
+  <div class="win a" id="s6win">
+    <div class="winbar"><span class="dots"><i></i><i></i><i></i></span><span class="wtitle">Agent, with my knowledge base</span></div>
+    <div class="winbody">
+      <div class="msg user a" id="s6u"><div class="who">Me</div>Do these two studies support this sentence?</div>
+      <div class="docs">
+        <div class="a" id="s6d1">
+          <div class="dp">
+            <div class="dh"><span class="t">Reeves &amp; Rogowski (2016)</span><span class="f">Searchable copy</span></div>
+            <div class="bar" style="width:94%"></div><div class="bar" style="width:72%"></div>
+            <p class="q"><span class="quotehl" id="s6q1">“Only about a quarter of respondents in any of the surveys supported unilateral policy making”</span></p>
+            <div class="bar" style="width:84%"></div>
+          </div>
+          <div class="verd">
+            <div class="vrow a" id="s6v1a"><span class="pill yes">Shows</span><span>low support for unilateral power</span></div>
+            <div class="vrow a" id="s6v1b"><span class="pill no">Does not</span><span>compare executive and legislative routes</span></div>
+          </div>
+        </div>
+        <div class="a" id="s6d2">
+          <div class="dp">
+            <div class="dh"><span class="t">Christenson &amp; Kriner (2017)</span><span class="f">Searchable copy</span></div>
+            <div class="bar" style="width:90%"></div><div class="bar" style="width:80%"></div>
+            <p class="q"><span class="quotehl" id="s6q2">“…has no significant influence on the probability of a subject backing the president”</span></p>
+            <div class="bar" style="width:66%"></div>
+          </div>
+          <div class="verd">
+            <div class="vrow a" id="s6v2a"><span class="pill yes">Shows</span><span>no significant route effect</span></div>
+            <div class="vrow a" id="s6v2b"><span class="pill no">Does not</span><span>show a penalty</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="stamp a" id="s6stamp">Unsupported as written</div>
+  <div class="page revise a" id="s6rev">
+    <div class="rk">Before</div>
+    <p class="old"><span id="s6old">Studies of unilateral policymaking similarly show that citizens penalize executive action relative to legislative action (Reeves &amp; Rogowski 2016; Christenson &amp; Kriner 2017).</span></p>
+    <div class="a" id="s6newwrap">
+      <div class="rk" style="color:var(--head)">After</div>
+      <p class="new">Studies of unilateral policymaking find that Americans express low generalized support for unilateral powers <span class="cite">(Reeves &amp; Rogowski 2016)</span> while judging particular unilateral acts largely by whether they agree with them <span class="cite">(Christenson &amp; Kriner 2017)</span>.</p>
+    </div>
+  </div>
+  <p class="caption a" id="s6cap">I decide what to write.</p>
+</section>
+
+<!-- 7 · What persists -->
+<section class="scene" id="s7">
+  <div class="kicker a" id="s7k">What persists</div>
+  <h1 class="a" id="s7h">What the next session reads</h1>
+  <div class="persist">
+    <div class="pp a" id="s7c1">
+      <svg width="64" height="72" viewBox="0 0 64 72"><rect x="4" y="4" width="56" height="64" rx="6" fill="#fff" stroke="#255B79" stroke-width="3"/><path d="M16 24h32M16 36h32M16 48h20" stroke="#A9CEE1" stroke-width="5" stroke-linecap="round"/></svg>
+      <h2>Handoff note</h2><p>Where I am and what comes next.</p>
+    </div>
+    <div class="pp a" id="s7c2">
+      <svg width="64" height="72" viewBox="0 0 64 72"><rect x="4" y="4" width="56" height="64" rx="6" fill="#fff" stroke="#255B79" stroke-width="3"/><path d="M14 20h4M24 20h26M14 34h4M24 34h26M14 48h4M24 48h18" stroke="#A9CEE1" stroke-width="5" stroke-linecap="round"/></svg>
+      <h2>Session log</h2><p>What was done.</p>
+    </div>
+    <div class="pp a" id="s7c3">
+      <svg width="64" height="72" viewBox="0 0 64 72"><path d="M20 8v56" stroke="#255B79" stroke-width="3"/><circle cx="20" cy="16" r="7" fill="#fff" stroke="#255B79" stroke-width="3"/><circle cx="20" cy="36" r="7" fill="#fff" stroke="#255B79" stroke-width="3"/><circle cx="20" cy="56" r="7" fill="#A9CEE1" stroke="#255B79" stroke-width="3"/><path d="M34 16h24M34 36h24M34 56h16" stroke="#A9CEE1" stroke-width="5" stroke-linecap="round"/></svg>
+      <h2>Version history</h2><p>What changed, and why.</p>
+    </div>
+  </div>
+  <p class="caption a" id="s7cap">Next session starts here, not from zero.</p>
+</section>
+
+<!-- 8 · End card -->
+<section class="scene" id="s8">
+  <div class="end">
+    <div class="rule a" id="s8r"></div>
+    <div class="l1 a" id="s8a">Animation coded and script drafted with Claude Code (Opus 5.5).</div>
+    <div class="l2 a" id="s8b">Voice: Steven Denney.</div>
+    <div class="l3 a" id="s8c">What Are We Thinking? · Leiden · 21 October 2026</div>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+  var TARGETS = [12, 30, 15, 30, 25, 40, 15, 8];
+  var $ = function (id) { return document.getElementById(id); };
+  var clamp = function (x, a, b) { a = a === undefined ? 0 : a; b = b === undefined ? 1 : b; return Math.min(b, Math.max(a, x)); };
+  var ease = function (x) { x = clamp(x); return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; };
+  // eased progress of t through [a, a + d]
+  var p = function (t, a, d) { return ease((t - a) / (d === undefined ? 0.6 : d)); };
+  // opacity / slide helper; o in [0,1]
+  function set(el, o, dx, dy, sc) {
+    el.style.opacity = o;
+    el.style.transform = 'translate(' + (dx || 0) + 'px,' + (dy || 0) + 'px)' + (sc ? ' scale(' + sc + ')' : '');
+  }
+  function rise(el, o, dist) { set(el, o, 0, (1 - o) * (dist === undefined ? 24 : dist)); }
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  // render the first fraction q of a list of [text, class] segments, with an optional caret
+  function typeSegs(el, segs, q, caret) {
+    var total = segs.reduce(function (n, s) { return n + s[0].length; }, 0);
+    var left = Math.round(total * clamp(q)), html = '';
+    segs.forEach(function (s) {
+      var part = s[0].slice(0, Math.max(0, left)); left -= s[0].length;
+      if (!part) return;
+      html += s[1] ? '<span class="' + s[1] + '">' + esc(part) + '</span>' : esc(part);
+    });
+    if (caret) html += '<span class="caret"></span>';
+    el.innerHTML = html;
+  }
+  function sweep(el, q) { el.style.backgroundSize = (clamp(q) * 100) + '% 100%'; }
+
+  // ---------- scenes ----------
+  var S1_SEGS = [
+    ['Studies of unilateral policymaking similarly show that ', ''],
+    ['citizens penalize executive action relative to legislative action', 'claimhl'],
+    [' ', ''],
+    ['(Reeves & Rogowski 2016; Christenson & Kriner 2017)', 'cite'],
+    ['.', '']
+  ];
+  function r1(t, D) {
+    rise($('s1k'), p(t, 0.2));
+    var f = function (x) { return x * D; };
+    var pg = p(t, 0.3, 0.8);
+    $('s1page').style.opacity = pg;
+    $('s1page').style.transform = 'translate(-50%, calc(-50% - 30px + ' + ((1 - pg) * 24) + 'px))';
+    var q = (t - f(0.06)) / (f(0.5) - f(0.06));
+    var typing = q > 0 && q < 1;
+    var blink = Math.floor(t * 1.8) % 2 === 0;
+    typeSegs($('s1text'), S1_SEGS, q, typing || (q >= 1 && t < f(0.62) && blink) || (q <= 0 && blink));
+    var hl = $('s1text').querySelector('.claimhl');
+    if (hl) sweep(hl, p(t, f(0.56), 1.4));
+    rise($('s1cap'), p(t, f(0.12)));
+  }
+
+  var S2_ANSWER = 'Yes. Both studies find that the public is more skeptical of executive action than of legislation, so your sentence is well supported.';
+  var S2_ANSWER2 = 'I don’t have any memory of earlier conversations. Could you share the papers again?';
+  function r2(t, D) {
+    var f = function (x) { return x * D; };
+    rise($('s2k'), p(t, 0.2));
+    var out1 = p(t, f(0.46), 0.8);
+    set($('s2win'), p(t, 0.3, 0.8) * (1 - out1), -out1 * 120, (1 - p(t, 0.3, 0.8)) * 24);
+    rise($('s2u1'), p(t, f(0.05)));
+    rise($('s2b1'), p(t, f(0.17), 0.4), 12);
+    var q = (t - f(0.19)) / (f(0.33) - f(0.19));
+    $('s2b1t').innerHTML = esc(S2_ANSWER.slice(0, Math.round(S2_ANSWER.length * clamp(q)))) + (q > 0 && q < 1 ? '<span class="caret"></span>' : '');
+    rise($('s2n1'), p(t, f(0.37)));
+    // calendar
+    var cin = p(t, f(0.49), 0.7), cout = p(t, f(0.62), 0.7);
+    set($('s2cal'), cin * (1 - cout), 0, (1 - cin) * 30);
+    var flip = p(t, f(0.53), 0.9);
+    $('s2leaf').style.transform = 'translateY(' + (-flip * 90) + 'px)';
+    $('s2leaf').style.opacity = 1 - flip;
+    rise($('s2callbl'), p(t, f(0.54)));
+    // second chat
+    set($('s2win2'), p(t, f(0.63), 0.8), 0, (1 - p(t, f(0.63), 0.8)) * 24);
+    rise($('s2u2'), p(t, f(0.65)));
+    rise($('s2b2'), p(t, f(0.69), 0.4), 12);
+    var q2 = (t - f(0.70)) / (f(0.78) - f(0.70));
+    $('s2b2t').innerHTML = esc(S2_ANSWER2.slice(0, Math.round(S2_ANSWER2.length * clamp(q2)))) + (q2 > 0 && q2 < 1 ? '<span class="caret"></span>' : '');
+    rise($('s2cap'), p(t, f(0.80)));
+  }
+
+  function r3(t, D) {
+    var f = function (x) { return x * D; };
+    rise($('s3k'), p(t, 0.2));
+    rise($('s3h'), p(t, 0.35));
+    rise($('s3f'), p(t, f(0.12)));
+    [0.30, 0.46, 0.62, 0.74].forEach(function (a, i) { set($('s3r' + (i + 1)), p(t, f(a)), (1 - p(t, f(a))) * -30, 0); });
+  }
+
+  // stations for scene 4
+  var ST_NAMES = ['Drop', 'Identify', 'Rename', 'Convert', 'Register'];
+  var ST_W = 296, ST_GAP = (1712 - 5 * 296) / 4;
+  (function buildStations() {
+    var html = '';
+    ST_NAMES.forEach(function (n, i) {
+      var x = i * (ST_W + ST_GAP);
+      html += '<div class="st" style="left:' + x + 'px"><div class="ring"></div><span class="num">' + (i + 1) + '</span>' + n + '</div>';
+      if (i < 4) html += '<svg class="arrow" style="left:' + (x + ST_W + (ST_GAP - 56) / 2) + 'px" viewBox="0 0 56 32"><path d="M4 16 H46 M36 6 L50 16 L36 26" fill="none" stroke="#A84E2C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    });
+    $('s4st').innerHTML = html;
+  })();
+  var stX = function (i) { return 104 + i * (ST_W + ST_GAP) + ST_W / 2; };
+  // position along the stations given a schedule [[time, station], ...]
+  function stationAt(t, sched) {
+    var x = sched[0][1];
+    for (var k = 1; k < sched.length; k++) x += (sched[k][1] - sched[k - 1][1]) * p(t, sched[k][0], 0.7);
+    return x;
+  }
+  function r4(t, D) {
+    var f = function (x) { return x * D; };
+    rise($('s4k'), p(t, 0.2));
+    rise($('s4h'), p(t, 0.35));
+    rise($('s4st'), p(t, 0.5));
+    rise($('s4track'), p(t, 0.6));
+    rise($('s4work'), p(t, 0.7));
+    var A = [f(0.05), f(0.16), f(0.27), f(0.37), f(0.49)];       // ferreira: station i begins
+    var B = [f(0.60), f(0.64), f(0.68), f(0.72)];                 // scan: drop..convert
+    var sched1 = [[A[0], 0], [A[1], 1], [A[2], 2], [A[3], 3], [A[4], 4]];
+    var sched2 = [[B[0], 0], [B[1], 1], [B[2], 2], [B[3], 3]];
+    var fadeTok1 = p(t, f(0.57), 0.6);
+    var x1 = stationAt(t, sched1);
+    set($('s4tok1'), p(t, A[0], 0.5) * (1 - fadeTok1), stX(0) + x1 * (ST_W + ST_GAP), 0);
+    var x2 = stationAt(t, sched2);
+    set($('s4tok2'), p(t, B[0], 0.5), stX(0) + x2 * (ST_W + ST_GAP), 0);
+    // station highlight: current station of whichever token is active
+    var scanPhase = t >= B[0];
+    var cur = scanPhase ? x2 : x1;
+    var sts = $('s4st').querySelectorAll('.st');
+    sts.forEach(function (el, i) {
+      var near = clamp(1 - Math.abs(cur - i) * 1.6);
+      var ring = el.querySelector('.ring');
+      ring.style.opacity = near * p(t, A[0], 0.5);
+      var stopped = scanPhase && i === 3 && t > B[3] + 0.5;
+      ring.style.borderColor = stopped ? '#E8B39C' : '';
+      el.style.background = near > 0.5 ? 'var(--panel)' : '#fff';
+      el.style.opacity = scanPhase && i === 4 ? 1 - 0.65 * p(t, B[0]) : 1;
+    });
+    // work panels
+    var w = [0, 0, 0, 0, 0, 0];
+    var cross = function (a, b) { return p(t, a, 0.5) * (1 - p(t, b - 0.25, 0.5)); };
+    w[0] = cross(A[0] + 0.3, A[1]);
+    w[1] = cross(A[1] + 0.3, A[2]);
+    w[2] = cross(A[2] + 0.3, A[3]);
+    w[3] = cross(A[3] + 0.3, A[4]);
+    w[4] = cross(A[4] + 0.3, B[0]);
+    w[5] = p(t, B[0] + 0.3, 0.5);
+    for (var i = 0; i < 6; i++) set($('s4w' + (i + 1)), w[i], 0, (1 - Math.min(1, w[i] * 2)) * 10);
+    $('s4old').style.setProperty('--s', p(t, A[2] + 0.6, 0.7));
+    rise($('s4new'), p(t, A[2] + 1.2), 16);
+    rise($('s4copy'), p(t, A[3] + 1.0, 0.8), 0);
+    $('s4copy').querySelectorAll('.ln').forEach(function (ln, k) { ln.style.transform = 'scaleX(' + p(t, A[3] + 1.2 + k * 0.25, 0.5) + ')'; });
+    $('s4old2').style.setProperty('--s', p(t, B[2] + 0.2, 0.6));
+    rise($('s4ocr'), p(t, B[3] + 0.6), 12);
+    rise($('s4cap'), p(t, f(0.80)));
+  }
+
+  function r5(t, D) {
+    var f = function (x) { return x * D; };
+    var sw = p(t, f(0.54), 0.8);          // switch from tree to chain
+    rise($('s5k1'), p(t, 0.2) * (1 - sw));
+    rise($('s5h1'), p(t, 0.35) * (1 - sw));
+    rise($('s5tree'), p(t, f(0.04)) * (1 - sw));
+    var marks = [0.14, 0.22, 0.32, 0.38, 0.45];
+    var tree = $('s5tree');
+    tree.querySelectorAll('[data-i]').forEach(function (el) {
+      var i = +el.dataset.i, a = f(marks[i - 1]);
+      var on = p(t, a, 0.5);
+      var next = i < 5 ? p(t, f(marks[i]), 0.5) : p(t, f(0.52), 0.5);
+      el.style.opacity = 0.35 + 0.65 * on;
+      if (el.classList.contains('p')) el.style.background = 'rgba(169,206,225,' + (on * (1 - next)).toFixed(3) + ')';
+    });
+    var swIn = p(t, f(0.56), 0.8);
+    rise($('s5k2'), swIn);
+    rise($('s5h2'), swIn);
+    $('s5chain').style.opacity = swIn;
+    var steps = [f(0.60), f(0.70), f(0.80), f(0.89)];
+    var boxes = $('s5chain').querySelectorAll('.box'), links = $('s5chain').querySelectorAll('.link');
+    boxes.forEach(function (b) {
+      var i = +b.dataset.i, on = p(t, steps[i - 1], 0.5);
+      var nxt = i < 4 ? p(t, steps[i], 0.5) : 0;
+      b.style.opacity = 0.2 + 0.8 * on;
+      var cur = on * (1 - nxt);
+      b.style.background = cur > 0.5 ? 'var(--panel)' : '#fff';
+      b.style.boxShadow = '0 0 0 ' + (6 * cur).toFixed(2) + 'px var(--soft)';
+    });
+    links.forEach(function (l) { l.style.opacity = 0.12 + 0.88 * p(t, steps[+l.dataset.i - 1] - 0.3, 0.5); });
+  }
+
+  function r6(t, D) {
+    var f = function (x) { return x * D; };
+    rise($('s6k'), p(t, 0.2));
+    var out = p(t, f(0.78), 0.8);
+    set($('s6win'), p(t, 0.3, 0.8) * (1 - out), 0, (1 - p(t, 0.3, 0.8)) * 24 - out * 30);
+    rise($('s6u'), p(t, f(0.03)));
+    rise($('s6d1'), p(t, f(0.12)));
+    rise($('s6d2'), p(t, f(0.15)));
+    sweep($('s6q1'), p(t, f(0.22), 2.2));
+    rise($('s6v1a'), p(t, f(0.34)), 14);
+    rise($('s6v1b'), p(t, f(0.42)), 14);
+    sweep($('s6q2'), p(t, f(0.50), 2.2));
+    rise($('s6v2a'), p(t, f(0.60)), 14);
+    rise($('s6v2b'), p(t, f(0.66)), 14);
+    var st = p(t, f(0.70), 0.6);
+    $('s6stamp').style.opacity = st * (1 - out);
+    $('s6stamp').style.transform = 'translateX(-50%) rotate(-2.5deg) scale(' + (1.1 - 0.1 * st) + ')';
+    $('s6win').querySelector('.docs').style.opacity = 1 - 0.7 * st;
+    var rv = p(t, f(0.80), 0.8);
+    rise($('s6rev'), rv);
+    $('s6rev').querySelector('.old').style.opacity = 1 - 0.35 * p(t, f(0.86), 0.6);
+    rise($('s6newwrap'), p(t, f(0.84), 0.8), 16);
+    rise($('s6cap'), p(t, f(0.86)));
+  }
+
+  function r7(t, D) {
+    var f = function (x) { return x * D; };
+    rise($('s7k'), p(t, 0.2));
+    rise($('s7h'), p(t, 0.35));
+    rise($('s7c1'), p(t, f(0.18)), 30);
+    rise($('s7c2'), p(t, f(0.42)), 30);
+    rise($('s7c3'), p(t, f(0.60)), 30);
+    rise($('s7cap'), p(t, f(0.78)));
+  }
+
+  function r8(t, D) {
+    var f = function (x) { return x * D; };
+    $('s8r').style.opacity = p(t, 0.2);
+    rise($('s8a'), p(t, 0.4, 0.8));
+    rise($('s8b'), p(t, f(0.25), 0.8));
+    rise($('s8c'), p(t, f(0.4), 0.8));
+  }
+
+  var R = [r1, r2, r3, r4, r5, r6, r7, r8];
+  var scenes = document.querySelectorAll('.scene');
+  // doc icons in scene 3
+  document.querySelectorAll('svg.docico').forEach(function (s) {
+    s.setAttribute('viewBox', '0 0 44 56');
+    s.innerHTML = '<path d="M3 3h26l12 12v38H3z" fill="#fff" stroke="#255B79" stroke-width="3" stroke-linejoin="round"/><path d="M29 3v12h12" fill="none" stroke="#255B79" stroke-width="3" stroke-linejoin="round"/>';
+  });
+
+  window.sceneCount = R.length;
+  window.setScene = function (n, t, D) {
+    D = D || TARGETS[n - 1];
+    scenes.forEach(function (s, i) { s.classList.toggle('on', i === n - 1); });
+    var el = scenes[n - 1];
+    R[n - 1](t, D);
+    // scene envelope: fade in from paper, fade out to paper (the last scene holds)
+    var env = Math.min(p(t, 0, 0.45), n === R.length ? 1 : 1 - p(t, D - 0.45, 0.45));
+    el.style.opacity = env;
+  };
+
+  // ---------- preview player ----------
+  var qs = new URLSearchParams(location.search);
+  var durs = TARGETS.slice();
+  if (qs.get('durations')) { try { durs = JSON.parse(qs.get('durations')); } catch (e) {} }
+  window.durations = durs;
+  if (qs.has('play')) {
+    var start = null;
+    var startScene = +(qs.get('scene') || 1);
+    var offs = [0]; durs.forEach(function (d, i) { offs.push(offs[i] + d); });
+    var frame = function (ts) {
+      if (start === null) start = ts - offs[startScene - 1] * 1000;
+      var g = (ts - start) / 1000, n = 1;
+      while (n < durs.length && g >= offs[n]) n++;
+      window.setScene(n, Math.min(g - offs[n - 1], durs[n - 1]), durs[n - 1]);
+      if (g < offs[durs.length]) requestAnimationFrame(frame);
+    };
+    document.fonts.ready.then(function () { requestAnimationFrame(frame); });
+  } else if (qs.get('scene')) {
+    var n0 = +qs.get('scene'), t0 = +(qs.get('t') || 0);
+    document.fonts.ready.then(function () { window.setScene(n0, t0, durs[n0 - 1]); });
+  } else {
+    window.setScene(1, 0, durs[0]);
+  }
+})();
+</script>
+</body>
+</html>

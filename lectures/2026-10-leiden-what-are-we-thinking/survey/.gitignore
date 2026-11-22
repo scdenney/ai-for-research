@@ -1,0 +1,8 @@
+_build/
+ids.json
+survey-id.txt
+responses.json
+open-text.md
+*.zip
+*.csv
+__pycache__/

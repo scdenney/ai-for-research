@@ -1,0 +1,56 @@
+# Deliverable manifest -- read by check_deliverable.py, deliverable-intake, deliverable-lint,
+# the SessionStart hook, and /sitrep. Paths are relative to this directory.
+schema: 1
+agent:                      # vendor-neutral routing; Claude runs /oss:<name>, Codex runs $<name>
+  on_braindump: deliverable-intake
+  on_review_request: deliverable-lint
+  on_session_end: finished
+  preserve_raw_captures: true
+  session_state: HANDOFF.md
+id: afr-leiden-what-are-we-thinking-2026-10
+kind: talk
+title: "What Are We Thinking? AI in Research and Supervision"
+audience: >-
+  Public seminar, Leiden University. Wednesday 21 October 2026, 15:00 to 17:00, DH Lab,
+  Huizinga 0.09, in person. Moderator: Aron van de Pol. Researchers and supervisors.
+  Slot: 10 min opening survey and published picture, 45 min talk with a live demo, break,
+  then discussion from the room's own answers.
+deadline: 2026-10-21
+claim: >-
+  What to shamelessly automate, what to ruthlessly guard from AI, and where to collaborate
+  with the machine, applied to research and to supervision, with practical and responsible
+  ways to put AI agents to work in both settings.
+done: >-
+  Deck rebuilt for Leiden in the poster palette (35 PDF pages: 31 main, references, demo
+  fallback), compiled clean with no overlaps; notes.md rewritten to the 10 + 45 plan; the
+  Qualtrics survey live with its QR on page 2 and the export-to-results pipeline dry-run;
+  the knowledge-base visual opening from visual/; the demo rehearsed with fallback pages;
+  HANDOFF updated.
+status: >-
+  2026-10-21 mid-morning: deck 42 pages after two review rounds (centered tables, new
+  pages 19-20 and 27, decluttered check, demo background), compiled clean, 0 render flags,
+  fourth and fifth review rounds pushed; Overleaf at e1cc875 (web demo URL on 36 and 38); demo now a click-through page at scdenney.github.io/ai-for-research/archive-check, live terminal as backup; Qualtrics survey rebuilt in place with 14 items and the
+  same link (version 7), results pipeline updated; no break: results export at page 37;
+  survey now one question per page with the author's shorter edit wording; phone test and read of the notes remain.
+sources_of_truth:
+  - slides/main.tex
+  - notes.md
+  - planning/01-update-brief.md
+  - planning/02-survey-evidence.md
+  - survey/specs/leiden26_audience.yaml
+planning_dir: planning
+handoff: HANDOFF.md
+sections_from: latex
+sections_files: [slides/parts/00-open.tex, slides/parts/01-surveys.tex, slides/parts/00-foundations.tex, slides/parts/01-part1.tex, slides/parts/02-part2.tex, slides/parts/03-part3.tex, slides/parts/04-close.tex, slides/parts/05-demo-fallback.tex]
+build:
+  command: latexmk -xelatex -interaction=nonstopmode -cd slides/main.tex
+  artifacts: [slides/main.pdf]
+checks:
+  credentials: true
+  prose_tells:
+    scan: [notes.md, slides/parts/00-open.tex, slides/parts/01-surveys.tex, slides/parts/00-foundations.tex, slides/parts/01-part1.tex, slides/parts/02-part2.tex, slides/parts/03-part3.tex, slides/parts/04-close.tex]
+  deck_budget: false
+night_shift:
+  enabled: false
+  budget_usd: 3
+  model: opus

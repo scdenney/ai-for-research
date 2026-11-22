@@ -1,0 +1,46 @@
+{
+ "survey_id": "SV_synthetic",
+ "exported_utc": "2026-10-21T10:14:03Z",
+ "since": "2026-10-21T08:30:00Z",
+ "n_raw": 7,
+ "excluded": {
+  "preview": 2,
+  "before_cutoff": 1,
+  "unfinished": 1
+ },
+ "rows": [
+  {
+   "role": "PhD candidate",
+   "field": "Humanities",
+   "freq": "Sometimes",
+   "edit": "Yes, and I disclosed that I used AI",
+   "draft": "It's only appropriate if Dr. Bloggs discloses that they used AI",
+   "discussed": "Yes, informally",
+   "worry": "Agree",
+   "never": "Interpreting my sources, the actual reading",
+   "automate": "Formatting references"
+  },
+  {
+   "role": "Lecturer or professor",
+   "field": "Social sciences",
+   "freq": "Rarely",
+   "edit": "No, and I wouldn't consider it",
+   "draft": "It's not appropriate under any circumstances",
+   "discussed": "Not applicable",
+   "worry": "Strongly agree",
+   "never": "Grading",
+   "automate": ""
+  },
+  {
+   "role": "Postdoc",
+   "field": "Both or in between",
+   "freq": "",
+   "edit": "No, but I would be willing to",
+   "draft": "It's appropriate",
+   "discussed": "No",
+   "worry": "Neither agree nor disagree",
+   "never": "",
+   "automate": "Transcribing interviews, then checking them myself"
+  }
+ ]
+}

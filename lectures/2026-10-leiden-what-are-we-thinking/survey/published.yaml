@@ -1,0 +1,81 @@
+# Published figures that results.py sets beside the room's answers.
+# Values are percentages (0-100). Edit by hand; keep the structure.
+#   verified: pending  -> shown with a dagger and a "pending recomputation" note.
+#   note: "..."       -> a smaller second line under the label.
+#   Delete the line (or set verified: yes) once the value is checked.
+# Keys under each tag match the tags in responses.json.
+
+freq:
+  source: "OUP, *Disclosing AI use in academic research* (Sept 2026, N=2,606)"
+  # Shown as bars beside the room:
+  series:
+    - label: "Arts and humanities"
+      values: {Frequently: 18, Sometimes: 23, Rarely: 23, Never: 35}
+    - label: "Social sciences"
+      values: {Frequently: 36, Sometimes: 29, Rarely: 18, Never: 18}
+    - label: "Science, technology, medicine"   # OUP p. 16
+      values: {Frequently: 35, Sometimes: 32, Rarely: 19, Never: 15}
+
+edit:
+  source: "Nature survey (May 2025, N=5,229)"
+  statistic: "Answered either \"Yes\" option"
+  # Recomputed from the published microdata on 20 Oct 2026 (any "yes" / answered);
+  # Economics and Computing added 21 Oct 2026 by the same method.
+  series:
+    - label: "All respondents"
+      value: 29
+    - label: "Humanities (n=200)"
+      value: 25
+    - label: "Social sciences (n=403)"
+      value: 38
+    - label: "Netherlands (n=59)"
+      value: 39
+    - label: "PhD students (n=754)"
+      value: 42
+    - label: "Economics (n=149)"
+      value: 40
+    - label: "Computing (n=411)"
+      value: 37
+
+draft:
+  source: "Nature survey (May 2025)"
+  statistic: "\"Not appropriate under any circumstances\""
+  series:
+    - label: "All respondents"
+      value: 35
+    - label: "Humanities"
+      value: 48
+    - label: "Social sciences"
+      value: 37
+    - label: "Netherlands"
+      value: 32
+
+discussed:
+  source: "SGSSS, *Generative AI and the social science PhD* (Feb 2026, N=308 UK social-science PhD students)"
+  statistic: "Answered either \"Yes\" (excluding \"Not applicable\")"
+  series:
+    - label: "UK social-science PhD students (SGSSS)"
+      note: "Ever openly talked about generative AI with their supervisory team; coded from an open question"
+      value: 20
+
+worry:
+  source: "Nature Graduate Survey 2025 (~3,800 PhD students, STEM/health)"
+  statistic: "Agree or strongly agree"
+  series:
+    - label: "PhD students, STEM/health (Nature)"
+      note: "Worried AI weakens thinking, research and writing skills (room item reworded 21 Oct)"
+      value: 65
+  secondary:
+    source: "AAC&U/Elon (Jan 2026, N=1,057 US faculty)"
+    series:
+      - label: "US faculty (AAC&U/Elon), different question"
+        note: "Expect diminished student critical thinking"
+        value: 90
+
+future:
+  source: "Gallup Panel, June 2-15, 2025 (N=2,017 US adults, web)"
+  statistic: "\"Just the latest in a long line of technological advancements\""
+  series:
+    - label: "US adults (Gallup)"
+      note: "The other 49% chose \"very different ... threatens to harm humans and society\""
+      value: 49

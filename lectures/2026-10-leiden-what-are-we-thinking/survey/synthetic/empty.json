@@ -1,0 +1,12 @@
+{
+ "survey_id": "SV_synthetic",
+ "exported_utc": "2026-10-21T10:14:03Z",
+ "since": "2026-10-21T08:30:00Z",
+ "n_raw": 0,
+ "excluded": {
+  "preview": 0,
+  "before_cutoff": 0,
+  "unfinished": 0
+ },
+ "rows": []
+}

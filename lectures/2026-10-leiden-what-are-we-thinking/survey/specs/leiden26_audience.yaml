@@ -1,0 +1,156 @@
+# Audience survey for "What Are We Thinking? AI in Research and Supervision", Leiden, 21 October 2026.
+# Toolkit schema: ~/Documents/github/courses/ba3tad-26/instructor-workbench/surveys/specs/.
+# One block = one page. The author adds page breaks by hand in Qualtrics (21 Oct); after that, do not
+# run --push --update again, or the breaks are removed. Nothing is forced. No multi-select items.
+# Borrowed items, wording kept verbatim for comparison: freq (OUP 2026), draft (Nature 2025),
+# edit (Nature 2025, stem shortened by the author on 21 Oct: "Have you done this yourself? That is:" dropped),
+# discussed (SGSSS 2026), future (Gallup June 2025; options verbatim, stem ours). worry is the author's
+# rewording of the Nature Graduate Survey 2025 item (21 Oct), so that comparison is indicative. Extra "I don't do academic research"
+# options on freq and edit are excluded from the denominators in results.py.
+survey:
+  name: leiden26_audience
+  title: "What Are We Thinking? Audience survey, Leiden, 21 October 2026"
+  anonymous: true
+  back_button: true
+
+blocks:
+  - description: "Audience survey"
+    questions:
+      - type: text_block
+        text: "Anonymous, about three minutes. No names or e-mail addresses are collected. Your answers are shown back to the room in aggregate at the end of the seminar and deleted afterwards."
+
+      - type: mc
+        tag: role
+        text: "Your current role"
+        choices:
+          - "PhD candidate"
+          - "Postdoc"
+          - "Lecturer or professor"
+          - "Research or support staff"
+          - "Bachelor's or master's student"
+          - "Other"
+        forced: false
+
+      - type: mc
+        tag: field
+        text: "What is your field of work?"
+        choices:
+          - "Humanities"
+          - "Social sciences"
+          - "Both or in between"
+          - "Other"
+        forced: false
+
+      - type: mc
+        tag: use_general
+        text: "How often do you use AI tools (ChatGPT, Claude, Copilot or similar) in your daily work or study?"
+        choices:
+          - "Frequently"
+          - "Sometimes"
+          - "Rarely"
+          - "Never"
+        forced: false
+
+      - type: mc
+        tag: use_for
+        text: "What do you mostly use AI tools for? (Pick the main one.)"
+        choices:
+          - "Writing and editing"
+          - "Finding and summarizing information"
+          - "Code or data"
+          - "Teaching or supervision"
+          - "Administration and e-mail"
+          - "Something else"
+          - "I don't use them"
+        forced: false
+
+      - type: mc
+        tag: agent
+        text: "Have you used an AI agent: a tool that works in steps on your own files, as opposed to a chatbot?"
+        choices:
+          - "Yes, regularly"
+          - "I have tried one"
+          - "No, but I am curious"
+          - "No"
+        forced: false
+
+      - type: mc
+        tag: freq
+        text: "How often do you use AI tools in your academic research? (Students: in your thesis or coursework.)"
+        choices:
+          - "Frequently"
+          - "Sometimes"
+          - "Rarely"
+          - "Never"
+          - "I don't do academic research"
+        forced: false
+
+      - type: mc
+        tag: edit
+        text: "Have you ever written a draft of a research article, then used generative AI to help edit it?"
+        choices:
+          - "Yes, without disclosing that I used AI"
+          - "Yes, and I disclosed that I used AI"
+          - "No, but I would be willing to"
+          - "No, and I wouldn't consider it"
+          - "I don't do academic research"
+        forced: false
+
+      - type: mc
+        tag: draft
+        text: "Dr. Bloggs asks ChatGPT (or another generative AI tool) to write their research paper, based on some outline points. They use the AI's response as a first draft, edit it, and don't disclose that they used AI. What is your view of this behaviour?"
+        choices:
+          - "It's appropriate"
+          - "It's only appropriate if Dr. Bloggs discloses that they used AI"
+          - "It's only appropriate if Dr. Bloggs discloses details of the prompts they used"
+          - "It's not appropriate under any circumstances"
+        forced: false
+
+      - type: mc
+        tag: discussed
+        text: "Have you ever openly discussed the use of generative AI with your supervisor(s), or with the students or PhD candidates you supervise?"
+        choices:
+          - "Yes, and we have explicit agreements"
+          - "Yes, informally"
+          - "No"
+          - "Not applicable"
+        forced: false
+
+      - type: mc
+        tag: worry
+        text: "I am worried that AI will weaken thinking, research, and writing skills."
+        choices:
+          - "Strongly disagree"
+          - "Disagree"
+          - "Neither agree nor disagree"
+          - "Agree"
+          - "Strongly agree"
+        forced: false
+
+      - type: mc
+        tag: future
+        text: "Which of these comes closer to your view?"
+        choices:
+          - "AI is just the latest in a long line of technological advancements that humans will learn to use to improve their lives and society"
+          - "AI is very different from the technological advancements that came before, and threatens to harm humans and society"
+        forced: false
+
+      - type: te_short
+        tag: never
+        text: "Name one thing in your work you would never hand to AI."
+        forced: false
+
+      - type: te_short
+        tag: automate
+        text: "Name one thing you happily hand to AI."
+        forced: false
+
+      - type: te_short
+        tag: want_self
+        text: "How would you like to use AI in your own work over the next year?"
+        forced: false
+
+      - type: te_short
+        tag: want_supervision
+        text: "And in supervision, as a supervisor or as a student?"
+        forced: false

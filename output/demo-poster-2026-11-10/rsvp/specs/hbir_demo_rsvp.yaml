@@ -1,0 +1,19 @@
+# RSVP for the AI agents demo, 10 November 2026. One question, anonymous, a headcount only.
+survey:
+  name: hbir_demo_rsvp
+  title: "Working with AI Agents demo: RSVP, 10 November 2026"
+  anonymous: true
+  back_button: true
+
+blocks:
+  - description: "RSVP"
+    questions:
+      - type: text_block
+        text: "Working with AI Agents: A Live Demo for Research. Tuesday 10 November 2026, 11:15–12:45, Herta Mohr 0.24. This is anonymous and only helps me plan for numbers."
+      - type: mc
+        tag: coming
+        text: "Are you coming?"
+        choices:
+          - "Yes"
+          - "Maybe"
+        forced: false

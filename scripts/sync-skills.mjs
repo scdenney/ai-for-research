@@ -89,15 +89,18 @@ function parsePageEntries(pageHtml) {
 }
 
 function buildEntryHtml(slug, code, description, codexSlugs) {
-  const both = codexSlugs.has(slug); // a plugin skill also present in the codex catalog
+  // A plugin skill also present in the codex/ catalog. Codex and Google Antigravity
+  // both read that tree, so such a skill runs on all three platforms. The page keeps
+  // data-plat="both" for it: the filter treats "both" as matching every platform.
+  const both = codexSlugs.has(slug);
   const plat = both ? "both" : "claude";
   const badge = both
-    ? '<span class="tag-plat plat-both">both</span>'
+    ? '<span class="tag-plat plat-both">all</span>'
     : '<span class="tag-plat plat-claude">Claude&nbsp;only</span>';
   const cmds = both
-    ? `<code class="cmd">/oss:${slug}</code> <span class="cmd-sep">·</span> <code class="cmd">$${slug}</code>`
+    ? `<code class="cmd">/oss:${slug}</code> <span class="cmd-sep">·</span> <code class="cmd">$${slug}</code> <span class="cmd-sep">·</span> <code class="cmd">/${slug}</code>`
     : `<code class="cmd">/oss:${slug}</code>`;
-  const searchExtra = both ? `$${slug} codex claude both` : "claude only";
+  const searchExtra = both ? `$${slug} /${slug} codex claude antigravity gemini all both` : "claude only";
   const search = `${slug} needs review ${description} /oss:${slug} ${searchExtra}`.toLowerCase().replace(/[`"]/g, "");
   // Markup matches the 2026-07-11 page design: descriptions are always
   // visible (no hidden attribute, no row-toggle button, no aria wiring).
